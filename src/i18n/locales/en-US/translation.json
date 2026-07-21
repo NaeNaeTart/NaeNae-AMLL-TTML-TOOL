@@ -899,7 +899,7 @@
 	"lyrically": {
 		"noLyricsLabel": "No lyrics available for this track.",
 		"previewTitle": "Lyrically — Lyrics Preview",
-		"importTitle": "Import Lyrics safely via Lyrically (No CORS via API endpoint)",
+		"importTitle": "Import Lyrics safely via Lyrically",
 		"editingRawText": "Editing Raw Text",
 		"backToPreview": "Back to Preview",
 		"manualEdit": "Manual Edit",
