@@ -32,8 +32,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { uid } from "uid";
-import { segmentLyricLines } from "$/modules/segmentation/utils/segmentation";
-import { useSegmentationConfig } from "$/modules/segmentation/utils/useSegmentationConfig";
+import { type LyricLine, newLyricWord } from "$/types/ttml";
 import {
 	confirmDialogAtom,
 	importFromLRCLIBDialogAtom,
@@ -45,16 +44,30 @@ import {
 	saveFileNameAtom,
 } from "$/states/main.ts";
 import { error as logError } from "$/utils/logging";
+import { prepareLyricLine } from "$/utils/lyric-prep";
 import { LrcLibApi } from "../api/client";
 import type { LrcLibTrack } from "../types";
 import { convertLrcLibTrackToTTML } from "../utils/converter";
-import { extractParenthesesToBg } from "../utils/extractParenthesesToBg";
 import styles from "./ImportDialog.module.css";
 
 const formatDuration = (seconds: number) => {
 	const m = Math.floor(seconds / 60);
 	const s = Math.floor(seconds % 60);
 	return `${m}:${s.toString().padStart(2, "0")}`;
+};
+
+const processLyricsLine = (line: LyricLine): LyricLine[] => {
+	const output = prepareLyricLine(line.words.map((word) => word.word).join(""));
+	return output.split("\n").filter(Boolean).map((processedLine, index) => {
+		const isBG = processedLine.startsWith("<");
+		const text = processedLine.slice(isBG ? 1 : 0);
+		return {
+			...line,
+			id: index === 0 ? line.id : crypto.randomUUID(),
+			isBG,
+			words: text.split("\\").filter(Boolean).map((word) => ({ ...newLyricWord(), word, startTime: line.startTime, endTime: line.endTime })),
+		};
+	});
 };
 
 export const ImportFromLRCLIB = () => {
@@ -75,9 +88,7 @@ export const ImportFromLRCLIB = () => {
 
 	const [previewTrack, setPreviewTrack] = useState<LrcLibTrack | null>(null);
 
-	const [autoSegment, setAutoSegment] = useState(false);
-	const { config: segmentationConfig } = useSegmentationConfig();
-	const [extractBg, setExtractBg] = useState(false);
+	const [processLyrics, setProcessLyrics] = useState(false);
 
 	const handleSearch = useCallback(async () => {
 		if (!query.trim()) return;
@@ -107,22 +118,10 @@ export const ImportFromLRCLIB = () => {
 			try {
 				let ttmlData = convertLrcLibTrackToTTML(track);
 
-				if (extractBg) {
+				if (processLyrics) {
 					ttmlData = {
 						...ttmlData,
-						lyricLines: ttmlData.lyricLines.flatMap((line) =>
-							extractParenthesesToBg(line),
-						),
-					};
-				}
-
-				if (autoSegment) {
-					ttmlData = {
-						...ttmlData,
-						lyricLines: segmentLyricLines(
-							ttmlData.lyricLines,
-							segmentationConfig,
-						),
+						lyricLines: ttmlData.lyricLines.flatMap(processLyricsLine),
 					};
 				}
 
@@ -150,9 +149,7 @@ export const ImportFromLRCLIB = () => {
 			setSaveFileName,
 			setIsOpen,
 			t,
-			autoSegment,
-			segmentationConfig,
-			extractBg,
+			processLyrics,
 		],
 	);
 
@@ -367,20 +364,10 @@ export const ImportFromLRCLIB = () => {
 						<Text as="label" size="2">
 							<Flex gap="2" align="center">
 								<Checkbox
-									checked={extractBg}
-									onCheckedChange={(c) => setExtractBg(!!c)}
+									checked={processLyrics}
+									onCheckedChange={(c) => setProcessLyrics(!!c)}
 								/>
-								{t("lrclib.extractBg", "提取括号内容为背景人声")}
-							</Flex>
-						</Text>
-
-						<Text as="label" size="2">
-							<Flex gap="2" align="center">
-								<Checkbox
-									checked={autoSegment}
-									onCheckedChange={(c) => setAutoSegment(!!c)}
-								/>
-								{t("lrclib.autoSegment", "自动分词")}
+								{t("textImportDialog.processLyrics", "Process Lyrics")}
 							</Flex>
 						</Text>
 

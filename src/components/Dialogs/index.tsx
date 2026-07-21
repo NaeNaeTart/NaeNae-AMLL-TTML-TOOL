@@ -5,6 +5,7 @@ import { ImportFromLRCLIB } from "$/modules/lrclib/modals/ImportDialog.tsx";
 import { LyricallyImportDialog } from "$/modules/lyrically/modals/LyricallyImportDialog.tsx";
 import { ReplaceWordDialog } from "$/modules/lyric-editor/tools/ReplaceWordDialog.tsx";
 import { TimeShiftDialog } from "$/modules/lyric-editor/tools/TimeShift.tsx";
+import { TimeStretchDialog } from "$/modules/lyric-editor/tools/TimeStretch.tsx";
 import { GrammarCheckDialog } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 
 import { HistoryRestoreDialog } from "$/modules/project/modals/HistoryRestore.tsx";
@@ -40,6 +41,7 @@ export const Dialogs = () => {
 			<HistoryRestoreDialog />
 			<AdvancedSegmentationDialog />
 			<TimeShiftDialog />
+			<TimeStretchDialog />
 			<GrammarCheckDialog />
 
 			<GeniusSearchDialog />

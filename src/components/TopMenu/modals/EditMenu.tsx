@@ -64,6 +64,9 @@ const EditMenuItems = () => {
 			<DropdownMenu.Item onSelect={menu.onOpenTimeShift}>
 				{t("topBar.menu.timeShift", "平移时间...")}
 			</DropdownMenu.Item>
+			<DropdownMenu.Item onSelect={menu.onOpenTimeStretch}>
+				{t("topBar.menu.timeStretch", "时间伸缩...")}
+			</DropdownMenu.Item>
 			<DropdownMenu.Item onSelect={menu.onOpenMetadataEditor}>
 				<Trans i18nKey="topBar.menu.editMetadata">编辑歌词元数据</Trans>
 			</DropdownMenu.Item>

@@ -10,6 +10,7 @@ export const splitWordDialogAtom = atom(false);
 export const replaceWordDialogAtom = atom(false);
 export const advancedSegmentationDialogAtom = atom(false);
 export const timeShiftDialogAtom = atom(false);
+export const timeStretchDialogAtom = atom(false);
 export const lineSpectrogramDialogAtom = atom<{
 	open: boolean;
 	lineId?: string;

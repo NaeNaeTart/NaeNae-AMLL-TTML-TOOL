@@ -403,6 +403,7 @@
 			"invertSelectAllLines": "反向选择所有行",
 			"selectWordsOfMatchedSelection": "选择匹配的单词",
 			"timeShift": "时间平移...",
+			"timeStretch": "时间伸缩...",
 			"editMetadata": "编辑歌词元数据...",
 			"edit": "编辑",
 			"newLyric": "新建歌词",
@@ -821,6 +822,21 @@
 		"fromLine": "从第",
 		"toLine": "行到第",
 		"line": ""
+	},
+	"timeStretchDialog": {
+		"title": "时间伸缩",
+		"description": "拉伸或压缩所有 TTML 时间戳，使其适配新的歌曲时长。",
+		"oldDuration": "原歌曲时长",
+		"newDuration": "新歌曲时长",
+		"durationPlaceholder": "MM:SS.mmm 或秒数",
+		"useCurrentSong": "使用当前歌曲",
+		"chooseAudio": "选择目标音频...",
+		"readingAudio": "正在读取音频...",
+		"audioReadError": "无法读取所选音频文件的时长。",
+		"invalidDuration": "请输入有效的时长。",
+		"positiveDuration": "时长必须大于零。",
+		"noChange": "两个时长相同，无需更改时间。",
+		"scaleFactor": "缩放倍数：{factor}×"
 	},
 	"lyrically": {
 		"noLyricsLabel": "此曲目没有可用的歌词。",

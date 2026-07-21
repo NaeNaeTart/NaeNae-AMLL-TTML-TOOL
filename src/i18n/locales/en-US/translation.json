@@ -448,6 +448,7 @@
 			"invertSelectAllLines": "Invert line selections",
 			"selectWordsOfMatchedSelection": "Select words matching selection",
 			"timeShift": "Time Shift...",
+			"timeStretch": "Time Stretch...",
 			"editMetadata": "Edit lyrics metadata…",
 			"edit": "Edit",
 			"newLyric": "New lyrics",
@@ -879,6 +880,21 @@
 		"toLine": "to line",
 		"line": "",
 		"snapToPlayhead": "Snap start of affected lines to current playback time"
+	},
+	"timeStretchDialog": {
+		"title": "Time Stretch",
+		"description": "Stretch or squeeze every TTML timestamp to fit a new song duration.",
+		"oldDuration": "Old song duration",
+		"newDuration": "New song duration",
+		"durationPlaceholder": "MM:SS.mmm or seconds",
+		"useCurrentSong": "Use current song",
+		"chooseAudio": "Upload audio...",
+		"readingAudio": "Reading audio...",
+		"audioReadError": "Could not read the selected audio file duration.",
+		"invalidDuration": "Enter a valid duration.",
+		"positiveDuration": "Duration must be greater than zero.",
+		"noChange": "The durations match; no timing change is needed.",
+		"scaleFactor": "Scale factor: {factor}×"
 	},
 	"lyrically": {
 		"noLyricsLabel": "No lyrics available for this track.",

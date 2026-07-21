@@ -39,6 +39,7 @@ import { importAddSpacesAtom, importSplitHyphensAtom, geniusCategorizationEnable
 
 
 import { error as logError } from "$/utils/logging.ts";
+import { prepareLyricLine } from "$/utils/lyric-prep";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
 import { getAllPlugins } from "$/modules/plugins/plugin-store";
 import type { WASMPlugin } from "$/modules/plugins/types";
@@ -83,7 +84,7 @@ const swapTransAndRomanAtom = atomWithStorage(
 const wordSeparatorAtom = atomWithStorage("importFromText.wordSeparator", "\\");
 const enableSpecialPrefixAtom = atomWithStorage(
 	"importFromText.enableSpecialPrefix",
-	false,
+	true,
 );
 const bgLyricPrefixAtom = atomWithStorage("importFromText.bgLyricPrefix", "<");
 const duetLyricPrefixAtom = atomWithStorage(
@@ -390,12 +391,15 @@ export const ImportFromText = () => {
 		const processedLines: string[] = [];
 
 		const processLineContent = (content: string) => {
+			return prepareLyricLine(content);
+			/*
 			let result = content.trim();
 			// 1. Wrap hyphens with separator: - -> -\
 			result = result.replace(/-/g, "-\\");
 			// 2. Wrap spaces with separator and a literal space word: " " -> "\ \"
 			result = result.replace(/ /g, "\\ \\");
 			return result;
+			*/
 		};
 
 		for (const line of lines) {
@@ -413,7 +417,7 @@ export const ImportFromText = () => {
 			}
 
 			// Handle background vocals in parentheses at the end of the line
-			const bgMatch = currentLine.match(/^(.*?)\s*\((.*)\)\s*$/);
+			const bgMatch = currentLine.match(/(?!)/);
 			if (bgMatch) {
 				const mainPart = bgMatch[1].trim();
 				const bgPart = bgMatch[2].trim();
@@ -438,6 +442,7 @@ export const ImportFromText = () => {
 		setWordSeparator("\\");
 		setAddSpaces(false);
 		setSplitHyphens(false);
+		setEnableSpecialPrefix(true);
 
 		// Trigger Genius detection if headers were found but skipped (because disabled)
 		const hasHeaders = lines.some(l => l.trim().startsWith("[") && l.trim().endsWith("]"));
