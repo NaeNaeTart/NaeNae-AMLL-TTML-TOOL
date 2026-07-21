@@ -253,6 +253,11 @@ function App() {
 	const toolMode = useAtomValue(toolModeAtom);
 	const showTouchSyncPanel = useAtomValue(showTouchSyncPanelAtom);
 	const showPreviewPanel = useAtomValue(showPreviewPanelAtom);
+	// Preview mode already owns the entire editor area. Keep the sync preview
+	// pane's setting intact for when the user returns, but never render a second
+	// preview beside it.
+	const previewPanelVisible =
+		showPreviewPanel && toolMode !== ToolMode.Preview;
 	const customBackgroundImage = useAtomValue(customBackgroundImageAtom);
 	const customBackgroundOpacity = useAtomValue(customBackgroundOpacityAtom);
 	const customBackgroundMask = useAtomValue(customBackgroundMaskAtom);
@@ -702,7 +707,7 @@ function App() {
 							if (id === "editor") {
 								const editorContent = (
 									<Box flexGrow="1" overflow="hidden" key="editor-content">
-										{showPreviewPanel ? (
+										{previewPanelVisible ? (
 											<Flex height="100%" gap="2" p="2">
 												<Box flexGrow="1" overflow="hidden">
 													<AnimatePresence mode="wait">

@@ -20,6 +20,7 @@
 		"@applemusic-like-lyrics/react": "0.2.0",
 		"@ffmpeg/ffmpeg": "^0.12.15",
 		"@ffmpeg/util": "^0.12.2",
+		"@kawarp/core": "^1.2.0",
 		"@pixi/app": "^7.4.3",
 		"@pixi/core": "^7.4.3",
 		"@pixi/display": "^7.4.3",

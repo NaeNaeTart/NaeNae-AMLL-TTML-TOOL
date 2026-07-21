@@ -120,6 +120,14 @@ export class AudioWorkerClient {
 		}
 	}
 
+	public readMetadata(file: File | Blob) {
+		const fileObj =
+			file instanceof File
+				? file
+				: new File([file], "audio.bin", { type: file.type });
+		return this.postRequest("READ_METADATA", { file: fileObj });
+	}
+
 	public terminate() {
 		this.worker.terminate();
 		for (const [_, pending] of this.pendingRequests) {

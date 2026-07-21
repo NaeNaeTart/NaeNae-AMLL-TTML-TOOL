@@ -47,7 +47,16 @@ export const ResizablePanel: FC<ResizablePanelProps> = ({
 	);
 
 	return (
-		<div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
+		<div
+			style={{
+				display: "flex",
+				width: `${width + 8}px`,
+				minWidth: 0,
+				flex: "0 0 auto",
+				height: "100%",
+				overflow: "hidden",
+			}}
+		>
 			<div
 				onMouseDown={handleMouseDown}
 				style={{

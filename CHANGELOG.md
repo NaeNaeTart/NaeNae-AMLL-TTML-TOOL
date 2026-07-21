@@ -2,23 +2,43 @@
 
 All notable changes to the AMLL TTML Tool are documented here.
 
+## [0.6.0] - 2026-07-21
+
+### ✨ New Features
+
+- **Spicy Lyrics Preview Mode**: Added a high-fidelity Spicy Lyrics renderer with its dedicated SF Pro-derived font; animated/custom/cover-art backgrounds; karaoke, Simple Lyrics, and line-synced rendering; interlude dots; RTL and duet-aware layout; CJK/romanized word wrapping; automatic scrolling; and an optional FPS counter.
+- **Timing Stretch**: Added a TTML timing-stretch tool that can import audio duration and scale lyric timing to match it.
+- **Unified Lyrics Import**: Consolidated text, LRCLIB, Lyrically, and Genius imports behind one workflow with shared lyric preparation, replacement confirmation, and consistent handling of punctuation, CJK/Latin boundaries, word separators, and background vocals.
+- **Genius Sections & Credits**: Restored Genius section headers as editor metadata, added automatic header restoration/categorization, improved section-wide timing actions, and resolve songwriter credits to real names by default.
+- **Advanced Appearance**: Added Genius header color customization with presets and theme-accent fallback.
+
+### 🐛 Bug Fixes
+
+- **Preview Layout**: Fixed the Time-mode preview pane being pushed off-screen after its contents loaded, and hide the side preview pane when the full Preview screen is active.
+- **Genius Import**: Switched Genius fetching to its CORS-enabled embed endpoint, fixed header categorization, and cleaned up parsed newlines and import-dialog crashes.
+
+### 🛠️ Maintenance & Infrastructure
+
+- **Tauri CI**: Repaired the GitHub Actions build key configuration.
+
 ---
-6: 
+
+6:
 7: ## [0.5.0] - 2026-05-01
-8: 
+8:
 9: ### ✨ New Features
-10: 
+10:
 11: - **Snap to Playhead**: Added a new "Snap to Playhead" tool in the Time Shift toolbar. This allows for instant synchronization by moving the start of affected lyric lines to the current audio playback position with a single click.
 12: - **Enhanced Lyric Line Context Menu**: Added a "Move line to playhead" action to the right-click menu, providing a quick way to align individual lines without opening the full toolbar.
-13: 
+13:
 14: ### 🛠️ Maintenance & Infrastructure
-15: 
+15:
 16: - **Project Migration**: Successfully migrated the repository from legacy locations to the new primary home at `NaeNaeTart/NaeNae-AMLL-TTML-TOOL`.
 17: - **Global Repository Link Update**: Standardized all internal and external links, including documentation, about dialogs, and configuration files, to point to the new repository.
 18: - **License Header Standardization**: Executed a global update of license headers across the entire codebase to ensure consistent compliance with the GPL-3.0 license.
 19: - **Repository Cleanup**: Removed redundant `package-lock.json`, legacy workspace files, and temporary build logs to keep the repository clean and optimized for `pnpm`.
 20: - **Improved .gitignore**: Updated exclusion rules to handle modern editor workspace files and temporary development directories.
-21: 
+21:
 22: ---
 
 ## [0.4.2] - 2026-04-22
