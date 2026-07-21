@@ -42,6 +42,7 @@ import {
 } from "$/states/main.ts";
 import type { LyricLine, LyricWord } from "$/types/ttml.ts";
 import { prepareLyricLine } from "$/utils/lyric-prep";
+import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
 
 type ImportSource = "lyrically" | "genius" | "lrclib";
 
@@ -337,9 +338,13 @@ export const ImportLyricsDialog = ({
 
 		if (processLyrics) {
 			let geniusHeader: string | undefined;
-			const processedLines: LyricLine[] = lines.map((lineText) => {
-				if (categorizeGeniusHeaders && /^\[.+\]$/.test(lineText))
-					geniusHeader = lineText;
+			const processedLines: LyricLine[] = [];
+			for (const lineText of lines) {
+				const header = categorizeGeniusHeaders ? getGeniusHeader(lineText) : undefined;
+				if (header) {
+					geniusHeader = header;
+					continue;
+				}
 				const isBG = lineText.startsWith("<");
 				const words: LyricWord[] = lineText
 					.slice(isBG ? 1 : 0)
@@ -354,7 +359,7 @@ export const ImportLyricsDialog = ({
 						obscene: false,
 						romanWord: "",
 					}));
-				return {
+				processedLines.push({
 					id: uid(),
 					words,
 					startTime: 0,
@@ -365,8 +370,8 @@ export const ImportLyricsDialog = ({
 					translatedLyric: "",
 					romanLyric: "",
 					geniusHeader,
-				};
-			});
+				});
+			}
 
 			setLyricLines((prev) => {
 				prev.lyricLines = processedLines;
@@ -397,8 +402,11 @@ export const ImportLyricsDialog = ({
 		let geniusHeader: string | undefined;
 
 		for (const lineText of lines) {
-			if (categorizeGeniusHeaders && /^\[.+\]$/.test(lineText))
-				geniusHeader = lineText;
+			const header = categorizeGeniusHeaders ? getGeniusHeader(lineText) : undefined;
+			if (header) {
+				geniusHeader = header;
+				continue;
+			}
 			const parts = [lineText];
 
 			for (const part of parts) {
