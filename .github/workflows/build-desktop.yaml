@@ -84,15 +84,6 @@ jobs:
         with:
           version: "15"
 
-      - name: "macOS: Verify DMG tools"
-        if: matrix.platform == 'macos-latest'
-        run: which hdiutil
-
-      - name: "macOS: Fix bundle_dmg.sh permissions"
-        if: matrix.platform == 'macos-latest'
-        run: |
-          find src-tauri/target -name "bundle_dmg.sh" -type f -exec chmod +x {} \;
-
       - name: 安装 Tauri 所需系统依赖（仅 Linux）
         if: matrix.platform == 'ubuntu-latest'
         run: |
