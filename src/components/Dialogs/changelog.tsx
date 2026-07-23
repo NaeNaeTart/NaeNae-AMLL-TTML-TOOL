@@ -38,6 +38,48 @@ export function ChangelogDialog() {
 				<ScrollArea type="always" scrollbars="vertical" style={{ height: "calc(100% - 60px)" }}>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="ruby">v0.7 Updates (Spicy Lyrics, Imports & Timing)</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Spicy Lyrics Preview Mode:</strong> Added a high-fidelity Spicy Lyrics renderer with its dedicated SF Pro-derived font; animated, custom, and cover-art backgrounds; karaoke, Simple Lyrics, and line-synced rendering; interlude dots; RTL- and duet-aware layouts; CJK/romanized word wrapping; automatic scrolling; and an optional FPS counter.
+								</Text>
+								<Text size="2">
+									<strong>Timing Stretch:</strong> Added a TTML timing-stretch tool that can import audio duration and scale lyric timing to match it.
+								</Text>
+								<Text size="2">
+									<strong>Unified Lyrics Import:</strong> Consolidated text, LRCLIB, Lyrically, and Genius imports into one workflow with shared lyric preparation, replacement confirmation, and consistent punctuation, CJK/Latin boundary, word-separator, and background-vocal handling.
+								</Text>
+								<Text size="2">
+									<strong>Genius Header Categorization &amp; Section Tools:</strong> Preserve bracketed Genius headers such as <code>[Chorus]</code> and <code>[Verse]</code> as section metadata instead of lyric lines. Sections are visually grouped and color-coded by type, with a customizable header-color override; unrecognized headers use the theme accent. Sync actions can snap an entire section to the playhead or copy timing from a previous matching section.
+								</Text>
+								<Text size="2">
+									<strong>Backup System:</strong> Added a new backup system to help protect project data and simplify recovery.
+								</Text>
+								<Text size="2">
+									<strong>Preview Layout Fixes:</strong> Fixed the Time-mode preview pane being pushed off-screen after its contents loaded, and hide the side preview pane when the full Preview screen is active.
+								</Text>
+								<Text size="2">
+									<strong>Genius Import Fixes:</strong> Switched Genius fetching to its CORS-enabled embed endpoint and cleaned up parsed newlines and import-dialog crashes.
+								</Text>
+								<Text size="2">
+									<strong>Tauri CI:</strong> Repaired the GitHub Actions build key configuration.
+								</Text>
+							</Flex>
+						</Box>
+
+						<Box>
+							<Heading size="4" mb="2" color="violet">v0.6.7 Updates (Bouncy Word Indicator)</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Bouncy Indicator:</strong> Words in the Sync view that qualify as long-duration syllables now display a small animated bouncing dot beneath them. A word qualifies when its letter count is 12 or fewer <em>and</em> its duration meets the threshold <code>1000 + (letterLength - 1) × 25</code> ms — helping you instantly spot held or sustained syllables that may need extra timing attention.
+								</Text>
+								<Text size="2">
+									<strong>Zero Performance Cost:</strong> The indicator is driven purely by CSS keyframe animation with no runtime subscriptions or re-renders. It appears only in Sync mode and is invisible during playback active state, keeping the editing surface clean.
+								</Text>
+							</Flex>
+						</Box>
+
+						<Box>
 							<Heading size="4" mb="2" color="ruby">v0.6.6 Updates (Preview Stability & Toxi Fixes)</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
