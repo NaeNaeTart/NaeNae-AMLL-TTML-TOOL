@@ -337,6 +337,40 @@
 			"mp3ConversionAlways": "自动",
 			"mp3ConversionNever": "关闭"
 		},
+    "backup": {
+      "category": {
+        "settings": "Settings",
+        "keybindings": "Keybindings",
+        "assets": "Appearance assets",
+        "projects": "Projects & history",
+        "plugins": "Plugins"
+      },
+      "hint": {
+        "settings": "{count} stored values",
+        "keybindings": "{count} keybindings",
+        "assetsSet": "Custom background image set",
+        "assetsNone": "No custom background image",
+        "projects": "{count} projects",
+        "plugins": "{count} plugins"
+      },
+      "exportSuccess": "Backup exported",
+      "exportFailed": "Failed to export backup",
+      "newerVersion": "This backup was created by a newer version of the app",
+      "invalidFile": "Invalid or corrupted backup file",
+      "importSuccess": "Backup imported, reloading…",
+      "importFailed": "Failed to import backup. Some data may have been partially applied.",
+      "exportTitle": "Export",
+      "exportDesc": "Save your settings and data to a file you can restore later or move to another device.",
+      "exportButton": "Export backup",
+      "importTitle": "Import",
+      "importDesc": "Restore settings and data from a backup file. Existing values will be replaced.",
+      "importButton": "Choose backup file…",
+      "confirmTitle": "Confirm import",
+      "exportedAt": "Exported",
+      "confirmReplaceWarning": "Imported values will replace your current ones. The app will reload after importing.",
+      "cancelButton": "Cancel",
+      "applyButton": "Import & reload"
+    },
 		"dev": {
 			"wasmPlugins": {
 				"title": "社区插件系统 (WASM)",
@@ -369,6 +403,7 @@
 			"invertSelectAllLines": "反向选择所有行",
 			"selectWordsOfMatchedSelection": "选择匹配的单词",
 			"timeShift": "时间平移...",
+			"timeStretch": "时间伸缩...",
 			"editMetadata": "编辑歌词元数据...",
 			"edit": "编辑",
 			"newLyric": "新建歌词",
@@ -679,6 +714,20 @@
 			"full": "完整 TTML 指南"
 		}
 	},
+	"experimentalFeatures": {
+		"title": "实验性功能",
+		"description": "这些功能目前正在开发中，可能不稳定。请谨慎使用。",
+		"geniusCategorization": {
+			"title": "Genius 歌词分段分类",
+			"description": "自动检测并分类 Genius 风格的分段标题（如 [Chorus]）。提供复制先前时间轴和吸附到播放头等工具。",
+			"dialogTitle": "检测到 Genius 分段标题！",
+			"dialogDesc": "我们在您的歌词中检测到了分段标题。您是否要启用实验性的“Genius 歌词分段分类”功能来优化您的工作流程？",
+			"usageInfo": "启用后，分段标题将在编辑器中以不同的样式显示。您可以点击它们来使用“复制先前时间轴”和“吸附到播放头”等专门工具。",
+			"maybeLater": "稍后再说",
+			"enableNow": "立即启用",
+			"headersRestored": "分段标题已恢复。"
+		}
+	},
 	"lrclib": {
 		"placeholder": "标题 艺术家...",
 		"notFound": "未找到结果，请尝试不同的关键词",
@@ -773,6 +822,21 @@
 		"fromLine": "从第",
 		"toLine": "行到第",
 		"line": ""
+	},
+	"timeStretchDialog": {
+		"title": "时间伸缩",
+		"description": "拉伸或压缩所有 TTML 时间戳，使其适配新的歌曲时长。",
+		"oldDuration": "原歌曲时长",
+		"newDuration": "新歌曲时长",
+		"durationPlaceholder": "MM:SS.mmm 或秒数",
+		"useCurrentSong": "使用当前歌曲",
+		"chooseAudio": "选择目标音频...",
+		"readingAudio": "正在读取音频...",
+		"audioReadError": "无法读取所选音频文件的时长。",
+		"invalidDuration": "请输入有效的时长。",
+		"positiveDuration": "时长必须大于零。",
+		"noChange": "两个时长相同，无需更改时间。",
+		"scaleFactor": "缩放倍数：{factor}×"
 	},
 	"lyrically": {
 		"noLyricsLabel": "此曲目没有可用的歌词。",

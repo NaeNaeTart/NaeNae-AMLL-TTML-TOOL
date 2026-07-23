@@ -377,7 +377,41 @@
 			"mp3ConversionAsk": "Ask",
 			"mp3ConversionAlways": "Auto",
 			"mp3ConversionNever": "Off"
-		},
+    },
+    "backup": {
+      "category": {
+        "settings": "Settings",
+        "keybindings": "Keybindings",
+        "assets": "Appearance assets",
+        "projects": "Projects & history",
+        "plugins": "Plugins"
+      },
+      "hint": {
+        "settings": "{count} stored values",
+        "keybindings": "{count} keybindings",
+        "assetsSet": "Custom background image set",
+        "assetsNone": "No custom background image",
+        "projects": "{count} projects",
+        "plugins": "{count} plugins"
+      },
+      "exportSuccess": "Backup exported",
+      "exportFailed": "Failed to export backup",
+      "newerVersion": "This backup was created by a newer version of the app",
+      "invalidFile": "Invalid or corrupted backup file",
+      "importSuccess": "Backup imported, reloading…",
+      "importFailed": "Failed to import backup. Some data may have been partially applied.",
+      "exportTitle": "Export",
+      "exportDesc": "Save your settings and data to a file you can restore later or move to another device.",
+      "exportButton": "Export backup",
+      "importTitle": "Import",
+      "importDesc": "Restore settings and data from a backup file. Existing values will be replaced.",
+      "importButton": "Choose backup file…",
+      "confirmTitle": "Confirm import",
+      "exportedAt": "Exported",
+      "confirmReplaceWarning": "Imported values will replace your current ones. The app will reload after importing.",
+      "cancelButton": "Cancel",
+      "applyButton": "Import & reload"
+    },
 		"dev": {
 			"wasmPlugins": {
 				"title": "Community Plugin System (WASM)",
@@ -414,6 +448,7 @@
 			"invertSelectAllLines": "Invert line selections",
 			"selectWordsOfMatchedSelection": "Select words matching selection",
 			"timeShift": "Time Shift...",
+			"timeStretch": "Time Stretch...",
 			"editMetadata": "Edit lyrics metadata…",
 			"edit": "Edit",
 			"newLyric": "New lyrics",
@@ -731,6 +766,20 @@
 			"full": "Full TTML Guide"
 		}
 	},
+	"experimentalFeatures": {
+		"title": "Experimental Features",
+		"description": "These features are currently in development and may be unstable. Use with caution.",
+		"geniusCategorization": {
+			"title": "Genius Header Categorization",
+			"description": "Automatically detect and categorize Genius-style section headers (e.g., [Chorus]). Provides tools to copy previous timings and snap to playhead.",
+			"dialogTitle": "Genius Headers Detected!",
+			"dialogDesc": "We've detected section headers in your lyrics. Would you like to enable the experimental 'Genius Header Categorization' feature to help with your workflow?",
+			"usageInfo": "Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.",
+			"maybeLater": "Maybe Later",
+			"enableNow": "Enable Now",
+			"headersRestored": "Section headers restored."
+		}
+	},
 	"lrclib": {
 		"placeholder": "Title Artist...",
 		"notFound": "No results found, please try different keywords",
@@ -832,10 +881,25 @@
 		"line": "",
 		"snapToPlayhead": "Snap start of affected lines to current playback time"
 	},
+	"timeStretchDialog": {
+		"title": "Time Stretch",
+		"description": "Stretch or squeeze every TTML timestamp to fit a new song duration.",
+		"oldDuration": "Old song duration",
+		"newDuration": "New song duration",
+		"durationPlaceholder": "MM:SS.mmm or seconds",
+		"useCurrentSong": "Use current song",
+		"chooseAudio": "Upload audio...",
+		"readingAudio": "Reading audio...",
+		"audioReadError": "Could not read the selected audio file duration.",
+		"invalidDuration": "Enter a valid duration.",
+		"positiveDuration": "Duration must be greater than zero.",
+		"noChange": "The durations match; no timing change is needed.",
+		"scaleFactor": "Scale factor: {factor}×"
+	},
 	"lyrically": {
 		"noLyricsLabel": "No lyrics available for this track.",
 		"previewTitle": "Lyrically — Lyrics Preview",
-		"importTitle": "Import Lyrics safely via Lyrically (No CORS via API endpoint)",
+		"importTitle": "Import Lyrics safely via Lyrically",
 		"editingRawText": "Editing Raw Text",
 		"backToPreview": "Back to Preview",
 		"manualEdit": "Manual Edit",

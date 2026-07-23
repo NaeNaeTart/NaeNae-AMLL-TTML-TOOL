@@ -49,6 +49,7 @@ import {
 	showWordRomanizationInputAtom,
 	compactBGInSyncAtom,
 	geniusCategorizationEnabledAtom,
+	advGeniusHeaderColorAtom,
 } from "$/modules/settings/states/index.ts";
 import {
 	syncLevelModeAtom,
@@ -66,6 +67,11 @@ import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml.ts";
 import { msToTimestamp } from "$/utils/timestamp.ts";
 import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import { getSynchronizableUnits } from "../utils/lyric-states.ts";
+import {
+	copySectionTimings,
+	findPreviousMatchingSection,
+	shiftSectionToTime,
+} from "../utils/genius-sections.ts";
 import styles from "./index.module.css";
 import { draggingIdAtom, globalEnableInsertAtom } from "./lyric-line-view-states.ts";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
@@ -108,13 +114,11 @@ const lineDisplayNumbersAtom = atom((get) => {
 	const displayNumbers: number[] = [];
 	let currentNumber = 0;
 
-	const categorizationEnabled = get(geniusCategorizationEnabledAtom);
 	for (const [index, line] of lyricLines.entries()) {
-		const isHeader = categorizationEnabled && /^\[\s*(Chorus|Verse|Bridge|Intro|Outro|Pre-Chorus|Hook|Strofa|Refren|Skit|Interlude|Instrumental|Pre-Refren|Partea|Slofa|Section|Part|S\d+|V\d+|C\d+|Strophe|Refrain|Pont|Couplet|Refrain|Break)[\s\S]*?\]$/i.test(line.words.map(w => w.word).join(" "));
-		if (!isHeader && (!index || !line.isBG)) {
+		if (!index || !line.isBG) {
 			currentNumber++;
 		}
-		displayNumbers.push(isHeader ? 0 : currentNumber);
+		displayNumbers.push(currentNumber);
 	}
 
 	return displayNumbers;
@@ -360,18 +364,18 @@ export const LyricLineView: FC<{
 	const toolMode = useAtomValue(toolModeAtom);
 	const syncLevelMode = useAtomValue(syncLevelModeAtom);
 	const store = useStore();
+	const geniusCategorizationEnabled = useAtomValue(geniusCategorizationEnabledAtom);
 
-	const activeGeniusHeader = useMemo(() => {
-		if (!store.get(geniusCategorizationEnabledAtom)) return null;
-		return line.geniusHeader;
-	}, [line.geniusHeader, store]);
+	const activeGeniusHeader = geniusCategorizationEnabled ? line.geniusHeader : undefined;
+
+	const customHeaderColor = useAtomValue(advGeniusHeaderColorAtom);
 
 	const headerType = useMemo(() => {
-		if (!activeGeniusHeader) return "iris";
+		if (!activeGeniusHeader) return "accent";
 		const match = activeGeniusHeader.match(
 			/^\[(Chorus|Verse|Bridge|Intro|Outro|Pre-Chorus|Hook|Strofa|Refren|Skit|Interlude|Instrumental|Pre-Refren|Partea|Slofa|Section|Part|S\d+|V\d+|C\d+|Strophe|Refrain|Pont|Couplet|Refrain|Break).*?\]$/i,
 		);
-		return match ? match[1].toLowerCase() : "iris";
+		return match ? match[1].toLowerCase() : "accent";
 	}, [activeGeniusHeader]);
 
 	const isSectionStart = useMemo(() => {
@@ -381,18 +385,13 @@ export const LyricLineView: FC<{
 		return prevLine?.geniusHeader !== activeGeniusHeader;
 	}, [activeGeniusHeader, lineIndex, store]);
 
-	const isHeaderLine = useMemo(() => {
-		if (!store.get(geniusCategorizationEnabledAtom)) return false;
-		return /^\[\s*(Chorus|Verse|Bridge|Intro|Outro|Pre-Chorus|Hook|Strofa|Refren|Skit|Interlude|Instrumental|Pre-Refren|Partea|Slofa|Section|Part|S\d+|V\d+|C\d+|Strophe|Refrain|Pont|Couplet|Refrain|Break)[\s\S]*?\]$/i.test(line.words.map(w => w.word).join(" "));
-	}, [line.words, store]);
-
 	const categoryColor = useMemo(() => {
-		if (!headerType) return "iris";
+		if (!headerType) return "accent";
 		if (headerType.includes("chorus") || headerType.includes("refren") || headerType.includes("refrain")) return "pink";
 		if (headerType.includes("verse") || headerType.includes("strofa") || headerType.includes("couplet")) return "blue";
 		if (headerType.includes("bridge")) return "orange";
 		if (headerType.includes("intro") || headerType.includes("outro") || headerType.includes("skit") || headerType.includes("interlude")) return "gray";
-		return "iris";
+		return "accent";
 	}, [headerType]);
 
 	const wordsContainerRef = useRef<HTMLDivElement>(null);
@@ -607,7 +606,7 @@ export const LyricLineView: FC<{
 					editingRomanWordIndex={editingRomanWordIndex}
 				/>
 			)}
-			{enableInsert && !isHeaderLine && (
+			{enableInsert && (
 				<InsertLineButton
 					lineIndex={lineIndex}
 					selectedLinesCountAtom={selectedLinesCountAtom}
@@ -641,18 +640,7 @@ export const LyricLineView: FC<{
 						gapX="4"
 						draggable={toolMode === ToolMode.Edit}
 						style={{
-							...(isHeaderLine ? {
-								backgroundColor: `var(--${categoryColor}-2)`,
-								borderLeft: `3px solid var(--${categoryColor}-9)`,
-								paddingLeft: "12px",
-								boxShadow: "none",
-								borderTop: "none",
-								borderRight: "none",
-								borderBottom: "none",
-								borderRadius: "0",
-								marginTop: "16px",
-								marginBottom: "8px",
-							} : {})
+							...(isSectionStart ? { marginTop: "16px" } : {}),
 						}}
 						onPointerDown={(evt) => {
 							blockDragRef.current =
@@ -796,8 +784,7 @@ export const LyricLineView: FC<{
 						asChild
 					><div
 						>
-							{!isHeaderLine && (
-								<Flex
+							<Flex
 									direction="column"
 									align="center"
 									justify="center"
@@ -816,8 +803,7 @@ export const LyricLineView: FC<{
 									</Text>
 									{line.isBG && <VideoBackgroundEffectFilled color="var(--accent-9)" />}
 									{line.isDuet && <TextAlignRightFilled color="#44AA33" />}
-								</Flex>
-							)}
+							</Flex>
 							<div
 								className={classNames(
 									styles.lyricLineContainer,
@@ -830,74 +816,56 @@ export const LyricLineView: FC<{
 										<Text
 											size="1"
 											weight="bold"
-											color={categoryColor as any}
-											style={{ opacity: 0.8, textTransform: "uppercase" }}
+											color={customHeaderColor ? undefined : (categoryColor as any)}
+											style={{ 
+												opacity: 0.8, 
+												textTransform: "uppercase",
+												color: customHeaderColor || undefined
+											}}
 										>
 											{activeGeniusHeader}
 										</Text>
-										<Button
+										{toolMode === ToolMode.Sync && (
+											<Button
 											size="1"
 											variant="ghost"
 											onClick={(e) => {
 												e.stopPropagation();
 												const currentTime = store.get(currentTimeAtom);
 												editLyricLines((state) => {
-													const targetLine = state.lyricLines[lineIndex];
-													const duration = targetLine.endTime - targetLine.startTime;
-													targetLine.startTime = currentTime;
-													targetLine.endTime = currentTime + (duration > 0 ? duration : 2000);
-													
-													// Update words proportionally or just set them
-													if (targetLine.words.length > 0) {
-														let currentWordTime = targetLine.startTime;
-														const wordDuration = (targetLine.endTime - targetLine.startTime) / targetLine.words.length;
-														for (const word of targetLine.words) {
-															word.startTime = currentWordTime;
-															word.endTime = currentWordTime + wordDuration;
-															currentWordTime += wordDuration;
-														}
-													}
+													shiftSectionToTime(state.lyricLines, lineIndex, currentTime);
 												});
 											}}
 										>
 											{t("experimentalFeatures.geniusCategorization.snapToPlayhead", "Snap to Playhead")}
-										</Button>
-										<Button
+											</Button>
+										)}
+										{toolMode === ToolMode.Sync && (
+											<Button
 											size="1"
 											variant="ghost"
 											onClick={(e) => {
 												e.stopPropagation();
-												const currentHeader = activeGeniusHeader;
 												const lyricLines = store.get(lyricLinesAtom).lyricLines;
-												let prevLine = null;
-												for (let i = lineIndex - 1; i >= 0; i--) {
-													const isPrevSectionStart = i === 0 || lyricLines[i - 1].geniusHeader !== currentHeader;
-													if (lyricLines[i].geniusHeader === currentHeader && isPrevSectionStart && lyricLines[i].startTime > 0) {
-														prevLine = lyricLines[i];
-														break;
-													}
-												}
+												const previousSection = findPreviousMatchingSection(lyricLines, lineIndex);
 
-												if (prevLine) {
+												if (previousSection) {
+													let copyResult: ReturnType<typeof copySectionTimings>;
 													editLyricLines((state) => {
-														const targetLine = state.lyricLines[lineIndex];
-														targetLine.startTime = prevLine.startTime;
-														targetLine.endTime = prevLine.endTime;
-														
-														// Copy words timing
-														for (let i = 0; i < Math.min(targetLine.words.length, prevLine.words.length); i++) {
-															targetLine.words[i].startTime = prevLine.words[i].startTime;
-															targetLine.words[i].endTime = prevLine.words[i].endTime;
-														}
+														copyResult = copySectionTimings(state.lyricLines, lineIndex, previousSection);
 													});
 													toast.success(t("common.success", "Success"));
+													if (copyResult && !copyResult.lengthsMatch) {
+														toast.info("Section lengths differ; copied matching lines only.");
+													}
 												} else {
 													toast.info(t("experimentalFeatures.geniusCategorization.noPreviousFound", "No previous identical header found with timing."));
 												}
 											}}
 										>
 											{t("experimentalFeatures.geniusCategorization.copyPrevious", "Copy Previous Timing")}
-										</Button>
+											</Button>
+										)}
 									</Flex>
 								)}
 								<div
@@ -906,15 +874,16 @@ export const LyricLineView: FC<{
 										toolMode === ToolMode.Edit && styles.edit,
 										toolMode === ToolMode.Sync && styles.sync,
 										!showTimestamps && styles.hideTimestamps,
-										isHeaderLine && styles.headerLine,
 									)}
 									ref={wordsContainerRef}
 									style={{
 										backgroundColor: activeGeniusHeader
-											? `var(--${categoryColor}-2)`
+											? customHeaderColor 
+												? `${customHeaderColor}15` // 15 is roughly 8% opacity
+												: `var(--${categoryColor}-2)`
 											: undefined,
 										borderLeft: activeGeniusHeader
-											? `2px solid var(--${categoryColor}-9)`
+											? `2px solid ${customHeaderColor || `var(--${categoryColor}-9)`}`
 											: undefined,
 										borderRadius: isSectionStart ? "var(--radius-2)" : "0",
 										padding: activeGeniusHeader ? "4px 8px" : undefined,
@@ -924,7 +893,7 @@ export const LyricLineView: FC<{
 										const word = store.get(wordAtom);
 										return (
 											<Fragment key={`word-${word.id}`}>
-												{enableInsert && !isHeaderLine && (
+												{enableInsert && (
 													<IconButton
 														size="1"
 														variant="soft"
@@ -955,10 +924,10 @@ export const LyricLineView: FC<{
 														wordIndex={wi}
 														line={line}
 														lineIndex={lineIndex}
-														isHeaderLine={isHeaderLine}
+														isHeaderLine={false}
 													/>
 													{toolMode === ToolMode.Edit &&
-														!isHeaderLine &&
+
 														showWordRomanizationInput && (
 															<RomanWordView
 																wordAtom={wordAtom}
@@ -1026,7 +995,7 @@ export const LyricLineView: FC<{
 										/>
 									)}
 								</div>
-								{toolMode === ToolMode.Edit && !isHeaderLine && (
+								{toolMode === ToolMode.Edit && (
 									<>
 										{showTranslation && (
 											<SubLineEdit
@@ -1045,7 +1014,7 @@ export const LyricLineView: FC<{
 									</>
 								)}
 							</div>
-							{toolMode === ToolMode.Edit && !isHeaderLine && (
+											{toolMode === ToolMode.Edit && (
 								<Flex p="3">
 									<IconButton
 										size="1"
@@ -1060,7 +1029,7 @@ export const LyricLineView: FC<{
 									</IconButton>
 								</Flex>
 							)}
-							{toolMode === ToolMode.Sync && showTimestamps && !isHeaderLine && (
+											{toolMode === ToolMode.Sync && showTimestamps && (
 								<Flex pr="3" gap="1" direction="column" align="stretch">
 									<div className={styles.startTime} ref={startTimeRef}>
 										{msToTimestamp(line.startTime)}

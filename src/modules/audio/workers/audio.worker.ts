@@ -297,6 +297,70 @@ async function handleExportWav(req: WorkerRequest & { type: "EXPORT_WAV" }) {
 	}
 }
 
+async function handleReadMetadata(
+	req: WorkerRequest & { type: "READ_METADATA" },
+) {
+	const module = await getModule();
+	const mountDir = `/metadata_${req.id}`;
+	let decoder: AudioStreamDecoder | null = null;
+	try {
+		module.FS.mkdir(mountDir);
+		module.FS.mount(
+			module.FS.filesystems.WORKERFS,
+			{ files: [req.file] },
+			mountDir,
+		);
+		decoder = new module.AudioStreamDecoder();
+		const props = decoder.init(`${mountDir}/${req.file.name}`);
+		if (props.status.status < 0)
+			throw new Error(`Metadata init failed: ${props.status.error}`);
+
+		const metadata: Record<string, string> = {};
+		const keys = props.metadata.keys();
+		for (let index = 0; index < keys.size(); index++) {
+			const key = keys.get(index);
+			metadata[key] = props.metadata.get(key);
+		}
+		keys.delete();
+
+		let coverUrl: string | undefined;
+		if (props.coverArt.size() > 0) {
+			const cover = new Uint8Array(props.coverArt.size());
+			for (let index = 0; index < cover.length; index++)
+				cover[index] = props.coverArt.get(index);
+			coverUrl = URL.createObjectURL(new Blob([cover]));
+		}
+		self.postMessage({
+			type: "METADATA",
+			id: req.id,
+			sampleRate: props.sampleRate,
+			channels: props.channelCount,
+			duration: props.duration,
+			metadata,
+			encoding: props.encoding,
+			coverUrl,
+			bitsPerSample: props.bitsPerSample,
+		});
+		props.metadata.delete();
+		props.coverArt.delete();
+	} catch (error) {
+		self.postMessage({
+			type: "ERROR",
+			id: req.id,
+			error: error instanceof Error ? error.message : String(error),
+		});
+	} finally {
+		decoder?.close();
+		decoder?.delete();
+		try {
+			module.FS.unmount(mountDir);
+			module.FS.rmdir(mountDir);
+		} catch {
+			// The decoder may have failed before mounting the file.
+		}
+	}
+}
+
 function createWavHeader(
 	sampleRate: number,
 	channels: number,
@@ -386,6 +450,9 @@ self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
 			break;
 		case "EXPORT_WAV":
 			handleExportWav(req);
+			break;
+		case "READ_METADATA":
+			handleReadMetadata(req);
 			break;
 	}
 };

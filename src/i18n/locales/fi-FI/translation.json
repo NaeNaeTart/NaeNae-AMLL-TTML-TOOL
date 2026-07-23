@@ -291,6 +291,40 @@
 			"mp3ConversionAlways": "Auto",
 			"mp3ConversionNever": "Off"
 		},
+    "backup": {
+      "category": {
+        "settings": "Settings",
+        "keybindings": "Keybindings",
+        "assets": "Appearance assets",
+        "projects": "Projects & history",
+        "plugins": "Plugins"
+      },
+      "hint": {
+        "settings": "{count} stored values",
+        "keybindings": "{count} keybindings",
+        "assetsSet": "Custom background image set",
+        "assetsNone": "No custom background image",
+        "projects": "{count} projects",
+        "plugins": "{count} plugins"
+      },
+      "exportSuccess": "Backup exported",
+      "exportFailed": "Failed to export backup",
+      "newerVersion": "This backup was created by a newer version of the app",
+      "invalidFile": "Invalid or corrupted backup file",
+      "importSuccess": "Backup imported, reloading…",
+      "importFailed": "Failed to import backup. Some data may have been partially applied.",
+      "exportTitle": "Export",
+      "exportDesc": "Save your settings and data to a file you can restore later or move to another device.",
+      "exportButton": "Export backup",
+      "importTitle": "Import",
+      "importDesc": "Restore settings and data from a backup file. Existing values will be replaced.",
+      "importButton": "Choose backup file…",
+      "confirmTitle": "Confirm import",
+      "exportedAt": "Exported",
+      "confirmReplaceWarning": "Imported values will replace your current ones. The app will reload after importing.",
+      "cancelButton": "Cancel",
+      "applyButton": "Import & reload"
+    },
 		"dev": {
 			"wasmPlugins": {
 				"title": "Community Plugin System (WASM)",

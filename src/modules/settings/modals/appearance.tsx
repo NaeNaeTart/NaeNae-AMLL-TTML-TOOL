@@ -72,6 +72,7 @@ import {
 	advChipPaddingHorizontalAtom,
 	advRomanizationColorAtom,
 	advTranslationColorAtom,
+	advGeniusHeaderColorAtom,
 	advAudioBarBgAtom,
 	advAudioBarTextAtom,
 	advScrollbarColorAtom,
@@ -185,6 +186,7 @@ export const SettingsAppearanceTab = () => {
 	const [vChipPaddingH, setVChipPaddingH] = useAtom(advChipPaddingHorizontalAtom);
 	const [vRomanColor, setVRomanColor] = useAtom(advRomanizationColorAtom);
 	const [vTransColor, setVTransColor] = useAtom(advTranslationColorAtom);
+	const [vGeniusHeaderColor, setVGeniusHeaderColor] = useAtom(advGeniusHeaderColorAtom);
 	const [vAudioBarBg, setVAudioBarBg] = useAtom(advAudioBarBgAtom);
 	const [vAudioBarText, setVAudioBarText] = useAtom(advAudioBarTextAtom);
 	const [vScrollbar, setVScrollbar] = useAtom(advScrollbarColorAtom);
@@ -220,7 +222,7 @@ export const SettingsAppearanceTab = () => {
 				// Advanced
 				advWaveformColor, advWaveformProgress, advPrimaryText, advSecondaryText,
 				vTitlebarBg, vSidebarBg, vSidebarActive, vMenuHover, vEditorBg, vActiveLine, vLineHover, vSelection,
-				vChipRadius, vChipGap, vChipPaddingV, vChipPaddingH, vRomanColor, vTransColor,
+				vChipRadius, vChipGap, vChipPaddingV, vChipPaddingH, vRomanColor, vTransColor, vGeniusHeaderColor,
 				vAudioBarBg, vAudioBarText, vScrollbar, vDialogBg, vDialogBorder,
 				vGlobalRadius, vGlobalBorderWidth, vShadow, vBackdrop,
 				layoutOrder, vRibbonPos
@@ -272,6 +274,7 @@ export const SettingsAppearanceTab = () => {
 		if (s.vChipPaddingH !== undefined) setVChipPaddingH(Number(s.vChipPaddingH));
 		if (s.vRomanColor !== undefined) setVRomanColor(s.vRomanColor);
 		if (s.vTransColor !== undefined) setVTransColor(s.vTransColor);
+		if (s.vGeniusHeaderColor !== undefined) setVGeniusHeaderColor(s.vGeniusHeaderColor);
 		if (s.vAudioBarBg !== undefined) setVAudioBarBg(s.vAudioBarBg);
 		if (s.vAudioBarText !== undefined) setVAudioBarText(s.vAudioBarText);
 		if (s.vScrollbar !== undefined) setVScrollbar(s.vScrollbar);
@@ -947,6 +950,7 @@ export const SettingsAppearanceTab = () => {
 								</Grid>
 								<AdvancedColorItem label="Romanization Text" value={vRomanColor} onChange={setVRomanColor} />
 								<AdvancedColorItem label="Translation Text" value={vTransColor} onChange={setVTransColor} />
+								<AdvancedColorItem label="Genius Header Color" value={vGeniusHeaderColor} onChange={setVGeniusHeaderColor} />
 							</Flex>
 						</Card>
 					</Flex>

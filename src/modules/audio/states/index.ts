@@ -30,6 +30,8 @@ export const playbackRateAtom = atomWithStorage("playbackRate", 1);
 export const preservesPitchAtom = atomWithStorage("preservesPitch", true);
 export const audioPlayingAtom = atom(false);
 export const loadedAudioAtom = atom(new Blob([]));
+/** Object URL for artwork embedded in the currently loaded audio file. */
+export const audioCoverArtAtom = atom<string | null>(null);
 export const currentTimeAtom = atom(0);
 export const currentDurationAtom = atom(0);
 export const auditionTimeAtom = atom<number | null>(null);

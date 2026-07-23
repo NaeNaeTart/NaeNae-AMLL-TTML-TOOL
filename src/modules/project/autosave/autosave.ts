@@ -262,6 +262,52 @@ export async function getProjectLatestState(
 }
 
 /**
+ * @description 导出所有项目及其历史版本，用于备份
+ * @returns 所有项目信息与历史版本
+ */
+export async function exportAllProjectsData(): Promise<{
+	projects: ProjectInfo[];
+	versions: ProjectVersion[];
+}> {
+	const db = await getDB();
+	const [projects, versions] = await Promise.all([
+		db.getAll("projects"),
+		db.getAll("versions"),
+	]);
+	return { projects, versions };
+}
+
+/**
+ * @description 从备份恢复项目数据。已存在的项目会被覆盖 (upsert)，
+ * 并替换该项目的全部历史版本；备份中不包含的项目保持不变。
+ * @param projects 要恢复的项目信息
+ * @param versions 要恢复的历史版本（不含自增主键，由数据库重新分配）
+ */
+export async function restoreProjectsData(
+	projects: ProjectInfo[],
+	versions: Omit<ProjectVersion, "id">[],
+): Promise<void> {
+	const db = await getDB();
+	const tx = db.transaction(["projects", "versions"], "readwrite");
+	const projectStore = tx.objectStore("projects");
+	const versionStore = tx.objectStore("versions");
+	const versionIndex = versionStore.index("by-project");
+
+	for (const project of projects) {
+		await projectStore.put(project);
+		const existingKeys = await versionIndex.getAllKeys(project.id);
+		await Promise.all(existingKeys.map((key) => versionStore.delete(key)));
+	}
+
+	for (const version of versions) {
+		const { id: _ignored, ...rest } = version as ProjectVersion;
+		await versionStore.add(rest);
+	}
+
+	await tx.done;
+}
+
+/**
  * @description 删除项目及其所有的历史记录
  * @param projectId 要删除的项目 ID
  */

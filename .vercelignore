@@ -1,0 +1,8 @@
+node_modules
+src-tauri
+dist
+.git
+.github
+.vscode
+*.log
+.env*

@@ -24,6 +24,7 @@ import {
 	settingsDialogAtom,
 	submitToAMLLDBDialogAtom,
 	timeShiftDialogAtom,
+	timeStretchDialogAtom,
 } from "$/states/dialogs.ts";
 import {
 	keyDeleteSelectionAtom,
@@ -67,6 +68,7 @@ export const useTopMenuActions = () => {
 		advancedSegmentationDialogAtom,
 	);
 	const setTimeShiftDialog = useSetAtom(timeShiftDialogAtom);
+	const setTimeStretchDialog = useSetAtom(timeStretchDialogAtom);
 	const { openFile } = useFileOpener();
 	const setProjectId = useSetAtom(projectIdAtom);
 	const { config: segmentationConfig } = useSegmentationConfig();
@@ -428,6 +430,10 @@ export const useTopMenuActions = () => {
 		setTimeShiftDialog(true);
 	}, [setTimeShiftDialog]);
 
+	const onOpenTimeStretch = useCallback(() => {
+		setTimeStretchDialog(true);
+	}, [setTimeStretchDialog]);
+
 	const onSyncLineTimestamps = useCallback(() => {
 		const action = () => {
 			editLyricLines((draft) => {
@@ -501,6 +507,7 @@ export const useTopMenuActions = () => {
 		onSelectWordsOfMatchedSelection,
 		onDeleteSelection,
 		onOpenTimeShift,
+		onOpenTimeStretch,
 		onOpenMetadataEditor,
 		onOpenSettings,
 		onAutoSegment,

@@ -18,26 +18,59 @@ import {
 import { Box, Button, Dialog, Flex, Heading, ScrollArea, Text, Card, Grid, Popover, IconButton } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { whatsNewDialogAtom } from "$/states/dialogs.ts";
-import { useTranslation } from "react-i18next";
 
 export function WhatsNewDialog() {
 	const [isOpen, setIsOpen] = useAtom(whatsNewDialogAtom);
-	const { t } = useTranslation();
 
 	const features = [
+		{
+			title: "Spicy Lyrics Preview",
+			description: "A high-fidelity Spicy Lyrics renderer with animated, custom, and cover-art backgrounds; karaoke, Simple Lyrics, and line-synced layouts; automatic scrolling; and an optional FPS counter.",
+			icon: <StarRegular />,
+			color: "ruby",
+			info: "Choose Spicy from the Preview mode selector. It includes interlude dots, RTL- and duet-aware layouts, plus CJK and romanized word wrapping."
+		},
+		{
+			title: "Time Stretch",
+			description: "Scale every TTML timestamp to fit a new song duration, with support for reading durations from audio files.",
+			icon: <TimerRegular />,
+			color: "violet",
+			info: "Open Edit > Time Stretch. Set or import the old and new audio durations, then apply the calculated scale factor to the project."
+		},
+		{
+			title: "Unified Lyrics Import",
+			description: "Text, LRCLIB, Lyrically, and Genius imports now share one consistent preparation, replacement-confirmation, and formatting workflow.",
+			icon: <CheckmarkCircleRegular />,
+			color: "grass",
+			info: "Use the import screen as usual. Punctuation, CJK/Latin boundaries, word separators, and background vocals are handled consistently across supported sources."
+		},
+		{
+			title: "Genius Header Categorization & Section Tools",
+			description: "Preserve headers such as [Chorus] and [Verse] as color-coded section metadata, with whole-section timing controls.",
+			icon: <TaskListLtrRegular />,
+			color: "pink",
+			info: "Enable categorization during a Genius import or when prompted after a text import. In Sync mode, section headers can snap the section to the playhead or copy timing from an earlier matching section."
+		},
+		{
+			title: "Backup & Restore",
+			description: "Export and restore selected settings, keybindings, appearance assets, projects and history, and plugins in a portable backup file.",
+			icon: <ShieldCheckmarkRegular />,
+			color: "teal",
+			info: "Open Settings > Backup to select the data to export or restore. Importing replaces the selected existing data and reloads the app."
+		},
+		{
+			title: "Bouncy Word Indicator",
+			description: "Long-duration syllables in Sync mode get a subtle bouncing dot, making held words easier to spot while timing.",
+			icon: <MusicNote1Regular />,
+			color: "orange",
+			info: "The CSS-only indicator appears automatically for qualifying words in Sync mode and hides while playback is active."
+		},
 		{
 			title: "Toxi Lyrics Engine",
 			description: "High-fidelity jump-down animations, instant-on bloom with smooth fade-out, and adjustable wipe softness.",
 			icon: <StarRegular />,
 			color: "pink",
 			info: "Located in the Preview tab. Controls under Appearance > Preview allow adjusting wipe softness and bloom."
-		},
-		{
-			title: "Section Categorization",
-			description: "Intelligent Genius-style section detection (Chorus, Verse) with color-coded grouping and clean headers.",
-			icon: <TaskListLtrRegular />,
-			color: "pink",
-			info: "Automatically identifies sections during import and groups them visually. Headers are excluded from line count for a professional workflow."
 		},
 		{
 			title: "144Hz+ Rendering",
@@ -116,7 +149,7 @@ export function WhatsNewDialog() {
 			color: "gold",
 			info: "Open via the 'Plugins' tab in the Ribbon Bar to expand the tool's import/export capabilities."
 		}
-	];
+	] as const;
 
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -146,8 +179,8 @@ export function WhatsNewDialog() {
 						</Card>
 
 						<Grid columns="2" gap="3">
-							{features.map((f, i) => (
-								<Card key={i} variant="classic" style={{ padding: "var(--space-3)" }}>
+							{features.map((f) => (
+								<Card key={f.title} variant="classic" style={{ padding: "var(--space-3)" }}>
 									<Flex direction="column" gap="2">
 										<Flex align="center" justify="between">
 											<Flex align="center" gap="2">
@@ -164,7 +197,7 @@ export function WhatsNewDialog() {
 												</Popover.Trigger>
 												<Popover.Content style={{ width: 300 }} size="2">
 													<Flex direction="column" gap="2">
-														<Text size="2" weight="bold" color={f.color as any}>{f.title}</Text>
+														<Text size="2" weight="bold" color={f.color}>{f.title}</Text>
 														<Text size="2" color="gray">
 															{f.info}
 														</Text>

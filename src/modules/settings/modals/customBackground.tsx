@@ -59,7 +59,7 @@ const readLegacyCustomBackground = async () => {
 	}
 };
 
-const readCustomBackgroundBlob = async () => {
+export const readCustomBackgroundBlob = async () => {
 	try {
 		const db = await customBackgroundDbPromise;
 		const record = (await db.get(
@@ -82,7 +82,7 @@ const readCustomBackgroundBlob = async () => {
 	return legacy;
 };
 
-const writeCustomBackgroundBlob = async (blob: Blob | null) => {
+export const writeCustomBackgroundBlob = async (blob: Blob | null) => {
 	try {
 		const db = await customBackgroundDbPromise;
 		if (!blob) {

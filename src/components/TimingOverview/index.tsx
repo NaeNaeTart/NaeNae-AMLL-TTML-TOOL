@@ -204,7 +204,7 @@ export const TimingOverview = memo(() => {
 				</div>
 			</div>
 			<div className={styles.scrollArea} ref={scrollRef}>
-				<div style={{ display: "flex", flexDirection: "column", minWidth: "600px" }}>
+				<div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
 					<div className={styles.tableHeader} style={{ display: "flex", borderBottom: "1px solid var(--gray-6)", background: "var(--gray-2)", position: "sticky", top: 0, zIndex: 10 }}>
 						<div style={{ width: "40px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>#</div>
 						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>Start</div>

@@ -281,6 +281,7 @@ export const advChipPaddingHorizontalAtom = atomWithStorage("advChipPaddingHoriz
 
 export const advRomanizationColorAtom = atomWithStorage("advRomanizationColor", "");
 export const advTranslationColorAtom = atomWithStorage("advTranslationColor", "");
+export const advGeniusHeaderColorAtom = atomWithStorage("advGeniusHeaderColor", "");
 
 export const advAudioBarBgAtom = atomWithStorage("advAudioBarBg", "");
 export const advAudioBarTextAtom = atomWithStorage("advAudioBarText", "");
@@ -329,3 +330,5 @@ export const geniusHeaderDetectionDialogShownAtom = atomWithStorage<boolean>(
 );
 
 export const geniusHeaderDetectionDialogOpenAtom = atom(false);
+
+export const geniusHeaderRestorationTextAtom = atom<string | null>(null);

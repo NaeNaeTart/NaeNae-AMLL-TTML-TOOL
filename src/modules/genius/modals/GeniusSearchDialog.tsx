@@ -1,3 +1,4 @@
+import { Search16Regular, Search24Regular } from "@fluentui/react-icons";
 import {
 	Button,
 	Card,
@@ -9,7 +10,6 @@ import {
 	Text,
 	TextField,
 } from "@radix-ui/themes";
-import { Search16Regular, Search24Regular } from "@fluentui/react-icons";
 import { useAtom } from "jotai";
 import { useImmerAtom } from "jotai-immer";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -23,8 +23,6 @@ import type { GeniusSearchHit } from "../types";
 import { getBetterGeniusCoverArt } from "../utils/image";
 import styles from "./GeniusSearchDialog.module.css";
 
-
-
 export const GeniusSearchDialog = () => {
 	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useAtom(geniusSearchDialogAtom);
@@ -36,7 +34,7 @@ export const GeniusSearchDialog = () => {
 	const [isFetchingDetails, setIsFetchingDetails] = useState(false);
 	const [fetchingSongId, setFetchingSongId] = useState<number | null>(null);
 	const [hasSearched, setHasSearched] = useState(false);
-	const [findRealNames, setFindRealNames] = useState(false);
+	const [findRealNames, setFindRealNames] = useState(true);
 	const [processingMessage, setProcessingMessage] = useState("");
 
 	const [geniusApiKey, setGeniusApiKey] = useAtom(geniusApiKeyAtom);
@@ -215,20 +213,7 @@ export const GeniusSearchDialog = () => {
 						(m) => m.key === "songwriter",
 					);
 					if (songwriterEntry) {
-						const existing = new Set(songwriterEntry.value);
-						for (const writer of songwriters) {
-							if (!existing.has(writer)) {
-								if (
-									songwriterEntry.value.length === 1 &&
-									songwriterEntry.value[0] === ""
-								) {
-									songwriterEntry.value[0] = writer;
-								} else {
-									songwriterEntry.value.push(writer);
-								}
-								existing.add(writer);
-							}
-						}
+						songwriterEntry.value = songwriters;
 					} else {
 						prev.metadata.push({
 							key: "songwriter",
@@ -236,11 +221,13 @@ export const GeniusSearchDialog = () => {
 						});
 					}
 
-
 					// 3. Update Other Metadata if missing
 					const upsertIfMissing = (key: string, value: string) => {
 						const existing = prev.metadata.find((m) => m.key === key);
-						if (!existing || (existing.value.length === 1 && existing.value[0] === "")) {
+						if (
+							!existing ||
+							(existing.value.length === 1 && existing.value[0] === "")
+						) {
 							if (existing) {
 								existing.value = [value];
 							} else {
@@ -250,7 +237,10 @@ export const GeniusSearchDialog = () => {
 					};
 
 					upsertIfMissing("musicName", songDetailsRes.response.song.title);
-					upsertIfMissing("artists", songDetailsRes.response.song.primary_artist.name);
+					upsertIfMissing(
+						"artists",
+						songDetailsRes.response.song.primary_artist.name,
+					);
 					if (songDetailsRes.response.song.album) {
 						upsertIfMissing("album", songDetailsRes.response.song.album.name);
 					}
@@ -423,7 +413,9 @@ export const GeniusSearchDialog = () => {
 												{hit.result.primary_artist.name}
 											</Text>
 										</Flex>
-										{isFetchingDetails && fetchingSongId === hit.result.id && <Spinner />}
+										{isFetchingDetails && fetchingSongId === hit.result.id && (
+											<Spinner />
+										)}
 									</Flex>
 								</Card>
 							))

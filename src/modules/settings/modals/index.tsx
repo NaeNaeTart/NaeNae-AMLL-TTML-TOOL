@@ -1,4 +1,4 @@
-import { Box, Dialog, Tabs, ScrollArea } from "@radix-ui/themes";
+import { Box, Dialog, Tabs } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { SettingsCommonTab } from "./common";
 import { SettingsKeyBindingsDialog } from "./keybindings";
 import { SettingsSpectrogramTab } from "./spectrogram";
 import { AudioSettingsTab } from "./audio";
+import { SettingsBackupTab } from "./backup";
 import { SettingsDevTab } from "./dev";
 
 export const SettingsDialog = memo(() => {
@@ -62,6 +63,9 @@ export const SettingsDialog = memo(() => {
 						<Tabs.Trigger value="spectrogram" style={{ flexShrink: 0 }}>
 							{t("settingsDialog.tab.spectrogram", "Spectrogram")}
 						</Tabs.Trigger>
+						<Tabs.Trigger value="backup" style={{ flexShrink: 0 }}>
+							{t("settingsDialog.tab.backup", "Backup")}
+						</Tabs.Trigger>
 						<Tabs.Trigger value="about" style={{ flexShrink: 0 }}>
 							{t("common.about", "About")}
 						</Tabs.Trigger>
@@ -95,6 +99,9 @@ export const SettingsDialog = memo(() => {
 						</Tabs.Content>
 						<Tabs.Content value="audio">
 							<AudioSettingsTab />
+						</Tabs.Content>
+						<Tabs.Content value="backup">
+							<SettingsBackupTab />
 						</Tabs.Content>
 						<Tabs.Content value="about">
 							{/* @ts-ignore */}

@@ -42,3 +42,5 @@ ffmpeg-core.js
 .env.development
 .env.test
 .env.production
+.vercel
+.env*.local

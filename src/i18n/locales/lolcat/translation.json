@@ -331,6 +331,40 @@
       "mp3ConversionAlways": "Auto",
       "mp3ConversionNever": "Off"
     },
+    "backup": {
+      "category": {
+        "settings": "Settings",
+        "keybindings": "Keybindings",
+        "assets": "Appewance Assets",
+        "projects": "Pwojects & Histowy",
+        "plugins": "Pwugwins"
+      },
+      "hint": {
+        "settings": "{count} Stowed Vawues",
+        "keybindings": "{count} Keybindings",
+        "assetsSet": "Custom Backgwound Image Set",
+        "assetsNone": "No Custom Backgwound Image",
+        "projects": "{count} Pwojects",
+        "plugins": "{count} Pwugwins"
+      },
+      "exportSuccess": "Backup Expowted",
+      "exportFailed": "Faiwed to Expowt Backup",
+      "newerVersion": "Dis Backup Was Cweated By a Nyewew Vewsion of De App",
+      "invalidFile": "Invawid ow cowwupted backup fiwe",
+      "importSuccess": "Backup impowted, wefwading…",
+      "importFailed": "Faiwed to impowt backup. Some data may have been pawciawwy appwied.",
+      "exportTitle": "Export",
+      "exportDesc": "Save youw settings and data to a fiwe you can westowe watew ow move to anothew device.",
+      "exportButton": "Export backup",
+      "importTitle": "Import",
+      "importDesc": "Westowe settings and data fwom a backup fiwe. Existing vawues wiww be wepwaced.",
+      "importButton": "Choose backup fiwe…",
+      "confirmTitle": "Confiwm impowt",
+      "exportedAt": "Expowted",
+      "confirmReplaceWarning": "Impowted vawues wiww wepwace youw cuwwent ones. De app wiww wefwad aftew impowting.",
+      "cancelButton": "Cancew",
+      "applyButton": "Impowt & wefwad"
+    },
     "dev": {
       "wasmPlugins": {
         "title": "Communyity Pwugin System (WASM)",

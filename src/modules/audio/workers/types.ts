@@ -36,6 +36,7 @@ export interface PlayerEventMap {
 
 export type WorkerRequest =
 	| { type: "INIT"; id: number; file: File; chunkSize: number }
+	| { type: "READ_METADATA"; id: number; file: File }
 	| { type: "PAUSE"; id: number }
 	| { type: "RESUME"; id: number }
 	| { type: "SEEK"; id: number; seekTime: number }
@@ -73,6 +74,7 @@ export type WorkerRequestType = WorkerRequest["type"];
 
 export type WorkerResponseMap = {
 	INIT: WorkerResponse & { type: "METADATA" };
+	READ_METADATA: WorkerResponse & { type: "METADATA" };
 	PAUSE: undefined;
 	RESUME: undefined;
 	SEEK: number;

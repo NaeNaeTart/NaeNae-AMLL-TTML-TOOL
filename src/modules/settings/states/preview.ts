@@ -4,6 +4,7 @@ export enum PreviewModeType {
 	Standard = "standard",
 	AMLL = "amll",
 	Toxi = "toxi",
+	Spicy = "spicy",
 	Timing = "timing",
 }
 
@@ -24,4 +25,16 @@ export const lyricWordFadeWidthAtom = atomWithStorage(
 );
 export const vsyncAtom = atomWithStorage("vsync", false);
 export const showFpsCounterAtom = atomWithStorage("showFpsCounter", false);
-export const instantHighlightFadeAtom = atomWithStorage("instantHighlightFade", false);
+export const instantHighlightFadeAtom = atomWithStorage(
+	"instantHighlightFade",
+	false,
+);
+export const spicySimpleLyricsModeAtom = atomWithStorage(
+	"spicySimpleLyricsMode",
+	false,
+);
+export type SpicyBackgroundMode = "animated" | "color" | "static";
+export const spicyBackgroundModeAtom = atomWithStorage<SpicyBackgroundMode>(
+	"spicyBackgroundMode",
+	"animated",
+);

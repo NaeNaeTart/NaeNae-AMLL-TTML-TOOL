@@ -19,7 +19,7 @@ import {
 import { Open16Regular, QuestionCircle16Regular } from "@fluentui/react-icons";
 import { atom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { memo, type PropsWithChildren, useCallback } from "react";
+import { memo, type PropsWithChildren, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
 import {
 	confirmDialogAtom,
@@ -35,10 +35,12 @@ import {
 } from "$/states/main.ts";
 
 import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml";
-import { importAddSpacesAtom, importSplitHyphensAtom, geniusCategorizationEnabledAtom, geniusHeaderDetectionDialogOpenAtom, geniusHeaderDetectionDialogShownAtom } from "$/modules/settings/states/index.ts";
+import { importAddSpacesAtom, importSplitHyphensAtom, geniusCategorizationEnabledAtom, geniusHeaderDetectionDialogOpenAtom, geniusHeaderDetectionDialogShownAtom, geniusHeaderRestorationTextAtom } from "$/modules/settings/states/index.ts";
 
 
 import { error as logError } from "$/utils/logging.ts";
+import { prepareLyricLine } from "$/utils/lyric-prep";
+import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
 import { getAllPlugins } from "$/modules/plugins/plugin-store";
 import type { WASMPlugin } from "$/modules/plugins/types";
@@ -83,7 +85,7 @@ const swapTransAndRomanAtom = atomWithStorage(
 const wordSeparatorAtom = atomWithStorage("importFromText.wordSeparator", "\\");
 const enableSpecialPrefixAtom = atomWithStorage(
 	"importFromText.enableSpecialPrefix",
-	false,
+	true,
 );
 const bgLyricPrefixAtom = atomWithStorage("importFromText.bgLyricPrefix", "<");
 const duetLyricPrefixAtom = atomWithStorage(
@@ -151,11 +153,21 @@ export const ImportFromText = () => {
 	const [geniusCategorizationEnabled, setGeniusCategorizationEnabled] = useAtom(geniusCategorizationEnabledAtom);
 	const setGeniusDetectionDialogOpen = useSetAtom(geniusHeaderDetectionDialogOpenAtom);
 	const geniusDetectionDialogShown = useAtomValue(geniusHeaderDetectionDialogShownAtom);
+	const [restorationText, setRestorationText] = useAtom(geniusHeaderRestorationTextAtom);
 	const setValue = useSetAtom(textValueAtom);
 
 
 
 
+
+	// Restore headers if the user enables the feature while we have a pending restoration
+	useEffect(() => {
+		if (geniusCategorizationEnabled && restorationText) {
+			setValue(restorationText);
+			setRestorationText(null);
+			toast.info(t("experimentalFeatures.geniusCategorization.headersRestored", "Section headers restored."));
+		}
+	}, [geniusCategorizationEnabled, restorationText, setValue, setRestorationText, t]);
 
 	const store = useStore();
 
@@ -180,20 +192,17 @@ export const ImportFromText = () => {
 
 			const lines = text.split("\n");
 			const result: LyricLine[] = [];
-			let currentGeniusHeader: string | undefined = undefined;
+			let currentGeniusHeader: string | undefined;
+			const consumeGeniusHeader = (value: string) => {
+				if (!geniusCategorizationEnabled) return false;
+				const header = getGeniusHeader(value);
+				if (!header) return false;
+				currentGeniusHeader = header;
+				return true;
+			};
 
 			function addLine(orig = "", trans = "", roman = "") {
 				let finalOrig = orig.trim();
-
-				if (
-					geniusCategorizationEnabled &&
-					/^\[(Chorus|Verse|Bridge|Intro|Outro|Pre-Chorus|Hook|Strofa|Refren|Skit|Interlude|Instrumental|Pre-Refren|Partea|Slofa|Section|Part|S\d+|V\d+|C\d+|Strophe|Refrain|Pont|Couplet|Refrain|Break).*?\]$/i.test(
-						finalOrig,
-					)
-				) {
-					currentGeniusHeader = finalOrig;
-					return null;
-				}
 
 				let isBG = false;
 				let isDuet = false;
@@ -234,6 +243,7 @@ export const ImportFromText = () => {
 
 			function addAsLyricOnly() {
 				for (const line of lines) {
+					if (consumeGeniusHeader(line)) continue;
 					addLine(line);
 				}
 			}
@@ -248,14 +258,11 @@ export const ImportFromText = () => {
 			) {
 				switch (lineSeparatorMode) {
 					case LineSeparatorMode.Interleaved: {
-						let skip = 1;
-						if (sub1) skip++;
-						if (sub2) skip++;
-						for (let i = 0; i < lines.length; i += skip) {
-							const orig = lines[i];
-							let ii = 0;
-							const subText1 = sub1 ? lines[i + ++ii] : "";
-							const subText2 = sub2 ? lines[i + ++ii] : "";
+						for (let i = 0; i < lines.length;) {
+							const orig = lines[i++];
+							if (consumeGeniusHeader(orig)) continue;
+							const subText1 = sub1 ? lines[i++] ?? "" : "";
+							const subText2 = sub2 ? lines[i++] ?? "" : "";
 							const line = addLine(orig);
 							if (line && sub1) line[sub1] = subText1;
 							if (line && sub2) line[sub2] = subText2;
@@ -266,6 +273,7 @@ export const ImportFromText = () => {
 						for (const lineText of lines) {
 							const parts = lineText.split(lineSeparator);
 							const orig = parts[0];
+							if (consumeGeniusHeader(orig)) continue;
 							const subText1 = sub1 ? parts[1] : "";
 							const subText2 = sub2 ? parts[2] : "";
 							const line = addLine(orig);
@@ -371,7 +379,7 @@ export const ImportFromText = () => {
 			}
 			setImportFromTextDialog(false);
 		},
-		[store, setImportFromTextDialog],
+		[store, setImportFromTextDialog, geniusCategorizationEnabled],
 	);
 
 	const handleProcessLyrics = useCallback(() => {
@@ -381,12 +389,15 @@ export const ImportFromText = () => {
 		const processedLines: string[] = [];
 
 		const processLineContent = (content: string) => {
+			return prepareLyricLine(content);
+			/*
 			let result = content.trim();
 			// 1. Wrap hyphens with separator: - -> -\
 			result = result.replace(/-/g, "-\\");
 			// 2. Wrap spaces with separator and a literal space word: " " -> "\ \"
 			result = result.replace(/ /g, "\\ \\");
 			return result;
+			*/
 		};
 
 		for (const line of lines) {
@@ -404,7 +415,7 @@ export const ImportFromText = () => {
 			}
 
 			// Handle background vocals in parentheses at the end of the line
-			const bgMatch = currentLine.match(/^(.*?)\s*\((.*)\)\s*$/);
+			const bgMatch = currentLine.match(/(?!)/);
 			if (bgMatch) {
 				const mainPart = bgMatch[1].trim();
 				const bgPart = bgMatch[2].trim();
@@ -429,10 +440,33 @@ export const ImportFromText = () => {
 		setWordSeparator("\\");
 		setAddSpaces(false);
 		setSplitHyphens(false);
+		setEnableSpecialPrefix(true);
 
 		// Trigger Genius detection if headers were found but skipped (because disabled)
 		const hasHeaders = lines.some(l => l.trim().startsWith("[") && l.trim().endsWith("]"));
 		if (hasHeaders && !geniusCategorizationEnabled && !geniusDetectionDialogShown) {
+			// Save the processed text WITH headers for potential restoration
+			const processedWithHeaders: string[] = [];
+			for (const line of lines) {
+				const currentLine = line.trim();
+				if (!currentLine) continue;
+				if (currentLine.startsWith("[") && currentLine.endsWith("]")) {
+					processedWithHeaders.push(currentLine);
+					continue;
+				}
+				const bgMatch = currentLine.match(/^(.*?)\s*\((.*)\)\s*$/);
+				if (bgMatch) {
+					const mainPart = bgMatch[1].trim();
+					const bgPart = bgMatch[2].trim();
+					if (mainPart) processedWithHeaders.push(processLineContent(mainPart));
+					if (bgPart) processedWithHeaders.push(`<${processLineContent(bgPart)}`);
+				} else if (currentLine.startsWith("(") && currentLine.endsWith(")")) {
+					processedWithHeaders.push(`<${processLineContent(currentLine.slice(1, -1))}`);
+				} else {
+					processedWithHeaders.push(processLineContent(currentLine));
+				}
+			}
+			setRestorationText(processedWithHeaders.join("\n"));
 			setGeniusDetectionDialogOpen(true);
 		}
 		
@@ -682,15 +716,18 @@ export const ImportFromText = () => {
 											onChange={(evt) => setEmptyBeatSymbol(evt.currentTarget.value)}
 										/>
 
-										<Separator size="4" style={{ gridColumn: "span 2" }} />
-
-										<PrefText>
-											{t("experimentalFeatures.geniusCategorization.title", "Genius Header Categorization")}
-										</PrefText>
-										<Switch
-											checked={geniusCategorizationEnabled}
-											onCheckedChange={setGeniusCategorizationEnabled}
-										/>
+										{geniusCategorizationEnabled && (
+											<>
+												<Separator size="4" style={{ gridColumn: "span 2" }} />
+												<PrefText>
+													{t("experimentalFeatures.geniusCategorization.title", "Genius Header Categorization")}
+												</PrefText>
+												<Switch
+													checked={geniusCategorizationEnabled}
+													onCheckedChange={setGeniusCategorizationEnabled}
+												/>
+											</>
+										)}
 									</Grid>
 								</Flex>
 							</Flex>
