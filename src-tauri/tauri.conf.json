@@ -1,8 +1,8 @@
 {
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
 	"productName": "amll-ttml-tool",
-	"version": "0.1.0",
-	"identifier": "net.stevexmh.amll-ttml-tool",
+	"version": "0.7.0",
+	"identifier": "meow.naenaetart.amll-ttml-tool",
 	"build": {
 		"frontendDist": "../dist",
 		"devUrl": "http://localhost:5173",
