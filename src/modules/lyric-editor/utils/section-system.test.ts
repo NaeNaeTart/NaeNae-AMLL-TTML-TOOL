@@ -3,6 +3,7 @@ import { newLyricLine, newLyricWord, type TTMLLyric } from "$/types/ttml";
 import {
 	applyReviewedSections,
 	assignHighConfidenceRepeatGroups,
+	createSectionsFromSelectedLines,
 	getOrderedSections,
 	mergeSectionWithAdjacent,
 	migrateLegacySections,
@@ -151,5 +152,47 @@ describe("first-class sections", () => {
 		expect(validateSections(lyrics).map((issue) => issue.code)).toEqual(
 			expect.arrayContaining(["broken-reference", "low-confidence-category"]),
 		);
+	});
+
+	it("creates separately numbered sections for non-contiguous selected lines", () => {
+		const lyrics = {
+			metadata: [],
+			lyricLines: [line("a"), line("b"), line("c"), line("d")],
+		} as TTMLLyric;
+		const selected = new Set([
+			lyrics.lyricLines[0].id,
+			lyrics.lyricLines[2].id,
+			lyrics.lyricLines[3].id,
+		]);
+
+		const sections = createSectionsFromSelectedLines(lyrics, selected, "verse");
+
+		expect(sections.map((section) => section.label)).toEqual([
+			"[Verse 1]",
+			"[Verse 2]",
+		]);
+		expect(lyrics.lyricLines.map((item) => item.sectionId)).toEqual([
+			sections[0].id,
+			undefined,
+			sections[1].id,
+			sections[1].id,
+		]);
+	});
+
+	it("does not overwrite selected lines that already belong to a section", () => {
+		const lyrics = {
+			metadata: [],
+			lyricLines: [line("a", "[Verse 1]"), line("b")],
+		} as TTMLLyric;
+		migrateLegacySections(lyrics);
+
+		expect(
+			createSectionsFromSelectedLines(
+				lyrics,
+				new Set(lyrics.lyricLines.map((item) => item.id)),
+				"chorus",
+			),
+		).toEqual([]);
+		expect(lyrics.sections).toHaveLength(1);
 	});
 });

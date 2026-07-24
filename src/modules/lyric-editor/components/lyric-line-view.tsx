@@ -81,6 +81,7 @@ import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import LyricWordView from "./lyric-word-view.tsx";
 import { RomanWordView } from "./roman-word-view.tsx";
 import {
+	CategorizeSelectionContextMenuItem,
 	SectionActions,
 	SectionContextMenuItems,
 	SectionContextMenuSub,
@@ -393,6 +394,8 @@ export const LyricLineView: FC<{
 	);
 	const activeSection = useAtomValue(sectionAtom);
 	const sectionActionsEnabled = geniusCategorizationEnabled && !!activeSection;
+	const manualCategorizationEnabled =
+		geniusCategorizationEnabled && !activeSection;
 
 	const activeGeniusHeader = geniusCategorizationEnabled
 		? (activeSection?.label ?? line.geniusHeader)
@@ -679,10 +682,12 @@ export const LyricLineView: FC<{
 				}}
 			>
 				<ContextMenu.Trigger
-					disabled={
-						toolMode === ToolMode.Preview ||
-						(toolMode !== ToolMode.Edit && !sectionActionsEnabled)
-					}
+						disabled={
+							toolMode === ToolMode.Preview ||
+							(toolMode !== ToolMode.Edit &&
+								!sectionActionsEnabled &&
+								!manualCategorizationEnabled)
+						}
 				>
 					<Flex
 						mx="2"
@@ -1163,6 +1168,13 @@ export const LyricLineView: FC<{
 					</Flex>
 				</ContextMenu.Trigger>
 				<ContextMenu.Content>
+					{manualCategorizationEnabled &&
+						(toolMode === ToolMode.Edit || toolMode === ToolMode.Sync) && (
+							<CategorizeSelectionContextMenuItem />
+						)}
+					{manualCategorizationEnabled && toolMode === ToolMode.Edit && (
+						<ContextMenu.Separator />
+					)}
 					{sectionActionsEnabled &&
 						activeSection &&
 						toolMode === ToolMode.Sync && (

@@ -586,6 +586,68 @@ export function removeSectionMetadata(lyrics: TTMLLyric, sectionId: string) {
 	);
 }
 
+const sectionCategoryLabel = (category: LyricSectionCategory) =>
+	category
+		.split("-")
+		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+		.join("-");
+
+/**
+ * Adds sections for each contiguous block of unassigned selected lines.
+ * Returns no sections when the selection includes an existing section, so a
+ * manual categorization action can never overwrite section metadata.
+ */
+export function createSectionsFromSelectedLines(
+	lyrics: TTMLLyric,
+	selectedLineIds: ReadonlySet<string>,
+	category: LyricSectionCategory,
+) {
+	const selectedIndexes = lyrics.lyricLines
+		.map((line, index) => (selectedLineIds.has(line.id) ? index : -1))
+		.filter((index) => index !== -1);
+	if (
+		selectedIndexes.length === 0 ||
+		selectedIndexes.some((index) => lyrics.lyricLines[index].sectionId)
+	)
+		return [];
+
+	const blocks: Array<{ start: number; end: number }> = [];
+	for (const index of selectedIndexes) {
+		const previous = blocks.at(-1);
+		if (previous && index === previous.end) {
+			previous.end++;
+		} else {
+			blocks.push({ start: index, end: index + 1 });
+		}
+	}
+
+	lyrics.sections ??= [];
+	let ordinal = Math.max(
+		0,
+		...lyrics.sections
+			.filter((section) => section.category === category)
+			.map((section) => section.ordinal ?? 0),
+	);
+	const created: LyricSection[] = [];
+	for (const block of blocks) {
+		ordinal++;
+		const section: LyricSection = {
+			id: uid(),
+			label: `[${sectionCategoryLabel(category)} ${ordinal}]`,
+			category,
+			ordinal,
+			confidence: 1,
+		};
+		lyrics.sections.push(section);
+		for (let index = block.start; index < block.end; index++) {
+			lyrics.lyricLines[index].sectionId = section.id;
+			lyrics.lyricLines[index].geniusHeader = section.label;
+		}
+		created.push(section);
+	}
+	return created;
+}
+
 export function moveSection(
 	lyrics: TTMLLyric,
 	sectionId: string,

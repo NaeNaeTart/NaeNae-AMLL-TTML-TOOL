@@ -41,7 +41,10 @@ import {
 import type { LyricLine } from "$/types/ttml.ts";
 import styles from "./index.module.css";
 import { LyricLineView } from "./lyric-line-view";
-import { SectionMetadataDialog } from "./SectionActions";
+import {
+	CategorizeSelectionDialog,
+	SectionMetadataDialog,
+} from "./SectionActions";
 
 const lyricLinesOnlyAtom = splitAtom(
 	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
@@ -219,6 +222,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	return (
 		<Flex direction="column" flexGrow="1" className={styles.lyricLinesWrapper}>
 			<SectionMetadataDialog />
+			<CategorizeSelectionDialog />
 			<Box
 				flexGrow="1"
 				style={{

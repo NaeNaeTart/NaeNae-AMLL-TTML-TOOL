@@ -26,6 +26,7 @@ import {
 import {
 	getOrderedSections,
 	getSectionBoundsById,
+	createSectionsFromSelectedLines,
 	mergeSectionWithAdjacent,
 	moveSection,
 	removeSectionMetadata,
@@ -34,6 +35,68 @@ import {
 } from "../utils/section-system";
 
 const editingSectionIdAtom = atom<string | null>(null);
+const categorizingSelectionAtom = atom(false);
+
+export function CategorizeSelectionContextMenuItem() {
+	const lyrics = useAtomValue(lyricLinesAtom);
+	const selectedLines = useAtomValue(selectedLinesAtom);
+	const setCategorizingSelection = useSetAtom(categorizingSelectionAtom);
+	const selectedCount = selectedLines.size;
+	const hasAssignedLine = lyrics.lyricLines.some(
+		(line) => selectedLines.has(line.id) && line.sectionId,
+	);
+
+	return (
+		<ContextMenu.Item
+			disabled={selectedCount === 0 || hasAssignedLine}
+			onSelect={() => setCategorizingSelection(true)}
+		>
+			Categorize selected line{selectedCount === 1 ? "" : "s"}…
+		</ContextMenu.Item>
+	);
+}
+
+export function CategorizeSelectionDialog() {
+	const selectedLines = useAtomValue(selectedLinesAtom);
+	const editLyrics = useSetImmerAtom(lyricLinesAtom);
+	const [open, setOpen] = useAtom(categorizingSelectionAtom);
+	const [category, setCategory] = useState<LyricSectionCategory>("verse");
+
+	const save = () => {
+		editLyrics((draft) => {
+			createSectionsFromSelectedLines(draft, selectedLines, category);
+		});
+		setOpen(false);
+	};
+
+	return (
+		<Dialog.Root open={open} onOpenChange={setOpen}>
+			<Dialog.Content maxWidth="400px">
+				<Dialog.Title>Categorize selected lines</Dialog.Title>
+				<Flex direction="column" gap="3">
+					<Select.Root value={category} onValueChange={(value) => setCategory(value as LyricSectionCategory)}>
+						<Select.Trigger />
+						<Select.Content>
+							{LYRIC_SECTION_CATEGORIES.map((item) => (
+								<Select.Item key={item} value={item}>
+									{item}
+								</Select.Item>
+							))}
+						</Select.Content>
+					</Select.Root>
+					<Flex justify="end" gap="2">
+						<Button variant="soft" color="gray" onClick={() => setOpen(false)}>
+							Cancel
+						</Button>
+						<Button onClick={save} disabled={selectedLines.size === 0}>
+							Categorize
+						</Button>
+					</Flex>
+				</Flex>
+			</Dialog.Content>
+		</Dialog.Root>
+	);
+}
 
 export function SectionActions({ section }: { section: LyricSection }) {
 	const lyrics = useAtomValue(lyricLinesAtom);
