@@ -10,9 +10,11 @@ import {
 import { DropdownMenu } from "@radix-ui/themes";
 import { useSetAtom, useStore } from "jotai";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import { saveFile } from "$/utils/fileSystem.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
+import { validateSections } from "$/modules/lyric-editor/utils/section-system";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
 import {
 	geniusImportLyricsDialogAtom,
@@ -31,6 +33,14 @@ export const ImportExportLyric = () => {
 	const setLyricallyImportDialog = useSetAtom(lyricallyImportLyricsDialogAtom);
 	const { openFile } = useFileOpener();
 	const { t } = useTranslation();
+	const notifySectionIssues = () => {
+		const count = validateSections(store.get(lyricLinesAtom)).length;
+		if (count > 0) {
+			toast.info(
+				`Section review: ${count} non-blocking issue${count === 1 ? "" : "s"}.`,
+			);
+		}
+	};
 
 	const onImportLyric = (extension: string) => {
 		const inputEl = document.createElement("input");
@@ -75,6 +85,7 @@ export const ImportExportLyric = () => {
 	const onExportLyric =
 		(stringifier: (lines: LyricLine[]) => string, extension: string) =>
 		async () => {
+			notifySectionIssues();
 			const lyricState = store.get(lyricLinesAtom);
 			const lyric = lyricState.lyricLines;
 			const metadata = lyricState.metadata;
@@ -123,6 +134,7 @@ export const ImportExportLyric = () => {
 	const importers = pluginManager.getImporters();
 
 	const onExportWithPlugin = (pluginId: string, extension: string) => async () => {
+		notifySectionIssues();
 		const lyricState = store.get(lyricLinesAtom);
 		
 		// Use TTML as the primary interchange format for plugins

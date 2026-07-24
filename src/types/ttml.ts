@@ -31,6 +31,41 @@ export interface TTMLLyric {
 	metadata: TTMLMetadata[];
 	lyricLines: LyricLine[];
 	marks?: Mark[];
+	sections?: LyricSection[];
+}
+
+export const LYRIC_SECTION_CATEGORIES = [
+	"intro",
+	"verse",
+	"pre-chorus",
+	"chorus",
+	"post-chorus",
+	"refrain",
+	"hook",
+	"bridge",
+	"break",
+	"interlude",
+	"instrumental",
+	"solo",
+	"spoken",
+	"skit",
+	"sample",
+	"outro",
+	"other",
+] as const;
+
+export type LyricSectionCategory = (typeof LYRIC_SECTION_CATEGORIES)[number];
+
+export interface LyricSection {
+	id: string;
+	label: string;
+	category: LyricSectionCategory;
+	ordinal?: number;
+	color?: string;
+	notes?: string;
+	vocalist?: string;
+	confidence?: number;
+	repeatGroupId?: string;
 }
 
 export interface LyricWordBase {
@@ -90,6 +125,8 @@ export interface LyricLine extends AMLLLyricLine {
 		 */
 		originalNextStartTime: number | null;
 	};
+	sectionId?: string;
+	/** @deprecated Migrated to TTMLLyric.sections + sectionId. */
 	geniusHeader?: string;
 }
 

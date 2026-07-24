@@ -43,6 +43,9 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Scoped Time Stretch:</strong> Time Stretch can now be applied to all lines, selected lines, selected lines and everything following them, or a custom line range.
 								</Text>
+								<Text size="2">
+									<strong>Genius Section Workflow:</strong> Added normalized section categories, required import review, repeat detection, a collapsible section navigator, rich section metadata and actions, live validation, and lossless TTML section metadata.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
