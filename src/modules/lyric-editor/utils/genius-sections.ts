@@ -1,30 +1,44 @@
-import type { LyricLine } from "$/types/ttml.ts";
+import type { LyricLine, LyricSection } from "$/types/ttml.ts";
+import { getSectionHeader } from "./section-system.ts";
 
 /** Returns a normalized, display-ready Genius section label, if this is one. */
 export function getGeniusHeader(value: string): string | undefined {
-	const trimmed = value.trim();
-	return /^\[[^[\]\r\n]+\]$/.test(trimmed) ? trimmed : undefined;
+	return getSectionHeader(value);
 }
 
 export function getSectionBounds(lines: LyricLine[], lineIndex: number) {
-	const header = lines[lineIndex]?.geniusHeader;
-	if (!header) return undefined;
+	const target = lines[lineIndex];
+	const key = target?.sectionId ?? target?.geniusHeader;
+	if (!key) return undefined;
 
 	let start = lineIndex;
-	while (start > 0 && lines[start - 1].geniusHeader === header) start--;
+	while (
+		start > 0 &&
+		(lines[start - 1].sectionId ?? lines[start - 1].geniusHeader) === key
+	)
+		start--;
 
 	let end = lineIndex + 1;
-	while (end < lines.length && lines[end].geniusHeader === header) end++;
+	while (
+		end < lines.length &&
+		(lines[end].sectionId ?? lines[end].geniusHeader) === key
+	)
+		end++;
 
-	return { header, start, end };
+	return { header: target.geniusHeader, sectionId: target.sectionId, start, end };
 }
 
 export function findPreviousMatchingSection(
 	lines: LyricLine[],
 	lineIndex: number,
+	sections: LyricSection[] = [],
 ) {
 	const current = getSectionBounds(lines, lineIndex);
 	if (!current) return undefined;
+	const sectionMap = new Map(sections.map((section) => [section.id, section]));
+	const currentSection = current.sectionId
+		? sectionMap.get(current.sectionId)
+		: undefined;
 
 	for (let index = current.start - 1; index >= 0; ) {
 		const candidate = getSectionBounds(lines, index);
@@ -33,7 +47,13 @@ export function findPreviousMatchingSection(
 			continue;
 		}
 		if (
-			candidate.header === current.header &&
+			((currentSection &&
+				candidate.sectionId &&
+				((!!currentSection.repeatGroupId &&
+					sectionMap.get(candidate.sectionId)?.repeatGroupId ===
+						currentSection.repeatGroupId) ||
+					sectionMap.get(candidate.sectionId)?.label === currentSection.label)) ||
+				(!currentSection && candidate.header === current.header)) &&
 			lines[candidate.start].endTime > lines[candidate.start].startTime
 		) {
 			return candidate;

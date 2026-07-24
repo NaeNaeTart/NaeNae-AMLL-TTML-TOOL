@@ -100,7 +100,7 @@ export const ExperimentalFeaturesDialog = () => {
 									{t("experimentalFeatures.geniusCategorization.title", "Genius Header Categorization")}
 								</Text>
 								<Text size="1" color="gray">
-									{t("experimentalFeatures.geniusCategorization.description", "Automatically detect and categorize Genius-style section headers (e.g., [Chorus]). Provides tools to copy previous timings and snap to playhead.")}
+									{t("experimentalFeatures.geniusCategorization.description", "Detect, normalize, review, navigate, collapse, validate, and edit Genius-style song sections while preserving them in TTML exports.")}
 								</Text>
 							</Flex>
 							<Checkbox

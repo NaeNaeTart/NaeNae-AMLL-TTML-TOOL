@@ -4,6 +4,7 @@ import { useSetImmerAtom, withImmer } from "jotai-immer";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { uid } from "uid";
+import { toast } from "react-toastify";
 import { saveFile } from "$/utils/fileSystem.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
@@ -13,6 +14,7 @@ import {
 } from "$/modules/segmentation/utils/segmentation";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { getSynchronizableUnits } from "$/modules/lyric-editor/utils/lyric-states.ts";
+import { validateSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import { useSegmentationConfig } from "$/modules/segmentation/utils/useSegmentationConfig";
 import {
@@ -174,7 +176,14 @@ export const useTopMenuActions = () => {
 	const onSaveFile = useCallback(async () => {
 		const action = async () => {
 			try {
-				const ttmlText = exportTTMLText(store.get(lyricLinesAtom));
+				const currentLyrics = store.get(lyricLinesAtom);
+				const sectionIssues = validateSections(currentLyrics);
+				if (sectionIssues.length > 0) {
+					toast.info(
+						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
+					);
+				}
+				const ttmlText = exportTTMLText(currentLyrics);
 				const savedName = await saveFile(ttmlText, {
 					suggestedName: saveFileName,
 					types: [
@@ -233,6 +242,12 @@ export const useTopMenuActions = () => {
 		const action = async () => {
 			try {
 				const lyric = store.get(lyricLinesAtom);
+				const sectionIssues = validateSections(lyric);
+				if (sectionIssues.length > 0) {
+					toast.info(
+						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
+					);
+				}
 				const ttml = exportTTMLText(lyric);
 				await navigator.clipboard.writeText(ttml);
 			} catch (e) {

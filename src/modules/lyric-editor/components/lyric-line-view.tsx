@@ -73,11 +73,19 @@ import {
 	shiftSectionToTime,
 } from "../utils/genius-sections.ts";
 import styles from "./index.module.css";
-import { draggingIdAtom, globalEnableInsertAtom } from "./lyric-line-view-states.ts";
+import {
+	draggingIdAtom,
+	globalEnableInsertAtom,
+} from "./lyric-line-view-states.ts";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import LyricWordView from "./lyric-word-view.tsx";
 import { RomanWordView } from "./roman-word-view.tsx";
-
+import {
+	CategorizeSelectionContextMenuItem,
+	SectionActions,
+	SectionContextMenuItems,
+	SectionContextMenuSub,
+} from "./SectionActions.tsx";
 
 const isDraggingAtom = atom(false);
 const parseRubyShortcut = (value: string) => {
@@ -242,10 +250,18 @@ const SubLineEdit = memo(
 		);
 
 		return (
-			<Flex align="baseline" style={{ 
-				color: type === "translatedLyric" ? "var(--translation-color, inherit)" : "var(--romanization-color, inherit)" 
-			}}>
-				<Text size="2" style={{ color: "inherit" }}>{label}</Text>
+			<Flex
+				align="baseline"
+				style={{
+					color:
+						type === "translatedLyric"
+							? "var(--translation-color, inherit)"
+							: "var(--romanization-color, inherit)",
+				}}
+			>
+				<Text size="2" style={{ color: "inherit" }}>
+					{label}
+				</Text>
 				{editing ? (
 					<TextField.Root
 						autoFocus
@@ -330,7 +346,7 @@ const InsertLineButton = ({
 				? t("lyricLineView.duplicateLinesHere", {
 						count: selectedLinesCount,
 						defaultValue: "Duplicate {count} selected line(s) here",
-				  })
+					})
 				: t("lyricLineView.insertLine", "在此插入新行")}
 		</Button>
 	);
@@ -364,33 +380,74 @@ export const LyricLineView: FC<{
 	const toolMode = useAtomValue(toolModeAtom);
 	const syncLevelMode = useAtomValue(syncLevelModeAtom);
 	const store = useStore();
-	const geniusCategorizationEnabled = useAtomValue(geniusCategorizationEnabledAtom);
+	const geniusCategorizationEnabled = useAtomValue(
+		geniusCategorizationEnabledAtom,
+	);
+	const sectionAtom = useMemo(
+		() =>
+			atom((get) =>
+				get(lyricLinesAtom).sections?.find(
+					(section) => section.id === line.sectionId,
+				),
+			),
+		[line.sectionId],
+	);
+	const activeSection = useAtomValue(sectionAtom);
+	const sectionActionsEnabled = geniusCategorizationEnabled && !!activeSection;
+	const manualCategorizationEnabled =
+		geniusCategorizationEnabled && !activeSection;
 
-	const activeGeniusHeader = geniusCategorizationEnabled ? line.geniusHeader : undefined;
+	const activeGeniusHeader = geniusCategorizationEnabled
+		? (activeSection?.label ?? line.geniusHeader)
+		: undefined;
 
 	const customHeaderColor = useAtomValue(advGeniusHeaderColorAtom);
 
 	const headerType = useMemo(() => {
+		if (activeSection) return activeSection.category;
 		if (!activeGeniusHeader) return "accent";
 		const match = activeGeniusHeader.match(
 			/^\[(Chorus|Verse|Bridge|Intro|Outro|Pre-Chorus|Hook|Strofa|Refren|Skit|Interlude|Instrumental|Pre-Refren|Partea|Slofa|Section|Part|S\d+|V\d+|C\d+|Strophe|Refrain|Pont|Couplet|Refrain|Break).*?\]$/i,
 		);
 		return match ? match[1].toLowerCase() : "accent";
-	}, [activeGeniusHeader]);
+	}, [activeGeniusHeader, activeSection]);
 
 	const isSectionStart = useMemo(() => {
 		if (!activeGeniusHeader) return false;
 		if (lineIndex === 0) return true;
 		const prevLine = store.get(lyricLinesAtom).lyricLines[lineIndex - 1];
-		return prevLine?.geniusHeader !== activeGeniusHeader;
-	}, [activeGeniusHeader, lineIndex, store]);
+		return line.sectionId
+			? prevLine?.sectionId !== line.sectionId
+			: prevLine?.geniusHeader !== activeGeniusHeader;
+	}, [activeGeniusHeader, line.sectionId, lineIndex, store]);
 
 	const categoryColor = useMemo(() => {
 		if (!headerType) return "accent";
-		if (headerType.includes("chorus") || headerType.includes("refren") || headerType.includes("refrain")) return "pink";
-		if (headerType.includes("verse") || headerType.includes("strofa") || headerType.includes("couplet")) return "blue";
-		if (headerType.includes("bridge")) return "orange";
-		if (headerType.includes("intro") || headerType.includes("outro") || headerType.includes("skit") || headerType.includes("interlude")) return "gray";
+		if (
+			headerType.includes("chorus") ||
+			headerType.includes("refren") ||
+			headerType.includes("refrain")
+		)
+			return "pink";
+		if (
+			headerType.includes("verse") ||
+			headerType.includes("strofa") ||
+			headerType.includes("couplet")
+		)
+			return "blue";
+		if (headerType.includes("bridge") || headerType.includes("break"))
+			return "orange";
+		if (headerType.includes("hook") || headerType.includes("post-chorus"))
+			return "purple";
+		if (headerType.includes("solo") || headerType.includes("instrumental"))
+			return "green";
+		if (
+			headerType.includes("intro") ||
+			headerType.includes("outro") ||
+			headerType.includes("skit") ||
+			headerType.includes("interlude")
+		)
+			return "gray";
 		return "accent";
 	}, [headerType]);
 
@@ -399,7 +456,8 @@ export const LyricLineView: FC<{
 	const lastClickTimeRef = useRef(0);
 
 	const isLastLineAtom = useMemo(
-		() => atom((get) => get(lyricLinesAtom).lyricLines.length - 1 === lineIndex),
+		() =>
+			atom((get) => get(lyricLinesAtom).lyricLines.length - 1 === lineIndex),
 		[lineIndex],
 	);
 	const isLastLine = useAtomValue(isLastLineAtom);
@@ -442,7 +500,9 @@ export const LyricLineView: FC<{
 	const startTimeRef = useRef<HTMLDivElement>(null);
 	const endTimeRef = useRef<HTMLButtonElement>(null);
 	const [enableInsertLocal, setEnableInsertLocal] = useState(false);
-	const [globalEnableInsert, setGlobalEnableInsert] = useAtom(globalEnableInsertAtom);
+	const [globalEnableInsert, setGlobalEnableInsert] = useAtom(
+		globalEnableInsertAtom,
+	);
 	const enableInsert = enableInsertLocal || globalEnableInsert;
 
 	const disableInsert = useCallback(() => {
@@ -535,7 +595,6 @@ export const LyricLineView: FC<{
 		setEndTimeLinked(linked);
 	}, [endTimeLinked, line.endTimeLink]);
 
-
 	const onToggleEndTimeLink = useCallback(
 		(evt: React.MouseEvent<HTMLButtonElement>) => {
 			evt.preventDefault();
@@ -622,14 +681,28 @@ export const LyricLineView: FC<{
 					}
 				}}
 			>
-				<ContextMenu.Trigger disabled={toolMode !== ToolMode.Edit}
-				><Flex
+				<ContextMenu.Trigger
+						disabled={
+							toolMode === ToolMode.Preview ||
+							(toolMode !== ToolMode.Edit &&
+								!sectionActionsEnabled &&
+								!manualCategorizationEnabled)
+						}
+				>
+					<Flex
 						mx="2"
-						my={line.isBG && toolMode === ToolMode.Sync && compactBGInSync ? "0" : "1"}
+						my={
+							line.isBG && toolMode === ToolMode.Sync && compactBGInSync
+								? "0"
+								: "1"
+						}
 						direction="row"
 						className={classNames(
 							styles.lyricLine,
-							line.isBG && toolMode === ToolMode.Sync && compactBGInSync && styles.bg,
+							line.isBG &&
+								toolMode === ToolMode.Sync &&
+								compactBGInSync &&
+								styles.bg,
 							lineSelected && styles.selected,
 							toolMode === ToolMode.Sync && styles.sync,
 							toolMode === ToolMode.Edit && styles.edit,
@@ -751,7 +824,7 @@ export const LyricLineView: FC<{
 											if (v.has(line.id)) {
 												if (Number.isNaN(minBoundry)) minBoundry = i;
 												if (Number.isNaN(maxBoundry)) maxBoundry = i;
- 
+
 												minBoundry = Math.min(minBoundry, i, lineIndex);
 												maxBoundry = Math.max(maxBoundry, i, lineIndex);
 											}
@@ -782,27 +855,29 @@ export const LyricLineView: FC<{
 							}
 						}}
 						asChild
-					><div
-						>
+					>
+						<div>
 							<Flex
-									direction="column"
+								direction="column"
+								align="center"
+								justify="center"
+								ml="3"
+								style={{ minWidth: "40px" }}
+							>
+								<Text
+									className={classNames(
+										styles.lineNumber,
+										line.ignoreSync && styles.ignored,
+									)}
 									align="center"
-									justify="center"
-									ml="3"
-									style={{ minWidth: "40px" }}
+									color="gray"
 								>
-									<Text
-										className={classNames(
-											styles.lineNumber,
-											line.ignoreSync && styles.ignored,
-										)}
-										align="center"
-										color="gray"
-									>
-										{displayNumber > 0 && displayNumber}
-									</Text>
-									{line.isBG && <VideoBackgroundEffectFilled color="var(--accent-9)" />}
-									{line.isDuet && <TextAlignRightFilled color="#44AA33" />}
+									{displayNumber > 0 && displayNumber}
+								</Text>
+								{line.isBG && (
+									<VideoBackgroundEffectFilled color="var(--accent-9)" />
+								)}
+								{line.isDuet && <TextAlignRightFilled color="#44AA33" />}
 							</Flex>
 							<div
 								className={classNames(
@@ -816,54 +891,87 @@ export const LyricLineView: FC<{
 										<Text
 											size="1"
 											weight="bold"
-											color={customHeaderColor ? undefined : (categoryColor as any)}
-											style={{ 
-												opacity: 0.8, 
+											color={
+												customHeaderColor ? undefined : (categoryColor as any)
+											}
+											style={{
+												opacity: 0.8,
 												textTransform: "uppercase",
-												color: customHeaderColor || undefined
+												color: customHeaderColor || undefined,
 											}}
 										>
 											{activeGeniusHeader}
 										</Text>
+										{sectionActionsEnabled && activeSection && (
+											<SectionActions section={activeSection} />
+										)}
 										{toolMode === ToolMode.Sync && (
 											<Button
-											size="1"
-											variant="ghost"
-											onClick={(e) => {
-												e.stopPropagation();
-												const currentTime = store.get(currentTimeAtom);
-												editLyricLines((state) => {
-													shiftSectionToTime(state.lyricLines, lineIndex, currentTime);
-												});
-											}}
-										>
-											{t("experimentalFeatures.geniusCategorization.snapToPlayhead", "Snap to Playhead")}
+												size="1"
+												variant="ghost"
+												onClick={(e) => {
+													e.stopPropagation();
+													const currentTime = store.get(currentTimeAtom);
+													editLyricLines((state) => {
+														shiftSectionToTime(
+															state.lyricLines,
+															lineIndex,
+															currentTime,
+														);
+													});
+												}}
+											>
+												{t(
+													"experimentalFeatures.geniusCategorization.snapToPlayhead",
+													"Snap to Playhead",
+												)}
 											</Button>
 										)}
 										{toolMode === ToolMode.Sync && (
 											<Button
-											size="1"
-											variant="ghost"
-											onClick={(e) => {
-												e.stopPropagation();
-												const lyricLines = store.get(lyricLinesAtom).lyricLines;
-												const previousSection = findPreviousMatchingSection(lyricLines, lineIndex);
+												size="1"
+												variant="ghost"
+												onClick={(e) => {
+													e.stopPropagation();
+													const lyricLines =
+														store.get(lyricLinesAtom).lyricLines;
+													const previousSection = findPreviousMatchingSection(
+														lyricLines,
+														lineIndex,
+														store.get(lyricLinesAtom).sections,
+													);
 
-												if (previousSection) {
-													let copyResult: ReturnType<typeof copySectionTimings>;
-													editLyricLines((state) => {
-														copyResult = copySectionTimings(state.lyricLines, lineIndex, previousSection);
-													});
-													toast.success(t("common.success", "Success"));
-													if (copyResult && !copyResult.lengthsMatch) {
-														toast.info("Section lengths differ; copied matching lines only.");
+													if (previousSection) {
+														let copyResult: ReturnType<
+															typeof copySectionTimings
+														>;
+														editLyricLines((state) => {
+															copyResult = copySectionTimings(
+																state.lyricLines,
+																lineIndex,
+																previousSection,
+															);
+														});
+														toast.success(t("common.success", "Success"));
+														if (copyResult && !copyResult.lengthsMatch) {
+															toast.info(
+																"Section lengths differ; copied matching lines only.",
+															);
+														}
+													} else {
+														toast.info(
+															t(
+																"experimentalFeatures.geniusCategorization.noPreviousFound",
+																"No previous identical header found with timing.",
+															),
+														);
 													}
-												} else {
-													toast.info(t("experimentalFeatures.geniusCategorization.noPreviousFound", "No previous identical header found with timing."));
-												}
-											}}
-										>
-											{t("experimentalFeatures.geniusCategorization.copyPrevious", "Copy Previous Timing")}
+												}}
+											>
+												{t(
+													"experimentalFeatures.geniusCategorization.copyPrevious",
+													"Copy Previous Timing",
+												)}
 											</Button>
 										)}
 									</Flex>
@@ -878,7 +986,7 @@ export const LyricLineView: FC<{
 									ref={wordsContainerRef}
 									style={{
 										backgroundColor: activeGeniusHeader
-											? customHeaderColor 
+											? customHeaderColor
 												? `${customHeaderColor}15` // 15 is roughly 8% opacity
 												: `var(--${categoryColor}-2)`
 											: undefined,
@@ -927,7 +1035,6 @@ export const LyricLineView: FC<{
 														isHeaderLine={false}
 													/>
 													{toolMode === ToolMode.Edit &&
-
 														showWordRomanizationInput && (
 															<RomanWordView
 																wordAtom={wordAtom}
@@ -1014,7 +1121,7 @@ export const LyricLineView: FC<{
 									</>
 								)}
 							</div>
-											{toolMode === ToolMode.Edit && (
+							{toolMode === ToolMode.Edit && (
 								<Flex p="3">
 									<IconButton
 										size="1"
@@ -1029,7 +1136,7 @@ export const LyricLineView: FC<{
 									</IconButton>
 								</Flex>
 							)}
-											{toolMode === ToolMode.Sync && showTimestamps && (
+							{toolMode === ToolMode.Sync && showTimestamps && (
 								<Flex pr="3" gap="1" direction="column" align="stretch">
 									<div className={styles.startTime} ref={startTimeRef}>
 										{msToTimestamp(line.startTime)}
@@ -1061,7 +1168,29 @@ export const LyricLineView: FC<{
 					</Flex>
 				</ContextMenu.Trigger>
 				<ContextMenu.Content>
-					<LyricLineMenu lineIndex={lineIndex} />
+					{manualCategorizationEnabled &&
+						(toolMode === ToolMode.Edit || toolMode === ToolMode.Sync) && (
+							<CategorizeSelectionContextMenuItem />
+						)}
+					{manualCategorizationEnabled && toolMode === ToolMode.Edit && (
+						<ContextMenu.Separator />
+					)}
+					{sectionActionsEnabled &&
+						activeSection &&
+						toolMode === ToolMode.Sync && (
+							<SectionContextMenuItems section={activeSection} />
+						)}
+					{sectionActionsEnabled &&
+						activeSection &&
+						toolMode === ToolMode.Edit && (
+							<SectionContextMenuSub section={activeSection} />
+						)}
+					{sectionActionsEnabled &&
+						activeSection &&
+						toolMode === ToolMode.Edit && <ContextMenu.Separator />}
+					{toolMode === ToolMode.Edit && (
+						<LyricLineMenu lineIndex={lineIndex} />
+					)}
 				</ContextMenu.Content>
 			</ContextMenu.Root>
 			{(enableInsertLocal || (globalEnableInsert && isLastLine)) && (
@@ -1103,7 +1232,7 @@ export const LyricLineView: FC<{
 						? t("lyricLineView.duplicateLinesHere", {
 								count: selectedLinesCount,
 								defaultValue: "Duplicate {count} selected line(s) here",
-						  })
+							})
 						: t("lyricLineView.insertLine", "在此插入新行")}
 				</Button>
 			)}

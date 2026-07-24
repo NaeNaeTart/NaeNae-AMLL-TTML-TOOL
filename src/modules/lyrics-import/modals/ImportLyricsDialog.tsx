@@ -43,6 +43,12 @@ import {
 import type { LyricLine, LyricWord } from "$/types/ttml.ts";
 import { prepareLyricLine } from "$/utils/lyric-prep";
 import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
+import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
+import {
+	hasReviewableSections,
+	type ReviewedSection,
+	SectionImportReviewDialog,
+} from "./SectionImportReviewDialog";
 
 type ImportSource = "lyrically" | "genius" | "lrclib";
 
@@ -95,6 +101,8 @@ export const ImportLyricsDialog = ({
 	const [processLyrics, setProcessLyrics] = useState(false);
 	const [fetchSongwriters, setFetchSongwriters] = useState(false);
 	const [categorizeGeniusHeaders, setCategorizeGeniusHeaders] = useState(false);
+	const [sectionReviewOpen, setSectionReviewOpen] = useState(false);
+	const [sectionReviewSubmitted, setSectionReviewSubmitted] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [geniusApiKey, setGeniusApiKey] = useAtom(geniusApiKeyAtom);
 	const [, setGeniusCategorizationEnabled] = useAtom(
@@ -286,71 +294,154 @@ export const ImportLyricsDialog = ({
 		[setSaveFileName, setLyricLines, t],
 	);
 
-	const performImport = useCallback(async () => {
-		const rawLines = (
-			processLyrics
-				? editableLyrics
-						.split("\n")
-						.flatMap((line) =>
-							categorizeGeniusHeaders && /^\[.+\]$/.test(line.trim())
-								? [line]
-								: prepareLyricLine(line).split("\n"),
-						)
-				: editableLyrics.split("\n")
-		).map((line) => line.trim());
+	const performImport = useCallback(
+		async (reviewed: ReviewedSection[] = []) => {
+			const rawLines = (
+				processLyrics
+					? editableLyrics
+							.split("\n")
+							.flatMap((line) =>
+								categorizeGeniusHeaders && /^\[.+\]$/.test(line.trim())
+									? [line]
+									: prepareLyricLine(line).split("\n"),
+							)
+					: editableLyrics.split("\n")
+			).map((line) => line.trim());
 
-		const slopPatterns = categorizeGeniusHeaders ? [] : [/^\[.*\]$/];
+			const slopPatterns = categorizeGeniusHeaders ? [] : [/^\[.*\]$/];
 
-		const lines = rawLines.filter((l) => {
-			if (!l) return false;
-			return !slopPatterns.some((pattern) => pattern.test(l));
-		});
-
-		if (lines.length === 0) {
-			toast.error(
-				t(
-					"metadataDialog.fetchSongwriters.noLyricsError",
-					"No lyrics to import.",
-				),
-			);
-			return;
-		}
-
-		const importSongwriters = async () => {
-			if (
-				source !== "genius" ||
-				!fetchSongwriters ||
-				!selectedHit?.fetchSongwriters
-			)
-				return;
-			const writers = await selectedHit.fetchSongwriters();
-			setLyricLines((current) => {
-				const entry = current.metadata.find(
-					(item) => item.key === "songwriter",
-				);
-				if (entry) {
-					entry.value = writers;
-				} else if (writers.length) {
-					current.metadata.push({ key: "songwriter", value: writers });
-				}
+			const lines = rawLines.filter((l) => {
+				if (!l) return false;
+				return !slopPatterns.some((pattern) => pattern.test(l));
 			});
-		};
 
-		if (processLyrics) {
-			let geniusHeader: string | undefined;
+			if (lines.length === 0) {
+				setSectionReviewSubmitted(false);
+				toast.error(
+					t(
+						"metadataDialog.fetchSongwriters.noLyricsError",
+						"No lyrics to import.",
+					),
+				);
+				return;
+			}
+
+			const importSongwriters = async () => {
+				if (
+					source !== "genius" ||
+					!fetchSongwriters ||
+					!selectedHit?.fetchSongwriters
+				)
+					return;
+				const writers = await selectedHit.fetchSongwriters();
+				setLyricLines((current) => {
+					const entry = current.metadata.find(
+						(item) => item.key === "songwriter",
+					);
+					if (entry) {
+						entry.value = writers;
+					} else if (writers.length) {
+						current.metadata.push({ key: "songwriter", value: writers });
+					}
+				});
+			};
+
+			if (processLyrics) {
+				let geniusHeader: string | undefined;
+				const processedLines: LyricLine[] = [];
+				for (const lineText of lines) {
+					const header = categorizeGeniusHeaders
+						? getGeniusHeader(lineText)
+						: undefined;
+					if (header) {
+						geniusHeader = header;
+						continue;
+					}
+					const isBG = lineText.startsWith("<");
+					const words: LyricWord[] = lineText
+						.slice(isBG ? 1 : 0)
+						.split("\\")
+						.filter(Boolean)
+						.map((word) => ({
+							id: uid(),
+							word,
+							startTime: 0,
+							endTime: 0,
+							emptyBeat: 0,
+							obscene: false,
+							romanWord: "",
+						}));
+					processedLines.push({
+						id: uid(),
+						words,
+						startTime: 0,
+						endTime: 0,
+						isBG,
+						isDuet: false,
+						ignoreSync: false,
+						translatedLyric: "",
+						romanLyric: "",
+						geniusHeader,
+					});
+				}
+
+				setLyricLines((prev) => {
+					prev.lyricLines = processedLines;
+					prev.sections = [];
+					applyReviewedSections(prev, reviewed);
+				});
+				if (categorizeGeniusHeaders) setGeniusCategorizationEnabled(true);
+				try {
+					await importSongwriters();
+				} catch (error) {
+					console.error("Genius songwriter fetch failed", error);
+				}
+				if (processedLines[0]?.words[0]) {
+					store.set(selectedLinesAtom, new Set([processedLines[0].id]));
+					store.set(
+						selectedWordsAtom,
+						new Set([processedLines[0].words[0].id]),
+					);
+				}
+				toast.success(
+					t(
+						"metadataDialog.fetchSongwriters.importSuccess",
+						"Imported {count} lines from Genius.",
+						{ count: processedLines.length },
+					),
+				);
+				setIsOpen(false);
+				setSectionReviewSubmitted(false);
+				return;
+			}
+
+			// Standard import: preserve source lines verbatim, including parentheses.
 			const processedLines: LyricLine[] = [];
+			let geniusHeader: string | undefined;
+
 			for (const lineText of lines) {
-				const header = categorizeGeniusHeaders ? getGeniusHeader(lineText) : undefined;
+				const header = categorizeGeniusHeaders
+					? getGeniusHeader(lineText)
+					: undefined;
 				if (header) {
 					geniusHeader = header;
 					continue;
 				}
-				const isBG = lineText.startsWith("<");
-				const words: LyricWord[] = lineText
-					.slice(isBG ? 1 : 0)
-					.split("\\")
-					.filter(Boolean)
-					.map((word) => ({
+				const parts = [lineText];
+
+				for (const part of parts) {
+					const trimmed = part.trim();
+					if (!trimmed) continue;
+
+					const isBG = false;
+					let text = trimmed;
+
+					text = text.replace(/\\/g, "").replace(/\s+/g, " ");
+					if (!text) continue;
+
+					const wordStrings = [text];
+
+					const words: LyricWord[] = wordStrings.map((word) => ({
 						id: uid(),
 						word,
 						startTime: 0,
@@ -359,22 +450,26 @@ export const ImportLyricsDialog = ({
 						obscene: false,
 						romanWord: "",
 					}));
-				processedLines.push({
-					id: uid(),
-					words,
-					startTime: 0,
-					endTime: 0,
-					isBG,
-					isDuet: false,
-					ignoreSync: false,
-					translatedLyric: "",
-					romanLyric: "",
-					geniusHeader,
-				});
+
+					processedLines.push({
+						id: uid(),
+						words,
+						startTime: 0,
+						endTime: 0,
+						isBG,
+						isDuet: false,
+						ignoreSync: false,
+						translatedLyric: "",
+						romanLyric: "",
+						geniusHeader,
+					});
+				}
 			}
 
 			setLyricLines((prev) => {
 				prev.lyricLines = processedLines;
+				prev.sections = [];
+				applyReviewedSections(prev, reviewed);
 			});
 			if (categorizeGeniusHeaders) setGeniusCategorizationEnabled(true);
 			try {
@@ -382,129 +477,83 @@ export const ImportLyricsDialog = ({
 			} catch (error) {
 				console.error("Genius songwriter fetch failed", error);
 			}
-			if (processedLines[0]?.words[0]) {
+
+			// Select first new word
+			if (processedLines.length > 0) {
 				store.set(selectedLinesAtom, new Set([processedLines[0].id]));
-				store.set(selectedWordsAtom, new Set([processedLines[0].words[0].id]));
+				if (processedLines[0].words.length > 0) {
+					store.set(
+						selectedWordsAtom,
+						new Set([processedLines[0].words[0].id]),
+					);
+				}
 			}
+
 			toast.success(
 				t(
 					"metadataDialog.fetchSongwriters.importSuccess",
 					"Imported {count} lines from Genius.",
-					{ count: processedLines.length },
+					{
+						count: processedLines.length,
+					},
 				),
 			);
 			setIsOpen(false);
-			return;
-		}
+			setSectionReviewSubmitted(false);
+		},
+		[
+			editableLyrics,
+			setLyricLines,
+			setIsOpen,
+			t,
+			processLyrics,
+			store,
+			categorizeGeniusHeaders,
+			source,
+			fetchSongwriters,
+			selectedHit,
+			setGeniusCategorizationEnabled,
+		],
+	);
 
-		// Standard import: preserve source lines verbatim, including parentheses.
-		const processedLines: LyricLine[] = [];
-		let geniusHeader: string | undefined;
-
-		for (const lineText of lines) {
-			const header = categorizeGeniusHeaders ? getGeniusHeader(lineText) : undefined;
-			if (header) {
-				geniusHeader = header;
-				continue;
-			}
-			const parts = [lineText];
-
-			for (const part of parts) {
-				const trimmed = part.trim();
-				if (!trimmed) continue;
-
-				const isBG = false;
-				let text = trimmed;
-
-				text = text.replace(/\\/g, "").replace(/\s+/g, " ");
-				if (!text) continue;
-
-				const wordStrings = [text];
-
-				const words: LyricWord[] = wordStrings.map((word) => ({
-					id: uid(),
-					word,
-					startTime: 0,
-					endTime: 0,
-					emptyBeat: 0,
-					obscene: false,
-					romanWord: "",
-				}));
-
-				processedLines.push({
-					id: uid(),
-					words,
-					startTime: 0,
-					endTime: 0,
-					isBG,
-					isDuet: false,
-					ignoreSync: false,
-					translatedLyric: "",
-					romanLyric: "",
-					geniusHeader,
+	const confirmAndPerformImport = useCallback(
+		(reviewed: ReviewedSection[] = [], onCancel?: () => void) => {
+			if (isDirty) {
+				setConfirmDialog({
+					open: true,
+					title: t("confirmDialog.importFile.title", "Confirm lyric import"),
+					description: t(
+						"confirmDialog.importFile.description",
+						"This project has unsaved changes. Importing will replace its lyrics. Continue?",
+					),
+					onConfirm: () => {
+						void performImport(reviewed);
+					},
+					onCancel,
 				});
+				return;
 			}
-		}
-
-		setLyricLines((prev) => {
-			prev.lyricLines = processedLines;
-		});
-		if (categorizeGeniusHeaders) setGeniusCategorizationEnabled(true);
-		try {
-			await importSongwriters();
-		} catch (error) {
-			console.error("Genius songwriter fetch failed", error);
-		}
-
-		// Select first new word
-		if (processedLines.length > 0) {
-			store.set(selectedLinesAtom, new Set([processedLines[0].id]));
-			if (processedLines[0].words.length > 0) {
-				store.set(selectedWordsAtom, new Set([processedLines[0].words[0].id]));
-			}
-		}
-
-		toast.success(
-			t(
-				"metadataDialog.fetchSongwriters.importSuccess",
-				"Imported {count} lines from Genius.",
-				{
-					count: processedLines.length,
-				},
-			),
-		);
-		setIsOpen(false);
-	}, [
-		editableLyrics,
-		setLyricLines,
-		setIsOpen,
-		t,
-		processLyrics,
-		store,
-		categorizeGeniusHeaders,
-		source,
-		fetchSongwriters,
-		selectedHit,
-		setGeniusCategorizationEnabled,
-	]);
+			void performImport(reviewed);
+		},
+		[isDirty, performImport, setConfirmDialog, t],
+	);
 
 	const handleImport = useCallback(() => {
-		if (isDirty) {
-			setConfirmDialog({
-				open: true,
-				title: t("confirmDialog.importFile.title", "Confirm lyric import"),
-				description: t(
-					"confirmDialog.importFile.description",
-					"This project has unsaved changes. Importing will replace its lyrics. Continue?",
-				),
-				onConfirm: () => {
-					void performImport();
-				},
-			});
+		if (
+			source === "genius" &&
+			categorizeGeniusHeaders &&
+			hasReviewableSections(editableLyrics)
+		) {
+			setSectionReviewOpen(true);
 			return;
 		}
-		void performImport();
-	}, [isDirty, performImport, setConfirmDialog, t]);
+		confirmAndPerformImport();
+	}, [
+		categorizeGeniusHeaders,
+		confirmAndPerformImport,
+		editableLyrics,
+		source,
+	]);
 
 	// ── Lyrics preview pane ────────────────────────────────────────────────────
 	if (source === "genius" && !geniusApiKey) {
@@ -550,198 +599,219 @@ export const ImportLyricsDialog = ({
 
 	if (selectedHit) {
 		return (
-			<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-				<Dialog.Content style={{ maxWidth: 680, height: "80vh" }}>
-					<Flex justify="between" align="center" mb="3">
-						<Flex direction="column">
-							<Dialog.Title mb="0">
-								{source === "genius"
-									? t("genius.previewTitle", "Genius — Lyrics Preview")
-									: source === "lrclib"
-										? t("lrclib.title", "LRCLIB — Lyrics Preview")
-										: t("lyrically.previewTitle", "Lyrically — Lyrics Preview")}
-							</Dialog.Title>
-							<Text size="1" color="gray" truncate style={{ maxWidth: 460 }}>
-								{selectedHit.name} - {selectedHit.artist}
-							</Text>
-						</Flex>
-						<Button
-							variant="soft"
-							color="gray"
-							onClick={() => {
-								setSelectedHit(null);
-								setEditableLyrics("");
-							}}
-						>
-							{t("genius.back", "← Back")}
-						</Button>
-					</Flex>
-
-					{fetchingLyrics ? (
-						<Flex align="center" justify="center" style={{ height: "60%" }}>
-							<Spinner size="3" />
-						</Flex>
-					) : (
-						<>
-							<Flex justify="between" align="center" mb="2">
-								<Text size="1" color="gray">
-									{isEditing
-										? t("lyrically.editingRawText", "Editing Raw Text")
-										: t(
-												"genius.previewSubtitle",
-												"Text in parentheses will be separated as background lyrics.",
-											)}
+			<>
+				<Dialog.Root
+					open={isOpen && !sectionReviewOpen && !sectionReviewSubmitted}
+					onOpenChange={setIsOpen}
+				>
+					<Dialog.Content style={{ maxWidth: 680, height: "80vh" }}>
+						<Flex justify="between" align="center" mb="3">
+							<Flex direction="column">
+								<Dialog.Title mb="0">
+									{source === "genius"
+										? t("genius.previewTitle", "Genius — Lyrics Preview")
+										: source === "lrclib"
+											? t("lrclib.title", "LRCLIB — Lyrics Preview")
+											: t(
+													"lyrically.previewTitle",
+													"Lyrically — Lyrics Preview",
+												)}
+								</Dialog.Title>
+								<Text size="1" color="gray" truncate style={{ maxWidth: 460 }}>
+									{selectedHit.name} - {selectedHit.artist}
 								</Text>
-								<Button
-									variant="ghost"
-									size="1"
-									onClick={() => setIsEditing(!isEditing)}
-								>
-									{isEditing
-										? t("lyrically.backToPreview", "Back to Preview")
-										: t("lyrically.manualEdit", "Manual Edit")}
-								</Button>
 							</Flex>
+							<Button
+								variant="soft"
+								color="gray"
+								onClick={() => {
+									setSelectedHit(null);
+									setEditableLyrics("");
+								}}
+							>
+								{t("genius.back", "← Back")}
+							</Button>
+						</Flex>
 
-							{isEditing ? (
-								<TextArea
-									value={editableLyrics}
-									onChange={(e) => setEditableLyrics(e.target.value)}
-									style={{
-										height: "calc(82vh - 200px)",
-										resize: "none",
-										fontSize: 13,
-									}}
-								/>
-							) : (
-								<Box
-									style={{
-										height: "calc(82vh - 200px)",
-										padding: "16px",
-										backgroundColor: "var(--gray-2)",
-										border: "1px solid var(--gray-5)",
-										borderRadius: "var(--radius-3)",
-										overflow: "auto",
-									}}
-								>
-									<pre
+						{fetchingLyrics ? (
+							<Flex align="center" justify="center" style={{ height: "60%" }}>
+								<Spinner size="3" />
+							</Flex>
+						) : (
+							<>
+								<Flex justify="between" align="center" mb="2">
+									<Text size="1" color="gray">
+										{isEditing
+											? t("lyrically.editingRawText", "Editing Raw Text")
+											: t(
+													"genius.previewSubtitle",
+													"Text in parentheses will be separated as background lyrics.",
+												)}
+									</Text>
+									<Button
+										variant="ghost"
+										size="1"
+										onClick={() => setIsEditing(!isEditing)}
+									>
+										{isEditing
+											? t("lyrically.backToPreview", "Back to Preview")
+											: t("lyrically.manualEdit", "Manual Edit")}
+									</Button>
+								</Flex>
+
+								{isEditing ? (
+									<TextArea
+										value={editableLyrics}
+										onChange={(e) => setEditableLyrics(e.target.value)}
 										style={{
-											margin: 0,
-											whiteSpace: "pre-wrap",
-											fontFamily: "inherit",
-											fontSize: "13px",
-											lineHeight: "1.6",
-											color: "var(--gray-12)",
-										}}
-										// biome-ignore lint/security/noDangerouslySetInnerHtml: Used for syntax highlighting
-										dangerouslySetInnerHTML={{
-											__html: editableLyrics
-												.replace(/&/g, "&amp;")
-												.replace(/</g, "&lt;")
-												.replace(/>/g, "&gt;")
-												.replace(
-													/(\([^)]+\))/g,
-													'<span style="opacity: 0.35; font-style: italic; font-weight: 300;">$1</span>',
-												),
+											height: "calc(82vh - 200px)",
+											resize: "none",
+											fontSize: 13,
 										}}
 									/>
-								</Box>
-							)}
+								) : (
+									<Box
+										style={{
+											height: "calc(82vh - 200px)",
+											padding: "16px",
+											backgroundColor: "var(--gray-2)",
+											border: "1px solid var(--gray-5)",
+											borderRadius: "var(--radius-3)",
+											overflow: "auto",
+										}}
+									>
+										<pre
+											style={{
+												margin: 0,
+												whiteSpace: "pre-wrap",
+												fontFamily: "inherit",
+												fontSize: "13px",
+												lineHeight: "1.6",
+												color: "var(--gray-12)",
+											}}
+											// biome-ignore lint/security/noDangerouslySetInnerHtml: Used for syntax highlighting
+											dangerouslySetInnerHTML={{
+												__html: editableLyrics
+													.replace(/&/g, "&amp;")
+													.replace(/</g, "&lt;")
+													.replace(/>/g, "&gt;")
+													.replace(
+														/(\([^)]+\))/g,
+														'<span style="opacity: 0.35; font-style: italic; font-weight: 300;">$1</span>',
+													),
+											}}
+										/>
+									</Box>
+								)}
 
-							<Flex justify="between" align="end" gap="2" wrap="wrap" mt="3">
-								<Flex
-									gap="3"
-									align="center"
-									wrap="wrap"
-									style={{ flex: 1, minWidth: 0 }}
-								>
-									<Text size="1" color="gray">
-										{t("genius.linesCount", "{count} lines", {
-											count: editableLyrics
-												.split("\n")
-												.filter((line) => line.trim()).length,
-										})}
-									</Text>
-									<Flex direction="column" gap="2" align="start">
-										<Flex gap="3" align="center" wrap="wrap">
-											<Flex gap="2" align="center">
-												<Text size="1" color="gray">
-													{t(
-														"textImportDialog.processLyrics",
-														"Process Lyrics",
-													)}
-												</Text>
-												<Checkbox
-													size="1"
-													checked={processLyrics}
-													onCheckedChange={(checked: boolean) =>
-														setProcessLyrics(checked)
-													}
-												/>
+								<Flex justify="between" align="end" gap="2" wrap="wrap" mt="3">
+									<Flex
+										gap="3"
+										align="center"
+										wrap="wrap"
+										style={{ flex: 1, minWidth: 0 }}
+									>
+										<Text size="1" color="gray">
+											{t("genius.linesCount", "{count} lines", {
+												count: editableLyrics
+													.split("\n")
+													.filter((line) => line.trim()).length,
+											})}
+										</Text>
+										<Flex direction="column" gap="2" align="start">
+											<Flex gap="3" align="center" wrap="wrap">
+												<Flex gap="2" align="center">
+													<Text size="1" color="gray">
+														{t(
+															"textImportDialog.processLyrics",
+															"Process Lyrics",
+														)}
+													</Text>
+													<Checkbox
+														size="1"
+														checked={processLyrics}
+														onCheckedChange={(checked: boolean) =>
+															setProcessLyrics(checked)
+														}
+													/>
+												</Flex>
+												{source === "genius" && (
+													<Flex gap="2" align="center">
+														<Text size="1" color="gray">
+															{t(
+																"metadataDialog.fetchSongwriters.button",
+																"Fetch Songwriters",
+															)}
+														</Text>
+														<Checkbox
+															size="1"
+															checked={fetchSongwriters}
+															onCheckedChange={(checked: boolean) =>
+																setFetchSongwriters(checked)
+															}
+														/>
+													</Flex>
+												)}
 											</Flex>
 											{source === "genius" && (
 												<Flex gap="2" align="center">
 													<Text size="1" color="gray">
 														{t(
-															"metadataDialog.fetchSongwriters.button",
-															"Fetch Songwriters",
+															"experimentalFeatures.geniusCategorization.title",
+															"Genius Header Categorization",
 														)}
 													</Text>
 													<Checkbox
 														size="1"
-														checked={fetchSongwriters}
+														checked={categorizeGeniusHeaders}
 														onCheckedChange={(checked: boolean) =>
-															setFetchSongwriters(checked)
+															setCategorizeGeniusHeaders(checked)
 														}
 													/>
 												</Flex>
 											)}
 										</Flex>
-										{source === "genius" && (
-											<Flex gap="2" align="center">
-												<Text size="1" color="gray">
-													{t(
-														"experimentalFeatures.geniusCategorization.title",
-														"Genius Header Categorization",
-													)}
-												</Text>
-												<Checkbox
-													size="1"
-													checked={categorizeGeniusHeaders}
-													onCheckedChange={(checked: boolean) =>
-														setCategorizeGeniusHeaders(checked)
-													}
-												/>
-											</Flex>
-										)}
+									</Flex>
+
+									<Flex gap="2" style={{ flexShrink: 0 }}>
+										<Dialog.Close>
+											<Button variant="soft" color="gray">
+												{t("common.cancel", "Cancel")}
+											</Button>
+										</Dialog.Close>
+										<Button
+											onClick={handleImport}
+											disabled={
+												!editableLyrics.trim() ||
+												editableLyrics ===
+													t(
+														"lyrically.noLyricsLabel",
+														"No lyrics available for this track.",
+													)
+											}
+										>
+											{t("genius.importButton", "Import Lyrics")}
+										</Button>
 									</Flex>
 								</Flex>
-
-								<Flex gap="2" style={{ flexShrink: 0 }}>
-									<Dialog.Close>
-										<Button variant="soft" color="gray">
-											{t("common.cancel", "Cancel")}
-										</Button>
-									</Dialog.Close>
-									<Button
-										onClick={handleImport}
-										disabled={
-											!editableLyrics.trim() ||
-											editableLyrics ===
-												t(
-													"lyrically.noLyricsLabel",
-													"No lyrics available for this track.",
-												)
-										}
-									>
-										{t("genius.importButton", "Import Lyrics")}
-									</Button>
-								</Flex>
-							</Flex>
-						</>
-					)}
-				</Dialog.Content>
-			</Dialog.Root>
+							</>
+						)}
+					</Dialog.Content>
+				</Dialog.Root>
+				<SectionImportReviewDialog
+					open={sectionReviewOpen}
+					sourceText={editableLyrics}
+					onSourceTextChange={setEditableLyrics}
+					onCancel={() => setSectionReviewOpen(false)}
+					onConfirm={(sections) => {
+						setSectionReviewSubmitted(true);
+						setSectionReviewOpen(false);
+						confirmAndPerformImport(sections, () =>
+							setSectionReviewSubmitted(false),
+						);
+					}}
+				/>
+			</>
 		);
 	}
 

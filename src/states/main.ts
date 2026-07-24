@@ -14,6 +14,7 @@ import { atomWithStorage, selectAtom } from "jotai/utils";
 import { REDO, UNDO, withHistory } from "jotai-history";
 import { uid } from "uid";
 import { identifyProject } from "$/modules/project/logic/project-info";
+import { migrateLegacySections } from "$/modules/lyric-editor/utils/section-system";
 import type { TTMLLyric } from "../types/ttml";
 
 export enum DarkMode {
@@ -45,6 +46,7 @@ export const lyricLinesAtom = atom({
 	lyricLines: [],
 	metadata: [],
 	marks: [],
+	sections: [],
 } as TTMLLyric);
 
 const setsEqual = (a: Set<string>, b: Set<string>) => {
@@ -140,9 +142,11 @@ export const newLyricLinesAtom = atom(
 			lyricLines: [],
 			metadata: [],
 			marks: [],
+			sections: [],
 		},
 	) => {
 		if (!newState.marks) newState.marks = [];
+		migrateLegacySections(newState);
 		set(lyricLinesAtom, newState);
 		set(selectedLinesAtom, new Set());
 		set(selectedWordsAtom, new Set());
@@ -150,6 +154,7 @@ export const newLyricLinesAtom = atom(
 );
 export const selectedLinesAtom = atom(new Set<string>());
 export const selectedWordsAtom = atom(new Set<string>());
+export const collapsedSectionIdsAtom = atom(new Set<string>());
 
 export const saveFileNameAtom = atom("lyric.ttml");
 

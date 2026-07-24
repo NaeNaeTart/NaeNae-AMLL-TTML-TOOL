@@ -226,6 +226,16 @@ export default function exportTTMLText(ttmlLyric: TTMLLyric): string {
 		}
 	}
 
+	if (ttmlLyric.sections && ttmlLyric.sections.length > 0) {
+		const metaEl = doc.createElement("amll:meta");
+		metaEl.setAttribute("key", "amll:sections");
+		metaEl.setAttribute(
+			"value",
+			JSON.stringify({ version: 1, sections: ttmlLyric.sections }),
+		);
+		metadataEl.appendChild(metaEl);
+	}
+
 	head.appendChild(metadataEl);
 
 	let i = 0;
@@ -262,6 +272,9 @@ export default function exportTTMLText(ttmlLyric: TTMLLyric): string {
 
 			const itunesKey = `L${++i}`;
 			lineP.setAttribute("itunes:key", itunesKey);
+			if (line.sectionId) {
+				lineP.setAttribute("amll:section", line.sectionId);
+			}
 
 			const mainWords = line.words;
 			let bgWords: LyricWord[] = [];

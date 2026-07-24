@@ -19,14 +19,20 @@ export const formatDurationInput = (durationMs: number): string =>
 const scaleTimestamp = (timestamp: number, factor: number): number =>
 	Math.max(0, Math.round(timestamp * factor));
 
-export const scaleTTMLTimings = (lyrics: TTMLLyric, factor: number): void => {
+export const scaleTTMLTimings = (
+	lyrics: TTMLLyric,
+	factor: number,
+	lineIndices?: ReadonlySet<number>,
+): void => {
 	if (!Number.isFinite(factor) || factor <= 0) {
 		throw new RangeError(
 			"Time stretch factor must be a positive finite number",
 		);
 	}
 
-	for (const line of lyrics.lyricLines) {
+	for (const [index, line] of lyrics.lyricLines.entries()) {
+		if (lineIndices && !lineIndices.has(index)) continue;
+
 		line.startTime = scaleTimestamp(line.startTime, factor);
 		line.endTime = scaleTimestamp(line.endTime, factor);
 
@@ -54,8 +60,10 @@ export const scaleTTMLTimings = (lyrics: TTMLLyric, factor: number): void => {
 		}
 	}
 
-	for (const mark of lyrics.marks ?? []) {
-		mark.timeMs = scaleTimestamp(mark.timeMs, factor);
+	if (!lineIndices) {
+		for (const mark of lyrics.marks ?? []) {
+			mark.timeMs = scaleTimestamp(mark.timeMs, factor);
+		}
 	}
 };
 

@@ -21,6 +21,7 @@ import type {
 	LyricLine,
 	LyricWord,
 	LyricWordBase,
+	Mark,
 	TTMLLyric,
 	TTMLMetadata,
 } from "../../../types/ttml.ts";
@@ -441,6 +442,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 		isBG = false,
 		isDuet = false,
 		parentItunesKey: string | null = null,
+		parentSectionId?: string,
 	) {
 		const startTimeAttr = lineEl.getAttribute("begin");
 		const endTimeAttr = lineEl.getAttribute("end");
@@ -468,6 +470,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			startTime: parsedStartTime,
 			endTime: parsedEndTime,
 			ignoreSync: false,
+			sectionId: getAttr(lineEl, "section") || parentSectionId,
 		};
 		let haveBg = false;
 
@@ -517,7 +520,13 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 
 				if (wordEl.nodeName === "span" && role) {
 					if (role === "x-bg") {
-						parseLineElement(wordEl, true, line.isDuet, itunesKey);
+						parseLineElement(
+							wordEl,
+							true,
+							line.isDuet,
+							itunesKey,
+							line.sectionId,
+						);
 						haveBg = true;
 					} else if (role === "x-translation") {
 						// 没有 Apple Music 样式翻译时才使用内嵌翻译
@@ -610,9 +619,25 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 		}
 	}
 
+	let sections: TTMLLyric["sections"];
+	const sectionMeta = metadata.find((m) => m.key === "amll:sections");
+	if (sectionMeta?.value[0]) {
+		try {
+			const parsed = JSON.parse(sectionMeta.value[0]);
+			if (parsed?.version === 1 && Array.isArray(parsed.sections)) {
+				sections = parsed.sections;
+			}
+		} catch {
+			// Optional section metadata should never make an otherwise valid TTML fail.
+		}
+	}
+
 	return {
-		metadata: metadata.filter((m) => m.key !== "amll:marks"),
+		metadata: metadata.filter(
+			(m) => m.key !== "amll:marks" && m.key !== "amll:sections",
+		),
 		lyricLines: lyricLines,
 		marks: marks.length > 0 ? marks : undefined,
+		sections,
 	};
 }
