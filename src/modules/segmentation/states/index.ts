@@ -4,11 +4,13 @@
 
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import type { SegmentationEngineId } from "../types";
 
 type Scope = "all" | "range";
 type PunctuationMode = "merge" | "standalone";
 type CustomRulesMap = Map<string, string[]>;
 type CustomRulesStorage = [string, string[]][];
+type LearnedRulesStorage = [string, number[]][];
 
 export const segmentationScopeAtom = atomWithStorage<Scope>(
 	"segmentation.scope",
@@ -28,7 +30,11 @@ export const segmentationSplitCJKAtom = atomWithStorage(
 );
 export const segmentationSplitEnglishAtom = atomWithStorage(
 	"segmentation.splitEnglish",
-	false,
+	true,
+);
+export const segmentationEngineAtom = atomWithStorage<SegmentationEngineId>(
+	"segmentation.engine",
+	"prosodic",
 );
 export const segmentationPunctuationModeAtom = atomWithStorage<PunctuationMode>(
 	"segmentation.punctuationMode",
@@ -65,6 +71,33 @@ export const segmentationCustomRulesAtom = atom<
 		const rulesArray = Array.from(newMap.entries());
 		set(segmentationCustomRulesStorageAtom, rulesArray);
 	},
+);
+
+const segmentationLearnedRulesStorageAtom = atomWithStorage<LearnedRulesStorage>(
+	"segmentation.learnedRules",
+	[],
+);
+
+export const segmentationLearnedRulesAtom = atom<
+	Map<string, number[]>,
+	[Map<string, number[]>],
+	void
+>(
+	(get) => new Map(get(segmentationLearnedRulesStorageAtom)),
+	(_get, set, rules) => set(segmentationLearnedRulesStorageAtom, Array.from(rules.entries())),
+);
+
+export const splitWordApplyToAllAtom = atomWithStorage(
+	"segmentation.splitWord.applyToAll",
+	false,
+);
+export const splitWordIgnoreCaseAtom = atomWithStorage(
+	"segmentation.splitWord.ignoreCase",
+	true,
+);
+export const splitWordRememberAtom = atomWithStorage(
+	"segmentation.splitWord.remember",
+	true,
 );
 
 export const segmentationLangAtom = atom<string>("en-us");

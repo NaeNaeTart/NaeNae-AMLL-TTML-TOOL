@@ -38,6 +38,23 @@ export function ChangelogDialog() {
 				<ScrollArea type="always" scrollbars="vertical" style={{ height: "calc(100% - 60px)" }}>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="ruby">v0.7.2 Updates (Lyrics Segmentation)</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Selectable Syllabification Engines:</strong> Auto Segment and Advanced Segmentation now offer dedicated English, Spanish, French, Russian, Japanese, and CJK engines alongside clearly labelled legacy fallbacks. The Auto Segment dialog suggests an engine from the lyric language.
+								</Text>
+								<Text size="2">
+									<strong>Learned Word Splits:</strong> Manual split boundaries can now be remembered and automatically reused for future occurrences of the same word.
+								</Text>
+								<Text size="2">
+									<strong>Persistent Split Dialog Options:</strong> The Split Word dialog now remembers its last-used options, reducing repeated setup when correcting multiple words.
+								</Text>
+								<Text size="2">
+									<strong>Lyric Preparation Fix:</strong> CJK text now splits correctly around non-Latin commas even when there is no surrounding space.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="ruby">v0.7.1 Updates (Scoped Time Stretch)</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">

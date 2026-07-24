@@ -24,6 +24,27 @@ export function WhatsNewDialog() {
 
 	const features = [
 		{
+			title: "Smarter Lyrics Splitting",
+			description: "Choose dedicated syllabification engines for English, Spanish, French, Russian, Japanese, and CJK lyrics, with legacy fallbacks still available.",
+			icon: <MusicNote1Regular />,
+			color: "cyan",
+			info: "Open Auto Segment to get a language-based engine suggestion before applying it to all lyric lines. Advanced Segmentation exposes the same alphabetized engine list."
+		},
+		{
+			title: "Learned Word Splits",
+			description: "Remember manual split boundaries and automatically reuse them whenever the same word appears again.",
+			icon: <CheckmarkCircleRegular />,
+			color: "grass",
+			info: "In the Split Word dialog, enable remembering to save the boundaries you chose. Matching words use that split during future automatic segmentation."
+		},
+		{
+			title: "Persistent Split Options",
+			description: "The Split Word dialog remembers the last options you used, so repeated corrections take fewer clicks.",
+			icon: <SettingsRegular />,
+			color: "violet",
+			info: "Your Apply to all, case-sensitivity, and remember-split preferences persist between Split Word sessions."
+		},
+		{
 			title: "Spicy Lyrics Preview",
 			description: "A high-fidelity Spicy Lyrics renderer with animated, custom, and cover-art backgrounds; karaoke, Simple Lyrics, and line-synced layouts; automatic scrolling; and an optional FPS counter.",
 			icon: <StarRegular />,

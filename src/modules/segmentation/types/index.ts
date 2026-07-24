@@ -14,11 +14,29 @@ export enum CharType {
 }
 
 export type HyphenatorFunc = (text: string) => string;
+export type SegmentationEngineId =
+	| "prosodic"
+	| "basic"
+	| "japanese"
+	| "silabas"
+	| "syllabify-fr"
+	| "syllabify"
+	| "hyphenation-en-us"
+	| "hyphenation-de"
+	| "hyphenation-fr"
+	| "hyphenation-es"
+	| "hyphenation-id"
+	| "hyphenation-it"
+	| "hyphenation-pt"
+	| "hyphenation-ru"
+	| "none";
 
 /**
  * @description 高级分词的配置选项
  */
 export interface SegmentationConfig {
+	/** Selected text-to-syllable engine. */
+	engine: SegmentationEngineId;
 	/**
 	 * 是否对 CJK 字符按字符分词
 	 *
@@ -57,6 +75,8 @@ export interface SegmentationConfig {
 	 * 自定义分词规则
 	 */
 	customRules: Map<string, string[]>;
+	/** User corrections, keyed by a normalized Unicode word core. */
+	learnedRules: Map<string, number[]>;
 	/**
 	 * 当前使用的连字符分词函数
 	 * 如果未提供，则不执行西文音节的自动分词

@@ -27,8 +27,8 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	segmentationCustomRulesAtom,
+	segmentationEngineAtom,
 	segmentationIgnoreListTextAtom,
-	segmentationLangAtom,
 	segmentationPunctuationModeAtom,
 	segmentationPunctuationWeightAtom,
 	segmentationRangeEndAtom,
@@ -38,8 +38,8 @@ import {
 	segmentationSplitCJKAtom,
 	segmentationSplitEnglishAtom,
 } from "$/modules/segmentation/states";
-import { SUPPORTED_LANGUAGES } from "$/modules/segmentation/utils/hyphen-loader";
 import { segmentLyricLines } from "$/modules/segmentation/utils/segmentation.ts";
+import { SYLLABIFICATION_ENGINES } from "$/modules/segmentation/utils/syllabification-engines";
 import { advancedSegmentationDialogAtom } from "$/states/dialogs.ts";
 import { lyricLinesAtom } from "$/states/main.ts";
 import { type LyricWord, newLyricLine, newLyricWord } from "$/types/ttml";
@@ -56,6 +56,7 @@ export const AdvancedSegmentationDialog = memo(() => {
 	const [rangeEnd, setRangeEnd] = useAtom(segmentationRangeEndAtom);
 	const [splitCJK, setSplitCJK] = useAtom(segmentationSplitCJKAtom);
 	const [splitEnglish, setSplitEnglish] = useAtom(segmentationSplitEnglishAtom);
+	const [engine, setEngine] = useAtom(segmentationEngineAtom);
 	const [punctuationMode, setPunctuationMode] = useAtom(
 		segmentationPunctuationModeAtom,
 	);
@@ -78,8 +79,6 @@ export const AdvancedSegmentationDialog = memo(() => {
 
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const currentLyric = useAtomValue(lyricLinesAtom);
-
-	const [lang, setLang] = useAtom(segmentationLangAtom);
 
 	const { t } = useTranslation();
 
@@ -312,19 +311,19 @@ export const AdvancedSegmentationDialog = memo(() => {
 								<Flex direction="column" gap="1" ml="5">
 									<Text size="2" color="gray">
 										{t(
-											"advancedSegmentDialog.language.select",
-											"选择一个分词语言模型：",
+											"advancedSegmentDialog.engine.select",
+											"Choose a syllabification engine:",
 										)}
 									</Text>
 									<Select.Root
-										value={lang}
-										onValueChange={setLang}
-										disabled={isLoadingLang}
+										value={engine}
+										onValueChange={(value) => setEngine(value as typeof engine)}
 									>
-										<Select.Trigger style={{ width: "100%" }} /><Select.Content>
-											{SUPPORTED_LANGUAGES.map((l) => (
-												<Select.Item key={l.value} value={l.value}>
-													{l.label}
+										<Select.Trigger style={{ width: "100%" }} />
+										<Select.Content>
+											{SYLLABIFICATION_ENGINES.map((candidate) => (
+												<Select.Item key={candidate.id} value={candidate.id}>
+													{candidate.name}
 												</Select.Item>
 											))}
 										</Select.Content>
@@ -563,7 +562,8 @@ export const AdvancedSegmentationDialog = memo(() => {
 				</Flex>
 
 				<Flex gap="3" mt="4" justify="end">
-					<Dialog.Close><Button variant="soft" color="gray">
+					<Dialog.Close>
+						<Button variant="soft" color="gray">
 							{t("common.cancel", "取消")}
 						</Button>
 					</Dialog.Close>

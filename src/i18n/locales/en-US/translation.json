@@ -463,6 +463,7 @@
 			"help": "Help",
 			"segmentationTools": "Segmentation Tools",
 			"autoSegment": "Auto Segment",
+			"learnedSplits": "Learned Splits...",
 			"rubySegment": "Ruby Segmentation",
 			"advancedSegment": "Advanced Segment...",
 			"syncLineTimestamps": "Sync Line Timestamps",
@@ -996,6 +997,7 @@
 		"syllableSplit": "Syllable Split",
 		"applyToAll": "Apply this splitting to all identical words",
 		"ignoreCase": "Ignore case",
+		"remember": "Remember this split",
 		"actionButton": "Confirm"
 	},
 	"advancedSegmentDialog": {
@@ -1039,6 +1041,19 @@
 			"input": "Enter word for manual splitting...",
 			"add": "Add to custom rules",
 			"list": "Custom rules list:"
+		},
+		"learned": {
+			"title": "Learned Split Rules",
+			"description": "These rules match any casing and ignore surrounding punctuation.",
+			"input": "Enter a word to teach the splitter...",
+			"save": "Save learned split",
+			"saveHint": "Saving replaces the existing rule for this word.",
+			"saved": "Saved rules ({count})",
+			"search": "Search saved rules...",
+			"noResults": "No matching learned splits.",
+			"clearTitle": "Clear all learned splits?",
+			"clearDescription": "This permanently removes every learned split rule from this device.",
+			"clear": "Clear all"
 		},
 		"ignore": {
 			"title": "Ignore List",

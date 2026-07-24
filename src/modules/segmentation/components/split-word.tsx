@@ -14,23 +14,33 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	segmentationCustomRulesAtom,
+	segmentationEngineAtom,
 	segmentationIgnoreListTextAtom,
-	segmentationLangAtom,
+	segmentationLearnedRulesAtom,
 	segmentationPunctuationModeAtom,
 	segmentationPunctuationWeightAtom,
 	segmentationRemoveEmptySegmentsAtom,
 	segmentationSplitCJKAtom,
 	segmentationSplitEnglishAtom,
+	splitWordApplyToAllAtom,
+	splitWordIgnoreCaseAtom,
+	splitWordRememberAtom,
 } from "$/modules/segmentation/states";
 import type {
 	HyphenatorFunc,
 	SegmentationConfig,
 } from "$/modules/segmentation/types";
 import { loadHyphenator } from "$/modules/segmentation/utils/hyphen-loader.ts";
+import { getHyphenationLanguage } from "$/modules/segmentation/utils/syllabification-engines";
 import {
 	recalculateWordTime,
 	segmentWord,
 } from "$/modules/segmentation/utils/segmentation.ts";
+import {
+	applyLearnedRule,
+	createLearnedRule,
+	getLearnedWordParts,
+} from "$/modules/segmentation/utils/learned-rules";
 import { splitWordDialogAtom } from "$/states/dialogs.ts";
 import { editingWordStateAtom, lyricLinesAtom } from "$/states/main";
 import type { LyricWord } from "$/types/ttml";
@@ -46,8 +56,11 @@ export const SplitWordDialog = memo(() => {
 	const [splitIndices, setSplitIndices] = useState(new Set<number>());
 	const [targetWordText, setTargetWordText] = useState("");
 
-	const [applyToAll, setApplyToAll] = useState(false);
-	const [ignoreCase, setIgnoreCase] = useState(true);
+	const [applyToAll, setApplyToAll] = useAtom(splitWordApplyToAllAtom);
+	const [ignoreCase, setIgnoreCase] = useAtom(splitWordIgnoreCaseAtom);
+	const [rememberSplit, setRememberSplit] = useAtom(splitWordRememberAtom);
+	const [learnedRules, setLearnedRules] = useAtom(segmentationLearnedRulesAtom);
+	const engine = useAtomValue(segmentationEngineAtom);
 
 	const splitCJK = useAtomValue(segmentationSplitCJKAtom);
 	const splitEnglish = useAtomValue(segmentationSplitEnglishAtom);
@@ -56,7 +69,6 @@ export const SplitWordDialog = memo(() => {
 	const removeEmptySegments = useAtomValue(segmentationRemoveEmptySegmentsAtom);
 	const ignoreListText = useAtomValue(segmentationIgnoreListTextAtom);
 	const customRules = useAtomValue(segmentationCustomRulesAtom);
-	const lang = useAtomValue(segmentationLangAtom);
 	const [activeHyphenator, setActiveHyphenator] = useState<
 		HyphenatorFunc | undefined
 	>(undefined);
@@ -65,7 +77,12 @@ export const SplitWordDialog = memo(() => {
 		let isMounted = true;
 
 		const fetchHyphenator = async () => {
-			const func = await loadHyphenator(lang);
+			const language = getHyphenationLanguage(engine);
+			if (!language) {
+				setActiveHyphenator(undefined);
+				return;
+			}
+			const func = await loadHyphenator(language);
 			if (isMounted && func) {
 				setActiveHyphenator(() => func);
 			}
@@ -76,7 +93,7 @@ export const SplitWordDialog = memo(() => {
 		return () => {
 			isMounted = false;
 		};
-	}, [lang]);
+	}, [engine]);
 
 	const ignoreList = useMemo(() => {
 		return new Set(
@@ -89,6 +106,7 @@ export const SplitWordDialog = memo(() => {
 		const finalPunctuationWeight = Number.isNaN(weight) ? 0.2 : weight;
 
 		return {
+			engine,
 			splitCJK,
 			splitEnglish,
 			punctuationMode,
@@ -96,9 +114,11 @@ export const SplitWordDialog = memo(() => {
 			removeEmptySegments,
 			ignoreList,
 			customRules,
+			learnedRules,
 			hyphenator: activeHyphenator,
 		};
 	}, [
+		engine,
 		splitCJK,
 		splitEnglish,
 		punctuationMode,
@@ -106,6 +126,7 @@ export const SplitWordDialog = memo(() => {
 		removeEmptySegments,
 		ignoreList,
 		customRules,
+		learnedRules,
 		activeHyphenator,
 	]);
 
@@ -113,9 +134,6 @@ export const SplitWordDialog = memo(() => {
 		if (!splitWordDialog) {
 			return;
 		}
-
-		setApplyToAll(false);
-		setIgnoreCase(true);
 
 		const line = lyricLines.lyricLines[editingState.lineIndex];
 		const word = line?.words[editingState.wordIndex];
@@ -128,7 +146,7 @@ export const SplitWordDialog = memo(() => {
 				const indices = new Set<number>();
 				let currentIndex = 0;
 				for (let i = 0; i < resultWords.length - 1; i++) {
-					currentIndex += resultWords[i].word.length;
+					currentIndex += Array.from(resultWords[i].word).length;
 					indices.add(currentIndex);
 				}
 				setSplitIndices(indices);
@@ -164,20 +182,27 @@ export const SplitWordDialog = memo(() => {
 
 		const sortedIndices = Array.from(splitIndices).sort((a, b) => a - b);
 		const buildSegments = (text: string) => {
+			const chars = Array.from(text);
 			const parts: string[] = [];
 			let lastIndex = 0;
 			for (const index of sortedIndices) {
 				if (index <= lastIndex) continue;
-				parts.push(text.slice(lastIndex, index));
+				parts.push(chars.slice(lastIndex, index).join(""));
 				lastIndex = index;
 			}
-			parts.push(text.slice(lastIndex));
+			parts.push(chars.slice(lastIndex).join(""));
 			return parts.filter((p) => p.length > 0);
 		};
 
 		const targetSegments = buildSegments(targetWordText);
 
 		if (targetSegments.length === 0) return;
+		const splitRule = createLearnedRule(targetWordText, sortedIndices);
+		const learnedRule = rememberSplit ? splitRule : null;
+		const ruleForCurrentSplit = splitRule
+			? new Map([[splitRule.key, splitRule.boundaries]])
+			: null;
+		const targetCore = getLearnedWordParts(targetWordText);
 
 		const createNewWords = (
 			targetWord: LyricWord,
@@ -188,18 +213,18 @@ export const SplitWordDialog = memo(() => {
 
 		editLyricLines((state) => {
 			if (applyToAll) {
-				const targetLower = targetWordText.toLowerCase();
-
 				for (const line of state.lyricLines) {
 					line.words = line.words.flatMap((word) => {
 						const isMatch = ignoreCase
-							? word.word.toLowerCase() === targetLower
+							? getLearnedWordParts(word.word)?.key === targetCore?.key
 							: word.word === targetWordText;
 
 						if (isMatch) {
-							const wordSegments = ignoreCase
-								? buildSegments(word.word)
-								: targetSegments;
+							const wordSegments =
+								ruleForCurrentSplit && ignoreCase
+									? applyLearnedRule(word.word, ruleForCurrentSplit) ||
+										targetSegments
+									: targetSegments;
 							return createNewWords(
 								word,
 								wordSegments.length > 0 ? wordSegments : targetSegments,
@@ -222,12 +247,22 @@ export const SplitWordDialog = memo(() => {
 				}
 			}
 		});
+
+		if (learnedRule) {
+			const nextRules = new Map(learnedRules);
+			nextRules.set(learnedRule.key, learnedRule.boundaries);
+			setLearnedRules(nextRules);
+		}
 	}, [
+		engine,
 		targetWordText,
 		splitIndices,
 		editLyricLines,
 		applyToAll,
 		ignoreCase,
+		rememberSplit,
+		learnedRules,
+		setLearnedRules,
 		editingState.lineIndex,
 		editingState.wordIndex,
 		segmentationConfig,
@@ -294,6 +329,16 @@ export const SplitWordDialog = memo(() => {
 						</Text>
 
 						<Text as="label" size="2">
+							<Flex gap="2" align="center">
+								<Checkbox
+									checked={rememberSplit}
+									onCheckedChange={(c) => setRememberSplit(c as boolean)}
+								/>
+								{t("splitWordDialog.remember", "Remember this split")}
+							</Flex>
+						</Text>
+
+						<Text as="label" size="2">
 							<Flex
 								gap="2"
 								align="center"
@@ -311,7 +356,8 @@ export const SplitWordDialog = memo(() => {
 				</Flex>
 
 				<Flex justify="end" mt="4">
-					<Dialog.Close><Button onClick={handleSplit}>
+					<Dialog.Close>
+						<Button onClick={handleSplit}>
 							{t("splitWordDialog.actionButton", "执行")}
 						</Button>
 					</Dialog.Close>

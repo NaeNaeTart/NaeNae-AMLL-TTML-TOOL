@@ -9,7 +9,6 @@ import { saveFile } from "$/utils/fileSystem.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
-	segmentLyricLines,
 	segmentWord,
 } from "$/modules/segmentation/utils/segmentation";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -19,6 +18,8 @@ import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import { useSegmentationConfig } from "$/modules/segmentation/utils/useSegmentationConfig";
 import {
 	advancedSegmentationDialogAtom,
+	autoSegmentDialogAtom,
+	learnedSplitsDialogAtom,
 	confirmDialogAtom,
 	historyRestoreDialogAtom,
 	latencyTestDialogAtom,
@@ -69,6 +70,8 @@ export const useTopMenuActions = () => {
 	const setAdvancedSegmentationDialog = useSetAtom(
 		advancedSegmentationDialogAtom,
 	);
+	const setAutoSegmentDialog = useSetAtom(autoSegmentDialogAtom);
+	const setLearnedSplitsDialog = useSetAtom(learnedSplitsDialogAtom);
 	const setTimeShiftDialog = useSetAtom(timeShiftDialogAtom);
 	const setTimeStretchDialog = useSetAtom(timeStretchDialogAtom);
 	const { openFile } = useFileOpener();
@@ -405,13 +408,8 @@ export const useTopMenuActions = () => {
 	}, [store, editLyricLines]);
 
 	const onAutoSegment = useCallback(() => {
-		editLyricLines((draft) => {
-			draft.lyricLines = segmentLyricLines(
-				draft.lyricLines,
-				segmentationConfig,
-			);
-		});
-	}, [editLyricLines, segmentationConfig]);
+		setAutoSegmentDialog(true);
+	}, [setAutoSegmentDialog]);
 
 	const onRubySegment = useCallback(() => {
 		const selectedWordIds = store.get(selectedWordsAtom);
@@ -492,6 +490,9 @@ export const useTopMenuActions = () => {
 	const onOpenAdvancedSegmentation = useCallback(() => {
 		setAdvancedSegmentationDialog(true);
 	}, [setAdvancedSegmentationDialog]);
+	const onOpenLearnedSplits = useCallback(() => {
+		setLearnedSplitsDialog(true);
+	}, [setLearnedSplitsDialog]);
 
 
 	return {
@@ -528,6 +529,7 @@ export const useTopMenuActions = () => {
 		onAutoSegment,
 		onRubySegment,
 		onOpenAdvancedSegmentation,
+		onOpenLearnedSplits,
 		onSyncLineTimestamps,
 		onOpenLatencyTest,
 		onOpenGitHub,

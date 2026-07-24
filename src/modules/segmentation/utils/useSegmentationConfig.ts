@@ -2,8 +2,9 @@ import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import {
 	segmentationCustomRulesAtom,
+	segmentationEngineAtom,
 	segmentationIgnoreListTextAtom,
-	segmentationLangAtom,
+	segmentationLearnedRulesAtom,
 	segmentationPunctuationModeAtom,
 	segmentationPunctuationWeightAtom,
 	segmentationRemoveEmptySegmentsAtom,
@@ -12,16 +13,18 @@ import {
 } from "../states";
 import type { HyphenatorFunc, SegmentationConfig } from "../types";
 import { loadHyphenator } from "../utils/hyphen-loader";
+import { getHyphenationLanguage } from "./syllabification-engines";
 
 export const useSegmentationConfig = () => {
 	const splitCJK = useAtomValue(segmentationSplitCJKAtom);
 	const splitEnglish = useAtomValue(segmentationSplitEnglishAtom);
+	const engine = useAtomValue(segmentationEngineAtom);
 	const punctuationMode = useAtomValue(segmentationPunctuationModeAtom);
 	const punctuationWeightStr = useAtomValue(segmentationPunctuationWeightAtom);
 	const removeEmptySegments = useAtomValue(segmentationRemoveEmptySegmentsAtom);
 	const ignoreListText = useAtomValue(segmentationIgnoreListTextAtom);
 	const customRules = useAtomValue(segmentationCustomRulesAtom);
-	const lang = useAtomValue(segmentationLangAtom);
+	const learnedRules = useAtomValue(segmentationLearnedRulesAtom);
 
 	const [hyphenator, setHyphenator] = useState<HyphenatorFunc | undefined>();
 	const [isLoading, setIsLoading] = useState(false);
@@ -29,12 +32,13 @@ export const useSegmentationConfig = () => {
 	useEffect(() => {
 		let isMounted = true;
 		const fetchHyphenator = async () => {
-			if (!splitEnglish) {
+			const language = getHyphenationLanguage(engine);
+			if (!splitEnglish || !language) {
 				setHyphenator(undefined);
 				return;
 			}
 			setIsLoading(true);
-			const func = await loadHyphenator(lang);
+			const func = await loadHyphenator(language);
 			if (isMounted) {
 				setHyphenator(() => func || undefined);
 				setIsLoading(false);
@@ -44,7 +48,7 @@ export const useSegmentationConfig = () => {
 		return () => {
 			isMounted = false;
 		};
-	}, [lang, splitEnglish]);
+	}, [engine, splitEnglish]);
 
 	const config = useMemo((): SegmentationConfig => {
 		const weight = parseFloat(punctuationWeightStr);
@@ -55,6 +59,7 @@ export const useSegmentationConfig = () => {
 		);
 
 		return {
+			engine,
 			splitCJK,
 			splitEnglish,
 			punctuationMode,
@@ -62,9 +67,11 @@ export const useSegmentationConfig = () => {
 			removeEmptySegments,
 			ignoreList,
 			customRules,
+			learnedRules,
 			hyphenator,
 		};
 	}, [
+		engine,
 		splitCJK,
 		splitEnglish,
 		punctuationMode,
@@ -72,6 +79,7 @@ export const useSegmentationConfig = () => {
 		removeEmptySegments,
 		ignoreListText,
 		customRules,
+		learnedRules,
 		hyphenator,
 	]);
 
