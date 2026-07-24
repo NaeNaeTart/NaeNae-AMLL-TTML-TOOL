@@ -14,8 +14,8 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	segmentationCustomRulesAtom,
+	segmentationEngineAtom,
 	segmentationIgnoreListTextAtom,
-	segmentationLangAtom,
 	segmentationLearnedRulesAtom,
 	segmentationPunctuationModeAtom,
 	segmentationPunctuationWeightAtom,
@@ -31,6 +31,7 @@ import type {
 	SegmentationConfig,
 } from "$/modules/segmentation/types";
 import { loadHyphenator } from "$/modules/segmentation/utils/hyphen-loader.ts";
+import { getHyphenationLanguage } from "$/modules/segmentation/utils/syllabification-engines";
 import {
 	recalculateWordTime,
 	segmentWord,
@@ -59,6 +60,7 @@ export const SplitWordDialog = memo(() => {
 	const [ignoreCase, setIgnoreCase] = useAtom(splitWordIgnoreCaseAtom);
 	const [rememberSplit, setRememberSplit] = useAtom(splitWordRememberAtom);
 	const [learnedRules, setLearnedRules] = useAtom(segmentationLearnedRulesAtom);
+	const engine = useAtomValue(segmentationEngineAtom);
 
 	const splitCJK = useAtomValue(segmentationSplitCJKAtom);
 	const splitEnglish = useAtomValue(segmentationSplitEnglishAtom);
@@ -67,7 +69,6 @@ export const SplitWordDialog = memo(() => {
 	const removeEmptySegments = useAtomValue(segmentationRemoveEmptySegmentsAtom);
 	const ignoreListText = useAtomValue(segmentationIgnoreListTextAtom);
 	const customRules = useAtomValue(segmentationCustomRulesAtom);
-	const lang = useAtomValue(segmentationLangAtom);
 	const [activeHyphenator, setActiveHyphenator] = useState<
 		HyphenatorFunc | undefined
 	>(undefined);
@@ -76,7 +77,12 @@ export const SplitWordDialog = memo(() => {
 		let isMounted = true;
 
 		const fetchHyphenator = async () => {
-			const func = await loadHyphenator(lang);
+			const language = getHyphenationLanguage(engine);
+			if (!language) {
+				setActiveHyphenator(undefined);
+				return;
+			}
+			const func = await loadHyphenator(language);
 			if (isMounted && func) {
 				setActiveHyphenator(() => func);
 			}
@@ -87,7 +93,7 @@ export const SplitWordDialog = memo(() => {
 		return () => {
 			isMounted = false;
 		};
-	}, [lang]);
+	}, [engine]);
 
 	const ignoreList = useMemo(() => {
 		return new Set(
@@ -100,6 +106,7 @@ export const SplitWordDialog = memo(() => {
 		const finalPunctuationWeight = Number.isNaN(weight) ? 0.2 : weight;
 
 		return {
+			engine,
 			splitCJK,
 			splitEnglish,
 			punctuationMode,
@@ -111,6 +118,7 @@ export const SplitWordDialog = memo(() => {
 			hyphenator: activeHyphenator,
 		};
 	}, [
+		engine,
 		splitCJK,
 		splitEnglish,
 		punctuationMode,
@@ -246,6 +254,7 @@ export const SplitWordDialog = memo(() => {
 			setLearnedRules(nextRules);
 		}
 	}, [
+		engine,
 		targetWordText,
 		splitIndices,
 		editLyricLines,
@@ -347,7 +356,8 @@ export const SplitWordDialog = memo(() => {
 				</Flex>
 
 				<Flex justify="end" mt="4">
-					<Dialog.Close><Button onClick={handleSplit}>
+					<Dialog.Close>
+						<Button onClick={handleSplit}>
 							{t("splitWordDialog.actionButton", "执行")}
 						</Button>
 					</Dialog.Close>

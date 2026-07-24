@@ -9,6 +9,7 @@ export const submitToAMLLDBDialogAtom = atom(false);
 export const splitWordDialogAtom = atom(false);
 export const replaceWordDialogAtom = atom(false);
 export const advancedSegmentationDialogAtom = atom(false);
+export const autoSegmentDialogAtom = atom(false);
 export const learnedSplitsDialogAtom = atom(false);
 export const timeShiftDialogAtom = atom(false);
 export const timeStretchDialogAtom = atom(false);

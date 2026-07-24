@@ -9,6 +9,7 @@ import {
 } from "./learned-rules";
 
 const config = (learnedRules: Map<string, number[]>): SegmentationConfig => ({
+	engine: "basic",
 	splitCJK: true,
 	splitEnglish: true,
 	punctuationWeight: 0.2,

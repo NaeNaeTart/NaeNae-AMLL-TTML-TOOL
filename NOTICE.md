@@ -9,3 +9,11 @@ The renderer also bundles the `SpicyLyrics` font files supplied by the Spicy Lyr
 ## Fraktality spring
 
 The analytic spring implementation originated from Fraktality's `spr.lua`, licensed under the MIT License, as noted in the adapted source.
+
+## Prosodic syllabification engine
+
+The Prosodic syllabification engine and bundled
+`src/modules/segmentation/data/prosodic-dict.json` are adapted from
+[amll-dev/amll-editor](https://github.com/amll-dev/amll-editor), licensed
+under GNU AGPL-3.0-only. The engine uses its generated
+`SUBTLEXus_prosotic.dict.json` dictionary for English syllable boundaries.

@@ -13,6 +13,7 @@ import { ImportFromText } from "$/modules/project/modals/ImportFromText.tsx";
 import { MetadataEditor } from "$/modules/project/modals/MetadataEditor.tsx";
 import { SubmitToAMLLDBDialog } from "$/modules/project/modals/SubmitToAmll.tsx";
 import { AdvancedSegmentationDialog } from "$/modules/segmentation/components/AdvancedSegmentation.tsx";
+import { AutoSegmentDialog } from "$/modules/segmentation/components/AutoSegmentDialog.tsx";
 import { LearnedSplitsDialog } from "$/modules/segmentation/components/LearnedSplits.tsx";
 import { SuggestedSplitsDialog } from "$/modules/segmentation/components/SuggestedSplits.tsx";
 import { SplitWordDialog } from "$/modules/segmentation/components/split-word.tsx";
@@ -43,6 +44,7 @@ export const Dialogs = () => {
 			<Mp3ConversionDialog />
 			<HistoryRestoreDialog />
 			<AdvancedSegmentationDialog />
+			<AutoSegmentDialog />
 			<LearnedSplitsDialog />
 			<TimeShiftDialog />
 			<TimeStretchDialog />

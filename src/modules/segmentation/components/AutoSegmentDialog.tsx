@@ -1,0 +1,105 @@
+import { Button, Dialog, Flex, Select, Text } from "@radix-ui/themes";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useSetImmerAtom } from "jotai-immer";
+import { useEffect, useMemo, useState } from "react";
+import {
+	segmentationEngineAtom,
+	segmentationSplitEnglishAtom,
+} from "$/modules/segmentation/states";
+import type { SegmentationEngineId } from "$/modules/segmentation/types";
+import { detectSyllabificationEngine } from "$/modules/segmentation/utils/detect-syllabification-engine";
+import { segmentLyricLines } from "$/modules/segmentation/utils/segmentation";
+import { SYLLABIFICATION_ENGINES } from "$/modules/segmentation/utils/syllabification-engines";
+import { autoSegmentDialogAtom } from "$/states/dialogs";
+import { lyricLinesAtom } from "$/states/main";
+import { useSegmentationConfig } from "../utils/useSegmentationConfig";
+
+export const AutoSegmentDialog = () => {
+	const [open, setOpen] = useAtom(autoSegmentDialogAtom);
+	const savedEngine = useAtomValue(segmentationEngineAtom);
+	const setEngine = useSetAtom(segmentationEngineAtom);
+	const setSplitEnglish = useSetAtom(segmentationSplitEnglishAtom);
+	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
+	const lyrics = useAtomValue(lyricLinesAtom);
+	const { config, isLoading } = useSegmentationConfig();
+	const [selectedEngine, setSelectedEngine] =
+		useState<SegmentationEngineId>(savedEngine);
+	const suggestedEngine = useMemo(
+		() => detectSyllabificationEngine(lyrics.lyricLines),
+		[lyrics.lyricLines],
+	);
+
+	useEffect(() => {
+		if (open) setSelectedEngine(suggestedEngine ?? savedEngine);
+	}, [open, savedEngine, suggestedEngine]);
+
+	const engine = useMemo(
+		() =>
+			SYLLABIFICATION_ENGINES.find(({ id }) => id === selectedEngine) ??
+			SYLLABIFICATION_ENGINES[0],
+		[selectedEngine],
+	);
+
+	const apply = () => {
+		setEngine(selectedEngine);
+		setSplitEnglish(selectedEngine !== "none");
+		editLyricLines((draft) => {
+			draft.lyricLines = segmentLyricLines(draft.lyricLines, {
+				...config,
+				engine: selectedEngine,
+				splitEnglish: selectedEngine !== "none",
+			});
+		});
+		setOpen(false);
+	};
+
+	return (
+		<Dialog.Root open={open} onOpenChange={setOpen}>
+			<Dialog.Content maxWidth="500px">
+				<Dialog.Title>Auto Segment</Dialog.Title>
+				<Dialog.Description>
+					Choose a syllabification engine for all lyric lines.
+				</Dialog.Description>
+				<Flex direction="column" gap="3" mt="4">
+					<Select.Root
+						value={selectedEngine}
+						onValueChange={(value) =>
+							setSelectedEngine(value as SegmentationEngineId)
+						}
+					>
+						<Select.Trigger />
+						<Select.Content>
+							{SYLLABIFICATION_ENGINES.map(({ id, name }) => (
+								<Select.Item key={id} value={id}>
+									{name}
+								</Select.Item>
+							))}
+						</Select.Content>
+					</Select.Root>
+					<Text size="2" color="gray">
+						{engine.description}
+					</Text>
+					{suggestedEngine && (
+						<Text size="2" color="gray">
+							Suggested from lyrics:{" "}
+							{
+								SYLLABIFICATION_ENGINES.find(({ id }) => id === suggestedEngine)
+									?.name
+							}
+						</Text>
+					)}
+				</Flex>
+				<Flex justify="end" gap="3" mt="5">
+					<Dialog.Close>
+						<Button variant="soft" color="gray">
+							Cancel
+						</Button>
+					</Dialog.Close>
+					<Button onClick={apply} disabled={isLoading}>
+						Apply to all lines
+					</Button>
+				</Flex>
+			</Dialog.Content>
+		</Dialog.Root>
+	);
+};

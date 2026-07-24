@@ -12,6 +12,11 @@ import {
 	PUNCT_AMBIGUOUS_QUOTES,
 } from "./charUtils";
 import { applyLearnedRule } from "./learned-rules";
+import {
+	getSyllabificationEngine,
+	getHyphenationLanguage,
+	splitJapaneseText,
+} from "./syllabification-engines";
 
 export interface SegmentationContext {
 	/**
@@ -51,6 +56,8 @@ function autoTokenize(text: string, config: SegmentationConfig): string[] {
 	if (!text) {
 		return [];
 	}
+	if (config.engine === "none") return [text];
+	if (config.engine === "japanese") return splitJapaneseText(text);
 	const tokens: string[] = [];
 	let currentToken = "";
 	let lastCharType: CharType | null = null;
@@ -61,10 +68,12 @@ function autoTokenize(text: string, config: SegmentationConfig): string[] {
 		if (
 			lastCharType === CharType.Latin &&
 			config.splitEnglish &&
-			currentToken.length > 1 &&
-			config.hyphenator
+			currentToken.length > 1
 		) {
-			const syllables = config.hyphenator(currentToken).split("\u00AD");
+			const syllables =
+				getHyphenationLanguage(config.engine) && config.hyphenator
+					? config.hyphenator(currentToken).split("\u00AD")
+					: getSyllabificationEngine(config.engine).split(currentToken);
 			tokens.push(...syllables);
 		} else {
 			tokens.push(currentToken);
