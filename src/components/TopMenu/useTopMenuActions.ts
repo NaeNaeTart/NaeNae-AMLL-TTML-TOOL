@@ -19,6 +19,7 @@ import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import { useSegmentationConfig } from "$/modules/segmentation/utils/useSegmentationConfig";
 import {
 	advancedSegmentationDialogAtom,
+	learnedSplitsDialogAtom,
 	confirmDialogAtom,
 	historyRestoreDialogAtom,
 	latencyTestDialogAtom,
@@ -69,6 +70,7 @@ export const useTopMenuActions = () => {
 	const setAdvancedSegmentationDialog = useSetAtom(
 		advancedSegmentationDialogAtom,
 	);
+	const setLearnedSplitsDialog = useSetAtom(learnedSplitsDialogAtom);
 	const setTimeShiftDialog = useSetAtom(timeShiftDialogAtom);
 	const setTimeStretchDialog = useSetAtom(timeStretchDialogAtom);
 	const { openFile } = useFileOpener();
@@ -492,6 +494,9 @@ export const useTopMenuActions = () => {
 	const onOpenAdvancedSegmentation = useCallback(() => {
 		setAdvancedSegmentationDialog(true);
 	}, [setAdvancedSegmentationDialog]);
+	const onOpenLearnedSplits = useCallback(() => {
+		setLearnedSplitsDialog(true);
+	}, [setLearnedSplitsDialog]);
 
 
 	return {
@@ -528,6 +533,7 @@ export const useTopMenuActions = () => {
 		onAutoSegment,
 		onRubySegment,
 		onOpenAdvancedSegmentation,
+		onOpenLearnedSplits,
 		onSyncLineTimestamps,
 		onOpenLatencyTest,
 		onOpenGitHub,

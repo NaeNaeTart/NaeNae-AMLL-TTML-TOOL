@@ -48,6 +48,9 @@ const ToolMenuItems = () => {
 					<DropdownMenu.Item onSelect={menu.onOpenAdvancedSegmentation}>
 						{t("topBar.menu.advancedSegment", "高级分词...")}
 					</DropdownMenu.Item>
+					<DropdownMenu.Item onSelect={menu.onOpenLearnedSplits}>
+						{t("topBar.menu.learnedSplits", "Learned Splits...")}
+					</DropdownMenu.Item>
 				</DropdownMenu.SubContent>
 			</DropdownMenu.Sub>
 			<DropdownMenu.Item onSelect={menu.onSyncLineTimestamps}>

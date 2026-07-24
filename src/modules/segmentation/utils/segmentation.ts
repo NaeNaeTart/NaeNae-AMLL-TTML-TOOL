@@ -11,6 +11,7 @@ import {
 	MergeDirection,
 	PUNCT_AMBIGUOUS_QUOTES,
 } from "./charUtils";
+import { applyLearnedRule } from "./learned-rules";
 
 export interface SegmentationContext {
 	/**
@@ -130,6 +131,24 @@ function calculateWeight(token: string, config: SegmentationConfig): number {
 		default:
 			return 0.0;
 	}
+}
+
+function calculateLearnedWeight(
+	token: string,
+	config: SegmentationConfig,
+): number {
+	return Array.from(token).reduce((weight, char) => {
+		switch (getCharType(char)) {
+			case CharType.Latin:
+			case CharType.Numeric:
+			case CharType.Cjk:
+				return weight + 1;
+			case CharType.Other:
+				return weight + config.punctuationWeight;
+			default:
+				return weight;
+		}
+	}, 0);
 }
 
 /**
@@ -303,6 +322,19 @@ export function segmentWord(
 	config: SegmentationConfig,
 	context?: SegmentationContext,
 ): LyricWord[] {
+	const learnedSegments = applyLearnedRule(word.word, config.learnedRules);
+	if (learnedSegments) {
+		const weights = learnedSegments.map((token) =>
+			calculateLearnedWeight(token, config),
+		);
+		return distributeTime(
+			word,
+			learnedSegments,
+			weights,
+			weights.reduce((sum, weight) => sum + weight, 0),
+		);
+	}
+
 	const protectedWords = new Set([
 		...config.ignoreList,
 		...config.customRules.keys(),

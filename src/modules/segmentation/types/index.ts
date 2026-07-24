@@ -57,6 +57,8 @@ export interface SegmentationConfig {
 	 * 自定义分词规则
 	 */
 	customRules: Map<string, string[]>;
+	/** User corrections, keyed by a normalized Unicode word core. */
+	learnedRules: Map<string, number[]>;
 	/**
 	 * 当前使用的连字符分词函数
 	 * 如果未提供，则不执行西文音节的自动分词

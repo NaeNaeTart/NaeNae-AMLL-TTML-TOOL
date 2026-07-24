@@ -4,6 +4,7 @@ import {
 	segmentationCustomRulesAtom,
 	segmentationIgnoreListTextAtom,
 	segmentationLangAtom,
+	segmentationLearnedRulesAtom,
 	segmentationPunctuationModeAtom,
 	segmentationPunctuationWeightAtom,
 	segmentationRemoveEmptySegmentsAtom,
@@ -21,6 +22,7 @@ export const useSegmentationConfig = () => {
 	const removeEmptySegments = useAtomValue(segmentationRemoveEmptySegmentsAtom);
 	const ignoreListText = useAtomValue(segmentationIgnoreListTextAtom);
 	const customRules = useAtomValue(segmentationCustomRulesAtom);
+	const learnedRules = useAtomValue(segmentationLearnedRulesAtom);
 	const lang = useAtomValue(segmentationLangAtom);
 
 	const [hyphenator, setHyphenator] = useState<HyphenatorFunc | undefined>();
@@ -62,6 +64,7 @@ export const useSegmentationConfig = () => {
 			removeEmptySegments,
 			ignoreList,
 			customRules,
+			learnedRules,
 			hyphenator,
 		};
 	}, [
@@ -72,6 +75,7 @@ export const useSegmentationConfig = () => {
 		removeEmptySegments,
 		ignoreListText,
 		customRules,
+		learnedRules,
 		hyphenator,
 	]);
 
