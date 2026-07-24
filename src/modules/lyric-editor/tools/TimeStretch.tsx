@@ -1,18 +1,27 @@
 import { ArrowRightRegular } from "@fluentui/react-icons";
-import { Button, Dialog, Flex, Text, TextField } from "@radix-ui/themes";
+import {
+	Button,
+	Dialog,
+	Flex,
+	RadioGroup,
+	Text,
+	TextField,
+} from "@radix-ui/themes";
 import { useAtom, useAtomValue, useStore } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { currentDurationAtom } from "$/modules/audio/states";
 import { timeStretchDialogAtom } from "$/states/dialogs";
-import { lyricLinesAtom } from "$/states/main";
+import { lyricLinesAtom, selectedLinesAtom } from "$/states/main";
 import {
 	formatDurationInput,
 	parseDurationInput,
 	readAudioDurationMs,
 	scaleTTMLTimings,
 } from "./time-stretch";
+
+type StretchScope = "all" | "selected" | "selected-following" | "custom";
 
 type DurationFieldProps = {
 	label: string;
@@ -91,6 +100,8 @@ export const TimeStretchDialog = () => {
 	const { t } = useTranslation();
 	const [open, setOpen] = useAtom(timeStretchDialogAtom);
 	const store = useStore();
+	const lyricLines = useAtomValue(lyricLinesAtom);
+	const selectedLines = useAtomValue(selectedLinesAtom);
 	const setLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const [oldDurationInput, setOldDurationInput] = useState("");
 	const [newDurationInput, setNewDurationInput] = useState("");
@@ -99,8 +110,13 @@ export const TimeStretchDialog = () => {
 	const [oldTemporaryAudioError, setOldTemporaryAudioError] = useState("");
 	const [newTemporaryAudioError, setNewTemporaryAudioError] = useState("");
 	const [readingTemporaryAudio, setReadingTemporaryAudio] = useState(false);
+	const [scope, setScope] = useState<StretchScope>("all");
+	const [customStart, setCustomStart] = useState("1");
+	const [customEnd, setCustomEnd] = useState("1");
 	const durationReadId = useRef(0);
 
+	const hasSelection = selectedLines.size > 0;
+	const totalLines = lyricLines.lyricLines.length;
 	const currentSongDuration = useAtomValue(currentDurationAtom);
 	const currentSongAvailable = currentSongDuration > 0;
 	const oldDuration = useMemo(
@@ -129,10 +145,13 @@ export const TimeStretchDialog = () => {
 			setOldTemporaryAudioError("");
 			setNewTemporaryAudioError("");
 			setReadingTemporaryAudio(false);
+			setScope(hasSelection ? "selected" : "all");
+			setCustomStart("1");
+			setCustomEnd(totalLines.toString());
 		} else {
 			durationReadId.current += 1;
 		}
-	}, [open, store]);
+	}, [open, store, hasSelection, totalLines]);
 
 	const fillFromCurrentSong = (setValue: (value: string) => void) => {
 		const duration = store.get(currentDurationAtom);
@@ -195,7 +214,46 @@ export const TimeStretchDialog = () => {
 
 	const handleApply = () => {
 		if (!durationsValid || scaleFactor === null || durationsMatch) return;
-		setLyricLines((draft) => scaleTTMLTimings(draft, scaleFactor));
+
+		const targetLineIndices = new Set<number>();
+		if (scope === "all") {
+			for (let index = 0; index < totalLines; index++) {
+				targetLineIndices.add(index);
+			}
+		} else if (scope === "selected") {
+			lyricLines.lyricLines.forEach((line, index) => {
+				if (selectedLines.has(line.id)) targetLineIndices.add(index);
+			});
+		} else if (scope === "selected-following") {
+			const firstSelectedIndex = lyricLines.lyricLines.findIndex((line) =>
+				selectedLines.has(line.id),
+			);
+			if (firstSelectedIndex !== -1) {
+				for (let index = firstSelectedIndex; index < totalLines; index++) {
+					targetLineIndices.add(index);
+				}
+			}
+		} else {
+			const start = Number.parseInt(customStart, 10);
+			const end = Number.parseInt(customEnd, 10);
+			if (!Number.isNaN(start) && !Number.isNaN(end)) {
+				for (
+					let index = Math.max(0, start - 1);
+					index < Math.min(totalLines, end);
+					index++
+				) {
+					targetLineIndices.add(index);
+				}
+			}
+		}
+
+		setLyricLines((draft) =>
+			scaleTTMLTimings(
+				draft,
+				scaleFactor,
+				scope === "all" ? undefined : targetLineIndices,
+			),
+		);
 		setOpen(false);
 	};
 
@@ -318,6 +376,56 @@ export const TimeStretchDialog = () => {
 									)}
 						</Text>
 					)}
+					<Flex direction="column" gap="2">
+						<Text size="2" weight="bold">
+							{t("timeStretchDialog.scopeLabel", "Apply to")}
+						</Text>
+						<RadioGroup.Root
+							value={scope}
+							onValueChange={(value) => setScope(value as StretchScope)}
+						>
+							<RadioGroup.Item value="all">
+								{t("timeStretchDialog.scope.all", "All lines")}
+							</RadioGroup.Item>
+							<RadioGroup.Item value="selected" disabled={!hasSelection}>
+								{t("timeStretchDialog.scope.selected", "Selected lines")}
+								{hasSelection && ` (${selectedLines.size})`}
+							</RadioGroup.Item>
+							<RadioGroup.Item
+								value="selected-following"
+								disabled={!hasSelection}
+							>
+								{t(
+									"timeStretchDialog.scope.selectedFollowing",
+									"Selected lines and following",
+								)}
+							</RadioGroup.Item>
+							<RadioGroup.Item value="custom">
+								{t("timeStretchDialog.scope.custom", "Custom range")}
+							</RadioGroup.Item>
+						</RadioGroup.Root>
+						{scope === "custom" && (
+							<Flex align="center" gap="2" ml="4">
+								<Text size="2">{t("timeStretchDialog.fromLine", "From")}</Text>
+								<TextField.Root
+									style={{ width: "60px" }}
+									size="1"
+									type="number"
+									value={customStart}
+									onChange={(event) => setCustomStart(event.target.value)}
+								/>
+								<Text size="2">{t("timeStretchDialog.toLine", "to")}</Text>
+								<TextField.Root
+									style={{ width: "60px" }}
+									size="1"
+									type="number"
+									value={customEnd}
+									onChange={(event) => setCustomEnd(event.target.value)}
+								/>
+								<Text size="2">{t("timeStretchDialog.line", "lines")}</Text>
+							</Flex>
+						)}
+					</Flex>
 				</Flex>
 				<Flex gap="3" mt="5" justify="end">
 					<Dialog.Close>

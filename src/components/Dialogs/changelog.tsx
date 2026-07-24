@@ -38,6 +38,14 @@ export function ChangelogDialog() {
 				<ScrollArea type="always" scrollbars="vertical" style={{ height: "calc(100% - 60px)" }}>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="ruby">v0.7.1 Updates (Scoped Time Stretch)</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Scoped Time Stretch:</strong> Time Stretch can now be applied to all lines, selected lines, selected lines and everything following them, or a custom line range.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="ruby">v0.7 Updates (Spicy Lyrics, Imports & Timing)</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">

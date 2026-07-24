@@ -101,6 +101,29 @@ describe("scaleTTMLTimings", () => {
 		expect(lyrics.lyricLines[0].endTimeLink?.originalNextStartTime).toBeNull();
 	});
 
+	it("scales only the requested lines and leaves marks unchanged", () => {
+		const lyrics = {
+			metadata: [],
+			marks: [{ timeMs: 100, label: "Verse" }],
+			lyricLines: [
+				{ startTime: 100, endTime: 200, words: [] },
+				{ startTime: 300, endTime: 400, words: [] },
+			],
+		} as TTMLLyric;
+
+		scaleTTMLTimings(lyrics, 2, new Set([1]));
+
+		expect(lyrics.lyricLines[0]).toMatchObject({
+			startTime: 100,
+			endTime: 200,
+		});
+		expect(lyrics.lyricLines[1]).toMatchObject({
+			startTime: 600,
+			endTime: 800,
+		});
+		expect(lyrics.marks?.[0]).toEqual({ timeMs: 100, label: "Verse" });
+	});
+
 	it("rejects invalid scale factors", () => {
 		const lyrics = { metadata: [], lyricLines: [] } as TTMLLyric;
 		expect(() => scaleTTMLTimings(lyrics, 0)).toThrow(RangeError);
