@@ -1,8 +1,12 @@
-import init, {
-	generate_spectrogram_image,
+import initThreaded, {
+	generate_spectrogram_image as generateThreadedSpectrogramImage,
 	initThreadPool,
-	SpectrogramConfig,
+	SpectrogramConfig as ThreadedSpectrogramConfig,
 } from "$/modules/spectrogram/vendor";
+import initSerial, {
+	generate_spectrogram_image as generateSerialSpectrogramImage,
+	SpectrogramConfig as SerialSpectrogramConfig,
+} from "$/modules/spectrogram/vendor/serial/wasm_spectrogram";
 import type { SpectrogramWorkerScope } from "$/modules/spectrogram/workers/types";
 
 const ctx: SpectrogramWorkerScope = self as SpectrogramWorkerScope;
@@ -12,10 +16,17 @@ let audioSampleRate: number = 0;
 let wasmInitialized: Promise<void> | null = null;
 let currentPalette: Uint8Array | null = null;
 
+const useSerialRenderer = Boolean(import.meta.env.TAURI_ENV_PLATFORM);
+
 async function initializeWasm() {
 	if (!wasmInitialized) {
 		wasmInitialized = (async () => {
-			await init();
+			if (useSerialRenderer) {
+				await initSerial();
+				return;
+			}
+
+			await initThreaded();
 			await initThreadPool(Math.max(1, navigator.hardwareConcurrency || 1));
 		})();
 	}
@@ -31,8 +42,7 @@ ctx.onmessage = async (event) => {
 		case "INIT":
 			fullAudioData = msg.audioData;
 			audioSampleRate = msg.sampleRate;
-			currentPalette = null;
-			ctx.postMessage({ type: "INIT_COMPLETE" });
+			ctx.postMessage({ type: "INIT_COMPLETE", generation: msg.generation });
 			break;
 		case "SET_PALETTE":
 			currentPalette = msg.palette;
@@ -71,22 +81,38 @@ ctx.onmessage = async (event) => {
 			const HOP_LENGTH = 64;
 
 			try {
-				const config = new SpectrogramConfig(
-					audioSampleRate,
-					FFT_SIZE,
-					HOP_LENGTH,
-					tileWidthPx,
-					height,
-					gain,
-				);
-
-				const pixelData = generate_spectrogram_image(
-					audioSlice,
-					currentPalette,
-					config,
-				);
-
-				config.free();
+				let pixelData: Uint8Array;
+				if (useSerialRenderer) {
+					const config = new SerialSpectrogramConfig(
+						audioSampleRate,
+						FFT_SIZE,
+						HOP_LENGTH,
+						tileWidthPx,
+						height,
+						gain,
+					);
+					pixelData = generateSerialSpectrogramImage(
+						audioSlice,
+						currentPalette,
+						config,
+					);
+					config.free();
+				} else {
+					const config = new ThreadedSpectrogramConfig(
+						audioSampleRate,
+						FFT_SIZE,
+						HOP_LENGTH,
+						tileWidthPx,
+						height,
+						gain,
+					);
+					pixelData = generateThreadedSpectrogramImage(
+						audioSlice,
+						currentPalette,
+						config,
+					);
+					config.free();
+				}
 
 				const canvas = new OffscreenCanvas(tileWidthPx, height);
 				const context = canvas.getContext("2d");

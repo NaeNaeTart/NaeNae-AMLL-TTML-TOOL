@@ -51,7 +51,7 @@ dependencies = [
 
 [[package]]
 name = "amll-ttml-tool"
-version = "0.1.0"
+version = "0.7.2"
 dependencies = [
  "log",
  "serde",
