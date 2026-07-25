@@ -21,6 +21,8 @@ class SpectrogramWorkerClient {
 	private worker: SpectrogramWorker;
 	private reqIdCounter = 0;
 	private audioGeneration = 0;
+	private audioReady = Promise.resolve();
+	private resolveAudioReady: (() => void) | null = null;
 	private pendingRequests = new Map<
 		number,
 		{
@@ -40,7 +42,12 @@ class SpectrogramWorkerClient {
 
 	private handleMessage(event: MessageEvent<WorkerResponse>) {
 		const msg = event.data;
-		if (msg.type === "TILE_READY") {
+		if (msg.type === "INIT_COMPLETE") {
+			if (msg.generation === this.audioGeneration) {
+				this.resolveAudioReady?.();
+				this.resolveAudioReady = null;
+			}
+		} else if (msg.type === "TILE_READY") {
 			const request = this.pendingRequests.get(msg.reqId);
 			if (request) {
 				if (request.generation !== this.audioGeneration) {
@@ -67,24 +74,40 @@ class SpectrogramWorkerClient {
 		const reqId = this.reqIdCounter++;
 		const generation = this.audioGeneration;
 		return new Promise((resolve, reject) => {
-			this.pendingRequests.set(reqId, { generation, resolve, reject });
-			this.worker.postMessage({
-				type: "GET_TILE",
-				reqId,
-				params,
+			void this.audioReady.then(() => {
+				if (generation !== this.audioGeneration) {
+					reject(new Error("Audio buffer changed"));
+					return;
+				}
+				this.pendingRequests.set(reqId, { generation, resolve, reject });
+				this.worker.postMessage({
+					type: "GET_TILE",
+					reqId,
+					params,
+				});
 			});
 		});
 	}
 
 	public initAudio(audioData: Float32Array, sampleRate: number) {
+		this.resolveAudioReady?.();
 		this.audioGeneration += 1;
+		this.audioReady = new Promise((resolve) => {
+			this.resolveAudioReady = resolve;
+		});
 		for (const [reqId, request] of this.pendingRequests.entries()) {
 			request.reject(new Error("Audio buffer changed"));
 			this.pendingRequests.delete(reqId);
 		}
-		this.worker.postMessage({ type: "INIT", audioData, sampleRate }, [
-			audioData.buffer,
-		]);
+		this.worker.postMessage(
+			{
+				type: "INIT",
+				audioData,
+				sampleRate,
+				generation: this.audioGeneration,
+			},
+			[audioData.buffer],
+		);
 	}
 
 	public setPalette(palette: Uint8Array) {

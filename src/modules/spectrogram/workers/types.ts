@@ -10,12 +10,17 @@ export interface TileGenerationParams {
 }
 
 export type WorkerRequest =
-	| { type: "INIT"; audioData: Float32Array; sampleRate: number }
+	| {
+			type: "INIT";
+			audioData: Float32Array;
+			sampleRate: number;
+			generation: number;
+	  }
 	| { type: "SET_PALETTE"; palette: Uint8Array }
 	| { type: "GET_TILE"; reqId: number; params: TileGenerationParams };
 
 export type WorkerResponse =
-	| { type: "INIT_COMPLETE" }
+	| { type: "INIT_COMPLETE"; generation: number }
 	| { type: "TILE_READY"; reqId: number; imageBitmap: ImageBitmap }
 	| { type: "ERROR"; reqId: number; message: string };
 
