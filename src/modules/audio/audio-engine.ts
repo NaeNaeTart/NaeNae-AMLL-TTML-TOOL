@@ -38,11 +38,12 @@ class AudioEngine extends EventTarget {
 		return this._ctx;
 	}
 
+	private _volume = 0.5;
 	private gainNode: GainNode | null = null;
 	private get gain() {
 		if (this.gainNode) return this.gainNode;
 		this.gainNode = this.ctx.createGain();
-		this.gainNode.gain.value = 0.5;
+		this.gainNode.gain.value = this._volume;
 		this.gainNode.connect(this.ctx.destination);
 		return this.gainNode;
 	}
@@ -245,9 +246,11 @@ class AudioEngine extends EventTarget {
 	}
 
 	get volume() {
-		return this.gain.gain.value;
+		return this._volume;
 	}
 	set volume(v: number) {
+		if (this._volume === v) return;
+		this._volume = v;
 		this.gain.gain.value = v;
 		this.dispatchEvent(new Event("volume-change"));
 	}
