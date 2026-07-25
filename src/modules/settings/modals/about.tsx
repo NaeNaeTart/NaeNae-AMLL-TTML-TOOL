@@ -2,13 +2,20 @@ import { BUILD_TIME, GIT_COMMIT } from "virtual:buildmeta";
 import {
 	CheckmarkCircle24Regular,
 	CloudArrowDown24Regular,
+	BoxRegular,
+	MusicNote1Regular,
+	Open16Regular,
+	SettingsRegular,
+	StarRegular,
 } from "@fluentui/react-icons";
 import {
+	Avatar,
 	Badge,
 	Box,
 	Button,
 	Card,
 	Flex,
+	Grid,
 	Heading,
 	Link,
 	Progress,
@@ -37,31 +44,116 @@ export const SettingsAboutTab = () => {
 				</Text>
 			</Flex>
 
+
 			<Card>
-				<Flex direction="column" gap="2">
-					<Flex direction="column" gap="1">
-						<Text as="div" size="2">
-							{t("aboutModal.buildDate", "Build Date: {date}", {
-								date: BUILD_TIME,
-							})}
-						</Text>
-						<Text as="div" size="2">
-							{t("aboutModal.gitCommit", "Git Commit: {commit}", {
-								commit:
-									GIT_COMMIT === "unknown" ? (
-										t("aboutModal.unknown", "Unknown")
-									) : (
-										<Link
-											href={`https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/commit/${GIT_COMMIT}`}
-											target="_blank"
-											rel="noreferrer"
-										>
-											{GIT_COMMIT}
-										</Link>
-									),
-							})}
-						</Text>
+				<Flex direction="column" gap="3">
+					<Heading size="3">
+						{t("aboutModal.maintainers", "Fork Maintainers")}
+					</Heading>
+					<Text size="2" color="gray">
+						{t(
+							"aboutModal.maintainersDesc",
+							"This fork is maintained and developed by:",
+						)}
+					</Text>
+					<Flex gap="2">
+						<Box p="3" style={{ flex: 1, background: "var(--gray-3)", borderRadius: "var(--radius-3)" }}>
+							<Flex align="center">
+								<Flex align="center" gap="2" style={{ minWidth: 0, flex: 1 }}>
+									<Avatar src="https://avatars.githubusercontent.com/u/191877009?v=4" fallback="N" size="3" radius="small" />
+									<Flex direction="column" gap="1">
+										<Text as="div" weight="bold">NaeNaeTart</Text>
+										<Text as="div" size="1" color="gray">
+											{t("aboutModal.forkMaintainer", "Fork maintainer & contributor")}
+										</Text>
+									</Flex>
+								</Flex>
+								<Button asChild variant="soft" size="1">
+									<a href="https://yoursit.ee/naenaetart" target="_blank" rel="noreferrer" aria-label={t("aboutModal.visitWebsite", "Visit website")}>
+										<Open16Regular />
+									</a>
+								</Button>
+							</Flex>
+						</Box>
+<Box p="3" style={{ flex: 1, background: "var(--gray-3)", borderRadius: "var(--radius-3)" }}>
+							<Flex align="center">
+								<Flex align="center" gap="2" style={{ minWidth: 0, flex: 1 }}>
+									<Avatar src="https://avatars.githubusercontent.com/u/55551133?v=4" fallback="T" size="3" radius="small" />
+									<Flex direction="column" gap="1">
+										<Text as="div" weight="bold">TX24</Text>
+										<Text as="div" size="1" color="gray">
+											{t("aboutModal.forkMaintainer", "Fork maintainer & contributor")}
+										</Text>
+									</Flex>
+								</Flex>
+								<Button asChild variant="soft" size="1">
+									<a href="https://tx24.dev" target="_blank" rel="noreferrer" aria-label={t("aboutModal.visitWebsite", "Visit website")}>
+										<Open16Regular />
+									</a>
+								</Button>
+							</Flex>
+						</Box>
 					</Flex>
+				</Flex>
+			</Card>
+
+			<Card>
+				<Flex direction="column" gap="3">
+					<Heading size="3">
+						{t("aboutModal.credits", "Credits & Third-Party Notices")}
+					</Heading>
+					<Text size="2" color="gray">
+						{t(
+							"aboutModal.creditsIntro",
+							"This project includes work adapted from the following open-source projects.",
+						)}
+					</Text>
+					<Grid columns="2" gap="3">
+						<Card variant="classic" style={{ padding: "var(--space-3)" }}>
+							<Flex direction="column" gap="2">
+								<Flex align="center" gap="2">
+									<Box style={{ color: "var(--ruby-11)" }}><StarRegular /></Box>
+									<Heading size="3">Spicy Lyrics</Heading>
+								</Flex>
+								<Text size="2" color="gray">
+									Renderer and font adapted from <Link href="https://github.com/Spikerko/Spicy-Lyrics" target="_blank" rel="noreferrer">Spicy Lyrics</Link> by Spikerko and contributors, licensed under AGPL-3.0-or-later.
+								</Text>
+							</Flex>
+						</Card>
+						<Card variant="classic" style={{ padding: "var(--space-3)" }}>
+							<Flex direction="column" gap="2">
+								<Flex align="center" gap="2">
+									<Box style={{ color: "var(--violet-11)" }}><SettingsRegular /></Box>
+									<Heading size="3">Fraktality Spring</Heading>
+								</Flex>
+								<Text size="2" color="gray">
+									Analytic spring implementation derived from Fraktality&apos;s <code>spr.lua</code>, licensed under the MIT License.
+								</Text>
+							</Flex>
+						</Card>
+						<Card variant="classic" style={{ padding: "var(--space-3)" }}>
+							<Flex direction="column" gap="2">
+								<Flex align="center" gap="2">
+									<Box style={{ color: "var(--cyan-11)" }}><MusicNote1Regular /></Box>
+									<Heading size="3">Prosodic Engine</Heading>
+								</Flex>
+								<Text size="2" color="gray">
+									Syllabification engine and dictionary adapted from <Link href="https://github.com/amll-dev/amll-editor" target="_blank" rel="noreferrer">amll-dev/amll-editor</Link>, licensed under GNU AGPL-3.0-only.
+								</Text>
+							</Flex>
+						</Card>
+						<Card variant="classic" style={{ padding: "var(--space-3)" }}>
+							<Flex direction="column" gap="2">
+								<Flex align="center" gap="2">
+									<Box style={{ color: "var(--gold-11)" }}><BoxRegular /></Box>
+									<Heading size="3">AMLL TTML Tool</Heading>
+								</Flex>
+								<Text size="2" color="gray">
+									Forked from <Link href="https://github.com/amll-dev/amll-ttml-tool" target="_blank" rel="noreferrer">amll-dev/amll-ttml-tool</Link>, licensed under GPL-3.0-or-later.
+								</Text>
+							</Flex>
+						</Card>
+					</Grid>
 				</Flex>
 			</Card>
 
@@ -90,6 +182,34 @@ export const SettingsAboutTab = () => {
 						>
 							{t("aboutModal.crowdin", "Help Translate in Crowdin")}
 						</Button>
+					</Flex>
+				</Flex>
+			</Card>
+
+			<Card>
+				<Flex direction="column" gap="2">
+					<Flex direction="column" gap="1">
+						<Text as="div" size="2">
+							{t("aboutModal.buildDate", "Build Date: {date}", {
+								date: BUILD_TIME,
+							})}
+						</Text>
+						<Text as="div" size="2">
+							{t("aboutModal.gitCommit", "Git Commit: {commit}", {
+								commit:
+									GIT_COMMIT === "unknown" ? (
+										t("aboutModal.unknown", "Unknown")
+									) : (
+										<Link
+											href={`https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/commit/${GIT_COMMIT}`}
+											target="_blank"
+											rel="noreferrer"
+										>
+											{GIT_COMMIT}
+										</Link>
+									),
+							})}
+						</Text>
 					</Flex>
 				</Flex>
 			</Card>

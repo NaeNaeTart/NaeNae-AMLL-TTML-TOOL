@@ -1,9 +1,14 @@
 import { Button, DropdownMenu } from "@radix-ui/themes";
+import { useSetAtom } from "jotai";
 import { Toolbar } from "radix-ui";
 import type { CSSProperties } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { useSetAtom } from "jotai";
-import { changelogDialogAtom, whatsNewDialogAtom } from "$/states/dialogs.ts";
+import {
+	changelogDialogAtom,
+	settingsDialogAtom,
+	settingsTabAtom,
+	whatsNewDialogAtom,
+} from "$/states/dialogs.ts";
 import { useTopMenuActions } from "../useTopMenuActions";
 
 type HelpMenuProps = {
@@ -15,7 +20,13 @@ const HelpMenuItems = () => {
 	const { t } = useTranslation();
 	const menu = useTopMenuActions();
 	const setChangelogOpen = useSetAtom(changelogDialogAtom);
+	const setSettingsOpen = useSetAtom(settingsDialogAtom);
+	const setSettingsTab = useSetAtom(settingsTabAtom);
 	const setWhatsNewOpen = useSetAtom(whatsNewDialogAtom);
+	const openAbout = () => {
+		setSettingsTab("about");
+		setSettingsOpen(true);
+	};
 
 	return (
 		<>
@@ -29,6 +40,10 @@ const HelpMenuItems = () => {
 			</DropdownMenu.Item>
 			<DropdownMenu.Item onSelect={() => setChangelogOpen(true)}>
 				Changelog & Updates
+			</DropdownMenu.Item>
+			<DropdownMenu.Separator />
+			<DropdownMenu.Item onSelect={openAbout}>
+				{t("common.about", "About")}
 			</DropdownMenu.Item>
 		</>
 	);
