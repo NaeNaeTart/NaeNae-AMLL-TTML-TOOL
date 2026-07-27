@@ -279,7 +279,11 @@ export default function exportTTMLText(ttmlLyric: TTMLLyric): string {
 			const mainWords = line.words;
 			let bgWords: LyricWord[] = [];
 
-			if (isDynamicLyric) {
+			if (line.isLineSynced) {
+				lineP.appendChild(
+					doc.createTextNode(line.words.map((word) => word.word).join("")),
+				);
+			} else if (isDynamicLyric) {
 				let beginTime = Number.POSITIVE_INFINITY;
 				let endTime = 0;
 				for (const word of line.words) {
@@ -314,7 +318,13 @@ export default function exportTTMLText(ttmlLyric: TTMLLyric): string {
 				const bgLineSpan = doc.createElement("span");
 				bgLineSpan.setAttribute("ttm:role", "x-bg");
 
-				if (isDynamicLyric) {
+				if (bgLine.isLineSynced) {
+					bgLineSpan.appendChild(
+						doc.createTextNode(
+							`(${bgLine.words.map((word) => word.word).join("")})`,
+						),
+					);
+				} else if (isDynamicLyric) {
 					let beginTime = Number.POSITIVE_INFINITY;
 					let endTime = 0;
 

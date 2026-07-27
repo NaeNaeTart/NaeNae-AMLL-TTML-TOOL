@@ -84,6 +84,13 @@ export const cmdDeleteSelection = registerCommand(
 	"Edit",
 );
 
+export const cmdAutoSegment = registerCommand(
+	"autoSegment",
+	["KeyE"],
+	t("settingsDialog.keybindings.autoSegment"),
+	"Edit",
+);
+
 // =========================================================================================
 //  视图模式
 // =========================================================================================

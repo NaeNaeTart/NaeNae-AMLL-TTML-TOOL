@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { newLyricLine, newLyricWord } from "$/types/ttml";
 import {
 	buildSpicyLines,
 	groupSpicyTokens,
@@ -6,7 +7,6 @@ import {
 	type SpicyToken,
 	type SpicyWordGroup,
 } from "./model";
-import { newLyricLine, newLyricWord } from "$/types/ttml";
 
 const token = (
 	id: string,
@@ -110,6 +110,29 @@ describe("groupSpicyTokens", () => {
 });
 
 describe("buildSpicyLines", () => {
+	it("preserves TTML line order when timestamps are out of sequence", () => {
+		const first = newLyricLine();
+		first.id = "ttml-first";
+		first.startTime = 4_000;
+		first.endTime = 5_000;
+		first.words = [
+			{ ...newLyricWord(), startTime: 4_000, endTime: 5_000, word: "First" },
+		];
+		const second = newLyricLine();
+		second.id = "ttml-second";
+		second.startTime = 0;
+		second.endTime = 1_000;
+		second.words = [
+			{ ...newLyricWord(), startTime: 0, endTime: 1_000, word: "Second" },
+		];
+
+		expect(
+			buildSpicyLines([first, second], false, false)
+				.filter((line) => !line.isDotLine)
+				.map((line) => line.id),
+		).toEqual(["ttml-first", "ttml-second"]);
+	});
+
 	it("uses the first strong character to detect RTL lines", () => {
 		expect(isRtl("  123 - שלום")).toBe(true);
 		expect(isRtl("Hello مرحبا")).toBe(false);
@@ -128,6 +151,7 @@ describe("buildSpicyLines", () => {
 		line.id = "line-synced";
 		line.startTime = 1_000;
 		line.endTime = 2_000;
+		line.isLineSynced = true;
 		line.romanLyric = "Zheng hang";
 		line.words = [
 			{
@@ -158,6 +182,33 @@ describe("buildSpicyLines", () => {
 		expect(buildSpicyLines([line], false, false)[0].isLineSynced).toBe(false);
 	});
 
+	it("keeps a single timed word on the word-synced path", () => {
+		const line = newLyricLine();
+		line.startTime = 0;
+		line.endTime = 1_000;
+		line.words = [
+			{ ...newLyricWord(), startTime: 0, endTime: 1_000, word: "Hello" },
+		];
+
+		expect(buildSpicyLines([line], false, false)[0]).toMatchObject({
+			isLineSynced: false,
+			words: [{ text: "Hello" }],
+		});
+	});
+
+	it("can force every lyric line onto the line-synced renderer", () => {
+		const line = newLyricLine();
+		line.startTime = 0;
+		line.endTime = 1_000;
+		line.words = [
+			{ ...newLyricWord(), startTime: 0, endTime: 1_000, word: "Hello" },
+		];
+
+		expect(buildSpicyLines([line], false, false, true)[0].isLineSynced).toBe(
+			true,
+		);
+	});
+
 	it("places interlude dots on the next vocal line's side", () => {
 		const first = newLyricLine();
 		first.id = "first";
@@ -181,5 +232,45 @@ describe("buildSpicyLines", () => {
 
 		expect(dot?.isDuet).toBe(true);
 		expect(dot?.isRtl).toBe(true);
+	});
+
+	it("ignores background endings but waits for every main line before interludes", () => {
+		const first = newLyricLine();
+		first.id = "first";
+		first.startTime = 0;
+		first.endTime = 1_000;
+		first.words = [
+			{ ...newLyricWord(), startTime: 0, endTime: 1_000, word: "First" },
+		];
+		const overlappingMain = newLyricLine();
+		overlappingMain.id = "overlapping-main";
+		overlappingMain.startTime = 0;
+		overlappingMain.endTime = 3_000;
+		overlappingMain.words = [
+			{ ...newLyricWord(), startTime: 0, endTime: 3_000, word: "Overlap" },
+		];
+		const background = newLyricLine();
+		background.id = "background";
+		background.startTime = 0;
+		background.endTime = 7_000;
+		background.isBG = true;
+		background.words = [
+			{ ...newLyricWord(), startTime: 0, endTime: 7_000, word: "Background" },
+		];
+		const next = newLyricLine();
+		next.id = "next";
+		next.startTime = 6_000;
+		next.endTime = 7_000;
+		next.words = [
+			{ ...newLyricWord(), startTime: 6_000, endTime: 7_000, word: "Next" },
+		];
+
+		const dot = buildSpicyLines(
+			[first, overlappingMain, background, next],
+			false,
+			false,
+		).find((line) => line.isDotLine);
+
+		expect(dot).toMatchObject({ startTime: 3_000, endTime: 6_000 });
 	});
 });

@@ -912,10 +912,10 @@ export const SettingsAppearanceTab = () => {
 						<Heading size="4"><ContentView24Regular /> {t("settings.appearance.advanced.workspace", "Workspace Theme")}</Heading>
 						<Card>
 							<Grid columns="2" gap="3">
-								<AdvancedColorItem label="Titlebar Background" value={vTitlebarBg} onChange={setVTitlebarBg} />
-								<AdvancedColorItem label="Sidebar Background" value={vSidebarBg} onChange={setVSidebarBg} />
-								<AdvancedColorItem label="Active Item Highlight" value={vSidebarActive} onChange={setVSidebarActive} />
-								<AdvancedColorItem label="Menu Hover Color" value={vMenuHover} onChange={setVMenuHover} />
+								<AdvancedColorItem label={t("settings.appearance.advanced.titlebarBackground", "Titlebar Background")} value={vTitlebarBg} onChange={setVTitlebarBg} />
+								<AdvancedColorItem label={t("settings.appearance.advanced.sidebarBackground", "Sidebar Background")} value={vSidebarBg} onChange={setVSidebarBg} />
+								<AdvancedColorItem label={t("settings.appearance.advanced.activeItemHighlight", "Active Item Highlight")} value={vSidebarActive} onChange={setVSidebarActive} />
+								<AdvancedColorItem label={t("settings.appearance.advanced.menuHoverColor", "Menu Hover Color")} value={vMenuHover} onChange={setVMenuHover} />
 							</Grid>
 						</Card>
 					</Flex>
@@ -925,15 +925,15 @@ export const SettingsAppearanceTab = () => {
 						<Card>
 							<Flex direction="column" gap="4">
 								<Grid columns="2" gap="3">
-									<AdvancedColorItem label="Editor Canvas" value={vEditorBg} onChange={setVEditorBg} />
-									<AdvancedColorItem label="Active Line Highlight" value={vActiveLine} onChange={setVActiveLine} />
-									<AdvancedColorItem label="Line Hover Effect" value={vLineHover} onChange={setVLineHover} />
-									<AdvancedColorItem label="Selection Highlight" value={vSelection} onChange={setVSelection} />
+									<AdvancedColorItem label={t("settings.appearance.advanced.editorCanvas", "Editor Canvas")} value={vEditorBg} onChange={setVEditorBg} />
+									<AdvancedColorItem label={t("settings.appearance.advanced.activeLineHighlight", "Active Line Highlight")} value={vActiveLine} onChange={setVActiveLine} />
+									<AdvancedColorItem label={t("settings.appearance.advanced.lineHoverEffect", "Line Hover Effect")} value={vLineHover} onChange={setVLineHover} />
+									<AdvancedColorItem label={t("settings.appearance.advanced.selectionHighlight", "Selection Highlight")} value={vSelection} onChange={setVSelection} />
 								</Grid>
-								<AdvancedSliderItem label="Chip Border Radius" icon={<Stack24Regular />} value={vChipRadius} min={0} max={32} onChange={setVChipRadius} unit="px" />
-								<AdvancedSliderItem label="Chip Spacing (Gap)" icon={<Stack24Regular />} value={vChipGap} min={0} max={32} onChange={setVChipGap} unit="px" />
-								<AdvancedSliderItem label="Chip Padding (V)" icon={<PaddingLeft24Regular />} value={vChipPaddingV} min={0} max={32} onChange={setVChipPaddingV} unit="px" />
-								<AdvancedSliderItem label="Chip Padding (H)" icon={<PaddingLeft24Regular />} value={vChipPaddingH} min={0} max={32} onChange={setVChipPaddingH} unit="px" />
+								<AdvancedSliderItem label={t("settings.appearance.advanced.chipBorderRadius", "Chip Border Radius")} icon={<Stack24Regular />} value={vChipRadius} min={0} max={32} onChange={setVChipRadius} unit="px" />
+								<AdvancedSliderItem label={t("settings.appearance.advanced.chipSpacing", "Chip Spacing (Gap)")} icon={<Stack24Regular />} value={vChipGap} min={0} max={32} onChange={setVChipGap} unit="px" />
+								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingVertical", "Chip Padding (V)")} icon={<PaddingLeft24Regular />} value={vChipPaddingV} min={0} max={32} onChange={setVChipPaddingV} unit="px" />
+								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingHorizontal", "Chip Padding (H)")} icon={<PaddingLeft24Regular />} value={vChipPaddingH} min={0} max={32} onChange={setVChipPaddingH} unit="px" />
 							</Flex>
 						</Card>
 					</Flex>
@@ -943,10 +943,10 @@ export const SettingsAppearanceTab = () => {
 						<Card>
 							<Flex direction="column" gap="4">
 								<Grid columns="2" gap="3">
-									<AdvancedColorItem label="Audio Bar Color" value={vAudioBarBg} onChange={setVAudioBarBg} />
-									<AdvancedColorItem label="Audio Bar Text" value={vAudioBarText} onChange={setVAudioBarText} />
-									<AdvancedColorItem label="Waveform Inactive" value={advWaveformColor} onChange={setAdvWaveformColor} />
-									<AdvancedColorItem label="Waveform Progress" value={advWaveformProgress} onChange={setAdvWaveformProgress} />
+									<AdvancedColorItem label={t("settings.appearance.advanced.audioBarColor", "Audio Bar Color")} value={vAudioBarBg} onChange={setVAudioBarBg} />
+									<AdvancedColorItem label={t("settings.appearance.advanced.audioBarText", "Audio Bar Text")} value={vAudioBarText} onChange={setVAudioBarText} />
+									<AdvancedColorItem label={t("settings.appearance.advanced.waveformInactive", "Waveform Inactive")} value={advWaveformColor} onChange={setAdvWaveformColor} />
+									<AdvancedColorItem label={t("settings.appearance.advanced.waveformProgress", "Waveform Progress")} value={advWaveformProgress} onChange={setAdvWaveformProgress} />
 								</Grid>
 								<AdvancedColorItem label="Romanization Text" value={vRomanColor} onChange={setVRomanColor} />
 								<AdvancedColorItem label="Translation Text" value={vTransColor} onChange={setVTransColor} />

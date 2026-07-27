@@ -470,6 +470,11 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			startTime: parsedStartTime,
 			endTime: parsedEndTime,
 			ignoreSync: false,
+			isLineSynced: Array.from(lineEl.childNodes).some(
+				(node) =>
+					node.nodeType === Node.TEXT_NODE &&
+					!!node.textContent?.trim(),
+			),
 			sectionId: getAttr(lineEl, "section") || parentSectionId,
 		};
 		let haveBg = false;

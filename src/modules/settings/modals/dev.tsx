@@ -13,7 +13,7 @@ export const SettingsDevTab = memo(() => {
 		<Flex direction="column" gap="4">
 			<Box>
 				<Text size="3" weight="bold" mb="2" as="div">
-					{"Preview Performance"}
+					{t("settings.dev.previewPerformance", "Preview Performance")}
 				</Text>
 				<Card variant="surface">
 					<Flex direction="column" gap="3">
@@ -22,7 +22,7 @@ export const SettingsDevTab = memo(() => {
 								checked={showFps} 
 								onCheckedChange={(v) => setShowFps(!!v)} 
 							/>
-							<Text size="2">Show FPS Counter in Preview</Text>
+							<Text size="2">{t("settings.dev.showFps", "Show FPS Counter in Preview")}</Text>
 						</Flex>
 					</Flex>
 				</Card>

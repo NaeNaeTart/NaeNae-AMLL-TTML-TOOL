@@ -37,19 +37,12 @@ export interface SpicyLine {
 }
 
 /**
- * AMLL represents a line-synced lyric (including LRC imports) as one timed
- * word spanning the entire line. Keep that signal at the line level: unlike a
- * one-word karaoke line, a line-synced line is animated as a single glyph box.
+ * A line-synced lyric is direct text in a timed TTML <p>; word-synced lyrics
+ * use timed spans. Preserve the parser's structural distinction instead of
+ * inferring it from the number or content of words.
  */
 function isLineSynced(line: LyricLine) {
-	const timedWords = line.words.filter(
-		(word) => !/^\s+$/u.test(word.word) && valid(word.startTime, word.endTime),
-	);
-	return (
-		timedWords.length === 1 &&
-		timedWords[0].startTime === line.startTime &&
-		timedWords[0].endTime === line.endTime
-	);
+	return !!line.isLineSynced;
 }
 
 function lineText(line: LyricLine, romanized: boolean) {
@@ -226,18 +219,17 @@ export function buildSpicyLines(
 	source: LyricLine[],
 	simple: boolean,
 	romanized: boolean,
+	forceLineSynced = false,
 ): SpicyLine[] {
 	const normalized = source
 		.filter((line) => valid(line.startTime, line.endTime))
-		.slice()
-		.sort((a, b) => a.startTime - b.startTime)
 		.map((line) => {
 			const text = lineText(line, romanized);
 			return {
 				id: line.id,
 				startTime: line.startTime,
 				endTime: line.endTime,
-				isLineSynced: isLineSynced(line),
+				isLineSynced: forceLineSynced || isLineSynced(line),
 				isRtl: isRtl(lineText(line, false)),
 				text,
 				isBackground: !!line.isBG,
@@ -247,26 +239,39 @@ export function buildSpicyLines(
 			};
 		});
 	const result: SpicyLine[] = [];
-	if (normalized[0]?.startTime >= 3000)
+	const firstMainLine = normalized.find((line) => !line.isBackground);
+	const firstMainStart = firstMainLine?.startTime;
+	if (firstMainLine && firstMainStart !== undefined && firstMainStart >= 3000)
 		result.push(
 			dotLine(
 				0,
-				normalized[0].startTime,
+				firstMainStart,
 				"spicy-leading-dot",
-				normalized[0].isDuet,
-				normalized[0].isRtl,
+				firstMainLine.isDuet,
+				firstMainLine.isRtl,
 			),
 		);
+	let latestMainEnd = 0;
+	let lastMainLine: SpicyLine | undefined;
 	for (let i = 0; i < normalized.length; i++) {
 		const line = normalized[i];
 		result.push(line);
+		if (!line.isBackground) {
+			latestMainEnd = Math.max(latestMainEnd, line.endTime);
+			lastMainLine = line;
+		}
 		const next = normalized[i + 1];
-		if (next && next.startTime - line.endTime >= 3000)
+		if (
+			next &&
+			!next.isBackground &&
+			lastMainLine &&
+			next.startTime - latestMainEnd >= 3000
+		)
 			result.push(
 				dotLine(
-					line.endTime,
+					latestMainEnd,
 					next.startTime,
-					`spicy-dot-${line.id}`,
+					`spicy-dot-${lastMainLine.id}`,
 					next.isDuet,
 					next.isRtl,
 				),

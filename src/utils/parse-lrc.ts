@@ -75,6 +75,7 @@ export function parseLrc(lrcContent: string): LyricLine[] {
 		mainLine.words = [mainWord];
 		mainLine.startTime = currentTime;
 		mainLine.endTime = endTime;
+		mainLine.isLineSynced = true;
 
 		// 第二行作为翻译
 		if (textEvents.length > 1) {
@@ -98,9 +99,10 @@ export function parseLrc(lrcContent: string): LyricLine[] {
 				extraWord.startTime = currentTime;
 				extraWord.endTime = endTime;
 
-				extraLine.words = [extraWord];
-				extraLine.startTime = currentTime;
-				extraLine.endTime = endTime;
+			extraLine.words = [extraWord];
+			extraLine.startTime = currentTime;
+			extraLine.endTime = endTime;
+			extraLine.isLineSynced = true;
 
 				validLyricLines.push(extraLine);
 			}

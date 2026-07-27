@@ -14,7 +14,10 @@ import { atomWithStorage, selectAtom } from "jotai/utils";
 import { REDO, UNDO, withHistory } from "jotai-history";
 import { uid } from "uid";
 import { identifyProject } from "$/modules/project/logic/project-info";
-import { migrateLegacySections } from "$/modules/lyric-editor/utils/section-system";
+import {
+	migrateLegacySections,
+	repairSectionIntegrity,
+} from "$/modules/lyric-editor/utils/section-system";
 import type { TTMLLyric } from "../types/ttml";
 
 export enum DarkMode {
@@ -147,6 +150,7 @@ export const newLyricLinesAtom = atom(
 	) => {
 		if (!newState.marks) newState.marks = [];
 		migrateLegacySections(newState);
+		repairSectionIntegrity(newState);
 		set(lyricLinesAtom, newState);
 		set(selectedLinesAtom, new Set());
 		set(selectedWordsAtom, new Set());

@@ -1,296 +1,428 @@
 {
-	"app": {
-		"error": {
-			"title": "Oeps, er is een fout opgetreden!",
-			"description": "Er is een fout opgetreden tijdens het uitvoeren van AMLL TTML Tools",
-			"checkDevTools": "Details zijn te vinden in de ontwikkelaarshulpmiddelen",
-			"saveLyrics": "Probeer de huidige songteksten op te slaan",
-			"tryRestart": "Probeer de app opnieuw te laden",
-			"details": "Geschatte foutinformatie:"
-		},
-		"update": {
-			"updateAvailable": "Update beschikbaar: {version}",
-			"installError": "Fout bij het installeren van update"
-		},
-		"empty": {
-			"title": "Geen lyrische lijnen",
-			"description": "Voeg nieuwe lyrische lijnen toe in het bovenste paneel of open / importeer bestaande songteksten uit het menu"
-		}
-	},
-	"confirmDialog": {
-		"cancel": "annuleren",
-		"confirm": "Bevestigen",
-		"newFile": {
-			"title": "Bevestig nieuw bestand",
-			"description": "Je hebt niet-opgeslagen wijzigingen. Als je doorgaat, zullen deze wijzigingen verloren gaan. Weet je zeker dat je een nieuw bestand wilt aanmaken?"
-		},
-		"syncLineTimestamps": {
-			"title": "Bevestig Sync Regeltijdsaanduiding",
-			"description": "Deze actie zal automatisch de start- en eindtijden van alle regels synchroniseren op basis van de tijdstempels van elk woord in de lijn. overeenkomend met de begin- en eindtijden van de eerste en laatste syllables. Weet u zeker dat u wilt doorgaan?"
-		},
-		"openFile": {
-			"title": "Bevestig Open bestand",
-			"description": "Je hebt niet-opgeslagen wijzigingen. Als je doorgaat, gaan deze wijzigingen verloren. Weet je zeker dat je een nieuw bestand wilt openen?"
-		},
-		"importFile": {
-			"title": "Bevestig Import Songtekst",
-			"description": "Je hebt niet-opgeslagen wijzigingen. Als je doorgaat, gaan deze wijzigingen verloren. Weet je zeker dat je nieuwe songteksten wilt importeren?"
-		},
-		"useMetadataName": {
-			"title": "Metadata gebruiken?",
-			"description": "\"{name}\" als bestandsnaam gebruiken?"
-		},
-		"noSongwriter": {
-			"title": "Bevestig exporteren",
-			"description": "Het nummer heeft geen songschrijvers. Wil je doorgaan met opslaan?"
-		}
-	},
-	"dialog": {
-		"mp3Conversion": {
-			"title": "MP3 omzetten naar FLAC?",
-			"description": "U importeert MP3 bestand: {fileName}",
-			"warning": "MP3 bestanden kunnen leiden tot desynchronisatie van audio in deze app. Converteren naar FLAC wordt aanbevolen voor een betere compatibiliteit.",
-			"dontShowAgain": "Deze waarschuwing niet meer weergeven",
-			"skip": "MP3 gebruiken",
-			"convert": "Converteren naar FLAC",
-			"converting": "Converteren van MP3 naar FLAC...",
-			"success": "Conversie succesvol",
-			"failed": "Conversie mislukt: {error}"
-		}
-	},
-	"ribbonBar": {
-		"editMode": {
-			"multipleValues": "Multiple values…",
-			"showTranslation": "Toon Vertaallijn",
-			"showRomanization": "Toon Roemenië lijn",
-			"showWordRomanizationInput": "Toon per-Word Roemenië",
-			"new": "Nieuw",
-			"lyricLine": "Lyrische Lijn",
-			"lineTiming": "Lijn timing",
-			"startTime": "Start tijd",
-			"endTime": "Eind Tijd",
-			"lineProperties": "Lijn eigenschappen",
-			"bgLyric": "Achtergrond Vocal",
-			"duetLyric": "Duet Vocal",
-			"ignoreSync": "Negeer Sync",
-			"wordTiming": "Woord Timing",
-			"emptyBeatCount": "Lege Beat Count",
-			"wordProperties": "Woord Eigenschappen",
-			"wordContent": "Woord inhoud",
-			"romanWord": "Roemeens woord",
-			"obscene": "Obscene",
-			"secondaryContent": "Secundaire inhoud",
-			"translatedLyric": "Vertaling",
-			"romanLyric": "Roemenië",
-			"layoutMode": "Indeling",
-			"auxiliaryLineDisplay": "Weergave hulplijn",
-			"previewPanel": "Paneel bekijken",
-			"grammarCheck": "Grammatica controle",
-			"aiTools": "AI Tools",
-			"aiAutoSync": "AI Auto-Sync",
-			"tools": "Controleer",
-			"phonetic": {
-				"section": "Fonetisch",
-				"autoFetch": "Automatisch ophalen",
-				"noSelection": "Selecteer eerst regels of woorden",
-				"success": "Phonetics succesvol opgehaald",
-				"error": "Fout bij het ophalen van fonetics",
-				"romanize": "Romanize"
-			}
-		},
-		"previewMode": {
-			"lyrics": "Songteksten",
-			"showTranslation": "Vertaling tonen",
-			"showRoman": "Toon Roemenië",
-			"maskObsceneWords": "Masker Obscene Woorden",
-			"word": "Woord",
-			"fadeWidth": "Vervagen breedte",
-			"mode": "Modus",
-			"standard": "Standaard",
-			"timing": "timing"
-		},
-		"syncMode": {
-			"currentEmptyBeat": "Lege slag",
-			"syncAdjustment": "Timing aanpassing",
-			"timeOffset": "Verschuiving tijd",
-			"syncLevel": "Synchroniseer niveau",
-			"syncLevelWord": "Woord Synchronisatie",
-			"syncLevelLine": "Lijn Sync",
-			"assistSettings": "Assistent Instellingen",
-			"showTimestampUpdate": "Toon Tijdsaanduiding Updates",
-			"touchSyncPanel": "Raak Sync Paneel aan",
-			"bgLyricIgnoreSync": "Negeer achtergrondafbeeldingen",
-			"quickFixes": "Snelle reparaties",
-			"manualTimestampEdit": "Handmatige tijdsaanduiding bewerken",
-			"displayOptions": "Weergave opties",
-			"showTimestamps": "Tijdstempels weergeven",
-			"highlightActiveWord": "Markeer actief woord",
-			"enableGlowAnimation": "Gloed Animatie Inschakelen",
-			"highlightErrors": "Fouten markeren",
-			"showPerWordRomanization": "Toon per-Word Roemenië",
-			"keyBindingReference": "Sneltoets Cheatsheet",
-			"startSync": "Markeer Begin",
-			"continuousSync": "Vastleggen",
-			"endSync": "Markeer het einde",
-			"loading": "Panel loading…"
-		}
-	},
-	"settings": {
-		"common": {
-			"layoutModeOptions": {
-				"simple": "Eenvoudige modus",
-				"advance": "Geavanceerde modus"
-			},
-			"enabled": "Ingeschakeld",
-			"disabled": "Uitgeschakeld",
-			"language": "Interface taal",
-			"languageDesc": "Selecteer de taal voor de interface",
-			"layoutMode": "Editor lay-out modus",
-			"layoutModeDesc": {
-				"line1": "Eenvoudige lay-out voldoet aan de meeste basisbehoeften",
-				"line2": "Schakel over naar de geavanceerde modus als u efficiëntere synchronisatie nodig heeft"
-			},
-			"helpTranslate": "Help deze app te vertalen",
-			"compactBGInSync": "Compacte achtergrondafbeeldingen (Sync Modus)",
-			"compactBGInSyncDesc": "Automatisch verticale ruimte comprimeren voor regels op de achtergrond tijdens synchronisatie.",
-			"syncJudgeMode": "Synchroniseer Tijdsaanduiding Modus",
-			"syncJudgeModeDesc": "Stel in hoe tijdstempels worden beoordeeld bij het synchroniseren. Standaard is 'Eerste sleutel omlaag'.",
-			"syncJudgeModeOptions": {
-				"firstKeyDown": "Eerste toets beneden tijd",
-				"lastKeyUp": "Laatste sleutel up tijd",
-				"middleKey": "Midden van de sleutel omlaag & omhoog",
-				"firstKeyDownLegacy": "Eerste toets omlaag tijd (erfelijkheid)"
-			},
-			"keyBindingTrigger": "Key Binding Trigger",
-			"keyBindingTriggerDesc": "Bepaalt of snelkoppelingen worden geactiveerd wanneer een toets wordt ingedrukt of losgelaten.",
-			"keyBindingTriggerOptions": {
-				"keyDown": "Trigger op Key Down",
-				"keyUp": "Trigger op Key Up"
-			},
-			"smartFirstWord": "Slim eerste woord",
-			"smartFirstWordDesc": "Bij het synchroniseren van het eerste woord van een lijn, zet de eerste toets de begintijd alleen in, zonder meteen de eindtijd in te stellen.",
-			"smartLastWord": "Slim laatste woord",
-			"smartLastWordDesc": "Bij het synchroniseren van het laatste woord van een lijn. de toets zet de eindtijd in, zonder de begintijd van het eerste woord van de volgende regel automatisch in te stellen.",
-			"enableUpcomingWordHighlight": "Aankomende Woord Voormarkering Inschakelen",
-			"enableUpcomingWordHighlightDesc": "Laat kort een markeerkleur zien voordat een woord speelt in de Sync-modus om precisie te verbeteren.",
-			"upcomingWordHighlightThreshold": "Tijdsdrempel vooraf markeren (ms)",
-			"upcomingWordHighlightColor": "Markeer kleur (CSS-waarde)",
-			"volume": "Muziek Volume",
-			"playbackRate": "Afspeel snelheid",
-			"autosave": {
-				"enable": "Automatisch opslaan inschakelen",
-				"interval": "Bewaar interval (minuten)",
-				"limit": "Momentopnamen om te houden"
-			},
-			"customBackground": "Aangepaste achtergrond",
-			"customBackgroundDesc": "Kies een afbeelding om als achtergrond te gebruiken.",
-			"customBackgroundPick": "Kies afbeelding",
-			"customBackgroundClear": "Verwijderen",
-			"customBackgroundOpacity": "Transparantie",
-			"customBackgroundOpacityWarning": "Als deze waarde te hoog is, kan het zijn dat de pagina-inhoud moeilijk te lezen is.",
-			"customBackgroundMask": "Maskeer-naam",
-			"customBackgroundBlur": "Blur Radius",
-			"customBackgroundBrightness": "Helderheid",
-			"customBackgroundEnabled": "Achtergrond instellen",
-			"customBackgroundManage": "Instellingen"
-		},
-		"about": {
-			"update": "Vernieuwen",
-			"newVersion": "Nieuwe versie",
-			"updateNow": "Nu bijwerken",
-			"downloading": "Update downloaden...",
-			"ready": "Update is klaar. Start de applicatie opnieuw om deze toe te passen.",
-			"restart": "Herstarten"
-		},
-		"aboutModal": {
-			"community": "Gemeenschap & bijdragen",
-			"communityDesc": "Help ons de tool beter te maken door het bijdragen aan code, het rapporteren of het leveren van vertalingen.",
-			"github": "GitHub Repository",
-			"crowdin": "Help vertalen in Crowdin"
-		},
-		"appearance": {
-			"theme": "Thema",
-			"useCustomAccent": "Aangepaste Accent Kleur",
-			"useCustomAccentDesc": "Accentkleur instellen",
-			"background": "Achtergrond",
-			"mode": {
-				"none": "geen",
-				"image": "Afbeelding",
-				"gradient": "Kleurovergang"
-			},
-			"useCustomGradient": "Aangepaste kleur verloop",
-			"useCustomGradientDesc": "Genereer een gradiënt van één kleur.",
-			"syncGradientToAccent": "Eerste kleur synchroniseren met Accent",
-			"addGradientColor": "Voeg kleur toe",
-			"gradientType": "Kleurovergang Type",
-			"type": {
-				"linear": "Lineaire",
-				"radial": "Radial",
-				"conic": "Konijnen"
-			},
-			"gradientOpacity": "Kleurovergang Dekking",
-			"gradientSize": "Kleurovergang Schaal",
-			"gradientPositionSettings": "Middelpunt & Hoek",
-			"gradientCenterX": "Centrum X (Horizontaal)",
-			"gradientCenterY": "Centreer Y (verticaal)",
-			"gradientAngle": "Hoek",
-			"font": "Applicatie lettertype",
-			"currentFont": "Huidig lettertype",
-			"changeFont": "Change Font...",
-			"fontImportSuccess": "Lettertype succesvol geïmporteerd!",
-			"fontLibrary": "Lettertype Bibliotheek",
-			"fontWeight": "Lettertype Gewicht",
-			"weight": {
-				"regular": "Normaal",
-				"bold": "Bold"
-			},
-			"fontStyle": "Lettertype Stijl",
-			"style": {
-				"normal": "normaal",
-				"italic": "Italic"
-			},
-			"importFont": "Lettertype bestand importeren",
-			"customFontActive": "LOKALE AANGEPASTE FONT",
-			"defaultFonts": "Standaard stapels",
-			"systemFonts": "Systeem lettertypen",
-			"googleFonts": "Google lettertypen bibliotheek"
-		},
-		"group": {
-			"assistant": "Assistent",
-			"display": "Weergeven",
-			"timing": "Synchroniseren",
-			"timingHighlight": "Visuele Timing Cue (Sync)",
-			"playback": "Afspelen",
-			"autosave": "Automatisch opslaan"
-		},
-		"assistant": {
-			"quickFixes": "Snelle reparaties (Grammar)",
-			"quickFixesDesc": "Schakel suggesties in voor herhaalde woorden en fouten bij transcriptie.",
-			"manualTimestampEdit": "Handmatige tijdsaanduiding bewerken",
-			"manualTimestampEditDesc": "Sta het klikken op tijdstempels in Sync-modus toe om handmatig waarden te typen.",
-			"visualizeTimestampUpdate": "Tijdstempel bijwerken Visualiseren",
-			"visualizeTimestampUpdateDesc": "Toon een korte flits op de tijdstempels wanneer ze worden bijgewerkt via snelkoppelingen.",
-			"highlightErrors": "Timingfouten markeren",
-			"highlightErrorsDesc": "Markeer woorden waar de begintijd groter is dan de eindtijd."
-		},
-		"audio": {
-			"equalizer": "Audio Equalizer",
-			"eqDescription": "Pas de winst aan voor verschillende frequenties om uw audioervaring te optimaliseren.",
-			"preset": "Voorkeursinstellingen",
-			"standardPresets": "Standaard",
-			"presets": {
-				"custom": "Handleiding"
-			},
-			"customPresets": "Aangepaste",
-			"reset": "Reset",
-			"newPresetName": "Nieuwe naam voorinstelling",
-			"save": "Voorkeursinstelling opslaan",
-			"mp3Conversion": "MP3 naar FLAC",
-			"mp3ConversionDesc": "Converteer MP3 naar FLAC bij het importeren voor betere synchronisatie",
-			"mp3ConversionAsk": "Vragen",
-			"mp3ConversionAlways": "Automatisch",
-			"mp3ConversionNever": "UIT"
-		},
+  "app": {
+    "error": {
+      "title": "Oeps, er is een fout opgetreden!",
+      "description": "Er is een fout opgetreden tijdens het uitvoeren van AMLL TTML Tools",
+      "checkDevTools": "Details zijn te vinden in de ontwikkelaarshulpmiddelen",
+      "saveLyrics": "Probeer de huidige songteksten op te slaan",
+      "tryRestart": "Probeer de app opnieuw te laden",
+      "details": "Geschatte foutinformatie:"
+    },
+    "update": {
+      "updateAvailable": "Update beschikbaar: {version}",
+      "installError": "Fout bij het installeren van update"
+    },
+    "empty": {
+      "title": "Geen lyrische lijnen",
+      "description": "Voeg nieuwe lyrische lijnen toe in het bovenste paneel of open / importeer bestaande songteksten uit het menu"
+    }
+  },
+  "amll": {
+    "noLyrics": "No lyrics available in store"
+  },
+  "confirmDialog": {
+    "cancel": "annuleren",
+    "confirm": "Bevestigen",
+    "useMetadataName": {
+      "title": "Metadata gebruiken?",
+      "description": "\"{name}\" als bestandsnaam gebruiken?"
+    },
+    "newFile": {
+      "title": "Bevestig nieuw bestand",
+      "description": "Je hebt niet-opgeslagen wijzigingen. Als je doorgaat, zullen deze wijzigingen verloren gaan. Weet je zeker dat je een nieuw bestand wilt aanmaken?"
+    },
+    "untimedLyrics": {
+      "title": "Untimed Lyrics Detected",
+      "description": "There is an untimed line or word in your lyrics. Would you like to fix it or export anyway?",
+      "exportAnyway": "Export Anyway",
+      "fixIt": "Fix It"
+    },
+    "syncLineTimestamps": {
+      "title": "Bevestig Sync Regeltijdsaanduiding",
+      "description": "Deze actie zal automatisch de start- en eindtijden van alle regels synchroniseren op basis van de tijdstempels van elk woord in de lijn. overeenkomend met de begin- en eindtijden van de eerste en laatste syllables. Weet u zeker dat u wilt doorgaan?"
+    },
+    "openFile": {
+      "title": "Bevestig Open bestand",
+      "description": "Je hebt niet-opgeslagen wijzigingen. Als je doorgaat, gaan deze wijzigingen verloren. Weet je zeker dat je een nieuw bestand wilt openen?"
+    },
+    "importFile": {
+      "title": "Bevestig Import Songtekst",
+      "description": "Je hebt niet-opgeslagen wijzigingen. Als je doorgaat, gaan deze wijzigingen verloren. Weet je zeker dat je nieuwe songteksten wilt importeren?"
+    },
+    "noSongwriter": {
+      "description": "Het nummer heeft geen songschrijvers. Wil je doorgaan met opslaan?"
+    }
+  },
+  "experimentalFeatures": {
+    "geniusCategorization": {
+      "dialogTitle": "Genius Headers Detected!",
+      "dialogDesc": "We've detected section headers in your lyrics. Would you like to enable the experimental 'Genius Header Categorization' feature to help with your workflow?",
+      "usageInfo": "Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.",
+      "maybeLater": "Maybe Later",
+      "enableNow": "Enable Now",
+      "title": "Genius Header Categorization",
+      "description": "Detect, normalize, review, navigate, collapse, validate, and edit Genius-style song sections while preserving them in TTML exports.",
+      "snapToPlayhead": "Snap to Playhead",
+      "noPreviousFound": "No previous identical header found with timing.",
+      "copyPrevious": "Copy Previous Timing",
+      "headersRestored": "Section headers restored."
+    },
+    "title": "Experimental Features",
+    "description": "These features are currently in development and may be unstable. Use with caution."
+  },
+  "common": {
+    "close": "Afsluiten",
+    "autoDetect": "Auto Detect",
+    "about": "Informatie",
+    "resultsFound": "{count} resultaten gevonden",
+    "cancel": "annuleren",
+    "save": "Opslaan",
+    "search": "Zoeken",
+    "success": "Herstellen gelukt",
+    "error": "Gegevens beschadigd of verloren",
+    "edit": "Edit",
+    "apply": "Toepassen",
+    "confirm": "Bevestigen",
+    "back": "Back",
+    "deleteSuccess": "Verwijderen gelukt",
+    "time": "Tijd",
+    "restore": "Herstellen",
+    "loading": "Loading...",
+    "sync": "Synchroniseren",
+    "remove": "Verwijderen",
+    "clickToSet": "Klik om in te stellen ",
+    "move": "Move",
+    "copy": "Copy"
+  },
+  "dialog": {
+    "mp3Conversion": {
+      "title": "MP3 omzetten naar FLAC?",
+      "description": "U importeert MP3 bestand: {fileName}",
+      "warning": "MP3 bestanden kunnen leiden tot desynchronisatie van audio in deze app. Converteren naar FLAC wordt aanbevolen voor een betere compatibiliteit.",
+      "dontShowAgain": "Deze waarschuwing niet meer weergeven",
+      "skip": "MP3 gebruiken",
+      "convert": "Converteren naar FLAC",
+      "converting": "Converteren van MP3 naar FLAC...",
+      "success": "Conversie succesvol",
+      "failed": "Conversie mislukt: {error}"
+    }
+  },
+  "ribbonBar": {
+    "editMode": {
+      "grammarCheck": "Grammatica controle",
+      "multipleValues": "Multiple values…",
+      "duration": "持续时间",
+      "showTranslation": "Toon Vertaallijn",
+      "showRomanization": "Toon Roemenië lijn",
+      "showWordRomanizationInput": "Toon per-Word Roemenië",
+      "phonetic": {
+        "noSelection": "Selecteer eerst regels of woorden",
+        "success": "Phonetics succesvol opgehaald",
+        "error": "Fout bij het ophalen van fonetics"
+      },
+      "romanization": {
+        "section": "Romanization",
+        "info": {
+          "title": "About Romanization",
+          "canDo": "✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!",
+          "cannotDo": "✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur."
+        },
+        "ja": "Japanese (Romaji)",
+        "zh": "Chinese (Pinyin)",
+        "yue": "Cantonese (Jyutping)",
+        "ko": "Korean (Romaji)",
+        "autoFetch": "Romanize"
+      },
+      "new": "Nieuw",
+      "lyricLine": "Lyrische Lijn",
+      "lineTiming": "Lijn timing",
+      "startTime": "Start tijd",
+      "endTime": "Eind Tijd",
+      "lineProperties": "Lijn eigenschappen",
+      "bgLyric": "Achtergrond Vocal",
+      "duetLyric": "Duet Vocal",
+      "ignoreSync": "Negeer Sync",
+      "wordTiming": "Woord Timing",
+      "emptyBeatCount": "Lege Beat Count",
+      "wordProperties": "Woord Eigenschappen",
+      "wordContent": "Woord inhoud",
+      "romanWord": "Roemeens woord",
+      "obscene": "Obscene",
+      "secondaryContent": "Secundaire inhoud",
+      "translatedLyric": "Vertaling",
+      "romanLyric": "Roemenië",
+      "layoutMode": "Indeling",
+      "auxiliaryLineDisplay": "Weergave hulplijn",
+      "tools": "Controleer",
+      "previewPanel": "Paneel bekijken"
+    },
+    "previewMode": {
+      "mode": "Modus",
+      "amllDeprecated": "AMLL 模式已弃用，请使用标准模式",
+      "standard": "Standaard",
+      "timing": "timing",
+      "spicy": "Spicy",
+      "simpleLyrics": "Simple lyrics",
+      "forceLineRendering": "Force line rendering",
+      "background": "Background",
+      "backgroundAnimated": "Animated",
+      "backgroundColor": "Color",
+      "backgroundStatic": "Static",
+      "lyrics": "Songteksten",
+      "showTranslation": "Vertaling tonen",
+      "showRoman": "Toon Roemenië",
+      "maskObsceneWords": "Masker Obscene Woorden",
+      "word": "Woord",
+      "fadeWidth": "Vervagen breedte",
+      "instantFade": "即时淡出",
+      "render": "渲染",
+      "dev": "Dev",
+      "showFps": "Show FPS"
+    },
+    "syncMode": {
+      "currentEmptyBeat": "Lege slag",
+      "syncAdjustment": "Timing aanpassing",
+      "timeOffset": "Verschuiving tijd",
+      "commitOffset": "Commit Offset",
+      "syncLevel": "Synchroniseer niveau",
+      "syncLevelWord": "Woord Synchronisatie",
+      "syncLevelLine": "Lijn Sync",
+      "assistSettings": "Assistent Instellingen",
+      "showTimestampUpdate": "Toon Tijdsaanduiding Updates",
+      "touchSyncPanel": "Raak Sync Paneel aan",
+      "bgLyricIgnoreSync": "Negeer achtergrondafbeeldingen",
+      "quickFixes": "Snelle reparaties",
+      "manualTimestampEdit": "Handmatige tijdsaanduiding bewerken",
+      "displayOptions": "Weergave opties",
+      "showTimestamps": "Tijdstempels weergeven",
+      "highlightActiveWord": "Markeer actief woord",
+      "enableGlowAnimation": "Gloed Animatie Inschakelen",
+      "highlightErrors": "Fouten markeren",
+      "showPerWordRomanization": "Toon per-Word Roemenië",
+      "keyBindingReference": "Sneltoets Cheatsheet",
+      "startSync": "Markeer Begin",
+      "continuousSync": "Vastleggen",
+      "endSync": "Markeer het einde",
+      "manageQuickFixExclusions": {
+        "title": "Manage Quick Fix Exclusions",
+        "description": "Add words to ignore in quick fixes.",
+        "placeholder": "Enter word to ignore"
+      }
+    },
+    "experimentalFeatures": "Experimental Features",
+    "loading": "Loading panel..."
+  },
+  "settings": {
+    "common": {
+      "enabled": "Ingeschakeld",
+      "layoutModeOptions": {
+        "simple": "Eenvoudige modus",
+        "advance": "Geavanceerde modus"
+      },
+      "disabled": "Uitgeschakeld",
+      "language": "Interface taal",
+      "languageDesc": "Selecteer de taal voor de interface",
+      "helpTranslate": "Help deze app te vertalen",
+      "layoutMode": "Editor lay-out modus",
+      "layoutModeDesc": {
+        "line1": "Eenvoudige lay-out voldoet aan de meeste basisbehoeften",
+        "line2": "Schakel over naar de geavanceerde modus als u efficiëntere synchronisatie nodig heeft"
+      },
+      "compactBGInSync": "Compacte achtergrondafbeeldingen (Sync Modus)",
+      "compactBGInSyncDesc": "Automatisch verticale ruimte comprimeren voor regels op de achtergrond tijdens synchronisatie.",
+      "syncJudgeMode": "Synchroniseer Tijdsaanduiding Modus",
+      "syncJudgeModeDesc": "Stel in hoe tijdstempels worden beoordeeld bij het synchroniseren. Standaard is 'Eerste sleutel omlaag'.",
+      "syncJudgeModeOptions": {
+        "firstKeyDown": "Eerste toets beneden tijd",
+        "lastKeyUp": "Laatste sleutel up tijd",
+        "middleKey": "Midden van de sleutel omlaag & omhoog",
+        "firstKeyDownLegacy": "Eerste toets omlaag tijd (erfelijkheid)"
+      },
+      "keyBindingTrigger": "Key Binding Trigger",
+      "keyBindingTriggerDesc": "Bepaalt of snelkoppelingen worden geactiveerd wanneer een toets wordt ingedrukt of losgelaten.",
+      "keyBindingTriggerOptions": {
+        "keyDown": "Trigger op Key Down",
+        "keyUp": "Trigger op Key Up"
+      },
+      "syncTimeOffset": "Global Sync Time Offset (ms)",
+      "syncTimeOffsetDesc": "Adjust all sync timestamps by this amount to compensate for audio latency.",
+      "syncCommitOffset": "Commit Input Offset (ms)",
+      "syncCommitOffsetDesc": "Specific offset for the 'Commit' action to fix delayed audio issues.",
+      "smartFirstWord": "Slim eerste woord",
+      "smartFirstWordDesc": "Bij het synchroniseren van het eerste woord van een lijn, zet de eerste toets de begintijd alleen in, zonder meteen de eindtijd in te stellen.",
+      "smartLastWord": "Slim laatste woord",
+      "smartLastWordDesc": "Bij het synchroniseren van het laatste woord van een lijn. de toets zet de eindtijd in, zonder de begintijd van het eerste woord van de volgende regel automatisch in te stellen.",
+      "enableUpcomingWordHighlight": "Aankomende Woord Voormarkering Inschakelen",
+      "enableUpcomingWordHighlightDesc": "Laat kort een markeerkleur zien voordat een woord speelt in de Sync-modus om precisie te verbeteren.",
+      "upcomingWordHighlightThreshold": "Tijdsdrempel vooraf markeren (ms)",
+      "upcomingWordHighlightColor": "Markeer kleur (CSS-waarde)",
+      "volume": "Muziek Volume",
+      "playbackRate": "Afspeel snelheid",
+      "autosave": {
+        "enable": "Automatisch opslaan inschakelen",
+        "interval": "Bewaar interval (minuten)",
+        "limit": "Momentopnamen om te houden"
+      },
+      "customBackground": "Aangepaste achtergrond",
+      "customBackgroundDesc": "Kies een afbeelding om als achtergrond te gebruiken.",
+      "customBackgroundPick": "Kies afbeelding",
+      "customBackgroundClear": "Verwijderen",
+      "customBackgroundOpacity": "Transparantie",
+      "customBackgroundOpacityWarning": "Als deze waarde te hoog is, kan het zijn dat de pagina-inhoud moeilijk te lezen is.",
+      "customBackgroundMask": "Maskeer-naam",
+      "customBackgroundBlur": "Blur Radius",
+      "customBackgroundBrightness": "Helderheid",
+      "customBackgroundEnabled": "Achtergrond instellen",
+      "customBackgroundManage": "Instellingen"
+    },
+    "about": {
+      "update": "Vernieuwen",
+      "newVersion": "Nieuwe versie",
+      "updateNow": "Nu bijwerken",
+      "downloading": "Update downloaden...",
+      "ready": "Update is klaar. Start de applicatie opnieuw om deze toe te passen.",
+      "restart": "Herstarten"
+    },
+    "appearance": {
+      "mode": {
+        "basic": "Basic Editor",
+        "advanced": "Advanced Editor",
+        "none": "geen",
+        "image": "Afbeelding",
+        "gradient": "Kleurovergang"
+      },
+      "presets": {
+        "title": "Appearance Presets",
+        "namePlaceholder": "Theme Name...",
+        "save": "Save Current",
+        "empty": "No saved presets yet."
+      },
+      "theme": "Thema",
+      "useCustomAccent": "Aangepaste Accent Kleur",
+      "useCustomAccentDesc": "Accentkleur instellen",
+      "glass": "Glassmorphism",
+      "glassBlur": "Glass Intensity",
+      "glassBlurDesc": "Adjust the background blur effect for glassmorphic elements.",
+      "background": "Achtergrond",
+      "useCustomGradient": "Aangepaste kleur verloop",
+      "useCustomGradientDesc": "Genereer een gradiënt van één kleur.",
+      "syncGradientToAccent": "Eerste kleur synchroniseren met Accent",
+      "addGradientColor": "Voeg kleur toe",
+      "gradientType": "Kleurovergang Type",
+      "type": {
+        "linear": "Lineaire",
+        "radial": "Radial",
+        "conic": "Konijnen"
+      },
+      "gradientOpacity": "Kleurovergang Dekking",
+      "gradientSize": "Kleurovergang Schaal",
+      "gradientPositionSettings": "Middelpunt & Hoek",
+      "gradientCenterX": "Centrum X (Horizontaal)",
+      "gradientCenterY": "Centreer Y (verticaal)",
+      "gradientAngle": "Hoek",
+      "font": "Applicatie lettertype",
+      "currentFont": "Huidig lettertype",
+      "changeFont": "Change Font...",
+      "advanced": {
+        "projectColors": "Project Colors",
+        "primaryText": "Primary Text Color",
+        "primaryTextDesc": "Global primary text override.",
+        "secondaryText": "Secondary Text Color",
+        "workspace": "Workspace Theme",
+        "titlebarBackground": "Titlebar Background",
+        "sidebarBackground": "Sidebar Background",
+        "activeItemHighlight": "Active Item Highlight",
+        "menuHoverColor": "Menu Hover Color",
+        "editor": "Editor Layout",
+        "editorCanvas": "Editor Canvas",
+        "activeLineHighlight": "Active Line Highlight",
+        "lineHoverEffect": "Line Hover Effect",
+        "selectionHighlight": "Selection Highlight",
+        "chipBorderRadius": "Chip Border Radius",
+        "chipSpacing": "Chip Spacing (Gap)",
+        "chipPaddingVertical": "Chip Padding (V)",
+        "chipPaddingHorizontal": "Chip Padding (H)",
+        "audioVisuals": "Playback & Visuals",
+        "audioBarColor": "Audio Bar Color",
+        "audioBarText": "Audio Bar Text",
+        "waveformInactive": "Waveform Inactive",
+        "waveformProgress": "Waveform Progress",
+        "global": "Global Design System",
+        "masterResetNote": "This will reset all 20+ granular overrides.",
+        "resetMaster": "Master Reset Advanced Config"
+      },
+      "secondaryDesc": "Translations & Metadata.",
+      "layout": {
+        "title": "Application Layout",
+        "order": "Element Order",
+        "orderDesc": "Drag to reorder elements. Some positions may be limited by constraints.",
+        "titlebar": "Title Bar",
+        "ribbonbar": "Toolbar (Ribbon)",
+        "editor": "Main Editor Area",
+        "audio": "Audio Controls",
+        "ribbonPos": "Toolbar Orientation",
+        "pos": {
+          "top": "Top",
+          "bottom": "Bottom",
+          "left": "Left",
+          "right": "Right"
+        },
+        "sidebarWarning": "Note: Sidebar mode is experimental and may look different."
+      },
+      "fontImportSuccess": "Lettertype succesvol geïmporteerd!",
+      "fontLibrary": "Lettertype Bibliotheek",
+      "fontWeight": "Lettertype Gewicht",
+      "weight": {
+        "regular": "Normaal",
+        "bold": "Bold"
+      },
+      "fontStyle": "Lettertype Stijl",
+      "style": {
+        "normal": "normaal",
+        "italic": "Italic"
+      },
+      "importFont": "Lettertype bestand importeren",
+      "customFontActive": "LOKALE AANGEPASTE FONT",
+      "defaultFonts": "Standaard stapels",
+      "systemFonts": "Systeem lettertypen",
+      "googleFonts": "Google lettertypen bibliotheek"
+    },
+    "group": {
+      "assistant": "Assistent",
+      "display": "Weergeven",
+      "timing": "Synchroniseren",
+      "timingHighlight": "Visuele Timing Cue (Sync)",
+      "playback": "Afspelen",
+      "autosave": "Automatisch opslaan"
+    },
+    "assistant": {
+      "quickFixes": "Snelle reparaties (Grammar)",
+      "quickFixesDesc": "Schakel suggesties in voor herhaalde woorden en fouten bij transcriptie.",
+      "manualTimestampEdit": "Handmatige tijdsaanduiding bewerken",
+      "manualTimestampEditDesc": "Sta het klikken op tijdstempels in Sync-modus toe om handmatig waarden te typen.",
+      "visualizeTimestampUpdate": "Tijdstempel bijwerken Visualiseren",
+      "visualizeTimestampUpdateDesc": "Toon een korte flits op de tijdstempels wanneer ze worden bijgewerkt via snelkoppelingen.",
+      "highlightErrors": "Timingfouten markeren",
+      "highlightErrorsDesc": "Markeer woorden waar de begintijd groter is dan de eindtijd."
+    },
+    "audio": {
+      "equalizer": "Audio Equalizer",
+      "eqDescription": "Pas de winst aan voor verschillende frequenties om uw audioervaring te optimaliseren.",
+      "preset": "Voorkeursinstellingen",
+      "standardPresets": "Standaard",
+      "presets": {
+        "custom": "Handleiding"
+      },
+      "customPresets": "Aangepaste",
+      "reset": "Reset",
+      "newPresetName": "Nieuwe naam voorinstelling",
+      "save": "Voorkeursinstelling opslaan",
+      "mp3Conversion": "MP3 naar FLAC",
+      "mp3ConversionDesc": "Converteer MP3 naar FLAC bij het importeren voor betere synchronisatie",
+      "mp3ConversionAsk": "Vragen",
+      "mp3ConversionAlways": "Automatisch",
+      "mp3ConversionNever": "UIT"
+    },
     "backup": {
       "category": {
         "settings": "Settings",
@@ -325,585 +457,736 @@
       "cancelButton": "Cancel",
       "applyButton": "Import & reload"
     },
-		"dev": {
-			"wasmPlugins": {
-				"title": "Community Plugin Systeem (WASM)",
-				"description": "Beheer en upload eigen webassembly-plug-ins om de import- en exportmogelijkheden van de tool uit te breiden."
-			},
-			"debugInfo": {
-				"title": "Debug informatie"
-			}
-		},
-		"spectrogram": {
-			"palette": "Kleur Palet",
-			"paletteCustom": "Aangepaste",
-			"gradientEditorDesc": "Een Pos waarde van 0,0 komt overeen met het rustigste gedeelte, en 1.0 komt overeen met het luidste gedeelte. Het wordt aanbevolen om helderdere kleuren te gebruiken voor grotere Pos waarden.",
-			"addStop": "Kleurstop toevoegen"
-		}
-	},
-	"topBar": {
-		"modeBtns": {
-			"edit": "Bewerken",
-			"sync": "Tijd",
-			"preview": "Voorvertoning"
-		},
-		"boykisser": "jongen",
-		"appName": "Apple Music-achtige songteksten TTML Tool",
-		"menu": {
-			"undo": "Herstel",
-			"redo": "Opnieuw",
-			"selectAllLines": "Selecteer alle regels",
-			"unselectAllLines": "Alle lijnen deselecteren",
-			"invertSelectAllLines": "Selectie omkeren van lijn",
-			"selectWordsOfMatchedSelection": "Selecteer woorden die overeenkomen met de selectie",
-			"timeShift": "Tijd Shift...",
-			"editMetadata": "Bewerk songtekst metadata…",
-			"edit": "Bewerken",
-			"newLyric": "Nieuwe songteksten",
-			"openLyric": "Open songteksten",
-			"openFromClipboard": "TTML openen vanaf klembord",
-			"saveLyric": "Songtekst opslaan",
-			"restoreFromHistory": "Restore from history…",
-			"saveLyricToClipboard": "TTML opslaan op klembord",
-			"uploadToAMLLDB": "Uploaden naar database (CN alleen)",
-			"file": "Bestand",
-			"helpDoc": "Documentatie (CN)",
-			"help": "Hulp",
-			"segmentationTools": "Hulpmiddelen voor segmentatie",
-			"autoSegment": "Auto Segment",
-			"rubySegment": "Ruby segmentatie",
-			"advancedSegment": "Geavanceerde groep...",
-			"syncLineTimestamps": "Synchronisatie lijn-tijdsaanduiding",
-			"tool": "Hulpmiddelen",
-			"importLyric": {
-				"import": "Importeer songteksten",
-				"fromPlainText": "Importeren uit onopgemaakte tekst…",
-				"fromLRCLIB": "Importeren uit LRCLIB...",
-				"fromLyrically": "Importeren uit Lyrically...",
-				"fromGenius": "Importeren uit Genius…",
-				"fromLyRiC": "Importeren uit LyRiC bestand…",
-				"fromESLyRiC": "Importeer uit ESLyRiC bestand…",
-				"fromQRC": "Importeren uit QRC bestand…",
-				"fromYRC": "Importeren uit YRC bestand…",
-				"fromLrcfySylb": "Import from Lyricify Syllable file…"
-			},
-			"exportLyric": {
-				"export": "Songtekst exporteren",
-				"toLyRiC": "Exporteer naar LyRiC",
-				"toESLyRiC": "Exporteer naar ESLyRiC",
-				"toQRC": "Exporteer naar QRC",
-				"toYRC": "Exporteren naar YRC",
-				"toLrcfySylb": "Export naar Lyricify Syllable",
-				"toASS": "Exporteren naar ASS-ondertitels"
-			}
-		}
-	},
-	"header": {
-		"status": {
-			"autoSavedAt": "Automatisch opgeslagen bij {time}"
-		}
-	},
-	"contextMenu": {
-		"deleteWords": "{count} woord(en) verwijderen",
-		"bgLyric": "Achtergrond lijn",
-		"duetLyric": "Duet Lijn",
-		"insertLineBefore": "Voeg nieuwe regel toe voor",
-		"insertLineAfter": "Nieuwe regel invoegen na",
-		"copyLine": "Duplicate {count} line(s)",
-		"duplicateTo": "Dupliceren naar...",
-		"combineLine": "Regels combineren",
-		"deleteLine": "Verwijder {count} regel(s)",
-		"splitWord": "Split word…",
-		"replaceWord": "Vervang woord…",
-		"combineWords": "Woorden combineren",
-		"moveFollowingWordToNewLine": "Verplaats de volgers naar de nieuwe lijn",
-		"moveWordToNewLine": "Verplaats {count} woord(en) naar nieuwe regel"
-	},
-	"settingsDialog": {
-		"title": "named@@0",
-		"common": {
-			"latencyTest": "Audio/input latency test"
-		},
-		"keybindings": {
-			"newFile": "Nieuw bestand",
-			"openFile": "Open bestand",
-			"saveFile": "Bestand opslaan",
-			"undo": "Herstel",
-			"redo": "Opnieuw",
-			"selectAll": "Alles selecteren",
-			"unselectAll": "Deselecteer alles",
-			"selectInverted": "Selectie omkeren",
-			"selectWordsOfMatchedSelection": "Soortgelijke woorden selecteren",
-			"deleteSelection": "Selectie verwijderen",
-			"switchEditMode": "Modus wisselen - Overschakelen naar bewerkingsmodus",
-			"switchSyncMode": "Modus wisselen - Schakel naar Timing modus",
-			"switchPreviewMode": "Modus wisselen - Overschakelen naar Preview Modus",
-			"moveNextWord": "Timing - Verplaatsen naar het volgende woord",
-			"movePrevWord": "Timing - Verplaatsen naar vorig woord",
-			"moveNextLine": "Timing - Verplaatsen naar volgende regel start",
-			"movePrevLine": "Timing - Verplaatsen naar vorige regel start",
-			"movePrevWordAndPlay": "Timing - Verplaatsen naar vorig woord en afspelen",
-			"moveNextWordAndPlay": "Timing - Verplaatsen naar volgende woord en spelen",
-			"syncStart": "Timing - Markeer begin",
-			"syncNext": "Timing - Commit",
-			"syncEnd": "Timing - Markeer einde",
-			"toggleWordHighlight": "Timing - Schakelen actieve woordmarkering",
-			"moveFirstWordAndPlay": "Timing - Verplaats naar eerste woord en speel",
-			"moveLastWordAndPlay": "Timing - Verplaats naar laatste woord en speel",
-			"urbanDictionary": "Edit - Look up in Urban Dictionary",
-			"urbanDictionarySync": "Timing - Look up in Urban Dictionary",
-			"playPause": "Afspelen - Afspelen/Pauzeren",
-			"seekForward": "Afspelen - Seek vooruit 5 s",
-			"seekBackward": "Afspelen - Seek naar achteren 5 s",
-			"volumeUp": "Afspelen - Volume omhoog",
-			"volumeDown": "Afspelen - Volume omlaag",
-			"playbackRateUp": "Afspelen - verhoog snelheid",
-			"playbackRateDown": "Afspelen - Verlaag snelheid",
-			"playbackRateReset": "Afspelen - Reset snelheid",
-			"auditionSelectionBefore": "Spectrogram - Selectie van auditie (500ms voorheen)",
-			"auditionSelection": "Spectrogram - Selectie van controle",
-			"auditionSelectionAfter": "Spectrogram - Selectie van controle (500ms na)",
-			"category": {
-				"File": "Bestand",
-				"Edit": "Bewerken",
-				"View": "Bekijken",
-				"Sync": "Synchroniseren",
-				"Audio": "Geluid",
-				"Spectrogram": "Spectrogram"
-			}
-		},
-		"tab": {
-			"common": "Algemeen",
-			"assistant": "Assistent",
-			"appearance": "Uiterlijk",
-			"audio": "Geluid",
-			"keybindings": "Toetsencombinaties",
-			"spectrogram": "Spectrogram",
-			"about": "Informatie",
-			"dev": "Ontwikkeling"
-		}
-	},
-	"error": {
-		"unsupportedFileFormat": "Niet-ondersteunde bestandsindeling: {ext}",
-		"openFileFailed": "Kan bestand niet openen",
-		"audioNotLoaded": "Audio niet geladen. Zorg ervoor dat er een audio bestand wordt afgespeeld."
-	},
-	"audioPanel": {
-		"volume": "Volume",
-		"playbackRate": "Afspeel tarief",
-		"preservesPitch": "Preserve Pitch",
-		"clickToLoadMusic": "Klik op de icoon knop om muziek te laden",
-		"playPause": "Muziek afspelen / onderbreken",
-		"expandSpectrogram": "Uitvouwen / samenvouwen spectrogram"
-	},
-	"audio": {
-		"status": {
-			"transcoding": "Decoderen mislukt, proberen audio te converteren...",
-			"loading": "Audio wordt geladen...",
-			"processing": "Verwerken..."
-		},
-		"error": {
-			"workerError": "Fout bij verwerken audio"
-		}
-	},
-	"latencyTestDialog": {
-		"title": "Timing Offset Latency Test",
-		"latencyDisplay": {
-			"fastest": "Snelste",
-			"current": {
-				"none": "Niet gemeten",
-				"fast": "Vroeg",
-				"slow": "Te laat",
-				"perfect": "Perfect"
-			},
-			"slowest": "Langzaamste"
-		},
-		"bpmInputLabel": "Tempo (BPM)",
-		"button": {
-			"stop": "Stoppen",
-			"start": "Beginnen"
-		}
-	},
-	"metadataDialog": {
-		"fetchSongwriters": {
-			"searchError": "Zoeken mislukt: {error}",
-			"fetchError": "Kan de songteksten niet ophalen: {error}",
-			"noLyricsError": "Geen songteksten om te importeren.",
-			"importSuccess": "Geïmporteerde {count} lijnen uit Genius.",
-			"error": "Fout bij het ophalen van songschrijvers",
-			"noSongwriters": "Geen nummerschrijf credits opgenomen voor dit nummer",
-			"findingRealName": "Echte naam vinden voor {name} ({current}/{total})...",
-			"success": "Songwriters met succes opgehaald uit Genius",
-			"setupTitle": "Genius API-sleutel installatie",
-			"setupDesc": "Om deze functie te gebruiken, moet u uw Genius API Key configureren (speciaal de \"KLAIENT ACCESS TOKEN\"). U kunt er een genereren vanuit de ",
-			"setupDescEnd": " ontwikkelaar portaal.",
-			"keyPlaceholder": "Voeg TOKEN TOKEN toe",
-			"button": "Songwriters uit Genius ophalen",
-			"tryFindRealNames": "Probeer echte namen te vinden (juridische benamingen)"
-		},
-		"openLink": "Koppeling openen",
-		"duplicateMsg": "Dubbele metadata waarden gevonden",
-		"addValue": "Toevoegen",
-		"builtinOptions": {
-			"musicName": "Track naam",
-			"artists": "Volg artiesten",
-			"artistsInvalidMsg": "Als er meerdere kunstenaars zijn, voeg deze sleutel dan meerdere keren toe in plaats van scheidingstekens; als de naam van een kunstenaar scheidingstekens bevat, negeer dan dit bericht",
-			"songwriter": "Liedschrijver",
-			"songwriterInvalidMsg": "Als er meerdere songschrijvers zijn, voeg deze sleutel dan meerdere keren toe in plaats van scheidingstekens te gebruiken",
-			"album": "Album Naam",
-			"coverArt": "Omslag URL",
-			"ncmMusicId": "NetEase Muziek ID",
-			"ncmMusicIdInvalidMsg": "NetEase Muziek ID moet numeriek zijn",
-			"qqMusicId": "QQ Muziek ID",
-			"qqMusicIdInvalidMsg": "QQ Muziek ID moet alfanumeriek zijn",
-			"spotifyId": "Spotify Track ID",
-			"spotifyIdInvalidMsg": "Spotify Track ID moet alfanumeriek zijn",
-			"appleMusicId": "Apple Music Track ID",
-			"appleMusicIdInvalidMsg": "Apple Music Track ID moet numeriek zijn",
-			"isrc": "Volg ISRC Code",
-			"isrcInvalidMsg": "ISRC code formaat moet CC-XXX-YY-NNNNN zijn",
-			"ttmlAuthorGithub": "Songtekst auteur GitHub ID",
-			"ttmlAuthorGithubInvalidMsg": "GitHub ID moet numeriek zijn",
-			"ttmlAuthorGithubLogin": "Songtekst auteur GitHub gebruikersnaam",
-			"ttmlAuthorGithubLoginInvalidMsg": "GitHub gebruikersnaam moet alfanumeriek of koppeltekens zijn, tot 39 tekens"
-		},
-		"title": "Metagegevens bewerker",
-		"key": "Sleutel",
-		"value": "Waarde",
-		"empty": "Geen metagegevens",
-		"addKeyValue": "Voeg nieuwe sleutelwaarde toe",
-		"customKey": "Aangepaste sleutel",
-		"addPresets": "Alle vooraf ingestelde sleutels toevoegen",
-		"clear": "Verwijderen"
-	},
-	"genius": {
-		"setupTitle": "Genius API-sleutel installatie",
-		"setupDesc": "Om songteksten te importeren uit Genius heb je een KLANT ACCESS TOKEN nodig. Je kunt er een aanmaken vanuit het Genius ontwikkelaarsportaal.",
-		"keyPlaceholder": "Plak KLANTEN TOKEN hier…",
-		"previewTitle": "Genius — Songtekst Voorbeeld",
-		"back": "Achterzijde",
-		"previewSubtitle": "Je kunt onderstaande songtekst bewerken voordat je importeert.",
-		"linesCount": "{count} regels",
-		"importButton": "Songteksten importeren",
-		"importTitle": "Importeer songteksten van Genius",
-		"searchPlaceholder": "Kunstenaar - Nummer titel…",
-		"notFound": "Geen resultaten gevonden. Probeer andere trefwoorden.",
-		"noResult": "Voer de naam van het nummer of de artiest in om te starten.",
-		"changeKey": "API-sleutel wijzigen"
-	},
-	"common": {
-		"cancel": "annuleren",
-		"save": "Opslaan",
-		"search": "Zoeken",
-		"close": "Afsluiten",
-		"resultsFound": "{count} resultaten gevonden",
-		"apply": "Toepassen",
-		"confirm": "Bevestigen",
-		"success": "Herstellen gelukt",
-		"error": "Gegevens beschadigd of verloren",
-		"deleteSuccess": "Verwijderen gelukt",
-		"time": "Tijd",
-		"restore": "Herstellen",
-		"sync": "Synchroniseren",
-		"remove": "Verwijderen",
-		"about": "Informatie",
-		"clickToSet": "Klik om in te stellen "
-	},
-	"textImportDialog": {
-		"addSpaces": "Ruimtes toevoegen",
-		"splitHyphens": "Gedeelde Hyphenated Woorden",
-		"processedSuccess": "Songteksten geautomatiseerd voor syllable sync.",
-		"title": "Importeer songteksten uit platte tekst",
-		"tab": {
-			"import": "Importeren"
-		},
-		"guides": "Handleidingen",
-		"processLyrics": "Songteksten verwerken",
-		"actionButton": "Importeren",
-		"contentMode": {
-			"caption": "Tekst inhoud",
-			"lyric": "Alleen songteksten",
-			"withTranslation": "Songteksten met vertaling",
-			"withRoman": "Songteksten met romanisatie",
-			"withBoth": "Songteksten met beide"
-		},
-		"separationMode": {
-			"caption": "Vertaling/Roemenië Formaat",
-			"multipleLine": "Meerdere lijnen onderbroken",
-			"sameLine": "Scheiding van dezelfde lijn"
-		},
-		"separator": "Scheidingsteken voor lijn",
-		"swapTransAndRoman": "Verwissel vertaal- en romanislijnen",
-		"wordSeparator": "Woord scheidingsteken",
-		"enableSpecialPrefix": "Speciale voorvoegsel inschakelen",
-		"bgLyricPrefix": "Lyrische achtergrondafdruk voorvoegsel",
-		"duetLyricPrefix": "Duet Lyric Voorvoegsel",
-		"enableEmptyBeat": "Schakel Lege Beat in",
-		"emptyBeatSymbol": "Leeg Beat Symbool",
-		"guide": {
-			"prepare": {
-				"title": "1. Bereid songteksten voor",
-				"desc": "Het wordt aanbevolen om de Lyrprep tool te gebruiken om je songtekst voor te bereiden. Je kunt zoeken naar nummers, een versie selecteren en de uitvoertekst kopiëren."
-			},
-			"import": {
-				"title": "2. Importeren naar TTML Tool",
-				"desc": "Plak de bereide tekst in de tekstverwerker aan de linkerkant. Zorg ervoor dat u de juiste \"Import Mode\" selecteert op basis van uw tekstformaat. Als uw tekst speciale voorvoegsels bevat (zoals achtergrondstemmers), zorg er dan voor dat \"Speciale Voorvoegsel\" is ingeschakeld."
-			},
-			"sync": {
-				"title": "3. Synchroniseren",
-				"desc": "Nadat u op \"Importeren\" klikt, schakel over naar de \"Tijd\" (Sync) modus. Gebruik sneltoetsen voor precieze uitlijning:",
-				"f": "Stel de begintijd van woord in",
-				"g": "Stel woord einde in & begin volgende",
-				"h": "Alleen einde woordeinde instellen",
-				"ad": "Wissel tussen woorden"
-			},
-			"community": {
-				"title": "Communautaire handleidingen & Cheat Sheets",
-				"desc": "Nuttige grondstoffen van de gemeenschap voor specifieke talen en genres."
-			}
-		},
-		"guidesMenu": {
-			"full": "Volledige TTML Handleiding"
-		}
-	},
-	"lrclib": {
-		"placeholder": "Titel Artiest...",
-		"notFound": "Geen resultaten gevonden, probeer andere trefwoorden",
-		"noResult": "Voer trefwoorden in om te beginnen met zoeken",
-		"searchError": "Zoeken mislukt, controleer het netwerk of probeer het later opnieuw",
-		"importError": "Fout opgetreden tijdens het importeren van songteksten",
-		"title": "Importeer Lyric van LRCLIB",
-		"synced": "Gesynchroniseerd",
-		"unsynced": "Niet-gesynchroniseerd",
-		"noLyrics": "Geen songtekst beschikbaar voor dit nummer",
-		"extractBg": "haakjes als achtergrondvocalen overnemen",
-		"autoSegment": "Auto Segment",
-		"import": "Lyric importeren"
-	},
-	"lyricEditor": {
-		"locate": "Lokaliseren",
-		"lineSpectrogram": {
-			"title": "Lijn Spectrogram Uitlijning",
-			"desc": "Pas de start- en eindpunten van deze lijn aan met de spectrogram. De regelduur zal proportioneel worden verdeeld in zijn woorden op basis van het aantal tekens.",
-			"startTime": "Start:",
-			"endTime": "Einde:",
-			"duration": "Duur:",
-			"playPause": "Afspelen/pauzeren"
-		}
-	},
-	"lyricLineView": {
-		"translatedLabel": "Vertaling:",
-		"romanLabel": "Roemenië:",
-		"empty": "geen",
-		"duplicateLinesHere": "Dupliceer {count} geselecteerde regel(s) hier",
-		"insertLine": "Voeg hier een nieuwe regel in",
-		"insertWord": "Woord hier invoegen…"
-	},
-	"lyricWordView": {
-		"empty": "Leeg",
-		"spaceCount": "Ruimte x{count}",
-		"removeWord": "Dubbele woord verwijderen",
-		"editingWordTitle": "Woord bewerken",
-		"editingWordDesc": "Bewerk het woord of pas voorgestelde snelle oplossingen toe.",
-		"noSuggestions": "Geen suggesties"
-	},
-	"touchSyncPanel": {
-		"prevWord": "Vorige woord springen",
-		"nextWord": "Volgende woord springen"
-	},
-	"grammarCheck": {
-		"capitalization": "Woord moet worden gekapitaliseerd",
-		"capitalInMiddle": "Woord heeft hoofdletters in het midden",
-		"title": "Grammar & Spelling Check",
-		"issues": "Kwesties",
-		"history": "Geschiedenis",
-		"ignoredWords": "Genegeerde woorden",
-		"noIssues": "Geen problemen gevonden!",
-		"issuesFound": "problemen gevonden",
-		"undoLast": "Herstel Laatste",
-		"clearHistory": "Geschiedenis verwijderen",
-		"noHistory": "Nog geen wijzigingen aangebracht",
-		"fixed": "vast",
-		"ignored": "genegeerd",
-		"line": "Lijn",
-		"clearIgnoredWords": "Alles wissen",
-		"noIgnoredWords": "Geen genegeerde woorden",
-		"noIssuesMessage": "Geen problemen gevonden! Je songteksten zien er goed uit."
-	},
-	"replaceWordDialog": {
-		"title": "Woord vervangen",
-		"description": "Nieuw woord:",
-		"placeholder": "Nieuw woord",
-		"applyToAll": "Deze vervanging toepassen op alle identieke woorden",
-		"caseSensitive": "Wedstrijd zaak (Exact wedstrijd)"
-	},
-	"urbanDictionary": {
-		"title": "Urban Dictionary",
-		"slang": "slang dictionary",
-		"noDefinitions": "No definitions found for \"{word}\"",
-		"viewOnline": "View online",
-		"by": "By"
-	},
-	"timeShiftDialog": {
-		"title": "Tijd Shift",
-		"amount": "Offset (ms)",
-		"direction": "Richting",
-		"advance": "Vooruitgang (-)",
-		"delay": "Vertraging (+)",
-		"scopeLabel": "Bereik",
-		"scope": {
-			"all": "Alle lyrische lijnen",
-			"selected": "Geselecteerde lyrische lijnen",
-			"selectedFollowing": "Geselecteerd en volgt",
-			"custom": "Aangepaste Bereik"
-		},
-		"fromLine": "Vanaf regel",
-		"toLine": "naar lijn",
-		"line": ""
-	},
-	"lyrically": {
-		"noLyricsLabel": "Geen songteksten beschikbaar voor dit nummer.",
-		"previewTitle": "Songtekst - Songtekst Voorbeeld",
-		"importTitle": "Importeer songteksten veilig via Songtekst (geen CORS via API endpoint)"
-	},
-	"globalDragOverlay": {
-		"title": "Loslaten om te laden"
-	},
-	"historyRestoreDialog": {
-		"loadError": "Kon geschiedenis niet laden",
-		"confirm": {
-			"title": "Herstellen bevestigen",
-			"description": "Dit overschrijft alle inhoud in de huidige editor. Weet je zeker dat je deze momentopname wilt herstellen?"
-		},
-		"deleteProject": {
-			"title": "Projectgeschiedenis verwijderen",
-			"description": "Weet u zeker dat u alle automatisch opgeslagen records voor dit project wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
-		},
-		"projects": "Recente projecten",
-		"noProjects": "Er zijn geen records automatisch opgeslagen.",
-		"latestState": "Nieuwste versie",
-		"restoreLatest": "Herstel deze versie",
-		"historyVersions": "Andere versies",
-		"noHistory": "Geen geschiedenis beschikbaar",
-		"selectProject": "Selecteer een item uit het linker paneel"
-	},
-	"autosave": {
-		"legacyProjectName": "Oude snapshots",
-		"untitledProjectName": "Naamloze Project"
-	},
-	"time": {
-		"daysAgo": "{count} dagen geleden",
-		"hoursAgo": "{count} uur geleden",
-		"minutesAgo": "{count} minuten geleden",
-		"justNow": "Op dit moment"
-	},
-	"metadata": {
-		"title": "Metagegevens"
-	},
-	"submitToAMLLDB": {
-		"validation": {
-			"missingMusicName": "Metadata ontbrekende trackingnaam",
-			"missingArtists": "Metadata ontbrekende artiesten",
-			"missingAlbum": "Metadata ontbreken albumnaam",
-			"missingMusicId": "Metadata ontbrekende platform track ID"
-		},
-		"defaultReason": "Nieuwe songtekst indienen",
-		"errors": {
-			"validation": "Validatie van inzending mislukt:\n{errors}",
-			"noLyrics": "Er is nog geen songtekst?",
-			"uploadFailed": "Het verzoek om het uploaden van songtekst is mislukt: {status} {statusText}",
-			"submitFailed": "Indiening mislukt, controleconsole om reden!"
-		},
-		"labels": {
-			"submit": "Songtekst indienen/Correctie"
-		},
-		"issueTitle": "[Songtekst indienen/Fix] {name}",
-		"unknownTitle": "Onbekende titel",
-		"unknownArtist": "Onbekende artiest",
-		"description": "Stuur Songtekst in naar AMLL Songtekst Database",
-		"title": "Stuur songteksten in op AMLL Songtekstendatabase (alleen geïmpliceerde Chinese gebruikers)",
-		"chineseOnlyWarning": "Deze functie is alleen beschikbaar voor vereenvoudigde Chinese gebruikers van AMLL songteksten database. Als je songteksten aan het bewerken bent om ze te gebruiken in andere software, volg dan de manier van software om songteksten te verzenden!",
-		"thankYou": "Ten eerste dank je voor je genereuze songtekst!",
-		"cc0Agreement": "Door het indienen gaat u akkoord met",
-		"cc0Rights": "gebruik de CC0 licentie en verlies volledig van eigendom van de songtekst",
-		"andSubmit": "en stuur de songtekst database door!",
-		"futureUse": "En de songtekst zal worden gebruikt als standaard TTML bron door AMLL systemen in de toekomst!",
-		"rightsWarning": "Als u waarde behoudt het eigendom, stuur dan NIET op!",
-		"submitInstructions": "Voer de volgende informatie in en spring dan naar de GitHub issue uitwerking pagina!",
-		"closeWarning": "Sluit waarschuwingsbericht"
-	},
-	"splitWordDialog": {
-		"spaceCount": "Ruimte x{count}",
-		"empty": "Leeg",
-		"title": "Woord splitsen",
-		"tip": "Na het splitsen zullen nieuwe woorden gelijkelijk de begin- en eindtijd van het oorspronkelijke woord verdelen. Lege beats zullen worden gewist.",
-		"syllableSplit": "Sylluble splitsen",
-		"applyToAll": "Pas deze splitsing toe op alle identieke woorden",
-		"ignoreCase": "Hoofd/kleine letters negeren",
-		"actionButton": "Bevestigen"
-	},
-	"advancedSegmentDialog": {
-		"test": {
-			"outputError": "Fout in voorbeeldweergave splitsen",
-			"title": "Splitsen Test",
-			"input": "Voer een lyrische lijn of woord in om te testen...",
-			"output": "Voorbeeld van resultaat:"
-		},
-		"title": "Geavanceerde segmentatie",
-		"scope": {
-			"title": "Toepassing Toepassingsgebied",
-			"all": "Alle lyrische lijnen",
-			"range": {
-				"from": "Vanaf regel",
-				"to": "naar lijn",
-				"end": ""
-			}
-		},
-		"rules": {
-			"title": "Auto Segmentatie Regels",
-			"cjk": "Splits CJK tekens",
-			"syllable": "Splits westerse woorden op syllables"
-		},
-		"language": {
-			"select": "Selecteer een koppelteken taalmodel:"
-		},
-		"tip": "Na het splitsen zal de totale duur van het originele woord worden herverdeeld op basis van het aantal tekens en hun gewichten.",
-		"postProcess": {
-			"title": "Na-verwerking",
-			"punct": {
-				"caption": "Interruptie afhandeling:",
-				"merge": "Samenvoegen met aangrenzende sylable",
-				"standalone": "Als zelfstandig segment instellen",
-				"weight": "Duur van tijdsgewicht:"
-			},
-			"empty": "Lege groepen verwijderen"
-		},
-		"custom": {
-			"title": "Aangepaste Segmentatie Regels",
-			"input": "Voer woord in voor handmatige splitsing...",
-			"add": "Toevoegen aan aangepaste regels",
-			"list": "Lijst met aangepaste regels:"
-		},
-		"ignore": {
-			"title": "Negeer Lijst",
-			"placeholder": "Eén woord per regel, woorden in deze lijst worden niet automatisch gesegmenteerd"
-		}
-	},
-	"aboutModal": {
-		"appName": "Apple Music-achtige songteksten TTML Tool",
-		"description": "Een Word-by-Word TTML Bewerking- en Tijdlijn Tool voor Apple Music-achtige songteksten",
-		"buildDate": "Build datum: {date}",
-		"gitCommit": "Git Commit: {commit}"
-	},
-	"spectrogram": {
-		"invalidEndTime": "Kan deze eindtijd niet selecteren",
-		"noAudioLoaded": "Laad een audio bestand om het spectrogram weer te geven",
-		"loadAudio": "Een audiobestand laden",
-		"showUnselectedLines": "Niet-geselecteerde lijnen weergeven"
-	},
-	"pwa": {
-		"offlineReady": "Site succesvol gecached voor offline gebruik",
-		"updateRefresh": "Site bijgewerkt, vernieuwd om de nieuwste versie te gebruiken!",
-		"refresh": "Vernieuwen"
-	}
+    "dev": {
+      "previewPerformance": "Preview Performance",
+      "showFps": "Show FPS Counter in Preview",
+      "wasmPlugins": {
+        "title": "Community Plugin Systeem (WASM)",
+        "description": "Beheer en upload eigen webassembly-plug-ins om de import- en exportmogelijkheden van de tool uit te breiden."
+      },
+      "debugInfo": {
+        "title": "Debug informatie"
+      }
+    },
+    "spectrogram": {
+      "palette": "Kleur Palet",
+      "paletteCustom": "Aangepaste",
+      "gradientEditorDesc": "Een Pos waarde van 0,0 komt overeen met het rustigste gedeelte, en 1.0 komt overeen met het luidste gedeelte. Het wordt aanbevolen om helderdere kleuren te gebruiken voor grotere Pos waarden.",
+      "addStop": "Kleurstop toevoegen"
+    }
+  },
+  "timingOverview": {
+    "start": "Start",
+    "end": "End",
+    "duration": "Duration",
+    "emptyBeat": "Empty Beat",
+    "romanization": "Roman",
+    "backgroundVocal": "BG",
+    "title": "Technical Timing Overview",
+    "lines": "Lines",
+    "words": "Words",
+    "lyricsAndTimings": "Lyrics & Word Timings"
+  },
+  "topBar": {
+    "modeBtns": {
+      "edit": "Bewerken",
+      "sync": "Tijd",
+      "preview": "Voorvertoning"
+    },
+    "boykisser": "jongen",
+    "appName": "Apple Music-achtige songteksten TTML Tool",
+    "menu": {
+      "undo": "Herstel",
+      "redo": "Opnieuw",
+      "selectAllLines": "Selecteer alle regels",
+      "unselectAllLines": "Alle lijnen deselecteren",
+      "invertSelectAllLines": "Selectie omkeren van lijn",
+      "selectWordsOfMatchedSelection": "Selecteer woorden die overeenkomen met de selectie",
+      "timeShift": "Tijd Shift...",
+      "timeStretch": "时间伸缩...",
+      "editMetadata": "Bewerk songtekst metadata…",
+      "edit": "Bewerken",
+      "newLyric": "Nieuwe songteksten",
+      "openLyric": "Open songteksten",
+      "openFromClipboard": "TTML openen vanaf klembord",
+      "saveLyric": "Songtekst opslaan",
+      "restoreFromHistory": "Restore from history…",
+      "saveLyricToClipboard": "TTML opslaan op klembord",
+      "uploadToAMLLDB": "Uploaden naar database (CN alleen)",
+      "file": "Bestand",
+      "helpDoc": "Documentatie (CN)",
+      "help": "Hulp",
+      "segmentationTools": "Hulpmiddelen voor segmentatie",
+      "autoSegment": "Auto Segment",
+      "rubySegment": "Ruby segmentatie",
+      "advancedSegment": "Geavanceerde groep...",
+      "learnedSplits": "Learned Splits...",
+      "syncLineTimestamps": "Synchronisatie lijn-tijdsaanduiding",
+      "tool": "Hulpmiddelen",
+      "importLyric": {
+        "import": "Importeer songteksten",
+        "fromPlainText": "Importeren uit onopgemaakte tekst…",
+        "fromLRCLIB": "Importeren uit LRCLIB...",
+        "fromLyrically": "Importeren uit Lyrically...",
+        "fromGenius": "Importeren uit Genius…",
+        "fromLyRiC": "Importeren uit LyRiC bestand…",
+        "fromESLyRiC": "Importeer uit ESLyRiC bestand…",
+        "fromQRC": "Importeren uit QRC bestand…",
+        "fromYRC": "Importeren uit YRC bestand…",
+        "fromLrcfySylb": "Import from Lyricify Syllable file…"
+      },
+      "exportLyric": {
+        "export": "Songtekst exporteren",
+        "toLyRiC": "Exporteer naar LyRiC",
+        "toESLyRiC": "Exporteer naar ESLyRiC",
+        "toQRC": "Exporteer naar QRC",
+        "toYRC": "Exporteren naar YRC",
+        "toLrcfySylb": "Export naar Lyricify Syllable",
+        "toASS": "Exporteren naar ASS-ondertitels"
+      }
+    }
+  },
+  "header": {
+    "status": {
+      "autoSavedAt": "Automatisch opgeslagen bij {time}"
+    }
+  },
+  "contextMenu": {
+    "deleteWords": "{count} woord(en) verwijderen",
+    "bgLyric": "Achtergrond lijn",
+    "duetLyric": "Duet Lijn",
+    "moveLineToPlayhead": "Move line to playhead",
+    "insertLineBefore": "Voeg nieuwe regel toe voor",
+    "insertLineAfter": "Nieuwe regel invoegen na",
+    "copyLine": "Duplicate {count} line(s)",
+    "duplicateTo": "Dupliceren naar...",
+    "combineLine": "Regels combineren",
+    "deleteLine": "Verwijder {count} regel(s)",
+    "splitWord": "Split word…",
+    "noSyllablesFound": "No multiple syllables found.",
+    "splitIntoSyllables": "Split into Syllables (Romanized)",
+    "replaceWord": "Vervang woord…",
+    "combineWords": "Woorden combineren",
+    "moveFollowingWordToNewLine": "Verplaats de volgers naar de nieuwe lijn",
+    "moveWordToNewLine": "Verplaats {count} woord(en) naar nieuwe regel"
+  },
+  "settingsDialog": {
+    "title": "named@@0",
+    "common": {
+      "latencyTest": "Audio/input latency test"
+    },
+    "keybindings": {
+      "newFile": "Nieuw bestand",
+      "openFile": "Open bestand",
+      "saveFile": "Bestand opslaan",
+      "undo": "Herstel",
+      "redo": "Opnieuw",
+      "selectAll": "Alles selecteren",
+      "unselectAll": "Deselecteer alles",
+      "selectInverted": "Selectie omkeren",
+      "selectWordsOfMatchedSelection": "Soortgelijke woorden selecteren",
+      "deleteSelection": "Selectie verwijderen",
+      "autoSegment": "",
+      "switchEditMode": "Modus wisselen - Overschakelen naar bewerkingsmodus",
+      "switchSyncMode": "Modus wisselen - Schakel naar Timing modus",
+      "switchPreviewMode": "Modus wisselen - Overschakelen naar Preview Modus",
+      "moveNextWord": "Timing - Verplaatsen naar het volgende woord",
+      "movePrevWord": "Timing - Verplaatsen naar vorig woord",
+      "moveNextLine": "Timing - Verplaatsen naar volgende regel start",
+      "movePrevLine": "Timing - Verplaatsen naar vorige regel start",
+      "movePrevWordAndPlay": "Timing - Verplaatsen naar vorig woord en afspelen",
+      "moveNextWordAndPlay": "Timing - Verplaatsen naar volgende woord en spelen",
+      "syncStart": "Timing - Markeer begin",
+      "syncNext": "Timing - Commit",
+      "syncEnd": "Timing - Markeer einde",
+      "toggleWordHighlight": "Timing - Schakelen actieve woordmarkering",
+      "urbanDictionary": "Edit - Look up in Urban Dictionary",
+      "urbanDictionarySync": "Timing - Look up in Urban Dictionary",
+      "moveFirstWordAndPlay": "Timing - Verplaats naar eerste woord en speel",
+      "moveLastWordAndPlay": "Timing - Verplaats naar laatste woord en speel",
+      "playPause": "Afspelen - Afspelen/Pauzeren",
+      "seekForward": "Afspelen - Seek vooruit 5 s",
+      "seekBackward": "Afspelen - Seek naar achteren 5 s",
+      "volumeUp": "Afspelen - Volume omhoog",
+      "volumeDown": "Afspelen - Volume omlaag",
+      "playbackRateUp": "Afspelen - verhoog snelheid",
+      "playbackRateDown": "Afspelen - Verlaag snelheid",
+      "playbackRateReset": "Afspelen - Reset snelheid",
+      "duplicatePaste": "",
+      "auditionSelectionBefore": "Spectrogram - Selectie van auditie (500ms voorheen)",
+      "auditionSelection": "Spectrogram - Selectie van controle",
+      "auditionSelectionAfter": "Spectrogram - Selectie van controle (500ms na)",
+      "category": {
+        "File": "Bestand",
+        "Edit": "Bewerken",
+        "View": "Bekijken",
+        "Sync": "Synchroniseren",
+        "Audio": "Geluid",
+        "Spectrogram": "Spectrogram"
+      },
+      "autoSegmentOptions": "Auto Segment",
+      "autoSegmentDoublePress": "Require double press",
+      "autoSegmentDoublePressDesc": "Run Auto Segment only after pressing its shortcut twice quickly."
+    },
+    "tab": {
+      "common": "Algemeen",
+      "assistant": "Assistent",
+      "appearance": "Uiterlijk",
+      "audio": "Geluid",
+      "keybindings": "Toetsencombinaties",
+      "spectrogram": "Spectrogram",
+      "backup": "Backup",
+      "dev": "Ontwikkeling"
+    }
+  },
+  "autoSegmentApplied": "Auto-segmented with {engine}",
+  "error": {
+    "unsupportedFileFormat": "Niet-ondersteunde bestandsindeling: {ext}",
+    "openFileFailed": "Kan bestand niet openen",
+    "audioNotLoaded": "Audio niet geladen. Zorg ervoor dat er een audio bestand wordt afgespeeld."
+  },
+  "audio": {
+    "marker": "Marker",
+    "markerLabel": "Label (e.g. Verse 1 Start)",
+    "markerDescription": "Description...",
+    "deleteMarker": "Delete Marker",
+    "waveform": "Audio Waveform",
+    "status": {
+      "transcoding": "Decoderen mislukt, proberen audio te converteren...",
+      "loading": "Audio wordt geladen...",
+      "processing": "Verwerken..."
+    },
+    "error": {
+      "workerError": "Fout bij verwerken audio"
+    }
+  },
+  "audioPanel": {
+    "volume": "Volume",
+    "playbackRate": "Afspeel tarief",
+    "preservesPitch": "Preserve Pitch",
+    "clickToLoadMusic": "Klik op de icoon knop om muziek te laden",
+    "playPause": "Muziek afspelen / onderbreken",
+    "expandSpectrogram": "Uitvouwen / samenvouwen spectrogram"
+  },
+  "latencyTestDialog": {
+    "title": "Timing Offset Latency Test",
+    "latencyDisplay": {
+      "fastest": "Snelste",
+      "current": {
+        "none": "Niet gemeten",
+        "fast": "Vroeg",
+        "slow": "Te laat",
+        "perfect": "Perfect"
+      },
+      "slowest": "Langzaamste"
+    },
+    "bpmInputLabel": "Tempo (BPM)",
+    "button": {
+      "stop": "Stoppen",
+      "start": "Beginnen"
+    }
+  },
+  "metadataDialog": {
+    "fetchSongwriters": {
+      "error": "Fout bij het ophalen van songschrijvers",
+      "noSongwriters": "Geen nummerschrijf credits opgenomen voor dit nummer",
+      "findingRealName": "Echte naam vinden voor {name} ({current}/{total})...",
+      "success": "Songwriters met succes opgehaald uit Genius",
+      "setupTitle": "Genius API-sleutel installatie",
+      "setupDesc": "Om deze functie te gebruiken, moet u uw Genius API Key configureren (speciaal de \"KLAIENT ACCESS TOKEN\"). U kunt er een genereren vanuit de ",
+      "setupDescEnd": " ontwikkelaar portaal.",
+      "keyPlaceholder": "Voeg TOKEN TOKEN toe",
+      "button": "Songwriters uit Genius ophalen",
+      "tryFindRealNames": "Probeer echte namen te vinden (juridische benamingen)",
+      "searchError": "Zoeken mislukt: {error}",
+      "fetchError": "Kan de songteksten niet ophalen: {error}",
+      "noLyricsError": "Geen songteksten om te importeren.",
+      "importSuccess": "Geïmporteerde {count} lijnen uit Genius."
+    },
+    "openLink": "Koppeling openen",
+    "duplicateMsg": "Dubbele metadata waarden gevonden",
+    "addValue": "Toevoegen",
+    "builtinOptions": {
+      "musicName": "Track naam",
+      "artists": "Volg artiesten",
+      "artistsInvalidMsg": "Als er meerdere kunstenaars zijn, voeg deze sleutel dan meerdere keren toe in plaats van scheidingstekens; als de naam van een kunstenaar scheidingstekens bevat, negeer dan dit bericht",
+      "songwriter": "Liedschrijver",
+      "songwriterInvalidMsg": "Als er meerdere songschrijvers zijn, voeg deze sleutel dan meerdere keren toe in plaats van scheidingstekens te gebruiken",
+      "album": "Album Naam",
+      "coverArt": "Omslag URL",
+      "ncmMusicId": "NetEase Muziek ID",
+      "ncmMusicIdInvalidMsg": "NetEase Muziek ID moet numeriek zijn",
+      "qqMusicId": "QQ Muziek ID",
+      "qqMusicIdInvalidMsg": "QQ Muziek ID moet alfanumeriek zijn",
+      "spotifyId": "Spotify Track ID",
+      "spotifyIdInvalidMsg": "Spotify Track ID moet alfanumeriek zijn",
+      "appleMusicId": "Apple Music Track ID",
+      "appleMusicIdInvalidMsg": "Apple Music Track ID moet numeriek zijn",
+      "isrc": "Volg ISRC Code",
+      "isrcInvalidMsg": "ISRC code formaat moet CC-XXX-YY-NNNNN zijn",
+      "ttmlAuthorGithub": "Songtekst auteur GitHub ID",
+      "ttmlAuthorGithubInvalidMsg": "GitHub ID moet numeriek zijn",
+      "ttmlAuthorGithubLogin": "Songtekst auteur GitHub gebruikersnaam",
+      "ttmlAuthorGithubLoginInvalidMsg": "GitHub gebruikersnaam moet alfanumeriek of koppeltekens zijn, tot 39 tekens"
+    },
+    "title": "Metagegevens bewerker",
+    "key": "Sleutel",
+    "value": "Waarde",
+    "empty": "Geen metagegevens",
+    "addKeyValue": "Voeg nieuwe sleutelwaarde toe",
+    "customKey": "Aangepaste sleutel",
+    "addPresets": "Alle vooraf ingestelde sleutels toevoegen",
+    "clear": "Verwijderen"
+  },
+  "lrclib": {
+    "placeholder": "Titel Artiest...",
+    "notFound": "Geen resultaten gevonden, probeer andere trefwoorden",
+    "noResult": "Voer trefwoorden in om te beginnen met zoeken",
+    "title": "Importeer Lyric van LRCLIB"
+  },
+  "lyricEditor": {
+    "locate": "Lokaliseren",
+    "lineSpectrogram": {
+      "title": "Lijn Spectrogram Uitlijning",
+      "desc": "Pas de start- en eindpunten van deze lijn aan met de spectrogram. De regelduur zal proportioneel worden verdeeld in zijn woorden op basis van het aantal tekens.",
+      "startTime": "Start:",
+      "endTime": "Einde:",
+      "duration": "Duur:",
+      "playPause": "Afspelen/pauzeren"
+    }
+  },
+  "lyricLineView": {
+    "translatedLabel": "Vertaling:",
+    "romanLabel": "Roemenië:",
+    "empty": "geen",
+    "duplicateLinesHere": "Dupliceer {count} geselecteerde regel(s) hier",
+    "insertLine": "Voeg hier een nieuwe regel in",
+    "insertWord": "Woord hier invoegen…"
+  },
+  "lyricWordView": {
+    "empty": "Leeg",
+    "spaceCount": "Ruimte x{count}",
+    "removeWord": "Dubbele woord verwijderen",
+    "editingWordTitle": "Woord bewerken",
+    "editingWordDesc": "Bewerk het woord of pas voorgestelde snelle oplossingen toe.",
+    "correctedWordPlaceholder": "Type the corrected word",
+    "noSuggestions": "Geen suggesties"
+  },
+  "sectionActions": {
+    "categorizeSelected": "Categorize selected {count, plural, one {line} other {lines}}",
+    "categorizeTitle": "Categorize selected lines",
+    "categorize": "Categorize",
+    "expand": "Expand section",
+    "collapse": "Collapse section",
+    "editTitle": "Edit section",
+    "vocalist": "Vocalist / role",
+    "notes": "Notes",
+    "manage": "Manage sections",
+    "goPrevious": "Go to previous section",
+    "goNext": "Go to next section",
+    "editMetadata": "Edit metadata",
+    "split": "Split at selected line",
+    "mergePrevious": "Merge with previous",
+    "mergeNext": "Merge with next",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "linkPrevious": "Link to previous {category}",
+    "unlinkRepeat": "Unlink repeat",
+    "removeHeader": "Remove header (keep lyrics)",
+    "addToPrevious": "Add unassigned lines to previous section",
+    "addToNext": "Add unassigned lines to next section",
+    "section": "Section"
+  },
+  "touchSyncPanel": {
+    "prevWord": "Vorige woord springen",
+    "nextWord": "Volgende woord springen"
+  },
+  "grammarCheck": {
+    "ambiguous": "Possible grammar issue",
+    "repeatedWord": "Repeated word",
+    "capitalization": "Woord moet worden gekapitaliseerd",
+    "capitalInMiddle": "Woord heeft hoofdletters in het midden",
+    "title": "Grammar & Spelling Check",
+    "issues": "Kwesties",
+    "history": "Geschiedenis",
+    "ignoredWords": "Genegeerde woorden",
+    "noIssues": "Geen problemen gevonden!",
+    "issuesFound": "problemen gevonden",
+    "undoLast": "Herstel Laatste",
+    "clearHistory": "Geschiedenis verwijderen",
+    "noHistory": "Nog geen wijzigingen aangebracht",
+    "fixed": "vast",
+    "ignored": "genegeerd",
+    "line": "Lijn",
+    "clearIgnoredWords": "Alles wissen",
+    "noIgnoredWords": "Geen genegeerde woorden",
+    "noIssuesMessage": "Geen problemen gevonden! Je songteksten zien er goed uit.",
+    "applyFix": "Apply suggested fix",
+    "ignoreSession": "Ignore this word in this session",
+    "ignoreAlways": "Always ignore this word"
+  },
+  "urbanDictionary": {
+    "title": "Urban Dictionary",
+    "slang": "slang dictionary",
+    "noDefinitions": "No definitions found for \"{word}\"",
+    "by": "By",
+    "viewOnline": "View online"
+  },
+  "replaceWordDialog": {
+    "title": "Woord vervangen",
+    "description": "Nieuw woord:",
+    "placeholder": "Nieuw woord",
+    "applyToAll": "Deze vervanging toepassen op alle identieke woorden",
+    "caseSensitive": "Wedstrijd zaak (Exact wedstrijd)"
+  },
+  "timeShiftDialog": {
+    "title": "Tijd Shift",
+    "amount": "Offset (ms)",
+    "direction": "Richting",
+    "advance": "Vooruitgang (-)",
+    "delay": "Vertraging (+)",
+    "scopeLabel": "Bereik",
+    "scope": {
+      "all": "Alle lyrische lijnen",
+      "selected": "Geselecteerde lyrische lijnen",
+      "selectedFollowing": "Geselecteerd en volgt",
+      "custom": "Aangepaste Bereik"
+    },
+    "fromLine": "Vanaf regel",
+    "toLine": "naar lijn",
+    "line": "",
+    "snapToPlayhead": "Snap start of affected lines to current playback time"
+  },
+  "timeStretchDialog": {
+    "durationPlaceholder": "MM:SS.mmm or seconds",
+    "useCurrentSong": "Use current song",
+    "audioReadError": "Could not read the selected audio file's duration.",
+    "invalidDuration": "Enter a valid duration.",
+    "positiveDuration": "Duration must be greater than zero.",
+    "title": "Time Stretch",
+    "description": "Stretch or squeeze every TTML timestamp to fit a new song duration.",
+    "oldDuration": "Old song duration",
+    "readingAudio": "Reading audio...",
+    "chooseAudio": "Upload audio...",
+    "newDuration": "New song duration",
+    "noChange": "The durations match; no timing change is needed.",
+    "scaleFactor": "Scale factor: {factor}×",
+    "scopeLabel": "Apply to",
+    "scope": {
+      "all": "All lines",
+      "selected": "Selected lines",
+      "selectedFollowing": "Selected lines and following",
+      "custom": "Custom range"
+    },
+    "fromLine": "From",
+    "toLine": "to",
+    "line": "lines"
+  },
+  "lyrically": {
+    "noLyricsLabel": "Geen songteksten beschikbaar voor dit nummer.",
+    "previewTitle": "Songtekst - Songtekst Voorbeeld",
+    "editingRawText": "Editing Raw Text",
+    "backToPreview": "Back to Preview",
+    "manualEdit": "Manual Edit",
+    "importTitle": "Importeer songteksten veilig via Songtekst (geen CORS via API endpoint)",
+    "source": "Source: "
+  },
+  "genius": {
+    "setupTitle": "Genius API-sleutel installatie",
+    "setupDesc": "Om songteksten te importeren uit Genius heb je een KLANT ACCESS TOKEN nodig. Je kunt er een aanmaken vanuit het Genius ontwikkelaarsportaal.",
+    "keyPlaceholder": "Plak KLANTEN TOKEN hier…",
+    "previewTitle": "Genius — Songtekst Voorbeeld",
+    "back": "Achterzijde",
+    "previewSubtitle": "Je kunt onderstaande songtekst bewerken voordat je importeert.",
+    "linesCount": "{count} regels",
+    "importButton": "Songteksten importeren",
+    "importTitle": "Importeer songteksten van Genius",
+    "searchPlaceholder": "Kunstenaar - Nummer titel…",
+    "notFound": "Geen resultaten gevonden. Probeer andere trefwoorden.",
+    "noResult": "Voer de naam van het nummer of de artiest in om te starten."
+  },
+  "textImportDialog": {
+    "processLyrics": "Songteksten verwerken",
+    "processedSuccess": "Songteksten geautomatiseerd voor syllable sync.",
+    "title": "Importeer songteksten uit platte tekst",
+    "tab": {
+      "import": "Importeren"
+    },
+    "guides": "Handleidingen",
+    "actionButton": "Importeren",
+    "contentMode": {
+      "caption": "Tekst inhoud",
+      "lyric": "Alleen songteksten",
+      "withTranslation": "Songteksten met vertaling",
+      "withRoman": "Songteksten met romanisatie",
+      "withBoth": "Songteksten met beide"
+    },
+    "separationMode": {
+      "caption": "Vertaling/Roemenië Formaat",
+      "multipleLine": "Meerdere lijnen onderbroken",
+      "sameLine": "Scheiding van dezelfde lijn"
+    },
+    "separator": "Scheidingsteken voor lijn",
+    "swapTransAndRoman": "Verwissel vertaal- en romanislijnen",
+    "wordSeparator": "Woord scheidingsteken",
+    "enableSpecialPrefix": "Speciale voorvoegsel inschakelen",
+    "bgLyricPrefix": "Lyrische achtergrondafdruk voorvoegsel",
+    "duetLyricPrefix": "Duet Lyric Voorvoegsel",
+    "enableEmptyBeat": "Schakel Lege Beat in",
+    "emptyBeatSymbol": "Leeg Beat Symbool",
+    "guide": {
+      "prepare": {
+        "title": "1. Bereid songteksten voor",
+        "desc": "Het wordt aanbevolen om de Lyrprep tool te gebruiken om je songtekst voor te bereiden. Je kunt zoeken naar nummers, een versie selecteren en de uitvoertekst kopiëren."
+      },
+      "import": {
+        "title": "2. Importeren naar TTML Tool",
+        "desc": "Plak de bereide tekst in de tekstverwerker aan de linkerkant. Zorg ervoor dat u de juiste \"Import Mode\" selecteert op basis van uw tekstformaat. Als uw tekst speciale voorvoegsels bevat (zoals achtergrondstemmers), zorg er dan voor dat \"Speciale Voorvoegsel\" is ingeschakeld."
+      },
+      "sync": {
+        "title": "3. Synchroniseren",
+        "desc": "Nadat u op \"Importeren\" klikt, schakel over naar de \"Tijd\" (Sync) modus. Gebruik sneltoetsen voor precieze uitlijning:",
+        "f": "Stel de begintijd van woord in",
+        "g": "Stel woord einde in & begin volgende",
+        "h": "Alleen einde woordeinde instellen",
+        "ad": "Wissel tussen woorden"
+      },
+      "community": {
+        "title": "Communautaire handleidingen & Cheat Sheets",
+        "desc": "Nuttige grondstoffen van de gemeenschap voor specifieke talen en genres."
+      }
+    },
+    "guidesMenu": {
+      "full": "Volledige TTML Handleiding"
+    }
+  },
+  "sectionImportReview": {
+    "title": "Review detected sections",
+    "description": "Check normalized categories and metadata before replacing the lyrics.",
+    "sourceLyrics": "Source lyrics",
+    "structure": "Structure",
+    "sectionCount": "{count} sections",
+    "vocalist": "Vocalist / role",
+    "color": "Section color",
+    "notes": "Notes",
+    "lineCount": "{count} lyric lines",
+    "import": "Import reviewed lyrics"
+  },
+  "pluginManager": {
+    "trigger": "Plugins",
+    "title": "Plugin Management",
+    "description": "Extend your lyric editing capabilities",
+    "installed": "Installed",
+    "store": "Plugin Store",
+    "empty": "No plugins installed",
+    "browse": "Browse Store",
+    "techniques": "Techniques",
+    "usage": "Usage",
+    "sideload": "Sideload .wasm plugin",
+    "loading": "Loading community plugins...",
+    "install": "Install"
+  },
+  "globalDragOverlay": {
+    "title": "Loslaten om te laden"
+  },
+  "historyRestoreDialog": {
+    "loadError": "Kon geschiedenis niet laden",
+    "confirm": {
+      "title": "Herstellen bevestigen",
+      "description": "Dit overschrijft alle inhoud in de huidige editor. Weet je zeker dat je deze momentopname wilt herstellen?"
+    },
+    "deleteProject": {
+      "title": "Projectgeschiedenis verwijderen",
+      "description": "Weet u zeker dat u alle automatisch opgeslagen records voor dit project wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+    },
+    "projects": "Recente projecten",
+    "noProjects": "Er zijn geen records automatisch opgeslagen.",
+    "latestState": "Nieuwste versie",
+    "restoreLatest": "Herstel deze versie",
+    "historyVersions": "Andere versies",
+    "noHistory": "Geen geschiedenis beschikbaar",
+    "selectProject": "Selecteer een item uit het linker paneel"
+  },
+  "autosave": {
+    "legacyProjectName": "Oude snapshots",
+    "untitledProjectName": "Naamloze Project"
+  },
+  "time": {
+    "daysAgo": "{count} dagen geleden",
+    "hoursAgo": "{count} uur geleden",
+    "minutesAgo": "{count} minuten geleden",
+    "justNow": "Op dit moment"
+  },
+  "metadata": {
+    "title": "Metagegevens"
+  },
+  "submitToAMLLDB": {
+    "validation": {
+      "missingMusicName": "Metadata ontbrekende trackingnaam",
+      "missingArtists": "Metadata ontbrekende artiesten",
+      "missingAlbum": "Metadata ontbreken albumnaam",
+      "missingMusicId": "Metadata ontbrekende platform track ID"
+    },
+    "defaultReason": "Nieuwe songtekst indienen",
+    "errors": {
+      "validation": "Validatie van inzending mislukt:\n{errors}",
+      "noLyrics": "Er is nog geen songtekst?",
+      "uploadFailed": "Het verzoek om het uploaden van songtekst is mislukt: {status} {statusText}",
+      "submitFailed": "Indiening mislukt, controleconsole om reden!"
+    },
+    "labels": {
+      "submit": "Songtekst indienen/Correctie"
+    },
+    "issueTitle": "[Songtekst indienen/Fix] {name}",
+    "unknownTitle": "Onbekende titel",
+    "unknownArtist": "Onbekende artiest",
+    "description": "Stuur Songtekst in naar AMLL Songtekst Database",
+    "title": "Stuur songteksten in op AMLL Songtekstendatabase (alleen geïmpliceerde Chinese gebruikers)",
+    "chineseOnlyWarning": "Deze functie is alleen beschikbaar voor vereenvoudigde Chinese gebruikers van AMLL songteksten database. Als je songteksten aan het bewerken bent om ze te gebruiken in andere software, volg dan de manier van software om songteksten te verzenden!",
+    "thankYou": "Ten eerste dank je voor je genereuze songtekst!",
+    "cc0Agreement": "Door het indienen gaat u akkoord met",
+    "cc0Rights": "gebruik de CC0 licentie en verlies volledig van eigendom van de songtekst",
+    "andSubmit": "en stuur de songtekst database door!",
+    "futureUse": "En de songtekst zal worden gebruikt als standaard TTML bron door AMLL systemen in de toekomst!",
+    "rightsWarning": "Als u waarde behoudt het eigendom, stuur dan NIET op!",
+    "submitInstructions": "Voer de volgende informatie in en spring dan naar de GitHub issue uitwerking pagina!",
+    "closeWarning": "Sluit waarschuwingsbericht",
+    "uploadDbType": "歌词库类型",
+    "uploadDbTypeOfficial": "官方歌词库",
+    "uploadDbTypeUser": "用户歌词库",
+    "uploadDbTypeBoth": "全部歌词库",
+    "officialDesc": "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
+    "userDesc": "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
+    "bothDesc": "两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
+    "genFromName": "从元数据中生成",
+    "musicName": "音乐名称",
+    "musicNameDesc": "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
+    "submitReason": "提交缘由",
+    "submitReasonNew": "新歌词提交",
+    "submitReasonFix": "修正已有歌词",
+    "comment": "备注",
+    "commentPlaceholder": "有什么需要补充说明的呢？",
+    "issueFoundTitle": "发现以下问题，请修正后再提交：",
+    "submitBtn": "上传歌词并创建议题"
+  },
+  "splitWordDialog": {
+    "spaceCount": "Ruimte x{count}",
+    "empty": "Leeg",
+    "title": "Woord splitsen",
+    "tip": "Na het splitsen zullen nieuwe woorden gelijkelijk de begin- en eindtijd van het oorspronkelijke woord verdelen. Lege beats zullen worden gewist.",
+    "syllableSplit": "Sylluble splitsen",
+    "applyToAll": "Pas deze splitsing toe op alle identieke woorden",
+    "remember": "Remember this split",
+    "ignoreCase": "Hoofd/kleine letters negeren",
+    "actionButton": "Bevestigen"
+  },
+  "advancedSegmentDialog": {
+    "test": {
+      "outputError": "Fout in voorbeeldweergave splitsen",
+      "title": "Splitsen Test",
+      "input": "Voer een lyrische lijn of woord in om te testen...",
+      "output": "Voorbeeld van resultaat:"
+    },
+    "title": "Geavanceerde segmentatie",
+    "scope": {
+      "title": "Toepassing Toepassingsgebied",
+      "all": "Alle lyrische lijnen",
+      "range": {
+        "from": "Vanaf regel",
+        "to": "naar lijn",
+        "end": ""
+      }
+    },
+    "rules": {
+      "title": "Auto Segmentatie Regels",
+      "cjk": "Splits CJK tekens",
+      "syllable": "Splits westerse woorden op syllables"
+    },
+    "engine": {
+      "select": "Choose a syllabification engine:"
+    },
+    "tip": "Na het splitsen zal de totale duur van het originele woord worden herverdeeld op basis van het aantal tekens en hun gewichten.",
+    "postProcess": {
+      "title": "Na-verwerking",
+      "punct": {
+        "caption": "Interruptie afhandeling:",
+        "merge": "Samenvoegen met aangrenzende sylable",
+        "standalone": "Als zelfstandig segment instellen",
+        "weight": "Duur van tijdsgewicht:"
+      },
+      "empty": "Lege groepen verwijderen"
+    },
+    "custom": {
+      "title": "Aangepaste Segmentatie Regels",
+      "input": "Voer woord in voor handmatige splitsing...",
+      "add": "Toevoegen aan aangepaste regels",
+      "list": "Lijst met aangepaste regels:"
+    },
+    "ignore": {
+      "title": "Negeer Lijst",
+      "placeholder": "Eén woord per regel, woorden in deze lijst worden niet automatisch gesegmenteerd"
+    },
+    "learned": {
+      "title": "Learned Split Rules",
+      "description": "These rules match any casing and ignore surrounding punctuation.",
+      "input": "Enter a word to teach the splitter...",
+      "saveHint": "Saving replaces the existing rule for this word.",
+      "save": "Save learned split",
+      "saved": "Saved rules ({count})",
+      "clear": "Clear all",
+      "search": "Search saved rules...",
+      "noResults": "No matching learned splits.",
+      "clearTitle": "Clear all learned splits?",
+      "clearDescription": "This permanently removes every learned split rule from this device."
+    }
+  },
+  "autoSegmentDialog": {
+    "title": "Auto Segment",
+    "description": "Choose a syllabification engine for all lyric lines.",
+    "suggested": "Suggested from lyrics:",
+    "applyAll": "Apply to all lines"
+  },
+  "suggestedSplits": {
+    "title": "Suggested Splits",
+    "description": "Choose a suggested split pattern for this {type}.",
+    "apply": "Apply Suggestion",
+    "noSuggestions": "No automated split suggestions available for this content."
+  },
+  "aboutModal": {
+    "appName": "Apple Music-achtige songteksten TTML Tool",
+    "description": "Een Word-by-Word TTML Bewerking- en Tijdlijn Tool voor Apple Music-achtige songteksten",
+    "maintainers": "Fork Maintainers",
+    "maintainersDesc": "This fork is maintained and developed by:",
+    "forkMaintainer": "Fork maintainer & contributor",
+    "visitWebsite": "Visit website",
+    "credits": "Credits & Third-Party Notices",
+    "creditsIntro": "This project includes work adapted from the following open-source projects.",
+    "community": "Community & Contributions",
+    "communityDesc": "Help us make the tool better by contributing code, reporting issues, or providing translations.",
+    "github": "GitHub Repository",
+    "crowdin": "Help Translate in Crowdin",
+    "buildDate": "Build datum: {date}",
+    "gitCommit": "Git Commit: {commit}"
+  },
+  "spectrogram": {
+    "invalidEndTime": "Kan deze eindtijd niet selecteren",
+    "noAudioLoaded": "Laad een audio bestand om het spectrogram weer te geven",
+    "loadAudio": "Een audiobestand laden",
+    "showUnselectedLines": "Niet-geselecteerde lijnen weergeven",
+    "settings": "频谱图设置",
+    "fftSize": "FFT Size",
+    "resolution": "解析度",
+    "fftSizeOption": {
+      "512": "512 (Fast)",
+      "1024": "1024 (Normal)",
+      "2048": "2048 (Better Freq)",
+      "4096": "4096 (High Res)"
+    },
+    "height": "高度"
+  },
+  "pwa": {
+    "offlineReady": "Site succesvol gecached voor offline gebruik",
+    "updateRefresh": "Site bijgewerkt, vernieuwd om de nieuwste versie te gebruiken!",
+    "refresh": "Vernieuwen"
+  }
 }

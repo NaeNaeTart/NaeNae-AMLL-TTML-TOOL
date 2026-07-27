@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Flex, Text, Card, Switch, Box, Grid, Tabs, Badge, Spinner, Popover, Dialog } from "@radix-ui/themes";
 import { 
 	Dismiss16Regular as Cross2Icon, 
@@ -19,6 +20,7 @@ import type { PluginRegistryEntry } from "../registry";
 import styles from "./PluginManager.module.css";
 
 export const PluginManagerDialog: FC = () => {
+	const { t } = useTranslation();
 	const [plugins, setPlugins] = useState<WASMPlugin[]>([]);
 	const [activeTab, setActiveTab] = useState("installed");
 	const [installingId, setInstallingId] = useState<string | null>(null);
@@ -135,16 +137,16 @@ export const PluginManagerDialog: FC = () => {
 		<Dialog.Root>
 			<Dialog.Trigger>
 				<Button variant="soft" color="indigo" size="2">
-					<StoreIcon /> Plugins
+					<StoreIcon /> {t("pluginManager.trigger", "Plugins")}
 				</Button>
 			</Dialog.Trigger>
 			<Dialog.Content className={styles.pluginDialogContent} maxWidth="750px" style={{ minHeight: "650px", display: "flex", flexDirection: "column" }}>
 				<Flex justify="between" align="center" mb="6">
 					<Box>
 						<Dialog.Title style={{ fontSize: "1.5rem", fontWeight: "bold", margin: 0, color: "white" }}>
-							Plugin Management
+							{t("pluginManager.title", "Plugin Management")}
 						</Dialog.Title>
-						<Text size="3" style={{ color: "#B0B0B0", marginTop: "8px", display: "block" }}>Extend your lyric editing capabilities</Text>
+						<Text size="3" style={{ color: "#B0B0B0", marginTop: "8px", display: "block" }}>{t("pluginManager.description", "Extend your lyric editing capabilities")}</Text>
 					</Box>
 					<Dialog.Close>
 						<Button variant="ghost" color="gray" size="3">
@@ -155,10 +157,10 @@ export const PluginManagerDialog: FC = () => {
 
 				<Tabs.Root value={activeTab} onValueChange={setActiveTab} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
 					<Tabs.List color="indigo" mb="6" style={{ gap: "40px" }}>
-						<Tabs.Trigger value="installed">Installed</Tabs.Trigger>
+						<Tabs.Trigger value="installed">{t("pluginManager.installed", "Installed")}</Tabs.Trigger>
 						<Tabs.Trigger value="store">
 							<Flex align="center" gap="2">
-								Plugin Store
+								{t("pluginManager.store", "Plugin Store")}
 								{isLoadingRegistry && <Spinner size="1" />}
 							</Flex>
 						</Tabs.Trigger>
@@ -170,8 +172,8 @@ export const PluginManagerDialog: FC = () => {
 								{plugins.length === 0 && (
 									<Flex direction="column" align="center" justify="center" py="9" gap="5" style={{ border: "2px dashed rgba(255, 255, 255, 0.1)", borderRadius: "20px" }}>
 										<PlusIcon width={56} height={56} style={{ color: "rgba(255,255,255,0.4)" }} />
-										<Text size="3" style={{ color: "#808080" }}>No plugins installed</Text>
-										<Button variant="soft" size="2" onClick={() => setActiveTab("store")}>Browse Store</Button>
+										<Text size="3" style={{ color: "#808080" }}>{t("pluginManager.empty", "No plugins installed")}</Text>
+										<Button variant="soft" size="2" onClick={() => setActiveTab("store")}>{t("pluginManager.browse", "Browse Store")}</Button>
 									</Flex>
 								)}
 								{plugins.map(plugin => (
@@ -199,7 +201,7 @@ export const PluginManagerDialog: FC = () => {
 															</Box>
 															{plugin.techniques && (
 																<Box>
-																	<Text size="2" weight="bold" color="indigo">Techniques</Text>
+																	<Text size="2" weight="bold" color="indigo">{t("pluginManager.techniques", "Techniques")}</Text>
 																	<Flex gap="1" wrap="wrap" mt="1">
 																		{plugin.techniques.map(t => <Badge key={t} size="1" color="gray">{t}</Badge>)}
 																	</Flex>
@@ -207,7 +209,7 @@ export const PluginManagerDialog: FC = () => {
 															)}
 															{plugin.usage && (
 																<Box>
-																	<Text size="2" weight="bold" color="indigo">Usage</Text>
+																	<Text size="2" weight="bold" color="indigo">{t("pluginManager.usage", "Usage")}</Text>
 																	<Text size="2" style={{ color: "#E0E0E0", whiteSpace: "pre-line" }}>{plugin.usage}</Text>
 																</Box>
 															)}
@@ -222,7 +224,7 @@ export const PluginManagerDialog: FC = () => {
 								))}
 								<label className={styles.sideloadZone} style={{ display: "flex", flexDirection: "column", height: "100px", borderRadius: "20px", cursor: "pointer", alignItems: "center", justifyContent: "center" }}>
 									<Flex align="center" gap="2">
-										<UploadIcon /> <Text size="3">Sideload .wasm plugin</Text>
+										<UploadIcon /> <Text size="3">{t("pluginManager.sideload", "Sideload .wasm plugin")}</Text>
 									</Flex>
 									<input type="file" accept=".wasm" style={{ display: "none" }} onChange={handleFileUpload} />
 								</label>
@@ -232,7 +234,7 @@ export const PluginManagerDialog: FC = () => {
 							{isLoadingRegistry && remoteRegistry.length === 0 ? (
 								<Flex direction="column" align="center" justify="center" py="9" gap="3">
 									<Spinner size="3" />
-									<Text size="2" color="gray">Loading community plugins...</Text>
+									<Text size="2" color="gray">{t("pluginManager.loading", "Loading community plugins...")}</Text>
 								</Flex>
 							) : (
 								<Grid columns="2" gap="4">
@@ -259,7 +261,7 @@ export const PluginManagerDialog: FC = () => {
 													<Text size="1" color="gray">by {entry.author}</Text>
 													{!isInstalled(entry.id) && (
 														<Button size="2" variant="soft" color="indigo" onClick={() => handleInstall(entry)} disabled={installingId === entry.id}>
-															{installingId === entry.id ? <Spinner /> : <><DownloadIcon /> Install</>}
+																{installingId === entry.id ? <Spinner /> : <><DownloadIcon /> {t("pluginManager.install", "Install")}</>}
 														</Button>
 													)}
 												</Flex>

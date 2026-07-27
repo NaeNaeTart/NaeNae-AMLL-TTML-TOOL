@@ -1,296 +1,428 @@
 {
-	"app": {
-		"error": {
-			"title": "Ups, der opstod en fejl!",
-			"description": "Der opstod en fejl under kørsel af AMLL TTML Tools",
-			"checkDevTools": "Detaljer kan findes i Udviklerværktøjer",
-			"saveLyrics": "Prøv at gemme de aktuelle sangtekster",
-			"tryRestart": "Prøv at genindlæse appen",
-			"details": "Omtrentlig fejlinformation:"
-		},
-		"update": {
-			"updateAvailable": "Opdatering tilgængelig: {version}",
-			"installError": "Fejl ved installation af opdatering"
-		},
-		"empty": {
-			"title": "Ingen sangtekstlinjer",
-			"description": "Tilføj nye sangtekstlinjer i toppanelet eller åbn/importér eksisterende sangtekster fra menuen"
-		}
-	},
-	"confirmDialog": {
-		"cancel": "Annuller",
-		"confirm": "Bekræft",
-		"newFile": {
-			"title": "Bekræft ny fil",
-			"description": "Du har ikke-gemte ændringer. Hvis du fortsætter, vil disse ændringer gå tabt. Er du sikker på, at du vil oprette en ny fil?"
-		},
-		"syncLineTimestamps": {
-			"title": "Bekræft synkronisering af tidsstempler",
-			"description": "Denne handling vil automatisk synkronisere start- og sluttiderne for alle linjer baseret på tidsstemplerne for hvert ord i linjen, matchende start- og sluttiderne for første og sidste stavelse. Er du sikker på, at du vil fortsætte?"
-		},
-		"openFile": {
-			"title": "Bekræft åbn fil",
-			"description": "Du har ikke-gemte ændringer. Hvis du fortsætter, vil disse ændringer gå tabt. Er du sikker på, at du vil åbne en ny fil?"
-		},
-		"importFile": {
-			"title": "Bekræft import af sangtekster",
-			"description": "Du har ikke-gemte ændringer. Hvis du fortsætter, vil disse ændringer gå tabt. Er du sikker på, at du vil importere nye sangtekster?"
-		},
-		"useMetadataName": {
-			"title": "Use metadata name?",
-			"description": "Use \"{name}\" as the file name?"
-		},
-		"noSongwriter": {
-			"title": "Confirm Export",
-			"description": "The song has no songwriters. Do you want to continue saving?"
-		}
-	},
-	"dialog": {
-		"mp3Conversion": {
-			"title": "Konverter MP3 til FLAC?",
-			"description": "Du importerer en MP3-fil: {fileName}",
-			"warning": "MP3-filer kan forårsage lyddesynkronisering i denne app. Konvertering til FLAC anbefales for bedre kompatibilitet.",
-			"dontShowAgain": "Vis ikke denne advarsel igen",
-			"skip": "Brug MP3",
-			"convert": "Konverter til FLAC",
-			"converting": "Konverterer MP3 til FLAC...",
-			"success": "Konvertering vellykket",
-			"failed": "Konvertering mislykkedes: {error}"
-		}
-	},
-	"ribbonBar": {
-		"editMode": {
-			"multipleValues": "Flere værdier…",
-			"showTranslation": "Vis oversættelseslinje",
-			"showRomanization": "Vis romaniseringslinje",
-			"showWordRomanizationInput": "Vis ord-romanisering",
-			"new": "Ny",
-			"lyricLine": "Sangtekstlinje",
-			"lineTiming": "Linjetiming",
-			"startTime": "Starttid",
-			"endTime": "Sluttid",
-			"lineProperties": "Linjeegenskaber",
-			"bgLyric": "Baggrundsvokal",
-			"duetLyric": "Duetvokal",
-			"ignoreSync": "Ignorer synkronisering",
-			"wordTiming": "Ordtiming",
-			"emptyBeatCount": "Antal tomme takter",
-			"wordProperties": "Ordegenskaber",
-			"wordContent": "Ordindhold",
-			"romanWord": "Ordromanisering",
-			"obscene": "Uanstændigt",
-			"secondaryContent": "Sekundært indhold",
-			"translatedLyric": "Oversættelse",
-			"romanLyric": "Romanisering",
-			"layoutMode": "Layout",
-			"auxiliaryLineDisplay": "Visning af hjælpelinje",
-			"previewPanel": "Preview-panel",
-			"grammarCheck": "Grammatik og stavekontrol",
-			"aiTools": "AI Tools",
-			"aiAutoSync": "AI Auto-Sync",
-			"tools": "Kontroller",
-			"phonetic": {
-				"section": "Phonetic",
-				"autoFetch": "Auto Fetch",
-				"noSelection": "Please select lines or words first",
-				"success": "Phonetics fetched successfully",
-				"error": "Failed to fetch phonetics",
-				"romanize": "Romanize"
-			}
-		},
-		"previewMode": {
-			"lyrics": "Sangtekster",
-			"showTranslation": "Vis oversættelse",
-			"showRoman": "Vis romanisering",
-			"maskObsceneWords": "Skjul uanstændige ord",
-			"word": "Ord",
-			"fadeWidth": "Fade-bredde",
-			"mode": "Mode",
-			"standard": "Standard",
-			"timing": "Timing"
-		},
-		"syncMode": {
-			"currentEmptyBeat": "Tom takt",
-			"syncAdjustment": "Timingjustering",
-			"timeOffset": "Tidsforskydning",
-			"syncLevel": "Sync Level",
-			"syncLevelWord": "Word Sync",
-			"syncLevelLine": "Line Sync",
-			"assistSettings": "Assistentindstillinger",
-			"showTimestampUpdate": "Vis tidsstempelopdateringer",
-			"touchSyncPanel": "Touch-synkroniseringspanel",
-			"bgLyricIgnoreSync": "Ignore Background Vocals",
-			"quickFixes": "Quick Fixes",
-			"manualTimestampEdit": "Manual Timestamp Editing",
-			"displayOptions": "Visningsmuligheder",
-			"showTimestamps": "Vis tidsstempler",
-			"highlightActiveWord": "Fremhæv aktivt ord",
-			"enableGlowAnimation": "Enable Glow Animation",
-			"highlightErrors": "Fremhæv fejl",
-			"showPerWordRomanization": "Vis ord-romanisering",
-			"keyBindingReference": "Genvejsoversigt",
-			"startSync": "Markér start",
-			"continuousSync": "Bekræft",
-			"endSync": "Markér slut",
-			"loading": "Panel loading…"
-		}
-	},
-	"settings": {
-		"common": {
-			"layoutModeOptions": {
-				"simple": "Simpel tilstand",
-				"advance": "Avanceret tilstand"
-			},
-			"enabled": "Enabled",
-			"disabled": "Disabled",
-			"language": "Grænsefladesprog",
-			"languageDesc": "Vælg sproget for grænsefladen",
-			"layoutMode": "Editor layouttilstand",
-			"layoutModeDesc": {
-				"line1": "Simpelt layout opfylder de fleste basale behov",
-				"line2": "Skift til avanceret tilstand, hvis du har brug for mere effektiv synkronisering"
-			},
-			"helpTranslate": "Help translate this app",
-			"compactBGInSync": "Compact Background Vocals (Sync Mode)",
-			"compactBGInSyncDesc": "Automatically compress vertical space for background vocal lines during synchronization.",
-			"syncJudgeMode": "Synkroniseringstidsstempelbedømmelse",
-			"syncJudgeModeDesc": "Indstil hvordan tidsstempler bedømmes ved synkronisering. Standard er 'Første tastetryk'.",
-			"syncJudgeModeOptions": {
-				"firstKeyDown": "Første tastetryk tid",
-				"lastKeyUp": "Sidste tasteslip tid",
-				"middleKey": "Midten af tryk og slip",
-				"firstKeyDownLegacy": "Første tastetryk tid (ældre)"
-			},
-			"keyBindingTrigger": "Genvejsudløser",
-			"keyBindingTriggerDesc": "Bestemmer om genveje udløses når en tast trykkes eller slippes.",
-			"keyBindingTriggerOptions": {
-				"keyDown": "Udløs ved tryk",
-				"keyUp": "Udløs ved slip"
-			},
-			"smartFirstWord": "Smart første ord",
-			"smartFirstWordDesc": "Ved synkronisering af det første ord i en linje sætter det første tryk kun starttiden, uden straks at sætte sluttiden.",
-			"smartLastWord": "Smart sidste ord",
-			"smartLastWordDesc": "Ved synkronisering af det sidste ord i en linje sætter trykket sluttiden uden automatisk at sætte starttiden for det første ord i næste linje.",
-			"enableUpcomingWordHighlight": "Enable Upcoming Word Pre-Highlight",
-			"enableUpcomingWordHighlightDesc": "Fades in a highlight color shortly before a word plays during Sync mode to improve precision.",
-			"upcomingWordHighlightThreshold": "Pre-Highlight Time Threshold (ms)",
-			"upcomingWordHighlightColor": "Highlight Color (CSS Value)",
-			"volume": "Musiklydstyrke",
-			"playbackRate": "Afspilningshastighed",
-			"autosave": {
-				"enable": "Aktiver automatisk lagring",
-				"interval": "Lagringsinterval (minutter)",
-				"limit": "Antal snapshots at beholde"
-			},
-			"customBackground": "Custom Background",
-			"customBackgroundDesc": "Choose an image to use as the background.",
-			"customBackgroundPick": "Choose Image",
-			"customBackgroundClear": "Clear",
-			"customBackgroundOpacity": "Opacity",
-			"customBackgroundOpacityWarning": "If this value is too high, the page content may be hard to read.",
-			"customBackgroundMask": "Mask",
-			"customBackgroundBlur": "Blur Radius",
-			"customBackgroundBrightness": "Brightness",
-			"customBackgroundEnabled": "Background set",
-			"customBackgroundManage": "Settings"
-		},
-		"about": {
-			"update": "Opdatering",
-			"newVersion": "Ny version",
-			"updateNow": "Opdater nu",
-			"downloading": "Downloader opdatering...",
-			"ready": "Opdateringen er klar. Genstart applikationen for at den træder i kraft.",
-			"restart": "Genstart"
-		},
-		"aboutModal": {
-			"community": "Community & Contributions",
-			"communityDesc": "Help us make the tool better by contributing code, reporting issues, or providing translations.",
-			"github": "GitHub Repository",
-			"crowdin": "Help Translate in Crowdin"
-		},
-		"appearance": {
-			"theme": "Theme",
-			"useCustomAccent": "Custom Accent Color",
-			"useCustomAccentDesc": "Set Accent color",
-			"background": "Background",
-			"mode": {
-				"none": "None",
-				"image": "Image",
-				"gradient": "Gradient"
-			},
-			"useCustomGradient": "Custom Gradient Color",
-			"useCustomGradientDesc": "Generate a gradient from a single color.",
-			"syncGradientToAccent": "Sync first color with Accent",
-			"addGradientColor": "Add Color",
-			"gradientType": "Gradient Type",
-			"type": {
-				"linear": "Linear",
-				"radial": "Radial",
-				"conic": "Conic"
-			},
-			"gradientOpacity": "Gradient Opacity",
-			"gradientSize": "Gradient Scale",
-			"gradientPositionSettings": "Center & Angle",
-			"gradientCenterX": "Center X (Horizontal)",
-			"gradientCenterY": "Center Y (Vertical)",
-			"gradientAngle": "Angle",
-			"font": "Application Font",
-			"currentFont": "Current Font",
-			"changeFont": "Change Font...",
-			"fontImportSuccess": "Font imported successfully!",
-			"fontLibrary": "Font Library",
-			"fontWeight": "Font Weight",
-			"weight": {
-				"regular": "Regular",
-				"bold": "Bold"
-			},
-			"fontStyle": "Font Style",
-			"style": {
-				"normal": "Normal",
-				"italic": "Italic"
-			},
-			"importFont": "Import Font File",
-			"customFontActive": "LOCAL CUSTOM FONT",
-			"defaultFonts": "Standard Stacks",
-			"systemFonts": "System Fonts",
-			"googleFonts": "Google Fonts Library"
-		},
-		"group": {
-			"assistant": "Assistant",
-			"display": "Visning",
-			"timing": "Timing",
-			"timingHighlight": "Visual Timing Cue (Sync)",
-			"playback": "Afspilning",
-			"autosave": "Automatisk lagring"
-		},
-		"assistant": {
-			"quickFixes": "Quick Fixes (Grammar)",
-			"quickFixesDesc": "Enable suggestions for repeated words and common transcription errors.",
-			"manualTimestampEdit": "Manual Timestamp Editing",
-			"manualTimestampEditDesc": "Allow clicking on timestamps in Sync mode to manually type values.",
-			"visualizeTimestampUpdate": "Visualize Timestamp Updates",
-			"visualizeTimestampUpdateDesc": "Show a brief flash on timestamps when they are updated via shortcuts.",
-			"highlightErrors": "Highlight Timing Errors",
-			"highlightErrorsDesc": "Visually mark words where start time is greater than end time."
-		},
-		"audio": {
-			"equalizer": "Audio Equalizer",
-			"eqDescription": "Adjust gains for different frequencies to optimize your audio experience.",
-			"preset": "Presets",
-			"standardPresets": "Standard",
-			"presets": {
-				"custom": "Manual"
-			},
-			"customPresets": "Custom",
-			"reset": "Reset",
-			"newPresetName": "New Preset Name",
-			"save": "Save Preset",
-			"mp3Conversion": "MP3 til FLAC",
-			"mp3ConversionDesc": "Konverter MP3 til FLAC ved import for bedre synkronisering",
-			"mp3ConversionAsk": "Spørg",
-			"mp3ConversionAlways": "Auto",
-			"mp3ConversionNever": "Fra"
-		},
+  "app": {
+    "error": {
+      "title": "Ups, der opstod en fejl!",
+      "description": "Der opstod en fejl under kørsel af AMLL TTML Tools",
+      "checkDevTools": "Detaljer kan findes i Udviklerværktøjer",
+      "saveLyrics": "Prøv at gemme de aktuelle sangtekster",
+      "tryRestart": "Prøv at genindlæse appen",
+      "details": "Omtrentlig fejlinformation:"
+    },
+    "update": {
+      "updateAvailable": "Opdatering tilgængelig: {version}",
+      "installError": "Fejl ved installation af opdatering"
+    },
+    "empty": {
+      "title": "Ingen sangtekstlinjer",
+      "description": "Tilføj nye sangtekstlinjer i toppanelet eller åbn/importér eksisterende sangtekster fra menuen"
+    }
+  },
+  "amll": {
+    "noLyrics": "No lyrics available in store"
+  },
+  "confirmDialog": {
+    "cancel": "Annuller",
+    "confirm": "Bekræft",
+    "useMetadataName": {
+      "title": "Use metadata name?",
+      "description": "Use \"{name}\" as the file name?"
+    },
+    "newFile": {
+      "title": "Bekræft ny fil",
+      "description": "Du har ikke-gemte ændringer. Hvis du fortsætter, vil disse ændringer gå tabt. Er du sikker på, at du vil oprette en ny fil?"
+    },
+    "untimedLyrics": {
+      "title": "Untimed Lyrics Detected",
+      "description": "There is an untimed line or word in your lyrics. Would you like to fix it or export anyway?",
+      "exportAnyway": "Export Anyway",
+      "fixIt": "Fix It"
+    },
+    "syncLineTimestamps": {
+      "title": "Bekræft synkronisering af tidsstempler",
+      "description": "Denne handling vil automatisk synkronisere start- og sluttiderne for alle linjer baseret på tidsstemplerne for hvert ord i linjen, matchende start- og sluttiderne for første og sidste stavelse. Er du sikker på, at du vil fortsætte?"
+    },
+    "openFile": {
+      "title": "Bekræft åbn fil",
+      "description": "Du har ikke-gemte ændringer. Hvis du fortsætter, vil disse ændringer gå tabt. Er du sikker på, at du vil åbne en ny fil?"
+    },
+    "importFile": {
+      "title": "Bekræft import af sangtekster",
+      "description": "Du har ikke-gemte ændringer. Hvis du fortsætter, vil disse ændringer gå tabt. Er du sikker på, at du vil importere nye sangtekster?"
+    },
+    "noSongwriter": {
+      "description": "The song has no songwriters. Do you want to continue saving?"
+    }
+  },
+  "experimentalFeatures": {
+    "geniusCategorization": {
+      "dialogTitle": "Genius Headers Detected!",
+      "dialogDesc": "We've detected section headers in your lyrics. Would you like to enable the experimental 'Genius Header Categorization' feature to help with your workflow?",
+      "usageInfo": "Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.",
+      "maybeLater": "Maybe Later",
+      "enableNow": "Enable Now",
+      "title": "Genius Header Categorization",
+      "description": "Detect, normalize, review, navigate, collapse, validate, and edit Genius-style song sections while preserving them in TTML exports.",
+      "snapToPlayhead": "Snap to Playhead",
+      "noPreviousFound": "No previous identical header found with timing.",
+      "copyPrevious": "Copy Previous Timing",
+      "headersRestored": "Section headers restored."
+    },
+    "title": "Experimental Features",
+    "description": "These features are currently in development and may be unstable. Use with caution."
+  },
+  "common": {
+    "close": "Luk",
+    "autoDetect": "Auto Detect",
+    "about": "Om",
+    "resultsFound": "Found {count} results",
+    "cancel": "Annuller",
+    "save": "Save",
+    "search": "Søg",
+    "success": "Gendannelse vellykket",
+    "error": "Data beskadiget eller tabt",
+    "edit": "Edit",
+    "apply": "Anvend",
+    "confirm": "Bekræft",
+    "back": "Back",
+    "deleteSuccess": "Sletning vellykket",
+    "time": "Tid",
+    "restore": "Gendan",
+    "loading": "Loading...",
+    "sync": "Sync",
+    "remove": "Fjern",
+    "clickToSet": "Klik for at indstille ",
+    "move": "Move",
+    "copy": "Copy"
+  },
+  "dialog": {
+    "mp3Conversion": {
+      "title": "Konverter MP3 til FLAC?",
+      "description": "Du importerer en MP3-fil: {fileName}",
+      "warning": "MP3-filer kan forårsage lyddesynkronisering i denne app. Konvertering til FLAC anbefales for bedre kompatibilitet.",
+      "dontShowAgain": "Vis ikke denne advarsel igen",
+      "skip": "Brug MP3",
+      "convert": "Konverter til FLAC",
+      "converting": "Konverterer MP3 til FLAC...",
+      "success": "Konvertering vellykket",
+      "failed": "Konvertering mislykkedes: {error}"
+    }
+  },
+  "ribbonBar": {
+    "editMode": {
+      "grammarCheck": "Grammatik og stavekontrol",
+      "multipleValues": "Flere værdier…",
+      "duration": "持续时间",
+      "showTranslation": "Vis oversættelseslinje",
+      "showRomanization": "Vis romaniseringslinje",
+      "showWordRomanizationInput": "Vis ord-romanisering",
+      "phonetic": {
+        "noSelection": "Please select lines or words first",
+        "success": "Phonetics fetched successfully",
+        "error": "Failed to fetch phonetics"
+      },
+      "romanization": {
+        "section": "Romanization",
+        "info": {
+          "title": "About Romanization",
+          "canDo": "✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!",
+          "cannotDo": "✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur."
+        },
+        "ja": "Japanese (Romaji)",
+        "zh": "Chinese (Pinyin)",
+        "yue": "Cantonese (Jyutping)",
+        "ko": "Korean (Romaji)",
+        "autoFetch": "Romanize"
+      },
+      "new": "Ny",
+      "lyricLine": "Sangtekstlinje",
+      "lineTiming": "Linjetiming",
+      "startTime": "Starttid",
+      "endTime": "Sluttid",
+      "lineProperties": "Linjeegenskaber",
+      "bgLyric": "Baggrundsvokal",
+      "duetLyric": "Duetvokal",
+      "ignoreSync": "Ignorer synkronisering",
+      "wordTiming": "Ordtiming",
+      "emptyBeatCount": "Antal tomme takter",
+      "wordProperties": "Ordegenskaber",
+      "wordContent": "Ordindhold",
+      "romanWord": "Ordromanisering",
+      "obscene": "Uanstændigt",
+      "secondaryContent": "Sekundært indhold",
+      "translatedLyric": "Oversættelse",
+      "romanLyric": "Romanisering",
+      "layoutMode": "Layout",
+      "auxiliaryLineDisplay": "Visning af hjælpelinje",
+      "tools": "Kontroller",
+      "previewPanel": "Preview-panel"
+    },
+    "previewMode": {
+      "mode": "Mode",
+      "amllDeprecated": "AMLL 模式已弃用，请使用标准模式",
+      "standard": "Standard",
+      "timing": "Timing",
+      "spicy": "Spicy",
+      "simpleLyrics": "Simple lyrics",
+      "forceLineRendering": "Force line rendering",
+      "background": "Background",
+      "backgroundAnimated": "Animated",
+      "backgroundColor": "Color",
+      "backgroundStatic": "Static",
+      "lyrics": "Sangtekster",
+      "showTranslation": "Vis oversættelse",
+      "showRoman": "Vis romanisering",
+      "maskObsceneWords": "Skjul uanstændige ord",
+      "word": "Ord",
+      "fadeWidth": "Fade-bredde",
+      "instantFade": "即时淡出",
+      "render": "渲染",
+      "dev": "Dev",
+      "showFps": "Show FPS"
+    },
+    "syncMode": {
+      "currentEmptyBeat": "Tom takt",
+      "syncAdjustment": "Timingjustering",
+      "timeOffset": "Tidsforskydning",
+      "commitOffset": "Commit Offset",
+      "syncLevel": "Sync Level",
+      "syncLevelWord": "Word Sync",
+      "syncLevelLine": "Line Sync",
+      "assistSettings": "Assistentindstillinger",
+      "showTimestampUpdate": "Vis tidsstempelopdateringer",
+      "touchSyncPanel": "Touch-synkroniseringspanel",
+      "bgLyricIgnoreSync": "Ignore Background Vocals",
+      "quickFixes": "Quick Fixes",
+      "manualTimestampEdit": "Manual Timestamp Editing",
+      "displayOptions": "Visningsmuligheder",
+      "showTimestamps": "Vis tidsstempler",
+      "highlightActiveWord": "Fremhæv aktivt ord",
+      "enableGlowAnimation": "Enable Glow Animation",
+      "highlightErrors": "Fremhæv fejl",
+      "showPerWordRomanization": "Vis ord-romanisering",
+      "keyBindingReference": "Genvejsoversigt",
+      "startSync": "Markér start",
+      "continuousSync": "Bekræft",
+      "endSync": "Markér slut",
+      "manageQuickFixExclusions": {
+        "title": "Manage Quick Fix Exclusions",
+        "description": "Add words to ignore in quick fixes.",
+        "placeholder": "Enter word to ignore"
+      }
+    },
+    "experimentalFeatures": "Experimental Features",
+    "loading": "Loading panel..."
+  },
+  "settings": {
+    "common": {
+      "enabled": "Enabled",
+      "layoutModeOptions": {
+        "simple": "Simpel tilstand",
+        "advance": "Avanceret tilstand"
+      },
+      "disabled": "Disabled",
+      "language": "Grænsefladesprog",
+      "languageDesc": "Vælg sproget for grænsefladen",
+      "helpTranslate": "Help translate this app",
+      "layoutMode": "Editor layouttilstand",
+      "layoutModeDesc": {
+        "line1": "Simpelt layout opfylder de fleste basale behov",
+        "line2": "Skift til avanceret tilstand, hvis du har brug for mere effektiv synkronisering"
+      },
+      "compactBGInSync": "Compact Background Vocals (Sync Mode)",
+      "compactBGInSyncDesc": "Automatically compress vertical space for background vocal lines during synchronization.",
+      "syncJudgeMode": "Synkroniseringstidsstempelbedømmelse",
+      "syncJudgeModeDesc": "Indstil hvordan tidsstempler bedømmes ved synkronisering. Standard er 'Første tastetryk'.",
+      "syncJudgeModeOptions": {
+        "firstKeyDown": "Første tastetryk tid",
+        "lastKeyUp": "Sidste tasteslip tid",
+        "middleKey": "Midten af tryk og slip",
+        "firstKeyDownLegacy": "Første tastetryk tid (ældre)"
+      },
+      "keyBindingTrigger": "Genvejsudløser",
+      "keyBindingTriggerDesc": "Bestemmer om genveje udløses når en tast trykkes eller slippes.",
+      "keyBindingTriggerOptions": {
+        "keyDown": "Udløs ved tryk",
+        "keyUp": "Udløs ved slip"
+      },
+      "syncTimeOffset": "Global Sync Time Offset (ms)",
+      "syncTimeOffsetDesc": "Adjust all sync timestamps by this amount to compensate for audio latency.",
+      "syncCommitOffset": "Commit Input Offset (ms)",
+      "syncCommitOffsetDesc": "Specific offset for the 'Commit' action to fix delayed audio issues.",
+      "smartFirstWord": "Smart første ord",
+      "smartFirstWordDesc": "Ved synkronisering af det første ord i en linje sætter det første tryk kun starttiden, uden straks at sætte sluttiden.",
+      "smartLastWord": "Smart sidste ord",
+      "smartLastWordDesc": "Ved synkronisering af det sidste ord i en linje sætter trykket sluttiden uden automatisk at sætte starttiden for det første ord i næste linje.",
+      "enableUpcomingWordHighlight": "Enable Upcoming Word Pre-Highlight",
+      "enableUpcomingWordHighlightDesc": "Fades in a highlight color shortly before a word plays during Sync mode to improve precision.",
+      "upcomingWordHighlightThreshold": "Pre-Highlight Time Threshold (ms)",
+      "upcomingWordHighlightColor": "Highlight Color (CSS Value)",
+      "volume": "Musiklydstyrke",
+      "playbackRate": "Afspilningshastighed",
+      "autosave": {
+        "enable": "Aktiver automatisk lagring",
+        "interval": "Lagringsinterval (minutter)",
+        "limit": "Antal snapshots at beholde"
+      },
+      "customBackground": "Custom Background",
+      "customBackgroundDesc": "Choose an image to use as the background.",
+      "customBackgroundPick": "Choose Image",
+      "customBackgroundClear": "Clear",
+      "customBackgroundOpacity": "Opacity",
+      "customBackgroundOpacityWarning": "If this value is too high, the page content may be hard to read.",
+      "customBackgroundMask": "Mask",
+      "customBackgroundBlur": "Blur Radius",
+      "customBackgroundBrightness": "Brightness",
+      "customBackgroundEnabled": "Background set",
+      "customBackgroundManage": "Settings"
+    },
+    "about": {
+      "update": "Opdatering",
+      "newVersion": "Ny version",
+      "updateNow": "Opdater nu",
+      "downloading": "Downloader opdatering...",
+      "ready": "Opdateringen er klar. Genstart applikationen for at den træder i kraft.",
+      "restart": "Genstart"
+    },
+    "appearance": {
+      "mode": {
+        "basic": "Basic Editor",
+        "advanced": "Advanced Editor",
+        "none": "None",
+        "image": "Image",
+        "gradient": "Gradient"
+      },
+      "presets": {
+        "title": "Appearance Presets",
+        "namePlaceholder": "Theme Name...",
+        "save": "Save Current",
+        "empty": "No saved presets yet."
+      },
+      "theme": "Theme",
+      "useCustomAccent": "Custom Accent Color",
+      "useCustomAccentDesc": "Set Accent color",
+      "glass": "Glassmorphism",
+      "glassBlur": "Glass Intensity",
+      "glassBlurDesc": "Adjust the background blur effect for glassmorphic elements.",
+      "background": "Background",
+      "useCustomGradient": "Custom Gradient Color",
+      "useCustomGradientDesc": "Generate a gradient from a single color.",
+      "syncGradientToAccent": "Sync first color with Accent",
+      "addGradientColor": "Add Color",
+      "gradientType": "Gradient Type",
+      "type": {
+        "linear": "Linear",
+        "radial": "Radial",
+        "conic": "Conic"
+      },
+      "gradientOpacity": "Gradient Opacity",
+      "gradientSize": "Gradient Scale",
+      "gradientPositionSettings": "Center & Angle",
+      "gradientCenterX": "Center X (Horizontal)",
+      "gradientCenterY": "Center Y (Vertical)",
+      "gradientAngle": "Angle",
+      "font": "Application Font",
+      "currentFont": "Current Font",
+      "changeFont": "Change Font...",
+      "advanced": {
+        "projectColors": "Project Colors",
+        "primaryText": "Primary Text Color",
+        "primaryTextDesc": "Global primary text override.",
+        "secondaryText": "Secondary Text Color",
+        "workspace": "Workspace Theme",
+        "titlebarBackground": "Titlebar Background",
+        "sidebarBackground": "Sidebar Background",
+        "activeItemHighlight": "Active Item Highlight",
+        "menuHoverColor": "Menu Hover Color",
+        "editor": "Editor Layout",
+        "editorCanvas": "Editor Canvas",
+        "activeLineHighlight": "Active Line Highlight",
+        "lineHoverEffect": "Line Hover Effect",
+        "selectionHighlight": "Selection Highlight",
+        "chipBorderRadius": "Chip Border Radius",
+        "chipSpacing": "Chip Spacing (Gap)",
+        "chipPaddingVertical": "Chip Padding (V)",
+        "chipPaddingHorizontal": "Chip Padding (H)",
+        "audioVisuals": "Playback & Visuals",
+        "audioBarColor": "Audio Bar Color",
+        "audioBarText": "Audio Bar Text",
+        "waveformInactive": "Waveform Inactive",
+        "waveformProgress": "Waveform Progress",
+        "global": "Global Design System",
+        "masterResetNote": "This will reset all 20+ granular overrides.",
+        "resetMaster": "Master Reset Advanced Config"
+      },
+      "secondaryDesc": "Translations & Metadata.",
+      "layout": {
+        "title": "Application Layout",
+        "order": "Element Order",
+        "orderDesc": "Drag to reorder elements. Some positions may be limited by constraints.",
+        "titlebar": "Title Bar",
+        "ribbonbar": "Toolbar (Ribbon)",
+        "editor": "Main Editor Area",
+        "audio": "Audio Controls",
+        "ribbonPos": "Toolbar Orientation",
+        "pos": {
+          "top": "Top",
+          "bottom": "Bottom",
+          "left": "Left",
+          "right": "Right"
+        },
+        "sidebarWarning": "Note: Sidebar mode is experimental and may look different."
+      },
+      "fontImportSuccess": "Font imported successfully!",
+      "fontLibrary": "Font Library",
+      "fontWeight": "Font Weight",
+      "weight": {
+        "regular": "Regular",
+        "bold": "Bold"
+      },
+      "fontStyle": "Font Style",
+      "style": {
+        "normal": "Normal",
+        "italic": "Italic"
+      },
+      "importFont": "Import Font File",
+      "customFontActive": "LOCAL CUSTOM FONT",
+      "defaultFonts": "Standard Stacks",
+      "systemFonts": "System Fonts",
+      "googleFonts": "Google Fonts Library"
+    },
+    "group": {
+      "assistant": "Assistant",
+      "display": "Visning",
+      "timing": "Timing",
+      "timingHighlight": "Visual Timing Cue (Sync)",
+      "playback": "Afspilning",
+      "autosave": "Automatisk lagring"
+    },
+    "assistant": {
+      "quickFixes": "Quick Fixes (Grammar)",
+      "quickFixesDesc": "Enable suggestions for repeated words and common transcription errors.",
+      "manualTimestampEdit": "Manual Timestamp Editing",
+      "manualTimestampEditDesc": "Allow clicking on timestamps in Sync mode to manually type values.",
+      "visualizeTimestampUpdate": "Visualize Timestamp Updates",
+      "visualizeTimestampUpdateDesc": "Show a brief flash on timestamps when they are updated via shortcuts.",
+      "highlightErrors": "Highlight Timing Errors",
+      "highlightErrorsDesc": "Visually mark words where start time is greater than end time."
+    },
+    "audio": {
+      "equalizer": "Audio Equalizer",
+      "eqDescription": "Adjust gains for different frequencies to optimize your audio experience.",
+      "preset": "Presets",
+      "standardPresets": "Standard",
+      "presets": {
+        "custom": "Manual"
+      },
+      "customPresets": "Custom",
+      "reset": "Reset",
+      "newPresetName": "New Preset Name",
+      "save": "Save Preset",
+      "mp3Conversion": "MP3 til FLAC",
+      "mp3ConversionDesc": "Konverter MP3 til FLAC ved import for bedre synkronisering",
+      "mp3ConversionAsk": "Spørg",
+      "mp3ConversionAlways": "Auto",
+      "mp3ConversionNever": "Fra"
+    },
     "backup": {
       "category": {
         "settings": "Settings",
@@ -325,585 +457,736 @@
       "cancelButton": "Cancel",
       "applyButton": "Import & reload"
     },
-		"dev": {
-			"wasmPlugins": {
-				"title": "Community Plugin System (WASM)",
-				"description": "Manage and upload custom WebAssembly plugins to extend the tool's importing and exporting capabilities."
-			},
-			"debugInfo": {
-				"title": "Debug Information"
-			}
-		},
-		"spectrogram": {
-			"palette": "Farvepalet",
-			"paletteCustom": "Brugerdefineret",
-			"gradientEditorDesc": "En Pos-værdi på 0.0 svarer til den roligste del, og 1.0 svarer til den højeste del. Det anbefales at bruge lysere farver for større Pos-værdier.",
-			"addStop": "Tilføj farvepunkt"
-		}
-	},
-	"topBar": {
-		"modeBtns": {
-			"edit": "Rediger",
-			"sync": "Tid",
-			"preview": "Forhåndsvis"
-		},
-		"boykisser": "boykisser",
-		"appName": "Apple Music-lignende Sangtekst TTML Værktøj",
-		"menu": {
-			"undo": "Fortryd",
-			"redo": "Gentag",
-			"selectAllLines": "Vælg alle linjer",
-			"unselectAllLines": "Fravælg alle linjer",
-			"invertSelectAllLines": "Inverter linjevalg",
-			"selectWordsOfMatchedSelection": "Vælg matchende ord",
-			"timeShift": "Tidsforskydning...",
-			"editMetadata": "Rediger sangtekstmetadata…",
-			"edit": "Rediger",
-			"newLyric": "Nye sangtekster",
-			"openLyric": "Åbn sangtekster",
-			"openFromClipboard": "Åbn TTML fra udklipsholder",
-			"saveLyric": "Gem sangtekster",
-			"restoreFromHistory": "Gendan fra historik…",
-			"saveLyricToClipboard": "Gem TTML til udklipsholder",
-			"uploadToAMLLDB": "Upload til database (kun CN)",
-			"file": "Fil",
-			"helpDoc": "Dokumentation (CN)",
-			"help": "Hjælp",
-			"segmentationTools": "Segmenteringsværktøjer",
-			"autoSegment": "Auto-segmentering",
-			"rubySegment": "Ruby Segmentating",
-			"advancedSegment": "Avanceret segmentering...",
-			"syncLineTimestamps": "Synkroniser linjetidsstempler",
-			"tool": "Værktøjer",
-			"importLyric": {
-				"import": "Importér sangtekster",
-				"fromPlainText": "Importér fra almindelig tekst…",
-				"fromLRCLIB": "Importér fra LRCLIB...",
-				"fromLyrically": "Import from Lyrically...",
-				"fromGenius": "Import from Genius…",
-				"fromLyRiC": "Importér fra LyRiC-fil…",
-				"fromESLyRiC": "Importér fra ESLyRiC-fil…",
-				"fromQRC": "Importér fra QRC-fil…",
-				"fromYRC": "Importér fra YRC-fil…",
-				"fromLrcfySylb": "Importér fra Lyricify Syllable-fil…"
-			},
-			"exportLyric": {
-				"export": "Eksportér sangtekster",
-				"toLyRiC": "Eksportér til LyRiC",
-				"toESLyRiC": "Eksportér til ESLyRiC",
-				"toQRC": "Eksportér til QRC",
-				"toYRC": "Eksportér til YRC",
-				"toLrcfySylb": "Eksportér til Lyricify Syllable",
-				"toASS": "Eksportér til ASS-undertekster"
-			}
-		}
-	},
-	"header": {
-		"status": {
-			"autoSavedAt": "Autosaved at {time}"
-		}
-	},
-	"contextMenu": {
-		"deleteWords": "Slet {count, plural, one {ord} other {ord}",
-		"bgLyric": "Baggrundslinje",
-		"duetLyric": "Duetlinje",
-		"insertLineBefore": "Indsæt ny linje før",
-		"insertLineAfter": "Indsæt ny linje efter",
-		"copyLine": "Dupliker {count, plural, one {linje} other {linjer}",
-		"duplicateTo": "Duplicate to...",
-		"combineLine": "Kombiner linjer",
-		"deleteLine": "Slet {count, plural, one {linje} other {linjer}",
-		"splitWord": "Opdel ord…",
-		"replaceWord": "Erstat ord…",
-		"combineWords": "Kombiner ord",
-		"moveFollowingWordToNewLine": "Flyt følgende til ny linje",
-		"moveWordToNewLine": "Flyt {count, plural, one {ord} other {ord} til ny linje"
-	},
-	"settingsDialog": {
-		"title": "Indstillinger",
-		"common": {
-			"latencyTest": "Lyd/input-latenstest"
-		},
-		"keybindings": {
-			"newFile": "Ny fil",
-			"openFile": "Åbn fil",
-			"saveFile": "Gem fil",
-			"undo": "Fortryd",
-			"redo": "Gentag",
-			"selectAll": "Vælg alle",
-			"unselectAll": "Deselect All",
-			"selectInverted": "Inverter valg",
-			"selectWordsOfMatchedSelection": "Vælg lignende ord",
-			"deleteSelection": "Slet valg",
-			"switchEditMode": "Tilstandsskift - Skift til redigeringstilstand",
-			"switchSyncMode": "Tilstandsskift - Skift til timingtilstand",
-			"switchPreviewMode": "Tilstandsskift - Skift til forhåndsvisningstilstand",
-			"moveNextWord": "Timing - Flyt til næste ord",
-			"movePrevWord": "Timing - Flyt til forrige ord",
-			"moveNextLine": "Timing - Flyt til næste linjestart",
-			"movePrevLine": "Timing - Flyt til forrige linjestart",
-			"movePrevWordAndPlay": "Timing - Flyt til forrige ord og afspil",
-			"moveNextWordAndPlay": "Timing - Flyt til næste ord og afspil",
-			"syncStart": "Timing - Markér start",
-			"syncNext": "Timing - Bekræft",
-			"syncEnd": "Timing - Markér slut",
-			"toggleWordHighlight": "Timing - Toggle active word highlight",
-			"moveFirstWordAndPlay": "Timing - Move to first word and play",
-			"moveLastWordAndPlay": "Timing - Move to last word and play",
-			"urbanDictionary": "Edit - Look up in Urban Dictionary",
-			"urbanDictionarySync": "Timing - Look up in Urban Dictionary",
-			"playPause": "Afspilning - Afspil/Pause",
-			"seekForward": "Afspilning - Spol frem 5s",
-			"seekBackward": "Afspilning - Spol tilbage 5s",
-			"volumeUp": "Afspilning - Skru op",
-			"volumeDown": "Afspilning - Skru ned",
-			"playbackRateUp": "Afspilning - Øg hastighed",
-			"playbackRateDown": "Afspilning - Reducer hastighed",
-			"playbackRateReset": "Afspilning - Nulstil hastighed",
-			"auditionSelectionBefore": "Spektrogram - Forhør valg (500ms før)",
-			"auditionSelection": "Spektrogram - Forhør valg",
-			"auditionSelectionAfter": "Spektrogram - Forhør valg (500ms efter)",
-			"category": {
-				"File": "Fil",
-				"Edit": "Rediger",
-				"View": "Vis",
-				"Sync": "Synk",
-				"Audio": "Lyd",
-				"Spectrogram": "Spektrogram"
-			}
-		},
-		"tab": {
-			"common": "Generelt",
-			"assistant": "Assistant",
-			"appearance": "Appearance",
-			"audio": "Audio",
-			"keybindings": "Tastaturgenveje",
-			"spectrogram": "Spektrogram",
-			"about": "About",
-			"dev": "Dev"
-		}
-	},
-	"error": {
-		"unsupportedFileFormat": "Ikke-understøttet filformat: {ext}",
-		"openFileFailed": "Kunne ikke åbne fil",
-		"audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing."
-	},
-	"audioPanel": {
-		"volume": "Lydstyrke",
-		"playbackRate": "Afspilningshastighed",
-		"preservesPitch": "Preserve Pitch",
-		"clickToLoadMusic": "Klik på ikonet for at indlæse musik",
-		"playPause": "Afspil / pause musik",
-		"expandSpectrogram": "Udvid / skjul spektrogram"
-	},
-	"audio": {
-		"status": {
-			"transcoding": "Dekodning mislykkedes, forsøger at transkode lyd...",
-			"loading": "Indlæser lyd...",
-			"processing": "Behandler..."
-		},
-		"error": {
-			"workerError": "Fejl ved behandling af lyd"
-		}
-	},
-	"latencyTestDialog": {
-		"title": "Timing Offset Latency Test",
-		"latencyDisplay": {
-			"fastest": "Fastest",
-			"current": {
-				"none": "Not Measured",
-				"fast": "Early",
-				"slow": "Late",
-				"perfect": "Perfect"
-			},
-			"slowest": "Slowest"
-		},
-		"bpmInputLabel": "Tempo (BPM)",
-		"button": {
-			"stop": "Stop",
-			"start": "Start"
-		}
-	},
-	"metadataDialog": {
-		"fetchSongwriters": {
-			"searchError": "Search failed: {error}",
-			"fetchError": "Could not fetch lyrics: {error}",
-			"noLyricsError": "No lyrics to import.",
-			"importSuccess": "Imported {count} lines from Genius.",
-			"error": "Failed to fetch songwriters",
-			"noSongwriters": "No songwriting credits recorded for this song",
-			"findingRealName": "Finding real name for {name} ({current}/{total})...",
-			"success": "Songwriters successfully fetched from Genius",
-			"setupTitle": "Genius API Key Setup",
-			"setupDesc": "To use this feature, please configure your Genius API Key (specifically, you need the \"CLIENT ACCESS TOKEN\"). You can generate one from the ",
-			"setupDescEnd": " developer portal.",
-			"keyPlaceholder": "Enter CLIENT ACCESS TOKEN",
-			"button": "Fetch Songwriters from Genius",
-			"tryFindRealNames": "Try to find real names (Legal Names)"
-		},
-		"openLink": "Åbn link",
-		"duplicateMsg": "Fandt duplikerede metadataværdier",
-		"addValue": "Tilføj",
-		"builtinOptions": {
-			"musicName": "Sangnavn",
-			"artists": "Sangkunstnere",
-			"artistsInvalidMsg": "Hvis der er flere kunstnere, tilføj venligst denne nøgle flere gange i stedet for at bruge afgrænsere; hvis et kunstnernavn indeholder afgrænsere, ignorer venligst denne besked",
-			"songwriter": "Sangskriver",
-			"songwriterInvalidMsg": "Hvis der er flere sangskrivere, tilføj venligst denne nøgle flere gange i stedet for at bruge afgrænsere",
-			"album": "Albumnavn",
-			"coverArt": "Cover URL",
-			"ncmMusicId": "NetEase Music ID",
-			"ncmMusicIdInvalidMsg": "NetEase Music ID skal være numerisk",
-			"qqMusicId": "QQ Music ID",
-			"qqMusicIdInvalidMsg": "QQ Music ID skal være alfanumerisk",
-			"spotifyId": "Spotify Sang-ID",
-			"spotifyIdInvalidMsg": "Spotify Sang-ID skal være alfanumerisk",
-			"appleMusicId": "Apple Music Sang-ID",
-			"appleMusicIdInvalidMsg": "Apple Music Sang-ID skal være numerisk",
-			"isrc": "Sang ISRC-kode",
-			"isrcInvalidMsg": "ISRC-kodeformat skal være CC-XXX-YY-NNNNN",
-			"ttmlAuthorGithub": "Sangtekstforfatter GitHub ID",
-			"ttmlAuthorGithubInvalidMsg": "GitHub ID skal være numerisk",
-			"ttmlAuthorGithubLogin": "Sangtekstforfatter GitHub-brugernavn",
-			"ttmlAuthorGithubLoginInvalidMsg": "GitHub-brugernavn skal være alfanumerisk eller bindestreger, op til 39 tegn"
-		},
-		"title": "Metadataeditor",
-		"key": "Nøgle",
-		"value": "Værdi",
-		"empty": "Ingen metadata",
-		"addKeyValue": "Tilføj nyt nøgle-værdi-par",
-		"customKey": "Brugerdefineret nøgle",
-		"addPresets": "Tilføj alle forudindstillede nøgler",
-		"clear": "Ryd"
-	},
-	"genius": {
-		"setupTitle": "Genius API Key Setup",
-		"setupDesc": "To import lyrics from Genius you need a CLIENT ACCESS TOKEN. You can generate one from the Genius developer portal.",
-		"keyPlaceholder": "Paste CLIENT ACCESS TOKEN here…",
-		"previewTitle": "Genius — Lyrics Preview",
-		"back": "Back",
-		"previewSubtitle": "You can edit the lyrics below before importing.",
-		"linesCount": "{count} lines",
-		"importButton": "Import Lyrics",
-		"importTitle": "Import Lyrics from Genius",
-		"searchPlaceholder": "Artist – Song title…",
-		"notFound": "No results found. Try different keywords.",
-		"noResult": "Enter a song name or artist to start.",
-		"changeKey": "Change API Key"
-	},
-	"common": {
-		"cancel": "Annuller",
-		"save": "Save",
-		"search": "Søg",
-		"close": "Luk",
-		"resultsFound": "Found {count} results",
-		"apply": "Anvend",
-		"confirm": "Bekræft",
-		"success": "Gendannelse vellykket",
-		"error": "Data beskadiget eller tabt",
-		"deleteSuccess": "Sletning vellykket",
-		"time": "Tid",
-		"restore": "Gendan",
-		"sync": "Sync",
-		"remove": "Fjern",
-		"about": "Om",
-		"clickToSet": "Klik for at indstille "
-	},
-	"textImportDialog": {
-		"addSpaces": "Add Spaces",
-		"splitHyphens": "Split Hyphenated Words",
-		"processedSuccess": "Lyrics automated for syllable sync.",
-		"title": "Importér sangtekster fra almindelig tekst",
-		"tab": {
-			"import": "Import"
-		},
-		"guides": "Guides",
-		"processLyrics": "Process Lyrics",
-		"actionButton": "Importér",
-		"contentMode": {
-			"caption": "Tekstindhold",
-			"lyric": "Kun sangtekster",
-			"withTranslation": "Sangtekster med oversættelse",
-			"withRoman": "Sangtekster med romanisering",
-			"withBoth": "Sangtekster med begge"
-		},
-		"separationMode": {
-			"caption": "Oversættelses-/romaniseringsformat",
-			"multipleLine": "Sammenflettet flere linjer",
-			"sameLine": "Samme linje adskillelse"
-		},
-		"separator": "Linjeseparator",
-		"swapTransAndRoman": "Byt oversættelses- og romaniseringslinjer",
-		"wordSeparator": "Ordseparator",
-		"enableSpecialPrefix": "Aktiver specielt præfiks",
-		"bgLyricPrefix": "Baggrundssangtekst-præfiks",
-		"duetLyricPrefix": "Duetsangtekst-præfiks",
-		"enableEmptyBeat": "Aktiver tom takt",
-		"emptyBeatSymbol": "Tom takt-symbol",
-		"guide": {
-			"prepare": {
-				"title": "1. Prepare Lyrics",
-				"desc": "It is recommended to use the Lyrprep tool to prepare your lyrics. You can search for songs, select a version, and copy the output text."
-			},
-			"import": {
-				"title": "2. Import to TTML Tool",
-				"desc": "Paste the prepared text into the editor on the left. Make sure to select the correct \"Import Mode\" based on your text format. If your text contains special prefixes (like background vocal markers), ensure \"Special Prefix\" is enabled."
-			},
-			"sync": {
-				"title": "3. Start Syncing",
-				"desc": "After clicking \"Import\", switch to the \"Time\" (Sync) mode. Use hotkeys for precise alignment:",
-				"f": "Set word start time",
-				"g": "Set word end & start next",
-				"h": "Set word end only",
-				"ad": "Switch between words"
-			},
-			"community": {
-				"title": "Community Guides & Cheat Sheets",
-				"desc": "Helpful resources from the community for specific languages and genres."
-			}
-		},
-		"guidesMenu": {
-			"full": "Full TTML Guide"
-		}
-	},
-	"lrclib": {
-		"placeholder": "Titel Kunstner...",
-		"notFound": "Ingen resultater fundet, prøv andre søgeord",
-		"noResult": "Indtast søgeord for at starte søgning",
-		"searchError": "Søgning mislykkedes, kontroller netværket eller prøv igen senere",
-		"importError": "Der opstod en fejl under import af sangtekster",
-		"title": "Importér sangtekst fra LRCLIB",
-		"synced": "Synkroniseret",
-		"unsynced": "Ikke synkroniseret",
-		"noLyrics": "Intet sangtekstindhold tilgængeligt for dette nummer",
-		"extractBg": "Udtræk parenteser som baggrundsvokal",
-		"autoSegment": "Auto-segmentering",
-		"import": "Importér sangtekst"
-	},
-	"lyricEditor": {
-		"locate": "Locate",
-		"lineSpectrogram": {
-			"title": "Line Spectrogram Alignment",
-			"desc": "Adjust the start and end points of this line using the spectrogram. The line duration will be split proportionally into its words based on character count.",
-			"startTime": "Start:",
-			"endTime": "End:",
-			"duration": "Duration:",
-			"playPause": "Play/Pause"
-		}
-	},
-	"lyricLineView": {
-		"translatedLabel": "Oversættelse:",
-		"romanLabel": "Romanisering:",
-		"empty": "Ingen",
-		"duplicateLinesHere": "Duplicate {count} selected line(s) here",
-		"insertLine": "Indsæt ny linje her",
-		"insertWord": "Indsæt ord her…"
-	},
-	"lyricWordView": {
-		"empty": "Tom",
-		"spaceCount": "Mellemrum x{count}",
-		"removeWord": "Remove Duplicate Word",
-		"editingWordTitle": "Editing Word",
-		"editingWordDesc": "Edit the word or apply suggested quick fixes.",
-		"noSuggestions": "No suggestions"
-	},
-	"touchSyncPanel": {
-		"prevWord": "Hop til forrige ord",
-		"nextWord": "Hop til næste ord"
-	},
-	"grammarCheck": {
-		"capitalization": "Ordet bør være med stort forbogstav",
-		"capitalInMiddle": "Word has capital letters in middle",
-		"title": "Grammatik og stavekontrol",
-		"issues": "Issues",
-		"history": "Historik",
-		"ignoredWords": "Ignorerede ord",
-		"noIssues": "Ingen problemer fundet!",
-		"issuesFound": "problemer fundet",
-		"undoLast": "Fortryd sidste",
-		"clearHistory": "Ryd historik",
-		"noHistory": "Ingen ændringer foretaget endnu",
-		"fixed": "rettet",
-		"ignored": "ignoreret",
-		"line": "Linje",
-		"clearIgnoredWords": "Ryd alle",
-		"noIgnoredWords": "Ingen ignorerede ord",
-		"noIssuesMessage": "Ingen problemer fundet! Dine tekster ser godt ud."
-	},
-	"replaceWordDialog": {
-		"title": "Erstat ord",
-		"description": "Nyt ord:",
-		"placeholder": "Nyt ord",
-		"applyToAll": "Anvend denne erstatning på alle identiske ord",
-		"caseSensitive": "Match case (Exact match)"
-	},
-	"urbanDictionary": {
-		"title": "Urban Dictionary",
-		"slang": "slang dictionary",
-		"noDefinitions": "No definitions found for \"{word}\"",
-		"viewOnline": "View online",
-		"by": "By"
-	},
-	"timeShiftDialog": {
-		"title": "Tidsforskydning",
-		"amount": "Forskydning (ms)",
-		"direction": "Retning",
-		"advance": "Fremrykning (-)",
-		"delay": "Forsinkelse (+)",
-		"scopeLabel": "Omfang",
-		"scope": {
-			"all": "Alle sangtekstlinjer",
-			"selected": "Valgte sangtekstlinjer",
-			"selectedFollowing": "Valgte og følgende",
-			"custom": "Brugerdefineret område"
-		},
-		"fromLine": "Fra linje",
-		"toLine": "til linje",
-		"line": ""
-	},
-	"lyrically": {
-		"noLyricsLabel": "No lyrics available for this track.",
-		"previewTitle": "Lyrically — Lyrics Preview",
-		"importTitle": "Import Lyrics safely via Lyrically (No CORS via API endpoint)"
-	},
-	"globalDragOverlay": {
-		"title": "Slip for at indlæse"
-	},
-	"historyRestoreDialog": {
-		"loadError": "Kunne ikke indlæse historik",
-		"confirm": {
-			"title": "Bekræft gendannelse",
-			"description": "Dette vil overskrive alt indhold i den aktuelle editor. Er du sikker på, at du vil gendanne dette snapshot?"
-		},
-		"deleteProject": {
-			"title": "Slet projekthistorik",
-			"description": "Er du sikker på, at du vil slette alle automatisk gemte poster for dette projekt? Denne handling kan ikke fortrydes."
-		},
-		"projects": "Seneste projekter",
-		"noProjects": "Ingen poster blev automatisk gemt.",
-		"latestState": "Seneste version",
-		"restoreLatest": "Gendan denne version",
-		"historyVersions": "Andre versioner",
-		"noHistory": "Ingen historik tilgængelig",
-		"selectProject": "Vælg venligst et element fra venstre panel"
-	},
-	"autosave": {
-		"legacyProjectName": "Ældre snapshots",
-		"untitledProjectName": "Projekt uden titel"
-	},
-	"time": {
-		"daysAgo": "{count} dage siden",
-		"hoursAgo": "{count} timer siden",
-		"minutesAgo": "{count} minutter siden",
-		"justNow": "Lige nu"
-	},
-	"metadata": {
-		"title": "Metadata"
-	},
-	"submitToAMLLDB": {
-		"validation": {
-			"missingMusicName": "Metadata mangler sangnavn",
-			"missingArtists": "Metadata mangler sangkunstnere",
-			"missingAlbum": "Metadata mangler albumnavn",
-			"missingMusicId": "Metadata mangler platform sang-ID"
-		},
-		"defaultReason": "Ny sangtekstindsendelse",
-		"errors": {
-			"validation": "Indsendelsesvalidering mislykkedes:\n{errors}",
-			"noLyrics": "Der er endnu intet sangtekstindhold?",
-			"uploadFailed": "Kunne ikke anmode om upload af sangtekstfil: {status} {statusText}",
-			"submitFailed": "Indsendelse mislykkedes, tjek konsollen for årsag!"
-		},
-		"labels": {
-			"submit": "Indsend/Ret sangtekster"
-		},
-		"issueTitle": "[Sangtekst Indsend/Ret] {name}",
-		"unknownTitle": "Ukendt titel",
-		"unknownArtist": "Ukendt kunstner",
-		"description": "Indsend sangtekster til AMLL-database",
-		"title": "Indsend sangtekster til AMLL-database (kun forenklet kinesiske brugere)",
-		"chineseOnlyWarning": "Denne funktion er kun tilgængelig for brugere af forenklet kinesisk i AMLL-databasen. Hvis du redigerer sangtekster til brug i anden software, følg venligst den softwares måde at indsende sangtekster!",
-		"thankYou": "Først og fremmest, tak for dit generøse sangtekstbidrag!",
-		"cc0Agreement": "Ved at indsende accepterer du at",
-		"cc0Rights": "bruge CC0-licensen og helt frasige ejerskab af sangteksterne",
-		"andSubmit": "og indsende til sangtekstdatabasen!",
-		"futureUse": "Og sangteksterne vil blive brugt som standard TTML-kilde af AMLL-systemer i fremtiden!",
-		"rightsWarning": "Hvis du værdsætter at bevare ejerskab, indsend venligst IKKE!",
-		"submitInstructions": "Indtast følgende info og hop derefter til GitHub issue-indsendelsessiden!",
-		"closeWarning": "Luk advarselsbesked"
-	},
-	"splitWordDialog": {
-		"spaceCount": "Mellemrum x{count}",
-		"empty": "Tom",
-		"title": "Opdel ord",
-		"tip": "Efter opdeling vil nye ord ligeligt opdele det originale ords start-/sluttid. Tomme takter vil blive ryddet.",
-		"syllableSplit": "Syllable Split",
-		"applyToAll": "Anvend denne opdeling på alle identiske ord",
-		"ignoreCase": "Ignorer store/små bogstaver",
-		"actionButton": "Bekræft"
-	},
-	"advancedSegmentDialog": {
-		"test": {
-			"outputError": "Opdelingsforhåndsvisningsfejl",
-			"title": "Opdelingstest",
-			"input": "Indtast en sangtekstlinje eller ord for at teste...",
-			"output": "Forhåndsvisningsresultat:"
-		},
-		"title": "Avanceret segmentering",
-		"scope": {
-			"title": "Anvendelsesomfang",
-			"all": "Alle sangtekstlinjer",
-			"range": {
-				"from": "Fra linje",
-				"to": "til linje",
-				"end": ""
-			}
-		},
-		"rules": {
-			"title": "Auto-segmenteringsregler",
-			"cjk": "Opdel CJK-tegn",
-			"syllable": "Opdel vestlige ord efter stavelser"
-		},
-		"language": {
-			"select": "Vælg en orddeling-sprogmodel:"
-		},
-		"tip": "Efter opdeling vil det originale ords samlede varighed blive omfordelt baseret på antallet af tegn og deres vægte.",
-		"postProcess": {
-			"title": "Efterbehandling",
-			"punct": {
-				"caption": "Tegnsætningshåndtering:",
-				"merge": "Flet med tilstødende stavelse",
-				"standalone": "Indstil som selvstændigt segment",
-				"weight": "Tegnsætningstidsvægt:"
-			},
-			"empty": "Fjern tomme segmenter"
-		},
-		"custom": {
-			"title": "Brugerdefinerede segmenteringsregler",
-			"input": "Indtast ord for manuel opdeling...",
-			"add": "Tilføj til brugerdefinerede regler",
-			"list": "Liste over brugerdefinerede regler:"
-		},
-		"ignore": {
-			"title": "Ignoreringsliste",
-			"placeholder": "Ét ord per linje, ord i denne liste vil ikke blive auto-segmenteret"
-		}
-	},
-	"aboutModal": {
-		"appName": "Apple Music-lignende Sangtekst TTML Værktøj",
-		"description": "Et ord-for-ord TTML redigerings- og tidslinjeværktøj til Apple Music-lignende sangtekster",
-		"buildDate": "Byggedato: {date}",
-		"gitCommit": "Git Commit: {commit}"
-	},
-	"spectrogram": {
-		"invalidEndTime": "Kan ikke vælge denne sluttid",
-		"noAudioLoaded": "Indlæs venligst en lydfil for at gengive spektrogrammet",
-		"loadAudio": "Indlæs en lydfil",
-		"showUnselectedLines": "Vis ikke-valgte linjer"
-	},
-	"pwa": {
-		"offlineReady": "Websted succesfuldt cachet til offline brug",
-		"updateRefresh": "Websted opdateret, opdater for at bruge den seneste version!",
-		"refresh": "Opdater"
-	}
+    "dev": {
+      "previewPerformance": "Preview Performance",
+      "showFps": "Show FPS Counter in Preview",
+      "wasmPlugins": {
+        "title": "Community Plugin System (WASM)",
+        "description": "Manage and upload custom WebAssembly plugins to extend the tool's importing and exporting capabilities."
+      },
+      "debugInfo": {
+        "title": "Debug Information"
+      }
+    },
+    "spectrogram": {
+      "palette": "Farvepalet",
+      "paletteCustom": "Brugerdefineret",
+      "gradientEditorDesc": "En Pos-værdi på 0.0 svarer til den roligste del, og 1.0 svarer til den højeste del. Det anbefales at bruge lysere farver for større Pos-værdier.",
+      "addStop": "Tilføj farvepunkt"
+    }
+  },
+  "timingOverview": {
+    "start": "Start",
+    "end": "End",
+    "duration": "Duration",
+    "emptyBeat": "Empty Beat",
+    "romanization": "Roman",
+    "backgroundVocal": "BG",
+    "title": "Technical Timing Overview",
+    "lines": "Lines",
+    "words": "Words",
+    "lyricsAndTimings": "Lyrics & Word Timings"
+  },
+  "topBar": {
+    "modeBtns": {
+      "edit": "Rediger",
+      "sync": "Tid",
+      "preview": "Forhåndsvis"
+    },
+    "boykisser": "boykisser",
+    "appName": "Apple Music-lignende Sangtekst TTML Værktøj",
+    "menu": {
+      "undo": "Fortryd",
+      "redo": "Gentag",
+      "selectAllLines": "Vælg alle linjer",
+      "unselectAllLines": "Fravælg alle linjer",
+      "invertSelectAllLines": "Inverter linjevalg",
+      "selectWordsOfMatchedSelection": "Vælg matchende ord",
+      "timeShift": "Tidsforskydning...",
+      "timeStretch": "时间伸缩...",
+      "editMetadata": "Rediger sangtekstmetadata…",
+      "edit": "Rediger",
+      "newLyric": "Nye sangtekster",
+      "openLyric": "Åbn sangtekster",
+      "openFromClipboard": "Åbn TTML fra udklipsholder",
+      "saveLyric": "Gem sangtekster",
+      "restoreFromHistory": "Gendan fra historik…",
+      "saveLyricToClipboard": "Gem TTML til udklipsholder",
+      "uploadToAMLLDB": "Upload til database (kun CN)",
+      "file": "Fil",
+      "helpDoc": "Dokumentation (CN)",
+      "help": "Hjælp",
+      "segmentationTools": "Segmenteringsværktøjer",
+      "autoSegment": "Auto-segmentering",
+      "rubySegment": "Ruby Segmentating",
+      "advancedSegment": "Avanceret segmentering...",
+      "learnedSplits": "Learned Splits...",
+      "syncLineTimestamps": "Synkroniser linjetidsstempler",
+      "tool": "Værktøjer",
+      "importLyric": {
+        "import": "Importér sangtekster",
+        "fromPlainText": "Importér fra almindelig tekst…",
+        "fromLRCLIB": "Importér fra LRCLIB...",
+        "fromLyrically": "Import from Lyrically...",
+        "fromGenius": "Import from Genius…",
+        "fromLyRiC": "Importér fra LyRiC-fil…",
+        "fromESLyRiC": "Importér fra ESLyRiC-fil…",
+        "fromQRC": "Importér fra QRC-fil…",
+        "fromYRC": "Importér fra YRC-fil…",
+        "fromLrcfySylb": "Importér fra Lyricify Syllable-fil…"
+      },
+      "exportLyric": {
+        "export": "Eksportér sangtekster",
+        "toLyRiC": "Eksportér til LyRiC",
+        "toESLyRiC": "Eksportér til ESLyRiC",
+        "toQRC": "Eksportér til QRC",
+        "toYRC": "Eksportér til YRC",
+        "toLrcfySylb": "Eksportér til Lyricify Syllable",
+        "toASS": "Eksportér til ASS-undertekster"
+      }
+    }
+  },
+  "header": {
+    "status": {
+      "autoSavedAt": "Autosaved at {time}"
+    }
+  },
+  "contextMenu": {
+    "deleteWords": "Slet {count, plural, one {ord} other {ord}",
+    "bgLyric": "Baggrundslinje",
+    "duetLyric": "Duetlinje",
+    "moveLineToPlayhead": "Move line to playhead",
+    "insertLineBefore": "Indsæt ny linje før",
+    "insertLineAfter": "Indsæt ny linje efter",
+    "copyLine": "Dupliker {count, plural, one {linje} other {linjer}",
+    "duplicateTo": "Duplicate to...",
+    "combineLine": "Kombiner linjer",
+    "deleteLine": "Slet {count, plural, one {linje} other {linjer}",
+    "splitWord": "Opdel ord…",
+    "noSyllablesFound": "No multiple syllables found.",
+    "splitIntoSyllables": "Split into Syllables (Romanized)",
+    "replaceWord": "Erstat ord…",
+    "combineWords": "Kombiner ord",
+    "moveFollowingWordToNewLine": "Flyt følgende til ny linje",
+    "moveWordToNewLine": "Flyt {count, plural, one {ord} other {ord} til ny linje"
+  },
+  "settingsDialog": {
+    "title": "Indstillinger",
+    "common": {
+      "latencyTest": "Lyd/input-latenstest"
+    },
+    "keybindings": {
+      "newFile": "Ny fil",
+      "openFile": "Åbn fil",
+      "saveFile": "Gem fil",
+      "undo": "Fortryd",
+      "redo": "Gentag",
+      "selectAll": "Vælg alle",
+      "unselectAll": "Deselect All",
+      "selectInverted": "Inverter valg",
+      "selectWordsOfMatchedSelection": "Vælg lignende ord",
+      "deleteSelection": "Slet valg",
+      "autoSegment": "",
+      "switchEditMode": "Tilstandsskift - Skift til redigeringstilstand",
+      "switchSyncMode": "Tilstandsskift - Skift til timingtilstand",
+      "switchPreviewMode": "Tilstandsskift - Skift til forhåndsvisningstilstand",
+      "moveNextWord": "Timing - Flyt til næste ord",
+      "movePrevWord": "Timing - Flyt til forrige ord",
+      "moveNextLine": "Timing - Flyt til næste linjestart",
+      "movePrevLine": "Timing - Flyt til forrige linjestart",
+      "movePrevWordAndPlay": "Timing - Flyt til forrige ord og afspil",
+      "moveNextWordAndPlay": "Timing - Flyt til næste ord og afspil",
+      "syncStart": "Timing - Markér start",
+      "syncNext": "Timing - Bekræft",
+      "syncEnd": "Timing - Markér slut",
+      "toggleWordHighlight": "Timing - Toggle active word highlight",
+      "urbanDictionary": "Edit - Look up in Urban Dictionary",
+      "urbanDictionarySync": "Timing - Look up in Urban Dictionary",
+      "moveFirstWordAndPlay": "Timing - Move to first word and play",
+      "moveLastWordAndPlay": "Timing - Move to last word and play",
+      "playPause": "Afspilning - Afspil/Pause",
+      "seekForward": "Afspilning - Spol frem 5s",
+      "seekBackward": "Afspilning - Spol tilbage 5s",
+      "volumeUp": "Afspilning - Skru op",
+      "volumeDown": "Afspilning - Skru ned",
+      "playbackRateUp": "Afspilning - Øg hastighed",
+      "playbackRateDown": "Afspilning - Reducer hastighed",
+      "playbackRateReset": "Afspilning - Nulstil hastighed",
+      "duplicatePaste": "",
+      "auditionSelectionBefore": "Spektrogram - Forhør valg (500ms før)",
+      "auditionSelection": "Spektrogram - Forhør valg",
+      "auditionSelectionAfter": "Spektrogram - Forhør valg (500ms efter)",
+      "category": {
+        "File": "Fil",
+        "Edit": "Rediger",
+        "View": "Vis",
+        "Sync": "Synk",
+        "Audio": "Lyd",
+        "Spectrogram": "Spektrogram"
+      },
+      "autoSegmentOptions": "Auto Segment",
+      "autoSegmentDoublePress": "Require double press",
+      "autoSegmentDoublePressDesc": "Run Auto Segment only after pressing its shortcut twice quickly."
+    },
+    "tab": {
+      "common": "Generelt",
+      "assistant": "Assistant",
+      "appearance": "Appearance",
+      "audio": "Audio",
+      "keybindings": "Tastaturgenveje",
+      "spectrogram": "Spektrogram",
+      "backup": "Backup",
+      "dev": "Dev"
+    }
+  },
+  "autoSegmentApplied": "Auto-segmented with {engine}",
+  "error": {
+    "unsupportedFileFormat": "Ikke-understøttet filformat: {ext}",
+    "openFileFailed": "Kunne ikke åbne fil",
+    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing."
+  },
+  "audio": {
+    "marker": "Marker",
+    "markerLabel": "Label (e.g. Verse 1 Start)",
+    "markerDescription": "Description...",
+    "deleteMarker": "Delete Marker",
+    "waveform": "Audio Waveform",
+    "status": {
+      "transcoding": "Dekodning mislykkedes, forsøger at transkode lyd...",
+      "loading": "Indlæser lyd...",
+      "processing": "Behandler..."
+    },
+    "error": {
+      "workerError": "Fejl ved behandling af lyd"
+    }
+  },
+  "audioPanel": {
+    "volume": "Lydstyrke",
+    "playbackRate": "Afspilningshastighed",
+    "preservesPitch": "Preserve Pitch",
+    "clickToLoadMusic": "Klik på ikonet for at indlæse musik",
+    "playPause": "Afspil / pause musik",
+    "expandSpectrogram": "Udvid / skjul spektrogram"
+  },
+  "latencyTestDialog": {
+    "title": "Timing Offset Latency Test",
+    "latencyDisplay": {
+      "fastest": "Fastest",
+      "current": {
+        "none": "Not Measured",
+        "fast": "Early",
+        "slow": "Late",
+        "perfect": "Perfect"
+      },
+      "slowest": "Slowest"
+    },
+    "bpmInputLabel": "Tempo (BPM)",
+    "button": {
+      "stop": "Stop",
+      "start": "Start"
+    }
+  },
+  "metadataDialog": {
+    "fetchSongwriters": {
+      "error": "Failed to fetch songwriters",
+      "noSongwriters": "No songwriting credits recorded for this song",
+      "findingRealName": "Finding real name for {name} ({current}/{total})...",
+      "success": "Songwriters successfully fetched from Genius",
+      "setupTitle": "Genius API Key Setup",
+      "setupDesc": "To use this feature, please configure your Genius API Key (specifically, you need the \"CLIENT ACCESS TOKEN\"). You can generate one from the ",
+      "setupDescEnd": " developer portal.",
+      "keyPlaceholder": "Enter CLIENT ACCESS TOKEN",
+      "button": "Fetch Songwriters from Genius",
+      "tryFindRealNames": "Try to find real names (Legal Names)",
+      "searchError": "Search failed: {error}",
+      "fetchError": "Could not fetch lyrics: {error}",
+      "noLyricsError": "No lyrics to import.",
+      "importSuccess": "Imported {count} lines from Genius."
+    },
+    "openLink": "Åbn link",
+    "duplicateMsg": "Fandt duplikerede metadataværdier",
+    "addValue": "Tilføj",
+    "builtinOptions": {
+      "musicName": "Sangnavn",
+      "artists": "Sangkunstnere",
+      "artistsInvalidMsg": "Hvis der er flere kunstnere, tilføj venligst denne nøgle flere gange i stedet for at bruge afgrænsere; hvis et kunstnernavn indeholder afgrænsere, ignorer venligst denne besked",
+      "songwriter": "Sangskriver",
+      "songwriterInvalidMsg": "Hvis der er flere sangskrivere, tilføj venligst denne nøgle flere gange i stedet for at bruge afgrænsere",
+      "album": "Albumnavn",
+      "coverArt": "Cover URL",
+      "ncmMusicId": "NetEase Music ID",
+      "ncmMusicIdInvalidMsg": "NetEase Music ID skal være numerisk",
+      "qqMusicId": "QQ Music ID",
+      "qqMusicIdInvalidMsg": "QQ Music ID skal være alfanumerisk",
+      "spotifyId": "Spotify Sang-ID",
+      "spotifyIdInvalidMsg": "Spotify Sang-ID skal være alfanumerisk",
+      "appleMusicId": "Apple Music Sang-ID",
+      "appleMusicIdInvalidMsg": "Apple Music Sang-ID skal være numerisk",
+      "isrc": "Sang ISRC-kode",
+      "isrcInvalidMsg": "ISRC-kodeformat skal være CC-XXX-YY-NNNNN",
+      "ttmlAuthorGithub": "Sangtekstforfatter GitHub ID",
+      "ttmlAuthorGithubInvalidMsg": "GitHub ID skal være numerisk",
+      "ttmlAuthorGithubLogin": "Sangtekstforfatter GitHub-brugernavn",
+      "ttmlAuthorGithubLoginInvalidMsg": "GitHub-brugernavn skal være alfanumerisk eller bindestreger, op til 39 tegn"
+    },
+    "title": "Metadataeditor",
+    "key": "Nøgle",
+    "value": "Værdi",
+    "empty": "Ingen metadata",
+    "addKeyValue": "Tilføj nyt nøgle-værdi-par",
+    "customKey": "Brugerdefineret nøgle",
+    "addPresets": "Tilføj alle forudindstillede nøgler",
+    "clear": "Ryd"
+  },
+  "lrclib": {
+    "placeholder": "Titel Kunstner...",
+    "notFound": "Ingen resultater fundet, prøv andre søgeord",
+    "noResult": "Indtast søgeord for at starte søgning",
+    "title": "Importér sangtekst fra LRCLIB"
+  },
+  "lyricEditor": {
+    "locate": "Locate",
+    "lineSpectrogram": {
+      "title": "Line Spectrogram Alignment",
+      "desc": "Adjust the start and end points of this line using the spectrogram. The line duration will be split proportionally into its words based on character count.",
+      "startTime": "Start:",
+      "endTime": "End:",
+      "duration": "Duration:",
+      "playPause": "Play/Pause"
+    }
+  },
+  "lyricLineView": {
+    "translatedLabel": "Oversættelse:",
+    "romanLabel": "Romanisering:",
+    "empty": "Ingen",
+    "duplicateLinesHere": "Duplicate {count} selected line(s) here",
+    "insertLine": "Indsæt ny linje her",
+    "insertWord": "Indsæt ord her…"
+  },
+  "lyricWordView": {
+    "empty": "Tom",
+    "spaceCount": "Mellemrum x{count}",
+    "removeWord": "Remove Duplicate Word",
+    "editingWordTitle": "Editing Word",
+    "editingWordDesc": "Edit the word or apply suggested quick fixes.",
+    "correctedWordPlaceholder": "Type the corrected word",
+    "noSuggestions": "No suggestions"
+  },
+  "sectionActions": {
+    "categorizeSelected": "Categorize selected {count, plural, one {line} other {lines}}",
+    "categorizeTitle": "Categorize selected lines",
+    "categorize": "Categorize",
+    "expand": "Expand section",
+    "collapse": "Collapse section",
+    "editTitle": "Edit section",
+    "vocalist": "Vocalist / role",
+    "notes": "Notes",
+    "manage": "Manage sections",
+    "goPrevious": "Go to previous section",
+    "goNext": "Go to next section",
+    "editMetadata": "Edit metadata",
+    "split": "Split at selected line",
+    "mergePrevious": "Merge with previous",
+    "mergeNext": "Merge with next",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "linkPrevious": "Link to previous {category}",
+    "unlinkRepeat": "Unlink repeat",
+    "removeHeader": "Remove header (keep lyrics)",
+    "addToPrevious": "Add unassigned lines to previous section",
+    "addToNext": "Add unassigned lines to next section",
+    "section": "Section"
+  },
+  "touchSyncPanel": {
+    "prevWord": "Hop til forrige ord",
+    "nextWord": "Hop til næste ord"
+  },
+  "grammarCheck": {
+    "ambiguous": "Possible grammar issue",
+    "repeatedWord": "Repeated word",
+    "capitalization": "Ordet bør være med stort forbogstav",
+    "capitalInMiddle": "Word has capital letters in middle",
+    "title": "Grammatik og stavekontrol",
+    "issues": "Issues",
+    "history": "Historik",
+    "ignoredWords": "Ignorerede ord",
+    "noIssues": "Ingen problemer fundet!",
+    "issuesFound": "problemer fundet",
+    "undoLast": "Fortryd sidste",
+    "clearHistory": "Ryd historik",
+    "noHistory": "Ingen ændringer foretaget endnu",
+    "fixed": "rettet",
+    "ignored": "ignoreret",
+    "line": "Linje",
+    "clearIgnoredWords": "Ryd alle",
+    "noIgnoredWords": "Ingen ignorerede ord",
+    "noIssuesMessage": "Ingen problemer fundet! Dine tekster ser godt ud.",
+    "applyFix": "Apply suggested fix",
+    "ignoreSession": "Ignore this word in this session",
+    "ignoreAlways": "Always ignore this word"
+  },
+  "urbanDictionary": {
+    "title": "Urban Dictionary",
+    "slang": "slang dictionary",
+    "noDefinitions": "No definitions found for \"{word}\"",
+    "by": "By",
+    "viewOnline": "View online"
+  },
+  "replaceWordDialog": {
+    "title": "Erstat ord",
+    "description": "Nyt ord:",
+    "placeholder": "Nyt ord",
+    "applyToAll": "Anvend denne erstatning på alle identiske ord",
+    "caseSensitive": "Match case (Exact match)"
+  },
+  "timeShiftDialog": {
+    "title": "Tidsforskydning",
+    "amount": "Forskydning (ms)",
+    "direction": "Retning",
+    "advance": "Fremrykning (-)",
+    "delay": "Forsinkelse (+)",
+    "scopeLabel": "Omfang",
+    "scope": {
+      "all": "Alle sangtekstlinjer",
+      "selected": "Valgte sangtekstlinjer",
+      "selectedFollowing": "Valgte og følgende",
+      "custom": "Brugerdefineret område"
+    },
+    "fromLine": "Fra linje",
+    "toLine": "til linje",
+    "line": "",
+    "snapToPlayhead": "Snap start of affected lines to current playback time"
+  },
+  "timeStretchDialog": {
+    "durationPlaceholder": "MM:SS.mmm or seconds",
+    "useCurrentSong": "Use current song",
+    "audioReadError": "Could not read the selected audio file's duration.",
+    "invalidDuration": "Enter a valid duration.",
+    "positiveDuration": "Duration must be greater than zero.",
+    "title": "Time Stretch",
+    "description": "Stretch or squeeze every TTML timestamp to fit a new song duration.",
+    "oldDuration": "Old song duration",
+    "readingAudio": "Reading audio...",
+    "chooseAudio": "Upload audio...",
+    "newDuration": "New song duration",
+    "noChange": "The durations match; no timing change is needed.",
+    "scaleFactor": "Scale factor: {factor}×",
+    "scopeLabel": "Apply to",
+    "scope": {
+      "all": "All lines",
+      "selected": "Selected lines",
+      "selectedFollowing": "Selected lines and following",
+      "custom": "Custom range"
+    },
+    "fromLine": "From",
+    "toLine": "to",
+    "line": "lines"
+  },
+  "lyrically": {
+    "noLyricsLabel": "No lyrics available for this track.",
+    "previewTitle": "Lyrically — Lyrics Preview",
+    "editingRawText": "Editing Raw Text",
+    "backToPreview": "Back to Preview",
+    "manualEdit": "Manual Edit",
+    "importTitle": "Import Lyrics safely via Lyrically (No CORS via API endpoint)",
+    "source": "Source: "
+  },
+  "genius": {
+    "setupTitle": "Genius API Key Setup",
+    "setupDesc": "To import lyrics from Genius you need a CLIENT ACCESS TOKEN. You can generate one from the Genius developer portal.",
+    "keyPlaceholder": "Paste CLIENT ACCESS TOKEN here…",
+    "previewTitle": "Genius — Lyrics Preview",
+    "back": "Back",
+    "previewSubtitle": "You can edit the lyrics below before importing.",
+    "linesCount": "{count} lines",
+    "importButton": "Import Lyrics",
+    "importTitle": "Import Lyrics from Genius",
+    "searchPlaceholder": "Artist – Song title…",
+    "notFound": "No results found. Try different keywords.",
+    "noResult": "Enter a song name or artist to start."
+  },
+  "textImportDialog": {
+    "processLyrics": "Process Lyrics",
+    "processedSuccess": "Lyrics automated for syllable sync.",
+    "title": "Importér sangtekster fra almindelig tekst",
+    "tab": {
+      "import": "Import"
+    },
+    "guides": "Guides",
+    "actionButton": "Importér",
+    "contentMode": {
+      "caption": "Tekstindhold",
+      "lyric": "Kun sangtekster",
+      "withTranslation": "Sangtekster med oversættelse",
+      "withRoman": "Sangtekster med romanisering",
+      "withBoth": "Sangtekster med begge"
+    },
+    "separationMode": {
+      "caption": "Oversættelses-/romaniseringsformat",
+      "multipleLine": "Sammenflettet flere linjer",
+      "sameLine": "Samme linje adskillelse"
+    },
+    "separator": "Linjeseparator",
+    "swapTransAndRoman": "Byt oversættelses- og romaniseringslinjer",
+    "wordSeparator": "Ordseparator",
+    "enableSpecialPrefix": "Aktiver specielt præfiks",
+    "bgLyricPrefix": "Baggrundssangtekst-præfiks",
+    "duetLyricPrefix": "Duetsangtekst-præfiks",
+    "enableEmptyBeat": "Aktiver tom takt",
+    "emptyBeatSymbol": "Tom takt-symbol",
+    "guide": {
+      "prepare": {
+        "title": "1. Prepare Lyrics",
+        "desc": "It is recommended to use the Lyrprep tool to prepare your lyrics. You can search for songs, select a version, and copy the output text."
+      },
+      "import": {
+        "title": "2. Import to TTML Tool",
+        "desc": "Paste the prepared text into the editor on the left. Make sure to select the correct \"Import Mode\" based on your text format. If your text contains special prefixes (like background vocal markers), ensure \"Special Prefix\" is enabled."
+      },
+      "sync": {
+        "title": "3. Start Syncing",
+        "desc": "After clicking \"Import\", switch to the \"Time\" (Sync) mode. Use hotkeys for precise alignment:",
+        "f": "Set word start time",
+        "g": "Set word end & start next",
+        "h": "Set word end only",
+        "ad": "Switch between words"
+      },
+      "community": {
+        "title": "Community Guides & Cheat Sheets",
+        "desc": "Helpful resources from the community for specific languages and genres."
+      }
+    },
+    "guidesMenu": {
+      "full": "Full TTML Guide"
+    }
+  },
+  "sectionImportReview": {
+    "title": "Review detected sections",
+    "description": "Check normalized categories and metadata before replacing the lyrics.",
+    "sourceLyrics": "Source lyrics",
+    "structure": "Structure",
+    "sectionCount": "{count} sections",
+    "vocalist": "Vocalist / role",
+    "color": "Section color",
+    "notes": "Notes",
+    "lineCount": "{count} lyric lines",
+    "import": "Import reviewed lyrics"
+  },
+  "pluginManager": {
+    "trigger": "Plugins",
+    "title": "Plugin Management",
+    "description": "Extend your lyric editing capabilities",
+    "installed": "Installed",
+    "store": "Plugin Store",
+    "empty": "No plugins installed",
+    "browse": "Browse Store",
+    "techniques": "Techniques",
+    "usage": "Usage",
+    "sideload": "Sideload .wasm plugin",
+    "loading": "Loading community plugins...",
+    "install": "Install"
+  },
+  "globalDragOverlay": {
+    "title": "Slip for at indlæse"
+  },
+  "historyRestoreDialog": {
+    "loadError": "Kunne ikke indlæse historik",
+    "confirm": {
+      "title": "Bekræft gendannelse",
+      "description": "Dette vil overskrive alt indhold i den aktuelle editor. Er du sikker på, at du vil gendanne dette snapshot?"
+    },
+    "deleteProject": {
+      "title": "Slet projekthistorik",
+      "description": "Er du sikker på, at du vil slette alle automatisk gemte poster for dette projekt? Denne handling kan ikke fortrydes."
+    },
+    "projects": "Seneste projekter",
+    "noProjects": "Ingen poster blev automatisk gemt.",
+    "latestState": "Seneste version",
+    "restoreLatest": "Gendan denne version",
+    "historyVersions": "Andre versioner",
+    "noHistory": "Ingen historik tilgængelig",
+    "selectProject": "Vælg venligst et element fra venstre panel"
+  },
+  "autosave": {
+    "legacyProjectName": "Ældre snapshots",
+    "untitledProjectName": "Projekt uden titel"
+  },
+  "time": {
+    "daysAgo": "{count} dage siden",
+    "hoursAgo": "{count} timer siden",
+    "minutesAgo": "{count} minutter siden",
+    "justNow": "Lige nu"
+  },
+  "metadata": {
+    "title": "Metadata"
+  },
+  "submitToAMLLDB": {
+    "validation": {
+      "missingMusicName": "Metadata mangler sangnavn",
+      "missingArtists": "Metadata mangler sangkunstnere",
+      "missingAlbum": "Metadata mangler albumnavn",
+      "missingMusicId": "Metadata mangler platform sang-ID"
+    },
+    "defaultReason": "Ny sangtekstindsendelse",
+    "errors": {
+      "validation": "Indsendelsesvalidering mislykkedes:\n{errors}",
+      "noLyrics": "Der er endnu intet sangtekstindhold?",
+      "uploadFailed": "Kunne ikke anmode om upload af sangtekstfil: {status} {statusText}",
+      "submitFailed": "Indsendelse mislykkedes, tjek konsollen for årsag!"
+    },
+    "labels": {
+      "submit": "Indsend/Ret sangtekster"
+    },
+    "issueTitle": "[Sangtekst Indsend/Ret] {name}",
+    "unknownTitle": "Ukendt titel",
+    "unknownArtist": "Ukendt kunstner",
+    "description": "Indsend sangtekster til AMLL-database",
+    "title": "Indsend sangtekster til AMLL-database (kun forenklet kinesiske brugere)",
+    "chineseOnlyWarning": "Denne funktion er kun tilgængelig for brugere af forenklet kinesisk i AMLL-databasen. Hvis du redigerer sangtekster til brug i anden software, følg venligst den softwares måde at indsende sangtekster!",
+    "thankYou": "Først og fremmest, tak for dit generøse sangtekstbidrag!",
+    "cc0Agreement": "Ved at indsende accepterer du at",
+    "cc0Rights": "bruge CC0-licensen og helt frasige ejerskab af sangteksterne",
+    "andSubmit": "og indsende til sangtekstdatabasen!",
+    "futureUse": "Og sangteksterne vil blive brugt som standard TTML-kilde af AMLL-systemer i fremtiden!",
+    "rightsWarning": "Hvis du værdsætter at bevare ejerskab, indsend venligst IKKE!",
+    "submitInstructions": "Indtast følgende info og hop derefter til GitHub issue-indsendelsessiden!",
+    "closeWarning": "Luk advarselsbesked",
+    "uploadDbType": "歌词库类型",
+    "uploadDbTypeOfficial": "官方歌词库",
+    "uploadDbTypeUser": "用户歌词库",
+    "uploadDbTypeBoth": "全部歌词库",
+    "officialDesc": "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
+    "userDesc": "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
+    "bothDesc": "两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
+    "genFromName": "从元数据中生成",
+    "musicName": "音乐名称",
+    "musicNameDesc": "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
+    "submitReason": "提交缘由",
+    "submitReasonNew": "新歌词提交",
+    "submitReasonFix": "修正已有歌词",
+    "comment": "备注",
+    "commentPlaceholder": "有什么需要补充说明的呢？",
+    "issueFoundTitle": "发现以下问题，请修正后再提交：",
+    "submitBtn": "上传歌词并创建议题"
+  },
+  "splitWordDialog": {
+    "spaceCount": "Mellemrum x{count}",
+    "empty": "Tom",
+    "title": "Opdel ord",
+    "tip": "Efter opdeling vil nye ord ligeligt opdele det originale ords start-/sluttid. Tomme takter vil blive ryddet.",
+    "syllableSplit": "Syllable Split",
+    "applyToAll": "Anvend denne opdeling på alle identiske ord",
+    "remember": "Remember this split",
+    "ignoreCase": "Ignorer store/små bogstaver",
+    "actionButton": "Bekræft"
+  },
+  "advancedSegmentDialog": {
+    "test": {
+      "outputError": "Opdelingsforhåndsvisningsfejl",
+      "title": "Opdelingstest",
+      "input": "Indtast en sangtekstlinje eller ord for at teste...",
+      "output": "Forhåndsvisningsresultat:"
+    },
+    "title": "Avanceret segmentering",
+    "scope": {
+      "title": "Anvendelsesomfang",
+      "all": "Alle sangtekstlinjer",
+      "range": {
+        "from": "Fra linje",
+        "to": "til linje",
+        "end": ""
+      }
+    },
+    "rules": {
+      "title": "Auto-segmenteringsregler",
+      "cjk": "Opdel CJK-tegn",
+      "syllable": "Opdel vestlige ord efter stavelser"
+    },
+    "engine": {
+      "select": "Choose a syllabification engine:"
+    },
+    "tip": "Efter opdeling vil det originale ords samlede varighed blive omfordelt baseret på antallet af tegn og deres vægte.",
+    "postProcess": {
+      "title": "Efterbehandling",
+      "punct": {
+        "caption": "Tegnsætningshåndtering:",
+        "merge": "Flet med tilstødende stavelse",
+        "standalone": "Indstil som selvstændigt segment",
+        "weight": "Tegnsætningstidsvægt:"
+      },
+      "empty": "Fjern tomme segmenter"
+    },
+    "custom": {
+      "title": "Brugerdefinerede segmenteringsregler",
+      "input": "Indtast ord for manuel opdeling...",
+      "add": "Tilføj til brugerdefinerede regler",
+      "list": "Liste over brugerdefinerede regler:"
+    },
+    "ignore": {
+      "title": "Ignoreringsliste",
+      "placeholder": "Ét ord per linje, ord i denne liste vil ikke blive auto-segmenteret"
+    },
+    "learned": {
+      "title": "Learned Split Rules",
+      "description": "These rules match any casing and ignore surrounding punctuation.",
+      "input": "Enter a word to teach the splitter...",
+      "saveHint": "Saving replaces the existing rule for this word.",
+      "save": "Save learned split",
+      "saved": "Saved rules ({count})",
+      "clear": "Clear all",
+      "search": "Search saved rules...",
+      "noResults": "No matching learned splits.",
+      "clearTitle": "Clear all learned splits?",
+      "clearDescription": "This permanently removes every learned split rule from this device."
+    }
+  },
+  "autoSegmentDialog": {
+    "title": "Auto Segment",
+    "description": "Choose a syllabification engine for all lyric lines.",
+    "suggested": "Suggested from lyrics:",
+    "applyAll": "Apply to all lines"
+  },
+  "suggestedSplits": {
+    "title": "Suggested Splits",
+    "description": "Choose a suggested split pattern for this {type}.",
+    "apply": "Apply Suggestion",
+    "noSuggestions": "No automated split suggestions available for this content."
+  },
+  "aboutModal": {
+    "appName": "Apple Music-lignende Sangtekst TTML Værktøj",
+    "description": "Et ord-for-ord TTML redigerings- og tidslinjeværktøj til Apple Music-lignende sangtekster",
+    "maintainers": "Fork Maintainers",
+    "maintainersDesc": "This fork is maintained and developed by:",
+    "forkMaintainer": "Fork maintainer & contributor",
+    "visitWebsite": "Visit website",
+    "credits": "Credits & Third-Party Notices",
+    "creditsIntro": "This project includes work adapted from the following open-source projects.",
+    "community": "Community & Contributions",
+    "communityDesc": "Help us make the tool better by contributing code, reporting issues, or providing translations.",
+    "github": "GitHub Repository",
+    "crowdin": "Help Translate in Crowdin",
+    "buildDate": "Byggedato: {date}",
+    "gitCommit": "Git Commit: {commit}"
+  },
+  "spectrogram": {
+    "invalidEndTime": "Kan ikke vælge denne sluttid",
+    "noAudioLoaded": "Indlæs venligst en lydfil for at gengive spektrogrammet",
+    "loadAudio": "Indlæs en lydfil",
+    "showUnselectedLines": "Vis ikke-valgte linjer",
+    "settings": "频谱图设置",
+    "fftSize": "FFT Size",
+    "resolution": "解析度",
+    "fftSizeOption": {
+      "512": "512 (Fast)",
+      "1024": "1024 (Normal)",
+      "2048": "2048 (Better Freq)",
+      "4096": "4096 (High Res)"
+    },
+    "height": "高度"
+  },
+  "pwa": {
+    "offlineReady": "Websted succesfuldt cachet til offline brug",
+    "updateRefresh": "Websted opdateret, opdater for at bruge den seneste version!",
+    "refresh": "Opdater"
+  }
 }

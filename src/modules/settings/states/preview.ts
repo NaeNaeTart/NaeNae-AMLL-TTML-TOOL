@@ -33,6 +33,10 @@ export const spicySimpleLyricsModeAtom = atomWithStorage(
 	"spicySimpleLyricsMode",
 	false,
 );
+export const spicyForceLineSyncedAtom = atomWithStorage(
+	"spicyForceLineSynced",
+	false,
+);
 export type SpicyBackgroundMode = "animated" | "color" | "static";
 export const spicyBackgroundModeAtom = atomWithStorage<SpicyBackgroundMode>(
 	"spicyBackgroundMode",

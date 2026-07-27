@@ -38,6 +38,29 @@ export function ChangelogDialog() {
 				<ScrollArea type="always" scrollbars="vertical" style={{ height: "calc(100% - 60px)" }}>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="ruby">v0.7.3 Updates</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Genius Section Improvements:</strong> Duplicated lyric lines now create independent repeat-linked sections; collapsed headers select their whole section; unassigned lyric blocks can be merged into neighboring sections; repeated-section timing copy matches lyric text and skips mismatches; and a section manager makes reviewing and editing sections easier.
+								</Text>
+								<Text size="2">
+									<strong>Auto Segment Shortcut:</strong> Press the configured Auto Segment key once or twice, with a Keybindings option to choose the preferred behavior. It applies immediately when the saved engine matches the detected lyric language, otherwise it opens the engine picker.
+								</Text>
+								<Text size="2">
+									<strong>Spicy Lyrics Option:</strong> Added a preview toggle to force every lyric line to use line rendering due to unreliable line-synced lyrics detection.
+								</Text>
+								<Text size="2">
+									<strong>Localization:</strong> Added missing translation keys and localized section, timing, and auto-segmentation controls.
+								</Text>
+								<Text size="2">
+									<strong>Spicy Lyrics Fix:</strong> The Spicy Lyrics preview now preserves TTML line order when line timestamps are out of sequence.
+								</Text>
+								<Text size="2">
+									<strong>Spicy Lyrics Fix:</strong> Interlude dots now ignore background-vocal endings while waiting for all main vocals to finish.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="ruby">v0.7.2 Updates (Lyrics Segmentation)</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">

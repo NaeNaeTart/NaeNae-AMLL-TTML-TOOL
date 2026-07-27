@@ -1,8 +1,9 @@
-import { Box, Grid, Heading, TextField } from "@radix-ui/themes";
+import { Box, Flex, Grid, Heading, Switch, Text, TextField } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatKeyBindings, recordShortcut } from "$/utils/keybindings";
+import { autoSegmentDoublePressAtom } from "../states";
 import { getAllCommands } from "../registry";
 import type { KeyBindingCommand } from "../types";
 
@@ -48,6 +49,9 @@ const KeyBindingsEdit = ({ command }: { command: KeyBindingCommand }) => {
 
 export const AutoKeyBindingSettingsPanel = () => {
 	const { t } = useTranslation();
+	const [autoSegmentDoublePress, setAutoSegmentDoublePress] = useAtom(
+		autoSegmentDoublePressAtom,
+	);
 	const commands = getAllCommands();
 
 	const groupedCommands = commands.reduce(
@@ -76,6 +80,26 @@ export const AutoKeyBindingSettingsPanel = () => {
 					</Grid>
 				</Box>
 			))}
+			<Box mb="5">
+				<Heading size="3" mb="3" color="gray">
+					{t("settingsDialog.keybindings.autoSegmentOptions", "Auto Segment")}
+				</Heading>
+				<Flex align="center" justify="between" gap="4">
+					<Box>
+						<Text>{t("settingsDialog.keybindings.autoSegmentDoublePress", "Require double press")}</Text>
+						<Text as="div" size="1" color="gray">
+							{t(
+								"settingsDialog.keybindings.autoSegmentDoublePressDesc",
+								"Run Auto Segment only after pressing its shortcut twice quickly.",
+							)}
+						</Text>
+					</Box>
+					<Switch
+						checked={autoSegmentDoublePress}
+						onCheckedChange={setAutoSegmentDoublePress}
+					/>
+				</Flex>
+			</Box>
 		</Box>
 	);
 };

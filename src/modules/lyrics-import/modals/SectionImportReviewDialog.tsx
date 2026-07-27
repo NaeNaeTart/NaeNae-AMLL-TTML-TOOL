@@ -11,6 +11,7 @@ import {
 	TextField,
 } from "@radix-ui/themes";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	LYRIC_SECTION_CATEGORIES,
 	type LyricSection,
@@ -61,6 +62,7 @@ export function SectionImportReviewDialog({
 	onCancel: () => void;
 	onConfirm: (sections: ReviewedSection[]) => void;
 }) {
+	const { t } = useTranslation();
 	const detected = useMemo(() => detectSections(sourceText), [sourceText]);
 	const [sections, setSections] = useState<ReviewedSection[]>(detected);
 
@@ -106,14 +108,14 @@ export function SectionImportReviewDialog({
 	return (
 		<Dialog.Root open={open}>
 			<Dialog.Content maxWidth="1000px">
-				<Dialog.Title>Review detected sections</Dialog.Title>
+				<Dialog.Title>{t("sectionImportReview.title", "Review detected sections")}</Dialog.Title>
 				<Dialog.Description>
-					Check normalized categories and metadata before replacing the lyrics.
+					{t("sectionImportReview.description", "Check normalized categories and metadata before replacing the lyrics.")}
 				</Dialog.Description>
 				<Flex gap="4" mt="4" style={{ height: "60vh" }}>
 					<Flex direction="column" gap="2" style={{ flex: 1 }}>
 						<Text size="2" weight="bold">
-							Source lyrics
+							{t("sectionImportReview.sourceLyrics", "Source lyrics")}
 						</Text>
 						<TextArea
 							value={sourceText}
@@ -124,9 +126,9 @@ export function SectionImportReviewDialog({
 					<Flex direction="column" gap="2" style={{ flex: 1 }}>
 						<Flex justify="between">
 							<Text size="2" weight="bold">
-								Structure
+								{t("sectionImportReview.structure", "Structure")}
 							</Text>
-							<Badge color="indigo">{sections.length} sections</Badge>
+							<Badge color="indigo">{t("sectionImportReview.sectionCount", { count: sections.length })}</Badge>
 						</Flex>
 						<ScrollArea style={{ flex: 1 }}>
 							<Flex direction="column" gap="2" pr="3">
@@ -164,7 +166,7 @@ export function SectionImportReviewDialog({
 											</Flex>
 											<Flex gap="2">
 												<TextField.Root
-													placeholder="Vocalist / role"
+													placeholder={t("sectionImportReview.vocalist", "Vocalist / role")}
 													value={section.vocalist ?? ""}
 													onChange={(event) =>
 														updateSection(section.occurrence, {
@@ -175,7 +177,7 @@ export function SectionImportReviewDialog({
 												/>
 												<input
 													type="color"
-													title="Section color"
+													title={t("sectionImportReview.color", "Section color")}
 													value={section.color ?? "#808080"}
 													onChange={(event) =>
 														updateSection(section.occurrence, {
@@ -186,7 +188,7 @@ export function SectionImportReviewDialog({
 												/>
 											</Flex>
 											<TextField.Root
-												placeholder="Notes"
+											placeholder={t("sectionImportReview.notes", "Notes")}
 												value={section.notes ?? ""}
 												onChange={(event) =>
 													updateSection(section.occurrence, {
@@ -205,7 +207,7 @@ export function SectionImportReviewDialog({
 													{Math.round((section.confidence ?? 1) * 100)}%
 												</Badge>
 												<Text size="1" color="gray">
-													{section.lineCount} lyric lines
+													{t("sectionImportReview.lineCount", { count: section.lineCount })}
 												</Text>
 											</Flex>
 										</Flex>
@@ -217,13 +219,13 @@ export function SectionImportReviewDialog({
 				</Flex>
 				<Flex justify="end" gap="3" mt="4">
 					<Button variant="soft" color="gray" onClick={onCancel}>
-						Back
+						{t("common.back", "Back")}
 					</Button>
 					<Button
 						disabled={sections.length === 0}
 						onClick={() => onConfirm(sections)}
 					>
-						Import reviewed lyrics
+						{t("sectionImportReview.import", "Import reviewed lyrics")}
 					</Button>
 				</Flex>
 			</Dialog.Content>

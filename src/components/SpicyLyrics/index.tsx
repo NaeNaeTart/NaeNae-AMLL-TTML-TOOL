@@ -25,6 +25,7 @@ import {
 	showFpsCounterAtom,
 	showTranslationLinesAtom,
 	spicyBackgroundModeAtom,
+	spicyForceLineSyncedAtom,
 	spicySimpleLyricsModeAtom,
 } from "$/modules/settings/states/preview";
 import { lyricLinesAtom } from "$/states/main";
@@ -253,6 +254,7 @@ function useKawarpBackground(
 export const SpicyLyrics = memo(() => {
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const simple = useAtomValue(spicySimpleLyricsModeAtom);
+	const forceLineSynced = useAtomValue(spicyForceLineSyncedAtom);
 	const romanized = useAtomValue(showRomanLinesAtom);
 	const showTranslation = useAtomValue(showTranslationLinesAtom);
 	const showFps = useAtomValue(showFpsCounterAtom);
@@ -263,8 +265,9 @@ export const SpicyLyrics = memo(() => {
 	const accent = useAtomValue(customAccentColorAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
 	const lines = useMemo(
-		() => buildSpicyLines(lyrics.lyricLines, simple, romanized),
-		[lyrics.lyricLines, simple, romanized],
+		() =>
+			buildSpicyLines(lyrics.lyricLines, simple, romanized, forceLineSynced),
+		[lyrics.lyricLines, simple, romanized, forceLineSynced],
 	);
 	const hasDuetLines = useMemo(
 		() => lines.some((line) => !line.isDotLine && line.isDuet),

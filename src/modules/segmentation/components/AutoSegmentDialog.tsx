@@ -2,6 +2,7 @@ import { Button, Dialog, Flex, Select, Text } from "@radix-ui/themes";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	segmentationEngineAtom,
 	segmentationSplitEnglishAtom,
@@ -15,6 +16,7 @@ import { lyricLinesAtom } from "$/states/main";
 import { useSegmentationConfig } from "../utils/useSegmentationConfig";
 
 export const AutoSegmentDialog = () => {
+	const { t } = useTranslation();
 	const [open, setOpen] = useAtom(autoSegmentDialogAtom);
 	const savedEngine = useAtomValue(segmentationEngineAtom);
 	const setEngine = useSetAtom(segmentationEngineAtom);
@@ -56,9 +58,9 @@ export const AutoSegmentDialog = () => {
 	return (
 		<Dialog.Root open={open} onOpenChange={setOpen}>
 			<Dialog.Content maxWidth="500px">
-				<Dialog.Title>Auto Segment</Dialog.Title>
+				<Dialog.Title>{t("autoSegmentDialog.title", "Auto Segment")}</Dialog.Title>
 				<Dialog.Description>
-					Choose a syllabification engine for all lyric lines.
+					{t("autoSegmentDialog.description", "Choose a syllabification engine for all lyric lines.")}
 				</Dialog.Description>
 				<Flex direction="column" gap="3" mt="4">
 					<Select.Root
@@ -81,7 +83,7 @@ export const AutoSegmentDialog = () => {
 					</Text>
 					{suggestedEngine && (
 						<Text size="2" color="gray">
-							Suggested from lyrics:{" "}
+							{t("autoSegmentDialog.suggested", "Suggested from lyrics:")}{" "}
 							{
 								SYLLABIFICATION_ENGINES.find(({ id }) => id === suggestedEngine)
 									?.name
@@ -92,11 +94,11 @@ export const AutoSegmentDialog = () => {
 				<Flex justify="end" gap="3" mt="5">
 					<Dialog.Close>
 						<Button variant="soft" color="gray">
-							Cancel
+							{t("common.cancel", "Cancel")}
 						</Button>
 					</Dialog.Close>
 					<Button onClick={apply} disabled={isLoading}>
-						Apply to all lines
+						{t("autoSegmentDialog.applyAll", "Apply to all lines")}
 					</Button>
 				</Flex>
 			</Dialog.Content>
