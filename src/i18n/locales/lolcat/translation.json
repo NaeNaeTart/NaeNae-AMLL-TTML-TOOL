@@ -17,12 +17,25 @@
       "description": "Add nyew wywic winyes in de top panyew ow open/impowt existing wywics fwom de menyu"
     }
   },
+  "amll": {
+    "noLyrics": "No lyrics available in store"
+  },
   "confirmDialog": {
     "cancel": "Cancew",
     "confirm": "Confiwm",
+    "useMetadataName": {
+      "title": "Use metadata nyame?",
+      "description": "Use \"{name}\" as de fiwe nyame?"
+    },
     "newFile": {
       "title": "Confiwm Nyew Fiwe",
       "description": "You have unsaved changes. If you pwoceed, dese changes wiww be wost. Awe you suwe you want to cweate a nyew fiwe?"
+    },
+    "untimedLyrics": {
+      "title": "Untimed Lyrics Detected",
+      "description": "There is an untimed line or word in your lyrics. Would you like to fix it or export anyway?",
+      "exportAnyway": "Export Anyway",
+      "fixIt": "Fix It"
     },
     "syncLineTimestamps": {
       "title": "Confiwm Sync Winye Timestamps",
@@ -36,14 +49,49 @@
       "title": "Confiwm Impowt Wywics",
       "description": "You have unsaved changes. If you pwoceed, dese changes wiww be wost. Awe you suwe you want to impowt nyew wywics?"
     },
-    "useMetadataName": {
-      "title": "Use metadata nyame?",
-      "description": "Use \"{name}\" as de fiwe nyame?"
-    },
     "noSongwriter": {
-      "title": "Confiwm Expowt",
       "description": "de song has nyo songwwitews. Do you want to continyue saving?"
     }
+  },
+  "experimentalFeatures": {
+    "geniusCategorization": {
+      "dialogTitle": "Genius Headers Detected!",
+      "dialogDesc": "We've detected section headers in your lyrics. Would you like to enable the experimental 'Genius Header Categorization' feature to help with your workflow?",
+      "usageInfo": "Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.",
+      "maybeLater": "Maybe Later",
+      "enableNow": "Enable Now",
+      "title": "Genius Header Categorization",
+      "description": "Detect, normalize, review, navigate, collapse, validate, and edit Genius-style song sections while preserving them in TTML exports.",
+      "snapToPlayhead": "Snap to Playhead",
+      "noPreviousFound": "No previous identical header found with timing.",
+      "copyPrevious": "Copy Previous Timing",
+      "headersRestored": "Section headers restored."
+    },
+    "title": "Experimental Features",
+    "description": "These features are currently in development and may be unstable. Use with caution."
+  },
+  "common": {
+    "close": "Cwose",
+    "autoDetect": "Auto Detect",
+    "about": "About",
+    "resultsFound": "Found {count} wesuwts",
+    "cancel": "Cancew",
+    "save": "Save",
+    "search": "Seawch",
+    "success": "Westowe successfuw",
+    "error": "Data cowwupted ow wost",
+    "apply": "Appwy",
+    "confirm": "Confiwm",
+    "back": "Back",
+    "deleteSuccess": "Dewete Success",
+    "time": "Time",
+    "restore": "Westowe",
+    "loading": "Loading...",
+    "sync": "Sync",
+    "remove": "Wemuve",
+    "clickToSet": "Cwick to set ",
+    "move": "Move",
+    "copy": "Copy"
   },
   "dialog": {
     "mp3Conversion": {
@@ -60,10 +108,30 @@
   },
   "ribbonBar": {
     "editMode": {
+      "grammarCheck": "Gwammaw Check",
       "multipleValues": "Muwtipwe vawues…",
+      "duration": "持续时间",
       "showTranslation": "Show Twanswation Winye",
       "showRomanization": "Show Womanyization Winye",
       "showWordRomanizationInput": "Show Pew-Wowd Womanyization",
+      "phonetic": {
+        "noSelection": "Pwease sewect winyes ow wowds fiwst",
+        "success": "Phonyetics fetched successfuwwy",
+        "error": "Faiwed to fetch phonyetics"
+      },
+      "romanization": {
+        "section": "Womanyization",
+        "info": {
+          "title": "About Womanyization",
+          "canDo": "✓ Can do: Auto-genyewate Womaji (JA), Pinyin (ZH), and Womaji (KO). Suppowts Kanji!",
+          "cannotDo": "✗ Cannyot do: 100% accuwacy fow wawe Kanji ow pwopew nyames. CJK onwy. Minyow ewwows may occuw."
+        },
+        "ja": "Japanyese (Womaji)",
+        "zh": "Chinyese (Pinyin)",
+        "yue": "Cantonyese (Jyutping)",
+        "ko": "Kowean (Womaji)",
+        "autoFetch": "Womanyize"
+      },
       "new": "Nyew",
       "lyricLine": "Wywic Winye",
       "lineTiming": "Winye Timing",
@@ -84,49 +152,29 @@
       "romanLyric": "Womanyization",
       "layoutMode": "Wayout",
       "auxiliaryLineDisplay": "Auxiwiawy Winye Dispway",
-      "previewPanel": "Pweview Panyew",
-      "grammarCheck": "Gwammaw Check",
-      "aiTools": "AI Toows",
-      "aiAutoSync": "AI Auto-Sync",
       "tools": "Check",
-      "phonetic": {
-        "section": "Phonyetic",
-        "autoFetch": "Auto Fetch",
-        "noSelection": "Pwease sewect winyes ow wowds fiwst",
-        "success": "Phonyetics fetched successfuwwy",
-        "error": "Faiwed to fetch phonyetics",
-        "romanize": "Womanyize"
-      },
-      "romanization": {
-        "section": "Womanyization",
-        "autoFetch": "Womanyize",
-        "success": "Womanyization successfuw",
-        "error": "Faiwed to fetch womanyization",
-        "noSelection": "Pwease sewect winyes ow wowds fiwst",
-        "info": {
-          "title": "About Womanyization",
-          "canDo": "✓ Can do: Auto-genyewate Womaji (JA), Pinyin (ZH), and Womaji (KO). Suppowts Kanji!",
-          "cannotDo": "✗ Cannyot do: 100% accuwacy fow wawe Kanji ow pwopew nyames. CJK onwy. Minyow ewwows may occuw."
-        },
-        "ja": "Japanyese (Womaji)",
-        "zh": "Chinyese (Pinyin)",
-        "yue": "Cantonyese (Jyutping)",
-        "ko": "Kowean (Womaji)"
-      }
+      "previewPanel": "Pweview Panyew"
     },
     "previewMode": {
+      "mode": "Mode",
+      "amllDeprecated": "AMWW mode is depwecated, pwease use Standawd mode",
+      "standard": "Standawd",
+      "timing": "Timing",
+      "spicy": "Spicy",
+      "simpleLyrics": "Simple lyrics",
+      "forceLineRendering": "Force line rendering",
+      "background": "Background",
+      "backgroundAnimated": "Animated",
+      "backgroundColor": "Color",
+      "backgroundStatic": "Static",
       "lyrics": "Wywics",
       "showTranslation": "Show Twanswation",
       "showRoman": "Show Womanyization",
       "maskObsceneWords": "Mask Obscenye Wowds",
       "word": "Wowd",
       "fadeWidth": "Fade Widd",
-      "mode": "Mode",
-      "standard": "Standawd",
-      "amllDeprecated": "AMWW mode is depwecated, pwease use Standawd mode",
-      "timing": "Timing",
+      "instantFade": "即时淡出",
       "render": "Wendew",
-      "vsync": "V-Sync",
       "dev": "Dev",
       "showFps": "Show FPS"
     },
@@ -154,38 +202,35 @@
       "startSync": "Mawk Begin",
       "continuousSync": "Commit",
       "endSync": "Mawk End",
-      "loading": "Panyew woading…",
       "manageQuickFixExclusions": {
         "title": "Manyage Quick Fix Excwusions",
         "description": "Add wowds to ignyowe in quick fixes.",
         "placeholder": "Entew wowd to ignyowe"
       }
-    }
+    },
+    "experimentalFeatures": "Experimental Features",
+    "loading": "Loading panel..."
   },
   "settings": {
     "common": {
+      "enabled": "Enyabwed",
       "layoutModeOptions": {
         "simple": "Simpwe Mode",
         "advance": "Advanced Mode"
       },
-      "enabled": "Enyabwed",
       "disabled": "Disabwed",
       "language": "Intewface Wanguage",
       "languageDesc": "Sewect de wanguage fow de intewface",
+      "helpTranslate": "Hewp twanswate dis app",
       "layoutMode": "Editow Wayout Mode",
       "layoutModeDesc": {
         "line1": "Simpwe wayout satisfies most basic nyeeds",
         "line2": "Switch to Advanced Mode if you nyeed mowe efficient syncing"
       },
-      "helpTranslate": "Hewp twanswate dis app",
       "compactBGInSync": "Compact Backgwound Vocaws (Sync Mode)",
       "compactBGInSyncDesc": "Automaticawwy compwess vewticaw space fow backgwound vocaw winyes duwing synchwonyization.",
       "syncJudgeMode": "Sync Timestamp Judgment Mode",
       "syncJudgeModeDesc": "Set how timestamps awe judged when syncing. Defauwt is 'Fiwst key down'.",
-      "syncTimeOffset": "Gwobaw Sync Time Offset (ms)",
-      "syncTimeOffsetDesc": "Adjust aww sync timestamps by dis amount to compensate fow audio watency.",
-      "syncCommitOffset": "Commit Input Offset (ms)",
-      "syncCommitOffsetDesc": "Specific offset fow de 'Commit' action to fix dewayed audio issues.",
       "syncJudgeModeOptions": {
         "firstKeyDown": "Fiwst key down time",
         "lastKeyUp": "Wast key up time",
@@ -198,6 +243,10 @@
         "keyDown": "Twiggew on Key Down",
         "keyUp": "Twiggew on Key Up"
       },
+      "syncTimeOffset": "Gwobaw Sync Time Offset (ms)",
+      "syncTimeOffsetDesc": "Adjust aww sync timestamps by dis amount to compensate fow audio watency.",
+      "syncCommitOffset": "Commit Input Offset (ms)",
+      "syncCommitOffsetDesc": "Specific offset fow de 'Commit' action to fix dewayed audio issues.",
       "smartFirstWord": "Smawt Fiwst Wowd",
       "smartFirstWordDesc": "When syncing de fiwst wowd of a winye, de fiwst key pwess sets its stawt time onwy, widout immediatewy setting its end time.",
       "smartLastWord": "Smawt Wast Wowd",
@@ -233,15 +282,10 @@
       "ready": "Update is weady. Westawt de appwication fow it to take effect.",
       "restart": "Westawt"
     },
-    "aboutModal": {
-      "community": "Communyity & Contwibutions",
-      "communityDesc": "Hewp us make de toow bettew by contwibuting code, wepowting issues, ow pwoviding twanswations.",
-      "github": "Gidub Wepositowy",
-      "crowdin": "Hewp Twanswate in Cwowdin"
-    },
     "appearance": {
-      "theme": "deme",
       "mode": {
+        "basic": "Basic Editor",
+        "advanced": "Advanced Editor",
         "none": "Nyonye",
         "image": "Image",
         "gradient": "Gwadient"
@@ -252,6 +296,7 @@
         "save": "Save Cuwwent",
         "empty": "Nyo saved pwesets yet."
       },
+      "theme": "deme",
       "useCustomAccent": "Custom Accent Cowow",
       "useCustomAccentDesc": "Set Accent cowow",
       "glass": "Gwassmowphism",
@@ -277,6 +322,52 @@
       "font": "Appwication Font",
       "currentFont": "Cuwwent Font",
       "changeFont": "Change Font...",
+      "advanced": {
+        "projectColors": "Project Colors",
+        "primaryText": "Primary Text Color",
+        "primaryTextDesc": "Global primary text override.",
+        "secondaryText": "Secondary Text Color",
+        "workspace": "Workspace Theme",
+        "titlebarBackground": "Titlebar Background",
+        "sidebarBackground": "Sidebar Background",
+        "activeItemHighlight": "Active Item Highlight",
+        "menuHoverColor": "Menu Hover Color",
+        "editor": "Editor Layout",
+        "editorCanvas": "Editor Canvas",
+        "activeLineHighlight": "Active Line Highlight",
+        "lineHoverEffect": "Line Hover Effect",
+        "selectionHighlight": "Selection Highlight",
+        "chipBorderRadius": "Chip Border Radius",
+        "chipSpacing": "Chip Spacing (Gap)",
+        "chipPaddingVertical": "Chip Padding (V)",
+        "chipPaddingHorizontal": "Chip Padding (H)",
+        "audioVisuals": "Playback & Visuals",
+        "audioBarColor": "Audio Bar Color",
+        "audioBarText": "Audio Bar Text",
+        "waveformInactive": "Waveform Inactive",
+        "waveformProgress": "Waveform Progress",
+        "global": "Global Design System",
+        "masterResetNote": "This will reset all 20+ granular overrides.",
+        "resetMaster": "Master Reset Advanced Config"
+      },
+      "secondaryDesc": "Translations & Metadata.",
+      "layout": {
+        "title": "Application Layout",
+        "order": "Element Order",
+        "orderDesc": "Drag to reorder elements. Some positions may be limited by constraints.",
+        "titlebar": "Title Bar",
+        "ribbonbar": "Toolbar (Ribbon)",
+        "editor": "Main Editor Area",
+        "audio": "Audio Controls",
+        "ribbonPos": "Toolbar Orientation",
+        "pos": {
+          "top": "Top",
+          "bottom": "Bottom",
+          "left": "Left",
+          "right": "Right"
+        },
+        "sidebarWarning": "Note: Sidebar mode is experimental and may look different."
+      },
       "fontImportSuccess": "Font impowted successfuwwy!",
       "fontLibrary": "Font Wibwawy",
       "fontWeight": "Font Weight",
@@ -366,16 +457,14 @@
       "applyButton": "Impowt & wefwad"
     },
     "dev": {
+      "previewPerformance": "Preview Performance",
+      "showFps": "Show FPS Counter in Preview",
       "wasmPlugins": {
         "title": "Communyity Pwugin System (WASM)",
         "description": "Manyage and upwoad custom WebAssembwy pwugins to extend de toow's impowting and expowting capabiwities."
       },
       "debugInfo": {
         "title": "Debug Infowmation"
-      },
-      "previewPerformance": {
-        "title": "Pweview Pewfowmance",
-        "showFps": "Show FPS Countew in Pweview"
       }
     },
     "spectrogram": {
@@ -384,6 +473,18 @@
       "gradientEditorDesc": "A Pos vawue of 0.0 cowwesponds to de quietest pawt, and 1.0 cowwesponds to de woudest pawt. It is wecommended to use bwightew cowows fow wawgew Pos vawues.",
       "addStop": "Add Cowow Stop"
     }
+  },
+  "timingOverview": {
+    "start": "Start",
+    "end": "End",
+    "duration": "Duration",
+    "emptyBeat": "Empty Beat",
+    "romanization": "Roman",
+    "backgroundVocal": "BG",
+    "title": "Technical Timing Overview",
+    "lines": "Lines",
+    "words": "Words",
+    "lyricsAndTimings": "Lyrics & Word Timings"
   },
   "topBar": {
     "modeBtns": {
@@ -401,6 +502,7 @@
       "invertSelectAllLines": "Invewt winye sewections",
       "selectWordsOfMatchedSelection": "Sewect wowds matching sewection",
       "timeShift": "Time Shift...",
+      "timeStretch": "时间伸缩...",
       "editMetadata": "Edit wywics metadata…",
       "edit": "Edit",
       "newLyric": "Nyew wywics",
@@ -417,6 +519,7 @@
       "autoSegment": "Auto Segment",
       "rubySegment": "Wuby Segmentation",
       "advancedSegment": "Advanced Segment...",
+      "learnedSplits": "Learned Splits...",
       "syncLineTimestamps": "Sync Winye Timestamps",
       "tool": "Toows",
       "importLyric": {
@@ -451,6 +554,7 @@
     "deleteWords": "Dewete {count} wowd(s)",
     "bgLyric": "Backgwound winye",
     "duetLyric": "Duet winye",
+    "moveLineToPlayhead": "Move line to playhead",
     "insertLineBefore": "Insewt nyew winye befowe",
     "insertLineAfter": "Insewt nyew winye aftew",
     "copyLine": "Dupwicate {count} winye(s)",
@@ -458,6 +562,8 @@
     "combineLine": "Combinye winyes",
     "deleteLine": "Dewete {count} winye(s)",
     "splitWord": "Spwit wowd…",
+    "noSyllablesFound": "No multiple syllables found.",
+    "splitIntoSyllables": "Split into Syllables (Romanized)",
     "replaceWord": "Wepwace wowd…",
     "combineWords": "Combinye wowds",
     "moveFollowingWordToNewLine": "Muve fowwowings to nyew winye",
@@ -479,6 +585,7 @@
       "selectInverted": "Invewt Sewection",
       "selectWordsOfMatchedSelection": "Sewect simiwaw wowds",
       "deleteSelection": "Dewete Sewection",
+      "autoSegment": "",
       "switchEditMode": "Mode Switch - Switch to Edit Mode",
       "switchSyncMode": "Mode Switch - Switch to Timing Mode",
       "switchPreviewMode": "Mode Switch - Switch to Pweview Mode",
@@ -492,10 +599,10 @@
       "syncNext": "Timing - Commit",
       "syncEnd": "Timing - Mawk end",
       "toggleWordHighlight": "Timing - Toggwe active wowd highwight",
-      "moveFirstWordAndPlay": "Timing - Muve to fiwst wowd and pway",
-      "moveLastWordAndPlay": "Timing - Muve to wast wowd and pway",
       "urbanDictionary": "Edit - Wook up in Uwban Dictionyawy",
       "urbanDictionarySync": "Timing - Wook up in Uwban Dictionyawy",
+      "moveFirstWordAndPlay": "Timing - Muve to fiwst wowd and pway",
+      "moveLastWordAndPlay": "Timing - Muve to wast wowd and pway",
       "playPause": "Pwayback - Pway/Pause",
       "seekForward": "Pwayback - Seek fowwawd 5s",
       "seekBackward": "Pwayback - Seek backwawd 5s",
@@ -515,7 +622,10 @@
         "Sync": "Sync",
         "Audio": "Audio",
         "Spectrogram": "Spectwogwam"
-      }
+      },
+      "autoSegmentOptions": "Auto Segment",
+      "autoSegmentDoublePress": "Require double press",
+      "autoSegmentDoublePressDesc": "Run Auto Segment only after pressing its shortcut twice quickly."
     },
     "tab": {
       "common": "Genyewaw",
@@ -524,24 +634,22 @@
       "audio": "Audio",
       "keybindings": "Keybindings",
       "spectrogram": "Spectwogwam",
-      "about": "About",
+      "backup": "Backup",
       "dev": "Dev"
     }
   },
+  "autoSegmentApplied": "Auto-segmented with {engine}",
   "error": {
     "unsupportedFileFormat": "Unsuppowted fiwe fowmat: {ext}",
     "openFileFailed": "Faiwed to open fiwe",
     "audioNotLoaded": "Audio nyot woaded. Pwease ensuwe an audio fiwe is pwaying."
   },
-  "audioPanel": {
-    "volume": "Vowume",
-    "playbackRate": "Pwayback wate",
-    "preservesPitch": "Pwesewve Pitch",
-    "clickToLoadMusic": "Cwick de icon button to woad music",
-    "playPause": "Pway / pause music",
-    "expandSpectrogram": "Expand / cowwapse spectwogwam"
-  },
   "audio": {
+    "marker": "Marker",
+    "markerLabel": "Label (e.g. Verse 1 Start)",
+    "markerDescription": "Description...",
+    "deleteMarker": "Delete Marker",
+    "waveform": "Audio Waveform",
     "status": {
       "transcoding": "Decoding faiwed, attempting to twanscode audio...",
       "loading": "Woading audio...",
@@ -550,6 +658,14 @@
     "error": {
       "workerError": "Ewwow pwocessing audio"
     }
+  },
+  "audioPanel": {
+    "volume": "Vowume",
+    "playbackRate": "Pwayback wate",
+    "preservesPitch": "Pwesewve Pitch",
+    "clickToLoadMusic": "Cwick de icon button to woad music",
+    "playPause": "Pway / pause music",
+    "expandSpectrogram": "Expand / cowwapse spectwogwam"
   },
   "latencyTestDialog": {
     "title": "Timing Offset Watency Test",
@@ -571,10 +687,6 @@
   },
   "metadataDialog": {
     "fetchSongwriters": {
-      "searchError": "Seawch faiwed: {error}",
-      "fetchError": "Couwd nyot fetch wywics: {error}",
-      "noLyricsError": "Nyo wywics to impowt.",
-      "importSuccess": "Impowted {count} winyes fwom Genyius.",
       "error": "Faiwed to fetch songwwitews",
       "noSongwriters": "Nyo songwwiting cwedits wecowded fow dis song",
       "findingRealName": "Finding weaw nyame fow {name} ({current}/{total})...",
@@ -584,7 +696,11 @@
       "setupDescEnd": " devewopew powtaw.",
       "keyPlaceholder": "Entew CWIENT ACCESS TOKEN",
       "button": "Fetch Songwwitews fwom Genyius",
-      "tryFindRealNames": "Twy to find weaw nyames (Wegaw Nyames)"
+      "tryFindRealNames": "Twy to find weaw nyames (Wegaw Nyames)",
+      "searchError": "Seawch faiwed: {error}",
+      "fetchError": "Couwd nyot fetch wywics: {error}",
+      "noLyricsError": "Nyo wywics to impowt.",
+      "importSuccess": "Impowted {count} winyes fwom Genyius."
     },
     "openLink": "Open wink",
     "duplicateMsg": "Found dupwicate metadata vawues",
@@ -621,6 +737,156 @@
     "addPresets": "Add aww pweset keys",
     "clear": "Cweaw"
   },
+  "lrclib": {
+    "placeholder": "Titwe Awtist...",
+    "notFound": "Nyo wesuwts found, pwease twy diffewent keywowds",
+    "noResult": "Entew keywowds to stawt seawching",
+    "title": "Impowt Wywic fwom WWCWIB"
+  },
+  "lyricEditor": {
+    "locate": "Wocate",
+    "lineSpectrogram": {
+      "title": "Winye Spectwogwam Awignment",
+      "desc": "Adjust de stawt and end points of dis winye using de spectwogwam. de winye duwation wiww be spwit pwopowtionyawwy into its wowds based on chawactew count.",
+      "startTime": "Stawt:",
+      "endTime": "End:",
+      "duration": "Duwation:",
+      "playPause": "Pway/Pause"
+    }
+  },
+  "lyricLineView": {
+    "translatedLabel": "Twanswation:",
+    "romanLabel": "Womanyization:",
+    "empty": "Nyonye",
+    "duplicateLinesHere": "Dupwicate {count} sewected winye(s) hewe",
+    "insertLine": "Insewt nyew winye hewe",
+    "insertWord": "Insewt wowd hewe…"
+  },
+  "lyricWordView": {
+    "empty": "Empty",
+    "spaceCount": "Space x{count}",
+    "removeWord": "Wemuve Dupwicate Wowd",
+    "editingWordTitle": "Editing Wowd",
+    "editingWordDesc": "Edit de wowd ow appwy suggested quick fixes.",
+    "correctedWordPlaceholder": "Type the corrected word",
+    "noSuggestions": "Nyo suggestions"
+  },
+  "sectionActions": {
+    "categorizeSelected": "Categorize selected {count, plural, one {line} other {lines}}",
+    "categorizeTitle": "Categorize selected lines",
+    "categorize": "Categorize",
+    "expand": "Expand section",
+    "collapse": "Collapse section",
+    "editTitle": "Edit section",
+    "vocalist": "Vocalist / role",
+    "notes": "Notes",
+    "goPrevious": "Go to previous section",
+    "goNext": "Go to next section",
+    "editMetadata": "Edit metadata",
+    "split": "Split at selected line",
+    "mergePrevious": "Merge with previous",
+    "mergeNext": "Merge with next",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "linkPrevious": "Link to previous {category}",
+    "unlinkRepeat": "Unlink repeat",
+    "removeHeader": "Remove header (keep lyrics)",
+    "section": "Section"
+  },
+  "touchSyncPanel": {
+    "prevWord": "Jump Pwevious Wowd",
+    "nextWord": "Jump Nyext Wowd"
+  },
+  "grammarCheck": {
+    "ambiguous": "Possible grammar issue",
+    "repeatedWord": "Repeated word",
+    "capitalization": "Wowd shouwd be capitawized",
+    "capitalInMiddle": "Wowd has capitaw wettews in middwe",
+    "title": "Gwammaw & Spewwing Check",
+    "issues": "Issues",
+    "history": "Histowy",
+    "ignoredWords": "Ignyowed Wowds",
+    "noIssues": "Nyo issues found!",
+    "issuesFound": "issues found",
+    "undoLast": "Undo Wast",
+    "clearHistory": "Cweaw Histowy",
+    "noHistory": "Nyo changes made yet",
+    "fixed": "fixed",
+    "ignored": "ignyowed",
+    "line": "Winye",
+    "clearIgnoredWords": "Cweaw Aww",
+    "noIgnoredWords": "Nyo ignyowed wowds",
+    "noIssuesMessage": "Nyo issues found! Youw wywics wook good.",
+    "applyFix": "Apply suggested fix",
+    "ignoreSession": "Ignore this word in this session",
+    "ignoreAlways": "Always ignore this word"
+  },
+  "urbanDictionary": {
+    "title": "Uwban Dictionyawy",
+    "slang": "swang dictionyawy",
+    "noDefinitions": "Nyo definyitions found fow \"{word}\"",
+    "by": "By",
+    "viewOnline": "View onwinye"
+  },
+  "replaceWordDialog": {
+    "title": "Wepwace Wowd",
+    "description": "Nyew wowd:",
+    "placeholder": "Nyew wowd",
+    "applyToAll": "Appwy dis wepwacing to aww identicaw wowds",
+    "caseSensitive": "Match case (Exact match)"
+  },
+  "timeShiftDialog": {
+    "title": "Time Shift",
+    "amount": "Offset (ms)",
+    "direction": "Diwection",
+    "advance": "Advance (-)",
+    "delay": "Deway (+)",
+    "scopeLabel": "Scope",
+    "scope": {
+      "all": "Aww wywic winyes",
+      "selected": "Sewected wywic winyes",
+      "selectedFollowing": "Sewected and fowwowings",
+      "custom": "Custom Wange"
+    },
+    "fromLine": "Fwom winye",
+    "toLine": "to winye",
+    "line": "",
+    "snapToPlayhead": "Snap start of affected lines to current playback time"
+  },
+  "timeStretchDialog": {
+    "durationPlaceholder": "MM:SS.mmm or seconds",
+    "useCurrentSong": "Use current song",
+    "audioReadError": "Could not read the selected audio file's duration.",
+    "invalidDuration": "Enter a valid duration.",
+    "positiveDuration": "Duration must be greater than zero.",
+    "title": "Time Stretch",
+    "description": "Stretch or squeeze every TTML timestamp to fit a new song duration.",
+    "oldDuration": "Old song duration",
+    "readingAudio": "Reading audio...",
+    "chooseAudio": "Upload audio...",
+    "newDuration": "New song duration",
+    "noChange": "The durations match; no timing change is needed.",
+    "scaleFactor": "Scale factor: {factor}×",
+    "scopeLabel": "Apply to",
+    "scope": {
+      "all": "All lines",
+      "selected": "Selected lines",
+      "selectedFollowing": "Selected lines and following",
+      "custom": "Custom range"
+    },
+    "fromLine": "From",
+    "toLine": "to",
+    "line": "lines"
+  },
+  "lyrically": {
+    "noLyricsLabel": "Nyo wywics avaiwabwe fow dis twack.",
+    "previewTitle": "Wywicawwy — Wywics Pweview",
+    "editingRawText": "Editing Raw Text",
+    "backToPreview": "Back to Preview",
+    "manualEdit": "Manual Edit",
+    "importTitle": "Impowt Wywics safewy via Wywicawwy (Nyo COWS via API endpoint)",
+    "source": "Source: "
+  },
   "genius": {
     "setupTitle": "Genyius API Key Setup",
     "setupDesc": "To impowt wywics fwom Genyius you nyeed a CWIENT ACCESS TOKEN. You can genyewate onye fwom de Genyius devewopew powtaw.",
@@ -633,38 +899,16 @@
     "importTitle": "Impowt Wywics fwom Genyius",
     "searchPlaceholder": "Awtist – Song titwe…",
     "notFound": "Nyo wesuwts found. Twy diffewent keywowds.",
-    "noResult": "Entew a song nyame ow awtist to stawt.",
-    "changeKey": "Change API Key"
-  },
-  "common": {
-    "cancel": "Cancew",
-    "save": "Save",
-    "search": "Seawch",
-    "close": "Cwose",
-    "resultsFound": "Found {count} wesuwts",
-    "apply": "Appwy",
-    "confirm": "Confiwm",
-    "success": "Westowe successfuw",
-    "error": "Data cowwupted ow wost",
-    "deleteSuccess": "Dewete Success",
-    "time": "Time",
-    "restore": "Westowe",
-    "sync": "Sync",
-    "remove": "Wemuve",
-    "about": "About",
-    "clickToSet": "Cwick to set ",
-    "autoDetect": "Auto Detect"
+    "noResult": "Entew a song nyame ow awtist to stawt."
   },
   "textImportDialog": {
-    "addSpaces": "Add Spaces",
-    "splitHyphens": "Spwit Hyphenyated Wowds",
+    "processLyrics": "Pwocess Wywics",
     "processedSuccess": "Wywics automated fow sywwabwe sync.",
     "title": "Impowt Wywics fwom Pwain Text",
     "tab": {
       "import": "Impowt"
     },
     "guides": "Guides",
-    "processLyrics": "Pwocess Wywics",
     "actionButton": "Impowt",
     "contentMode": {
       "caption": "Text content",
@@ -712,105 +956,31 @@
       "full": "Fuww TTMW Guide"
     }
   },
-  "lrclib": {
-    "placeholder": "Titwe Awtist...",
-    "notFound": "Nyo wesuwts found, pwease twy diffewent keywowds",
-    "noResult": "Entew keywowds to stawt seawching",
-    "searchError": "Seawch faiwed, pwease check nyetwowk ow twy again watew",
-    "importError": "Ewwow occuwwed whiwe impowting wywics",
-    "title": "Impowt Wywic fwom WWCWIB",
-    "synced": "Synced",
-    "unsynced": "Unsynced",
-    "noLyrics": "Nyo wywics content avaiwabwe fow dis twack",
-    "extractBg": "Extwact pawendeses as backgwound vocaws",
-    "autoSegment": "Auto Segment",
-    "import": "Impowt Wywic"
+  "sectionImportReview": {
+    "title": "Review detected sections",
+    "description": "Check normalized categories and metadata before replacing the lyrics.",
+    "sourceLyrics": "Source lyrics",
+    "structure": "Structure",
+    "sectionCount": "{count} sections",
+    "vocalist": "Vocalist / role",
+    "color": "Section color",
+    "notes": "Notes",
+    "lineCount": "{count} lyric lines",
+    "import": "Import reviewed lyrics"
   },
-  "lyricEditor": {
-    "locate": "Wocate",
-    "lineSpectrogram": {
-      "title": "Winye Spectwogwam Awignment",
-      "desc": "Adjust de stawt and end points of dis winye using de spectwogwam. de winye duwation wiww be spwit pwopowtionyawwy into its wowds based on chawactew count.",
-      "startTime": "Stawt:",
-      "endTime": "End:",
-      "duration": "Duwation:",
-      "playPause": "Pway/Pause"
-    }
-  },
-  "lyricLineView": {
-    "translatedLabel": "Twanswation:",
-    "romanLabel": "Womanyization:",
-    "empty": "Nyonye",
-    "duplicateLinesHere": "Dupwicate {count} sewected winye(s) hewe",
-    "insertLine": "Insewt nyew winye hewe",
-    "insertWord": "Insewt wowd hewe…"
-  },
-  "lyricWordView": {
-    "empty": "Empty",
-    "spaceCount": "Space x{count}",
-    "removeWord": "Wemuve Dupwicate Wowd",
-    "editingWordTitle": "Editing Wowd",
-    "editingWordDesc": "Edit de wowd ow appwy suggested quick fixes.",
-    "noSuggestions": "Nyo suggestions"
-  },
-  "touchSyncPanel": {
-    "prevWord": "Jump Pwevious Wowd",
-    "nextWord": "Jump Nyext Wowd"
-  },
-  "grammarCheck": {
-    "capitalization": "Wowd shouwd be capitawized",
-    "capitalInMiddle": "Wowd has capitaw wettews in middwe",
-    "title": "Gwammaw & Spewwing Check",
-    "issues": "Issues",
-    "history": "Histowy",
-    "ignoredWords": "Ignyowed Wowds",
-    "noIssues": "Nyo issues found!",
-    "issuesFound": "issues found",
-    "undoLast": "Undo Wast",
-    "clearHistory": "Cweaw Histowy",
-    "noHistory": "Nyo changes made yet",
-    "fixed": "fixed",
-    "ignored": "ignyowed",
-    "line": "Winye",
-    "clearIgnoredWords": "Cweaw Aww",
-    "noIgnoredWords": "Nyo ignyowed wowds",
-    "noIssuesMessage": "Nyo issues found! Youw wywics wook good."
-  },
-  "replaceWordDialog": {
-    "title": "Wepwace Wowd",
-    "description": "Nyew wowd:",
-    "placeholder": "Nyew wowd",
-    "applyToAll": "Appwy dis wepwacing to aww identicaw wowds",
-    "caseSensitive": "Match case (Exact match)"
-  },
-  "urbanDictionary": {
-    "title": "Uwban Dictionyawy",
-    "slang": "swang dictionyawy",
-    "noDefinitions": "Nyo definyitions found fow \"{word}\"",
-    "viewOnline": "View onwinye",
-    "by": "By"
-  },
-  "timeShiftDialog": {
-    "title": "Time Shift",
-    "amount": "Offset (ms)",
-    "direction": "Diwection",
-    "advance": "Advance (-)",
-    "delay": "Deway (+)",
-    "scopeLabel": "Scope",
-    "scope": {
-      "all": "Aww wywic winyes",
-      "selected": "Sewected wywic winyes",
-      "selectedFollowing": "Sewected and fowwowings",
-      "custom": "Custom Wange"
-    },
-    "fromLine": "Fwom winye",
-    "toLine": "to winye",
-    "line": ""
-  },
-  "lyrically": {
-    "noLyricsLabel": "Nyo wywics avaiwabwe fow dis twack.",
-    "previewTitle": "Wywicawwy — Wywics Pweview",
-    "importTitle": "Impowt Wywics safewy via Wywicawwy (Nyo COWS via API endpoint)"
+  "pluginManager": {
+    "trigger": "Plugins",
+    "title": "Plugin Management",
+    "description": "Extend your lyric editing capabilities",
+    "installed": "Installed",
+    "store": "Plugin Store",
+    "empty": "No plugins installed",
+    "browse": "Browse Store",
+    "techniques": "Techniques",
+    "usage": "Usage",
+    "sideload": "Sideload .wasm plugin",
+    "loading": "Loading community plugins...",
+    "install": "Install"
   },
   "globalDragOverlay": {
     "title": "Wewease to woad"
@@ -902,6 +1072,7 @@
     "tip": "Aftew spwitting, nyew wowds wiww evenwy divide de owiginyaw wowd's stawt/end time. Empty beats wiww be cweawed.",
     "syllableSplit": "Sywwabwe Spwit",
     "applyToAll": "Appwy dis spwitting to aww identicaw wowds",
+    "remember": "Remember this split",
     "ignoreCase": "Ignyowe case",
     "actionButton": "Confiwm"
   },
@@ -927,8 +1098,8 @@
       "cjk": "Spwit CJK chawactews",
       "syllable": "Spwit Westewn wowds by sywwabwes"
     },
-    "language": {
-      "select": "Sewect a hyphenyation wanguage modew:"
+    "engine": {
+      "select": "Choose a syllabification engine:"
     },
     "tip": "Aftew spwitting, de owiginyaw wowd's totaw duwation wiww be wedistwibuted based on de nyumbew of chawactews and deiw weights.",
     "postProcess": {
@@ -950,11 +1121,46 @@
     "ignore": {
       "title": "Ignyowe Wist",
       "placeholder": "Onye wowd pew winye, wowds in dis wist wiww nyot be auto-segmented"
+    },
+    "learned": {
+      "title": "Learned Split Rules",
+      "description": "These rules match any casing and ignore surrounding punctuation.",
+      "input": "Enter a word to teach the splitter...",
+      "saveHint": "Saving replaces the existing rule for this word.",
+      "save": "Save learned split",
+      "saved": "Saved rules ({count})",
+      "clear": "Clear all",
+      "search": "Search saved rules...",
+      "noResults": "No matching learned splits.",
+      "clearTitle": "Clear all learned splits?",
+      "clearDescription": "This permanently removes every learned split rule from this device."
     }
+  },
+  "autoSegmentDialog": {
+    "title": "Auto Segment",
+    "description": "Choose a syllabification engine for all lyric lines.",
+    "suggested": "Suggested from lyrics:",
+    "applyAll": "Apply to all lines"
+  },
+  "suggestedSplits": {
+    "title": "Suggested Splits",
+    "description": "Choose a suggested split pattern for this {type}.",
+    "apply": "Apply Suggestion",
+    "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
     "appName": "Appwe Music-wike Wywics TTMW Toow",
     "description": "A Wowd-by-Wowd TTMW Editing and Timewinye Toow fow Appwe Music-wike Wywics",
+    "maintainers": "Fork Maintainers",
+    "maintainersDesc": "This fork is maintained and developed by:",
+    "forkMaintainer": "Fork maintainer & contributor",
+    "visitWebsite": "Visit website",
+    "credits": "Credits & Third-Party Notices",
+    "creditsIntro": "This project includes work adapted from the following open-source projects.",
+    "community": "Community & Contributions",
+    "communityDesc": "Help us make the tool better by contributing code, reporting issues, or providing translations.",
+    "github": "GitHub Repository",
+    "crowdin": "Help Translate in Crowdin",
     "buildDate": "Buiwd Date: {date}",
     "gitCommit": "Git Commit: {commit}"
   },
@@ -964,7 +1170,14 @@
     "loadAudio": "Woad audio fiwe",
     "showUnselectedLines": "Show unsewected winyes",
     "settings": "Spectwogwam Settings",
+    "fftSize": "FFT Size",
     "resolution": "FFT Wesowution",
+    "fftSizeOption": {
+      "512": "512 (Fast)",
+      "1024": "1024 (Normal)",
+      "2048": "2048 (Better Freq)",
+      "4096": "4096 (High Res)"
+    },
     "height": "Dispway Height"
   },
   "pwa": {

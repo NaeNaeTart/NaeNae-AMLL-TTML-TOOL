@@ -1,296 +1,427 @@
 {
-	"app": {
-		"error": {
-			"title": "Oups, une erreur s'est produite !",
-			"description": "Une erreur s'est produite lors de l'exécution d'AMLL TTML Tools",
-			"checkDevTools": "Les détails peuvent être trouvés dans les Outils de développement",
-			"saveLyrics": "Essayez de sauvegarder les paroles actuelles",
-			"tryRestart": "Essayez de recharger l'application",
-			"details": "Informations approximatives sur l'erreur :"
-		},
-		"update": {
-			"updateAvailable": "Mise à jour disponible : {version}",
-			"installError": "Erreur lors de l'installation de la mise à jour"
-		},
-		"empty": {
-			"title": "Aucune ligne de paroles",
-			"description": "Ajoutez de nouvelles lignes de paroles dans le panneau supérieur ou ouvrez/importez des paroles existantes depuis le menu"
-		}
-	},
-	"confirmDialog": {
-		"cancel": "Annuler",
-		"confirm": "Confirmer",
-		"newFile": {
-			"title": "Confirmer nouveau fichier",
-			"description": "Vous avez des modifications non enregistrées. Si vous continuez, ces modifications seront perdues. Êtes-vous sûr de vouloir créer un nouveau fichier ?"
-		},
-		"syncLineTimestamps": {
-			"title": "Confirmer la synchronisation des horodatages",
-			"description": "Cette action synchronisera automatiquement les temps de début et de fin de toutes les lignes en fonction des horodatages de chaque mot dans la ligne, correspondant aux temps de début et de fin des première et dernière syllabes. Êtes-vous sûr de vouloir continuer ?"
-		},
-		"openFile": {
-			"title": "Confirmer l'ouverture du fichier",
-			"description": "Vous avez des modifications non enregistrées. Si vous continuez, ces modifications seront perdues. Êtes-vous sûr de vouloir ouvrir un nouveau fichier ?"
-		},
-		"importFile": {
-			"title": "Confirmer l'importation des paroles",
-			"description": "Vous avez des modifications non enregistrées. Si vous continuez, ces modifications seront perdues. Êtes-vous sûr de vouloir importer de nouvelles paroles ?"
-		},
-		"useMetadataName": {
-			"title": "Use metadata name?",
-			"description": "Use \"{name}\" as the file name?"
-		},
-		"noSongwriter": {
-			"title": "Confirm Export",
-			"description": "The song has no songwriters. Do you want to continue saving?"
-		}
-	},
-	"dialog": {
-		"mp3Conversion": {
-			"title": "Convertir le MP3 en FLAC ?",
-			"description": "Vous importez un fichier MP3 : {fileName}",
-			"warning": "Les fichiers MP3 peuvent causer une désynchronisation audio dans cette application. La conversion en FLAC est recommandée pour une meilleure compatibilité.",
-			"dontShowAgain": "Ne plus afficher cet avertissement",
-			"skip": "Utiliser MP3",
-			"convert": "Convertir en FLAC",
-			"converting": "Conversion de MP3 en FLAC...",
-			"success": "Conversion réussie",
-			"failed": "Échec de la conversion : {error}"
-		}
-	},
-	"ribbonBar": {
-		"editMode": {
-			"multipleValues": "Valeurs multiples…",
-			"showTranslation": "Afficher la ligne de traduction",
-			"showRomanization": "Afficher la ligne de romanisation",
-			"showWordRomanizationInput": "Afficher la romanisation par mot",
-			"new": "Nouveau",
-			"lyricLine": "Ligne de paroles",
-			"lineTiming": "Timing de ligne",
-			"startTime": "Temps de début",
-			"endTime": "Temps de fin",
-			"lineProperties": "Propriétés de ligne",
-			"bgLyric": "Voix de fond",
-			"duetLyric": "Voix de duo",
-			"ignoreSync": "Ignorer la synchronisation",
-			"wordTiming": "Timing de mot",
-			"emptyBeatCount": "Nombre de temps vides",
-			"wordProperties": "Propriétés de mot",
-			"wordContent": "Contenu du mot",
-			"romanWord": "Romanisation du mot",
-			"obscene": "Obscène",
-			"secondaryContent": "Contenu secondaire",
-			"translatedLyric": "Traduction",
-			"romanLyric": "Romanisation",
-			"layoutMode": "Disposition",
-			"auxiliaryLineDisplay": "Affichage de ligne auxiliaire",
-			"previewPanel": "Panneau d'aperçu",
-			"grammarCheck": "Vérification grammaticale",
-			"aiTools": "AI Tools",
-			"aiAutoSync": "AI Auto-Sync",
-			"tools": "Vérifier",
-			"phonetic": {
-				"section": "Phonetic",
-				"autoFetch": "Auto Fetch",
-				"noSelection": "Please select lines or words first",
-				"success": "Phonetics fetched successfully",
-				"error": "Failed to fetch phonetics",
-				"romanize": "Romanize"
-			}
-		},
-		"previewMode": {
-			"lyrics": "Paroles",
-			"showTranslation": "Afficher la traduction",
-			"showRoman": "Afficher la romanisation",
-			"maskObsceneWords": "Masquer les mots obscènes",
-			"word": "Mot",
-			"fadeWidth": "Largeur de fondu",
-			"mode": "Mode",
-			"standard": "Standard",
-			"timing": "Timing"
-		},
-		"syncMode": {
-			"currentEmptyBeat": "Temps vide",
-			"syncAdjustment": "Ajustement du timing",
-			"timeOffset": "Décalage temporel",
-			"syncLevel": "Sync Level",
-			"syncLevelWord": "Word Sync",
-			"syncLevelLine": "Line Sync",
-			"assistSettings": "Paramètres d'assistance",
-			"showTimestampUpdate": "Afficher les mises à jour d'horodatage",
-			"touchSyncPanel": "Panneau de synchronisation tactile",
-			"bgLyricIgnoreSync": "Ignore Background Vocals",
-			"quickFixes": "Quick Fixes",
-			"manualTimestampEdit": "Manual Timestamp Editing",
-			"displayOptions": "Options d'affichage",
-			"showTimestamps": "Afficher les horodatages",
-			"highlightActiveWord": "Surligner le mot actif",
-			"enableGlowAnimation": "Enable Glow Animation",
-			"highlightErrors": "Surligner les erreurs",
-			"showPerWordRomanization": "Afficher la romanisation par mot",
-			"keyBindingReference": "Aide-mémoire des raccourcis",
-			"startSync": "Marquer le début",
-			"continuousSync": "Valider",
-			"endSync": "Marquer la fin",
-			"loading": "Panel loading…"
-		}
-	},
-	"settings": {
-		"common": {
-			"layoutModeOptions": {
-				"simple": "Mode simple",
-				"advance": "Mode avancé"
-			},
-			"enabled": "Enabled",
-			"disabled": "Disabled",
-			"language": "Langue de l'interface",
-			"languageDesc": "Sélectionnez la langue de l'interface",
-			"layoutMode": "Mode de disposition de l'éditeur",
-			"layoutModeDesc": {
-				"line1": "La disposition simple répond à la plupart des besoins de base",
-				"line2": "Passez en mode avancé si vous avez besoin d'une synchronisation plus efficace"
-			},
-			"helpTranslate": "Help translate this app",
-			"compactBGInSync": "Compact Background Vocals (Sync Mode)",
-			"compactBGInSyncDesc": "Automatically compress vertical space for background vocal lines during synchronization.",
-			"syncJudgeMode": "Mode d'évaluation de la synchronisation",
-			"syncJudgeModeDesc": "Définissez comment les horodatages sont évalués lors de la synchronisation. Par défaut : « Première touche enfoncée ».",
-			"syncJudgeModeOptions": {
-				"firstKeyDown": "Temps de première touche enfoncée",
-				"lastKeyUp": "Temps de dernière touche relâchée",
-				"middleKey": "Milieu entre enfoncée et relâchée",
-				"firstKeyDownLegacy": "Temps de première touche enfoncée (ancien)"
-			},
-			"keyBindingTrigger": "Déclencheur de raccourcis",
-			"keyBindingTriggerDesc": "Détermine si les raccourcis sont déclenchés lorsqu'une touche est enfoncée ou relâchée.",
-			"keyBindingTriggerOptions": {
-				"keyDown": "Déclencher à l'enfoncement",
-				"keyUp": "Déclencher au relâchement"
-			},
-			"smartFirstWord": "Premier mot intelligent",
-			"smartFirstWordDesc": "Lors de la synchronisation du premier mot d'une ligne, la première pression définit uniquement son temps de début, sans définir immédiatement son temps de fin.",
-			"smartLastWord": "Dernier mot intelligent",
-			"smartLastWordDesc": "Lors de la synchronisation du dernier mot d'une ligne, la pression définit son temps de fin sans définir automatiquement le temps de début du premier mot de la ligne suivante.",
-			"enableUpcomingWordHighlight": "Enable Upcoming Word Pre-Highlight",
-			"enableUpcomingWordHighlightDesc": "Fades in a highlight color shortly before a word plays during Sync mode to improve precision.",
-			"upcomingWordHighlightThreshold": "Pre-Highlight Time Threshold (ms)",
-			"upcomingWordHighlightColor": "Highlight Color (CSS Value)",
-			"volume": "Volume de la musique",
-			"playbackRate": "Vitesse de lecture",
-			"autosave": {
-				"enable": "Activer la sauvegarde automatique",
-				"interval": "Intervalle de sauvegarde (minutes)",
-				"limit": "Instantanés à conserver"
-			},
-			"customBackground": "Custom Background",
-			"customBackgroundDesc": "Choose an image to use as the background.",
-			"customBackgroundPick": "Choose Image",
-			"customBackgroundClear": "Clear",
-			"customBackgroundOpacity": "Opacity",
-			"customBackgroundOpacityWarning": "If this value is too high, the page content may be hard to read.",
-			"customBackgroundMask": "Mask",
-			"customBackgroundBlur": "Blur Radius",
-			"customBackgroundBrightness": "Brightness",
-			"customBackgroundEnabled": "Background set",
-			"customBackgroundManage": "Settings"
-		},
-		"about": {
-			"update": "Mise à jour",
-			"newVersion": "Nouvelle version",
-			"updateNow": "Mettre à jour maintenant",
-			"downloading": "Téléchargement de la mise à jour...",
-			"ready": "La mise à jour est prête. Redémarrez l'application pour qu'elle prenne effet.",
-			"restart": "Redémarrer"
-		},
-		"aboutModal": {
-			"community": "Community & Contributions",
-			"communityDesc": "Help us make the tool better by contributing code, reporting issues, or providing translations.",
-			"github": "GitHub Repository",
-			"crowdin": "Help Translate in Crowdin"
-		},
-		"appearance": {
-			"theme": "Theme",
-			"useCustomAccent": "Custom Accent Color",
-			"useCustomAccentDesc": "Set Accent color",
-			"background": "Background",
-			"mode": {
-				"none": "None",
-				"image": "Image",
-				"gradient": "Gradient"
-			},
-			"useCustomGradient": "Custom Gradient Color",
-			"useCustomGradientDesc": "Generate a gradient from a single color.",
-			"syncGradientToAccent": "Sync first color with Accent",
-			"addGradientColor": "Add Color",
-			"gradientType": "Gradient Type",
-			"type": {
-				"linear": "Linear",
-				"radial": "Radial",
-				"conic": "Conic"
-			},
-			"gradientOpacity": "Gradient Opacity",
-			"gradientSize": "Gradient Scale",
-			"gradientPositionSettings": "Center & Angle",
-			"gradientCenterX": "Center X (Horizontal)",
-			"gradientCenterY": "Center Y (Vertical)",
-			"gradientAngle": "Angle",
-			"font": "Application Font",
-			"currentFont": "Current Font",
-			"changeFont": "Change Font...",
-			"fontImportSuccess": "Font imported successfully!",
-			"fontLibrary": "Font Library",
-			"fontWeight": "Font Weight",
-			"weight": {
-				"regular": "Regular",
-				"bold": "Bold"
-			},
-			"fontStyle": "Font Style",
-			"style": {
-				"normal": "Normal",
-				"italic": "Italic"
-			},
-			"importFont": "Import Font File",
-			"customFontActive": "LOCAL CUSTOM FONT",
-			"defaultFonts": "Standard Stacks",
-			"systemFonts": "System Fonts",
-			"googleFonts": "Google Fonts Library"
-		},
-		"group": {
-			"assistant": "Assistant",
-			"display": "Affichage",
-			"timing": "Timing",
-			"timingHighlight": "Visual Timing Cue (Sync)",
-			"playback": "Lecture",
-			"autosave": "Sauvegarde auto"
-		},
-		"assistant": {
-			"quickFixes": "Quick Fixes (Grammar)",
-			"quickFixesDesc": "Enable suggestions for repeated words and common transcription errors.",
-			"manualTimestampEdit": "Manual Timestamp Editing",
-			"manualTimestampEditDesc": "Allow clicking on timestamps in Sync mode to manually type values.",
-			"visualizeTimestampUpdate": "Visualize Timestamp Updates",
-			"visualizeTimestampUpdateDesc": "Show a brief flash on timestamps when they are updated via shortcuts.",
-			"highlightErrors": "Highlight Timing Errors",
-			"highlightErrorsDesc": "Visually mark words where start time is greater than end time."
-		},
-		"audio": {
-			"equalizer": "Audio Equalizer",
-			"eqDescription": "Adjust gains for different frequencies to optimize your audio experience.",
-			"preset": "Presets",
-			"standardPresets": "Standard",
-			"presets": {
-				"custom": "Manual"
-			},
-			"customPresets": "Custom",
-			"reset": "Reset",
-			"newPresetName": "New Preset Name",
-			"save": "Save Preset",
-			"mp3Conversion": "MP3 en FLAC",
-			"mp3ConversionDesc": "Convertir le MP3 en FLAC lors de l'importation pour une meilleure synchronisation",
-			"mp3ConversionAsk": "Demander",
-			"mp3ConversionAlways": "Automatique",
-			"mp3ConversionNever": "Désactivé"
-		},
+  "app": {
+    "error": {
+      "title": "Oups, une erreur s'est produite !",
+      "description": "Une erreur s'est produite lors de l'exécution d'AMLL TTML Tools",
+      "checkDevTools": "Les détails peuvent être trouvés dans les Outils de développement",
+      "saveLyrics": "Essayez de sauvegarder les paroles actuelles",
+      "tryRestart": "Essayez de recharger l'application",
+      "details": "Informations approximatives sur l'erreur :"
+    },
+    "update": {
+      "updateAvailable": "Mise à jour disponible : {version}",
+      "installError": "Erreur lors de l'installation de la mise à jour"
+    },
+    "empty": {
+      "title": "Aucune ligne de paroles",
+      "description": "Ajoutez de nouvelles lignes de paroles dans le panneau supérieur ou ouvrez/importez des paroles existantes depuis le menu"
+    }
+  },
+  "amll": {
+    "noLyrics": "No lyrics available in store"
+  },
+  "confirmDialog": {
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "useMetadataName": {
+      "title": "Use metadata name?",
+      "description": "Use \"{name}\" as the file name?"
+    },
+    "newFile": {
+      "title": "Confirmer nouveau fichier",
+      "description": "Vous avez des modifications non enregistrées. Si vous continuez, ces modifications seront perdues. Êtes-vous sûr de vouloir créer un nouveau fichier ?"
+    },
+    "untimedLyrics": {
+      "title": "Untimed Lyrics Detected",
+      "description": "There is an untimed line or word in your lyrics. Would you like to fix it or export anyway?",
+      "exportAnyway": "Export Anyway",
+      "fixIt": "Fix It"
+    },
+    "syncLineTimestamps": {
+      "title": "Confirmer la synchronisation des horodatages",
+      "description": "Cette action synchronisera automatiquement les temps de début et de fin de toutes les lignes en fonction des horodatages de chaque mot dans la ligne, correspondant aux temps de début et de fin des première et dernière syllabes. Êtes-vous sûr de vouloir continuer ?"
+    },
+    "openFile": {
+      "title": "Confirmer l'ouverture du fichier",
+      "description": "Vous avez des modifications non enregistrées. Si vous continuez, ces modifications seront perdues. Êtes-vous sûr de vouloir ouvrir un nouveau fichier ?"
+    },
+    "importFile": {
+      "title": "Confirmer l'importation des paroles",
+      "description": "Vous avez des modifications non enregistrées. Si vous continuez, ces modifications seront perdues. Êtes-vous sûr de vouloir importer de nouvelles paroles ?"
+    },
+    "noSongwriter": {
+      "description": "The song has no songwriters. Do you want to continue saving?"
+    }
+  },
+  "experimentalFeatures": {
+    "geniusCategorization": {
+      "dialogTitle": "Genius Headers Detected!",
+      "dialogDesc": "We've detected section headers in your lyrics. Would you like to enable the experimental 'Genius Header Categorization' feature to help with your workflow?",
+      "usageInfo": "Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.",
+      "maybeLater": "Maybe Later",
+      "enableNow": "Enable Now",
+      "title": "Genius Header Categorization",
+      "description": "Detect, normalize, review, navigate, collapse, validate, and edit Genius-style song sections while preserving them in TTML exports.",
+      "snapToPlayhead": "Snap to Playhead",
+      "noPreviousFound": "No previous identical header found with timing.",
+      "copyPrevious": "Copy Previous Timing",
+      "headersRestored": "Section headers restored."
+    },
+    "title": "Experimental Features",
+    "description": "These features are currently in development and may be unstable. Use with caution."
+  },
+  "common": {
+    "close": "Fermer",
+    "autoDetect": "Auto Detect",
+    "about": "À propos",
+    "resultsFound": "Found {count} results",
+    "cancel": "Annuler",
+    "save": "Save",
+    "search": "Rechercher",
+    "success": "Restauration réussie",
+    "error": "Données corrompues ou perdues",
+    "apply": "Appliquer",
+    "confirm": "Confirmer",
+    "back": "Back",
+    "deleteSuccess": "Suppression réussie",
+    "time": "Temps",
+    "restore": "Restaurer",
+    "loading": "Loading...",
+    "sync": "Sync",
+    "remove": "Supprimer",
+    "clickToSet": "Cliquez pour définir ",
+    "move": "Move",
+    "copy": "Copy"
+  },
+  "dialog": {
+    "mp3Conversion": {
+      "title": "Convertir le MP3 en FLAC ?",
+      "description": "Vous importez un fichier MP3 : {fileName}",
+      "warning": "Les fichiers MP3 peuvent causer une désynchronisation audio dans cette application. La conversion en FLAC est recommandée pour une meilleure compatibilité.",
+      "dontShowAgain": "Ne plus afficher cet avertissement",
+      "skip": "Utiliser MP3",
+      "convert": "Convertir en FLAC",
+      "converting": "Conversion de MP3 en FLAC...",
+      "success": "Conversion réussie",
+      "failed": "Échec de la conversion : {error}"
+    }
+  },
+  "ribbonBar": {
+    "editMode": {
+      "grammarCheck": "Vérification grammaticale",
+      "multipleValues": "Valeurs multiples…",
+      "duration": "持续时间",
+      "showTranslation": "Afficher la ligne de traduction",
+      "showRomanization": "Afficher la ligne de romanisation",
+      "showWordRomanizationInput": "Afficher la romanisation par mot",
+      "phonetic": {
+        "noSelection": "Please select lines or words first",
+        "success": "Phonetics fetched successfully",
+        "error": "Failed to fetch phonetics"
+      },
+      "romanization": {
+        "section": "Romanization",
+        "info": {
+          "title": "About Romanization",
+          "canDo": "✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!",
+          "cannotDo": "✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur."
+        },
+        "ja": "Japanese (Romaji)",
+        "zh": "Chinese (Pinyin)",
+        "yue": "Cantonese (Jyutping)",
+        "ko": "Korean (Romaji)",
+        "autoFetch": "Romanize"
+      },
+      "new": "Nouveau",
+      "lyricLine": "Ligne de paroles",
+      "lineTiming": "Timing de ligne",
+      "startTime": "Temps de début",
+      "endTime": "Temps de fin",
+      "lineProperties": "Propriétés de ligne",
+      "bgLyric": "Voix de fond",
+      "duetLyric": "Voix de duo",
+      "ignoreSync": "Ignorer la synchronisation",
+      "wordTiming": "Timing de mot",
+      "emptyBeatCount": "Nombre de temps vides",
+      "wordProperties": "Propriétés de mot",
+      "wordContent": "Contenu du mot",
+      "romanWord": "Romanisation du mot",
+      "obscene": "Obscène",
+      "secondaryContent": "Contenu secondaire",
+      "translatedLyric": "Traduction",
+      "romanLyric": "Romanisation",
+      "layoutMode": "Disposition",
+      "auxiliaryLineDisplay": "Affichage de ligne auxiliaire",
+      "tools": "Vérifier",
+      "previewPanel": "Panneau d'aperçu"
+    },
+    "previewMode": {
+      "mode": "Mode",
+      "amllDeprecated": "AMLL 模式已弃用，请使用标准模式",
+      "standard": "Standard",
+      "timing": "Timing",
+      "spicy": "Spicy",
+      "simpleLyrics": "Simple lyrics",
+      "forceLineRendering": "Force line rendering",
+      "background": "Background",
+      "backgroundAnimated": "Animated",
+      "backgroundColor": "Color",
+      "backgroundStatic": "Static",
+      "lyrics": "Paroles",
+      "showTranslation": "Afficher la traduction",
+      "showRoman": "Afficher la romanisation",
+      "maskObsceneWords": "Masquer les mots obscènes",
+      "word": "Mot",
+      "fadeWidth": "Largeur de fondu",
+      "instantFade": "即时淡出",
+      "render": "渲染",
+      "dev": "Dev",
+      "showFps": "Show FPS"
+    },
+    "syncMode": {
+      "currentEmptyBeat": "Temps vide",
+      "syncAdjustment": "Ajustement du timing",
+      "timeOffset": "Décalage temporel",
+      "commitOffset": "Commit Offset",
+      "syncLevel": "Sync Level",
+      "syncLevelWord": "Word Sync",
+      "syncLevelLine": "Line Sync",
+      "assistSettings": "Paramètres d'assistance",
+      "showTimestampUpdate": "Afficher les mises à jour d'horodatage",
+      "touchSyncPanel": "Panneau de synchronisation tactile",
+      "bgLyricIgnoreSync": "Ignore Background Vocals",
+      "quickFixes": "Quick Fixes",
+      "manualTimestampEdit": "Manual Timestamp Editing",
+      "displayOptions": "Options d'affichage",
+      "showTimestamps": "Afficher les horodatages",
+      "highlightActiveWord": "Surligner le mot actif",
+      "enableGlowAnimation": "Enable Glow Animation",
+      "highlightErrors": "Surligner les erreurs",
+      "showPerWordRomanization": "Afficher la romanisation par mot",
+      "keyBindingReference": "Aide-mémoire des raccourcis",
+      "startSync": "Marquer le début",
+      "continuousSync": "Valider",
+      "endSync": "Marquer la fin",
+      "manageQuickFixExclusions": {
+        "title": "Manage Quick Fix Exclusions",
+        "description": "Add words to ignore in quick fixes.",
+        "placeholder": "Enter word to ignore"
+      }
+    },
+    "experimentalFeatures": "Experimental Features",
+    "loading": "Loading panel..."
+  },
+  "settings": {
+    "common": {
+      "enabled": "Enabled",
+      "layoutModeOptions": {
+        "simple": "Mode simple",
+        "advance": "Mode avancé"
+      },
+      "disabled": "Disabled",
+      "language": "Langue de l'interface",
+      "languageDesc": "Sélectionnez la langue de l'interface",
+      "helpTranslate": "Help translate this app",
+      "layoutMode": "Mode de disposition de l'éditeur",
+      "layoutModeDesc": {
+        "line1": "La disposition simple répond à la plupart des besoins de base",
+        "line2": "Passez en mode avancé si vous avez besoin d'une synchronisation plus efficace"
+      },
+      "compactBGInSync": "Compact Background Vocals (Sync Mode)",
+      "compactBGInSyncDesc": "Automatically compress vertical space for background vocal lines during synchronization.",
+      "syncJudgeMode": "Mode d'évaluation de la synchronisation",
+      "syncJudgeModeDesc": "Définissez comment les horodatages sont évalués lors de la synchronisation. Par défaut : « Première touche enfoncée ».",
+      "syncJudgeModeOptions": {
+        "firstKeyDown": "Temps de première touche enfoncée",
+        "lastKeyUp": "Temps de dernière touche relâchée",
+        "middleKey": "Milieu entre enfoncée et relâchée",
+        "firstKeyDownLegacy": "Temps de première touche enfoncée (ancien)"
+      },
+      "keyBindingTrigger": "Déclencheur de raccourcis",
+      "keyBindingTriggerDesc": "Détermine si les raccourcis sont déclenchés lorsqu'une touche est enfoncée ou relâchée.",
+      "keyBindingTriggerOptions": {
+        "keyDown": "Déclencher à l'enfoncement",
+        "keyUp": "Déclencher au relâchement"
+      },
+      "syncTimeOffset": "Global Sync Time Offset (ms)",
+      "syncTimeOffsetDesc": "Adjust all sync timestamps by this amount to compensate for audio latency.",
+      "syncCommitOffset": "Commit Input Offset (ms)",
+      "syncCommitOffsetDesc": "Specific offset for the 'Commit' action to fix delayed audio issues.",
+      "smartFirstWord": "Premier mot intelligent",
+      "smartFirstWordDesc": "Lors de la synchronisation du premier mot d'une ligne, la première pression définit uniquement son temps de début, sans définir immédiatement son temps de fin.",
+      "smartLastWord": "Dernier mot intelligent",
+      "smartLastWordDesc": "Lors de la synchronisation du dernier mot d'une ligne, la pression définit son temps de fin sans définir automatiquement le temps de début du premier mot de la ligne suivante.",
+      "enableUpcomingWordHighlight": "Enable Upcoming Word Pre-Highlight",
+      "enableUpcomingWordHighlightDesc": "Fades in a highlight color shortly before a word plays during Sync mode to improve precision.",
+      "upcomingWordHighlightThreshold": "Pre-Highlight Time Threshold (ms)",
+      "upcomingWordHighlightColor": "Highlight Color (CSS Value)",
+      "volume": "Volume de la musique",
+      "playbackRate": "Vitesse de lecture",
+      "autosave": {
+        "enable": "Activer la sauvegarde automatique",
+        "interval": "Intervalle de sauvegarde (minutes)",
+        "limit": "Instantanés à conserver"
+      },
+      "customBackground": "Custom Background",
+      "customBackgroundDesc": "Choose an image to use as the background.",
+      "customBackgroundPick": "Choose Image",
+      "customBackgroundClear": "Clear",
+      "customBackgroundOpacity": "Opacity",
+      "customBackgroundOpacityWarning": "If this value is too high, the page content may be hard to read.",
+      "customBackgroundMask": "Mask",
+      "customBackgroundBlur": "Blur Radius",
+      "customBackgroundBrightness": "Brightness",
+      "customBackgroundEnabled": "Background set",
+      "customBackgroundManage": "Settings"
+    },
+    "about": {
+      "update": "Mise à jour",
+      "newVersion": "Nouvelle version",
+      "updateNow": "Mettre à jour maintenant",
+      "downloading": "Téléchargement de la mise à jour...",
+      "ready": "La mise à jour est prête. Redémarrez l'application pour qu'elle prenne effet.",
+      "restart": "Redémarrer"
+    },
+    "appearance": {
+      "mode": {
+        "basic": "Basic Editor",
+        "advanced": "Advanced Editor",
+        "none": "None",
+        "image": "Image",
+        "gradient": "Gradient"
+      },
+      "presets": {
+        "title": "Appearance Presets",
+        "namePlaceholder": "Theme Name...",
+        "save": "Save Current",
+        "empty": "No saved presets yet."
+      },
+      "theme": "Theme",
+      "useCustomAccent": "Custom Accent Color",
+      "useCustomAccentDesc": "Set Accent color",
+      "glass": "Glassmorphism",
+      "glassBlur": "Glass Intensity",
+      "glassBlurDesc": "Adjust the background blur effect for glassmorphic elements.",
+      "background": "Background",
+      "useCustomGradient": "Custom Gradient Color",
+      "useCustomGradientDesc": "Generate a gradient from a single color.",
+      "syncGradientToAccent": "Sync first color with Accent",
+      "addGradientColor": "Add Color",
+      "gradientType": "Gradient Type",
+      "type": {
+        "linear": "Linear",
+        "radial": "Radial",
+        "conic": "Conic"
+      },
+      "gradientOpacity": "Gradient Opacity",
+      "gradientSize": "Gradient Scale",
+      "gradientPositionSettings": "Center & Angle",
+      "gradientCenterX": "Center X (Horizontal)",
+      "gradientCenterY": "Center Y (Vertical)",
+      "gradientAngle": "Angle",
+      "font": "Application Font",
+      "currentFont": "Current Font",
+      "changeFont": "Change Font...",
+      "advanced": {
+        "projectColors": "Project Colors",
+        "primaryText": "Primary Text Color",
+        "primaryTextDesc": "Global primary text override.",
+        "secondaryText": "Secondary Text Color",
+        "workspace": "Workspace Theme",
+        "titlebarBackground": "Titlebar Background",
+        "sidebarBackground": "Sidebar Background",
+        "activeItemHighlight": "Active Item Highlight",
+        "menuHoverColor": "Menu Hover Color",
+        "editor": "Editor Layout",
+        "editorCanvas": "Editor Canvas",
+        "activeLineHighlight": "Active Line Highlight",
+        "lineHoverEffect": "Line Hover Effect",
+        "selectionHighlight": "Selection Highlight",
+        "chipBorderRadius": "Chip Border Radius",
+        "chipSpacing": "Chip Spacing (Gap)",
+        "chipPaddingVertical": "Chip Padding (V)",
+        "chipPaddingHorizontal": "Chip Padding (H)",
+        "audioVisuals": "Playback & Visuals",
+        "audioBarColor": "Audio Bar Color",
+        "audioBarText": "Audio Bar Text",
+        "waveformInactive": "Waveform Inactive",
+        "waveformProgress": "Waveform Progress",
+        "global": "Global Design System",
+        "masterResetNote": "This will reset all 20+ granular overrides.",
+        "resetMaster": "Master Reset Advanced Config"
+      },
+      "secondaryDesc": "Translations & Metadata.",
+      "layout": {
+        "title": "Application Layout",
+        "order": "Element Order",
+        "orderDesc": "Drag to reorder elements. Some positions may be limited by constraints.",
+        "titlebar": "Title Bar",
+        "ribbonbar": "Toolbar (Ribbon)",
+        "editor": "Main Editor Area",
+        "audio": "Audio Controls",
+        "ribbonPos": "Toolbar Orientation",
+        "pos": {
+          "top": "Top",
+          "bottom": "Bottom",
+          "left": "Left",
+          "right": "Right"
+        },
+        "sidebarWarning": "Note: Sidebar mode is experimental and may look different."
+      },
+      "fontImportSuccess": "Font imported successfully!",
+      "fontLibrary": "Font Library",
+      "fontWeight": "Font Weight",
+      "weight": {
+        "regular": "Regular",
+        "bold": "Bold"
+      },
+      "fontStyle": "Font Style",
+      "style": {
+        "normal": "Normal",
+        "italic": "Italic"
+      },
+      "importFont": "Import Font File",
+      "customFontActive": "LOCAL CUSTOM FONT",
+      "defaultFonts": "Standard Stacks",
+      "systemFonts": "System Fonts",
+      "googleFonts": "Google Fonts Library"
+    },
+    "group": {
+      "assistant": "Assistant",
+      "display": "Affichage",
+      "timing": "Timing",
+      "timingHighlight": "Visual Timing Cue (Sync)",
+      "playback": "Lecture",
+      "autosave": "Sauvegarde auto"
+    },
+    "assistant": {
+      "quickFixes": "Quick Fixes (Grammar)",
+      "quickFixesDesc": "Enable suggestions for repeated words and common transcription errors.",
+      "manualTimestampEdit": "Manual Timestamp Editing",
+      "manualTimestampEditDesc": "Allow clicking on timestamps in Sync mode to manually type values.",
+      "visualizeTimestampUpdate": "Visualize Timestamp Updates",
+      "visualizeTimestampUpdateDesc": "Show a brief flash on timestamps when they are updated via shortcuts.",
+      "highlightErrors": "Highlight Timing Errors",
+      "highlightErrorsDesc": "Visually mark words where start time is greater than end time."
+    },
+    "audio": {
+      "equalizer": "Audio Equalizer",
+      "eqDescription": "Adjust gains for different frequencies to optimize your audio experience.",
+      "preset": "Presets",
+      "standardPresets": "Standard",
+      "presets": {
+        "custom": "Manual"
+      },
+      "customPresets": "Custom",
+      "reset": "Reset",
+      "newPresetName": "New Preset Name",
+      "save": "Save Preset",
+      "mp3Conversion": "MP3 en FLAC",
+      "mp3ConversionDesc": "Convertir le MP3 en FLAC lors de l'importation pour une meilleure synchronisation",
+      "mp3ConversionAsk": "Demander",
+      "mp3ConversionAlways": "Automatique",
+      "mp3ConversionNever": "Désactivé"
+    },
     "backup": {
       "category": {
         "settings": "Settings",
@@ -325,585 +456,733 @@
       "cancelButton": "Cancel",
       "applyButton": "Import & reload"
     },
-		"dev": {
-			"wasmPlugins": {
-				"title": "Community Plugin System (WASM)",
-				"description": "Manage and upload custom WebAssembly plugins to extend the tool's importing and exporting capabilities."
-			},
-			"debugInfo": {
-				"title": "Debug Information"
-			}
-		},
-		"spectrogram": {
-			"palette": "Palette de couleurs",
-			"paletteCustom": "Personnalisée",
-			"gradientEditorDesc": "Une valeur Pos de 0.0 correspond à la partie la plus silencieuse, et 1.0 à la partie la plus forte. Il est recommandé d'utiliser des couleurs plus vives pour les valeurs Pos plus grandes.",
-			"addStop": "Ajouter un point de couleur"
-		}
-	},
-	"topBar": {
-		"modeBtns": {
-			"edit": "Éditer",
-			"sync": "Temps",
-			"preview": "Aperçu"
-		},
-		"boykisser": "boykisser",
-		"appName": "Outil TTML de paroles style Apple Music",
-		"menu": {
-			"undo": "Annuler",
-			"redo": "Rétablir",
-			"selectAllLines": "Sélectionner toutes les lignes",
-			"unselectAllLines": "Désélectionner toutes les lignes",
-			"invertSelectAllLines": "Inverser la sélection des lignes",
-			"selectWordsOfMatchedSelection": "Sélectionner les mots correspondants",
-			"timeShift": "Décalage temporel...",
-			"editMetadata": "Modifier les métadonnées des paroles…",
-			"edit": "Édition",
-			"newLyric": "Nouvelles paroles",
-			"openLyric": "Ouvrir des paroles",
-			"openFromClipboard": "Ouvrir TTML depuis le presse-papiers",
-			"saveLyric": "Enregistrer les paroles",
-			"restoreFromHistory": "Restaurer depuis l'historique…",
-			"saveLyricToClipboard": "Enregistrer TTML dans le presse-papiers",
-			"uploadToAMLLDB": "Téléverser vers la base de données (CN uniquement)",
-			"file": "Fichier",
-			"helpDoc": "Documentation (CN)",
-			"help": "Aide",
-			"segmentationTools": "Outils de segmentation",
-			"autoSegment": "Segmentation automatique",
-			"rubySegment": "Ruby Segmentation",
-			"advancedSegment": "Segmentation avancée...",
-			"syncLineTimestamps": "Synchroniser les horodatages des lignes",
-			"tool": "Outils",
-			"importLyric": {
-				"import": "Importer des paroles",
-				"fromPlainText": "Importer depuis du texte brut…",
-				"fromLRCLIB": "Importer depuis LRCLIB...",
-				"fromLyrically": "Import from Lyrically...",
-				"fromGenius": "Import from Genius…",
-				"fromLyRiC": "Importer depuis un fichier LyRiC…",
-				"fromESLyRiC": "Importer depuis un fichier ESLyRiC…",
-				"fromQRC": "Importer depuis un fichier QRC…",
-				"fromYRC": "Importer depuis un fichier YRC…",
-				"fromLrcfySylb": "Importer depuis un fichier Lyricify Syllable…"
-			},
-			"exportLyric": {
-				"export": "Exporter les paroles",
-				"toLyRiC": "Exporter vers LyRiC",
-				"toESLyRiC": "Exporter vers ESLyRiC",
-				"toQRC": "Exporter vers QRC",
-				"toYRC": "Exporter vers YRC",
-				"toLrcfySylb": "Exporter vers Lyricify Syllable",
-				"toASS": "Exporter vers sous-titres ASS"
-			}
-		}
-	},
-	"header": {
-		"status": {
-			"autoSavedAt": "Autosaved at {time}"
-		}
-	},
-	"contextMenu": {
-		"deleteWords": "Supprimer {count, plural, one {mot} other {mots}",
-		"bgLyric": "Ligne de fond",
-		"duetLyric": "Ligne de duo",
-		"insertLineBefore": "Insérer une nouvelle ligne avant",
-		"insertLineAfter": "Insérer une nouvelle ligne après",
-		"copyLine": "Dupliquer {count, plural, one {ligne} other {lignes}",
-		"duplicateTo": "Duplicate to...",
-		"combineLine": "Combiner les lignes",
-		"deleteLine": "Supprimer {count, plural, one {ligne} other {lignes}",
-		"splitWord": "Diviser le mot…",
-		"replaceWord": "Remplacer le mot…",
-		"combineWords": "Combiner les mots",
-		"moveFollowingWordToNewLine": "Déplacer les suivants vers une nouvelle ligne",
-		"moveWordToNewLine": "Déplacer {count, plural, one {mot} other {mots} vers une nouvelle ligne"
-	},
-	"settingsDialog": {
-		"title": "Préférences",
-		"common": {
-			"latencyTest": "Test de latence audio/entrée"
-		},
-		"keybindings": {
-			"newFile": "Nouveau fichier",
-			"openFile": "Ouvrir un fichier",
-			"saveFile": "Enregistrer le fichier",
-			"undo": "Annuler",
-			"redo": "Rétablir",
-			"selectAll": "Tout sélectionner",
-			"unselectAll": "Deselect All",
-			"selectInverted": "Inverser la sélection",
-			"selectWordsOfMatchedSelection": "Sélectionner les mots similaires",
-			"deleteSelection": "Supprimer la sélection",
-			"switchEditMode": "Changement de mode - Passer en mode édition",
-			"switchSyncMode": "Changement de mode - Passer en mode timing",
-			"switchPreviewMode": "Changement de mode - Passer en mode aperçu",
-			"moveNextWord": "Timing - Aller au mot suivant",
-			"movePrevWord": "Timing - Aller au mot précédent",
-			"moveNextLine": "Timing - Aller au début de la ligne suivante",
-			"movePrevLine": "Timing - Aller au début de la ligne précédente",
-			"movePrevWordAndPlay": "Timing - Aller au mot précédent et lire",
-			"moveNextWordAndPlay": "Timing - Aller au mot suivant et lire",
-			"syncStart": "Timing - Marquer le début",
-			"syncNext": "Timing - Valider",
-			"syncEnd": "Timing - Marquer la fin",
-			"toggleWordHighlight": "Timing - Toggle active word highlight",
-			"moveFirstWordAndPlay": "Timing - Move to first word and play",
-			"moveLastWordAndPlay": "Timing - Move to last word and play",
-			"urbanDictionary": "Edit - Look up in Urban Dictionary",
-			"urbanDictionarySync": "Timing - Look up in Urban Dictionary",
-			"playPause": "Lecture - Lecture/Pause",
-			"seekForward": "Lecture - Avancer de 5s",
-			"seekBackward": "Lecture - Reculer de 5s",
-			"volumeUp": "Lecture - Augmenter le volume",
-			"volumeDown": "Lecture - Diminuer le volume",
-			"playbackRateUp": "Lecture - Augmenter la vitesse",
-			"playbackRateDown": "Lecture - Diminuer la vitesse",
-			"playbackRateReset": "Lecture - Réinitialiser la vitesse",
-			"auditionSelectionBefore": "Spectrogramme - Écouter la sélection (500ms avant)",
-			"auditionSelection": "Spectrogramme - Écouter la sélection",
-			"auditionSelectionAfter": "Spectrogramme - Écouter la sélection (500ms après)",
-			"category": {
-				"File": "Fichier",
-				"Edit": "Édition",
-				"View": "Affichage",
-				"Sync": "Synchro",
-				"Audio": "Audio",
-				"Spectrogram": "Spectrogramme"
-			}
-		},
-		"tab": {
-			"common": "Général",
-			"assistant": "Assistant",
-			"appearance": "Appearance",
-			"audio": "Audio",
-			"keybindings": "Raccourcis clavier",
-			"spectrogram": "Spectrogramme",
-			"about": "About",
-			"dev": "Dev"
-		}
-	},
-	"error": {
-		"unsupportedFileFormat": "Format de fichier non pris en charge : {ext}",
-		"openFileFailed": "Échec de l'ouverture du fichier",
-		"audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing."
-	},
-	"audioPanel": {
-		"volume": "Volume",
-		"playbackRate": "Vitesse de lecture",
-		"preservesPitch": "Preserve Pitch",
-		"clickToLoadMusic": "Cliquez sur l'icône pour charger la musique",
-		"playPause": "Lecture / pause de la musique",
-		"expandSpectrogram": "Développer / réduire le spectrogramme"
-	},
-	"audio": {
-		"status": {
-			"transcoding": "Échec du décodage, tentative de transcodage de l'audio...",
-			"loading": "Chargement de l'audio...",
-			"processing": "Traitement..."
-		},
-		"error": {
-			"workerError": "Erreur lors du traitement de l'audio"
-		}
-	},
-	"latencyTestDialog": {
-		"title": "Timing Offset Latency Test",
-		"latencyDisplay": {
-			"fastest": "Fastest",
-			"current": {
-				"none": "Not Measured",
-				"fast": "Early",
-				"slow": "Late",
-				"perfect": "Perfect"
-			},
-			"slowest": "Slowest"
-		},
-		"bpmInputLabel": "Tempo (BPM)",
-		"button": {
-			"stop": "Stop",
-			"start": "Start"
-		}
-	},
-	"metadataDialog": {
-		"fetchSongwriters": {
-			"searchError": "Search failed: {error}",
-			"fetchError": "Could not fetch lyrics: {error}",
-			"noLyricsError": "No lyrics to import.",
-			"importSuccess": "Imported {count} lines from Genius.",
-			"error": "Failed to fetch songwriters",
-			"noSongwriters": "No songwriting credits recorded for this song",
-			"findingRealName": "Finding real name for {name} ({current}/{total})...",
-			"success": "Songwriters successfully fetched from Genius",
-			"setupTitle": "Genius API Key Setup",
-			"setupDesc": "To use this feature, please configure your Genius API Key (specifically, you need the \"CLIENT ACCESS TOKEN\"). You can generate one from the ",
-			"setupDescEnd": " developer portal.",
-			"keyPlaceholder": "Enter CLIENT ACCESS TOKEN",
-			"button": "Fetch Songwriters from Genius",
-			"tryFindRealNames": "Try to find real names (Legal Names)"
-		},
-		"openLink": "Ouvrir le lien",
-		"duplicateMsg": "Valeurs de métadonnées en double trouvées",
-		"addValue": "Ajouter",
-		"builtinOptions": {
-			"musicName": "Nom de la piste",
-			"artists": "Artistes de la piste",
-			"artistsInvalidMsg": "S'il y a plusieurs artistes, ajoutez cette clé plusieurs fois au lieu d'utiliser des délimiteurs ; si un nom d'artiste contient des délimiteurs, ignorez ce message",
-			"songwriter": "Auteur-compositeur",
-			"songwriterInvalidMsg": "S'il y a plusieurs auteurs-compositeurs, ajoutez cette clé plusieurs fois au lieu d'utiliser des délimiteurs",
-			"album": "Nom de l'album",
-			"coverArt": "Cover URL",
-			"ncmMusicId": "ID NetEase Music",
-			"ncmMusicIdInvalidMsg": "L'ID NetEase Music doit être numérique",
-			"qqMusicId": "ID QQ Music",
-			"qqMusicIdInvalidMsg": "L'ID QQ Music doit être alphanumérique",
-			"spotifyId": "ID de piste Spotify",
-			"spotifyIdInvalidMsg": "L'ID de piste Spotify doit être alphanumérique",
-			"appleMusicId": "ID de piste Apple Music",
-			"appleMusicIdInvalidMsg": "L'ID de piste Apple Music doit être numérique",
-			"isrc": "Code ISRC de la piste",
-			"isrcInvalidMsg": "Le format du code ISRC doit être CC-XXX-YY-NNNNN",
-			"ttmlAuthorGithub": "ID GitHub de l'auteur des paroles",
-			"ttmlAuthorGithubInvalidMsg": "L'ID GitHub doit être numérique",
-			"ttmlAuthorGithubLogin": "Nom d'utilisateur GitHub de l'auteur des paroles",
-			"ttmlAuthorGithubLoginInvalidMsg": "Le nom d'utilisateur GitHub doit être alphanumérique ou contenir des tirets, jusqu'à 39 caractères"
-		},
-		"title": "Éditeur de métadonnées",
-		"key": "Clé",
-		"value": "Valeur",
-		"empty": "Aucune métadonnée",
-		"addKeyValue": "Ajouter une nouvelle paire clé-valeur",
-		"customKey": "Clé personnalisée",
-		"addPresets": "Ajouter toutes les clés prédéfinies",
-		"clear": "Effacer"
-	},
-	"genius": {
-		"setupTitle": "Genius API Key Setup",
-		"setupDesc": "To import lyrics from Genius you need a CLIENT ACCESS TOKEN. You can generate one from the Genius developer portal.",
-		"keyPlaceholder": "Paste CLIENT ACCESS TOKEN here…",
-		"previewTitle": "Genius — Lyrics Preview",
-		"back": "Back",
-		"previewSubtitle": "You can edit the lyrics below before importing.",
-		"linesCount": "{count} lines",
-		"importButton": "Import Lyrics",
-		"importTitle": "Import Lyrics from Genius",
-		"searchPlaceholder": "Artist – Song title…",
-		"notFound": "No results found. Try different keywords.",
-		"noResult": "Enter a song name or artist to start.",
-		"changeKey": "Change API Key"
-	},
-	"common": {
-		"cancel": "Annuler",
-		"save": "Save",
-		"search": "Rechercher",
-		"close": "Fermer",
-		"resultsFound": "Found {count} results",
-		"apply": "Appliquer",
-		"confirm": "Confirmer",
-		"success": "Restauration réussie",
-		"error": "Données corrompues ou perdues",
-		"deleteSuccess": "Suppression réussie",
-		"time": "Temps",
-		"restore": "Restaurer",
-		"sync": "Sync",
-		"remove": "Supprimer",
-		"about": "À propos",
-		"clickToSet": "Cliquez pour définir "
-	},
-	"textImportDialog": {
-		"addSpaces": "Add Spaces",
-		"splitHyphens": "Split Hyphenated Words",
-		"processedSuccess": "Lyrics automated for syllable sync.",
-		"title": "Importer des paroles depuis du texte brut",
-		"tab": {
-			"import": "Import"
-		},
-		"guides": "Guides",
-		"processLyrics": "Process Lyrics",
-		"actionButton": "Importer",
-		"contentMode": {
-			"caption": "Contenu du texte",
-			"lyric": "Paroles uniquement",
-			"withTranslation": "Paroles avec traduction",
-			"withRoman": "Paroles avec romanisation",
-			"withBoth": "Paroles avec les deux"
-		},
-		"separationMode": {
-			"caption": "Format de traduction/romanisation",
-			"multipleLine": "Lignes multiples intercalées",
-			"sameLine": "Séparation sur la même ligne"
-		},
-		"separator": "Séparateur de ligne",
-		"swapTransAndRoman": "Permuter les lignes de traduction et de romanisation",
-		"wordSeparator": "Séparateur de mots",
-		"enableSpecialPrefix": "Activer le préfixe spécial",
-		"bgLyricPrefix": "Préfixe de paroles de fond",
-		"duetLyricPrefix": "Préfixe de paroles de duo",
-		"enableEmptyBeat": "Activer le temps vide",
-		"emptyBeatSymbol": "Symbole de temps vide",
-		"guide": {
-			"prepare": {
-				"title": "1. Prepare Lyrics",
-				"desc": "It is recommended to use the Lyrprep tool to prepare your lyrics. You can search for songs, select a version, and copy the output text."
-			},
-			"import": {
-				"title": "2. Import to TTML Tool",
-				"desc": "Paste the prepared text into the editor on the left. Make sure to select the correct \"Import Mode\" based on your text format. If your text contains special prefixes (like background vocal markers), ensure \"Special Prefix\" is enabled."
-			},
-			"sync": {
-				"title": "3. Start Syncing",
-				"desc": "After clicking \"Import\", switch to the \"Time\" (Sync) mode. Use hotkeys for precise alignment:",
-				"f": "Set word start time",
-				"g": "Set word end & start next",
-				"h": "Set word end only",
-				"ad": "Switch between words"
-			},
-			"community": {
-				"title": "Community Guides & Cheat Sheets",
-				"desc": "Helpful resources from the community for specific languages and genres."
-			}
-		},
-		"guidesMenu": {
-			"full": "Full TTML Guide"
-		}
-	},
-	"lrclib": {
-		"placeholder": "Titre Artiste...",
-		"notFound": "Aucun résultat trouvé, essayez d'autres mots-clés",
-		"noResult": "Entrez des mots-clés pour commencer la recherche",
-		"searchError": "Échec de la recherche, vérifiez le réseau ou réessayez plus tard",
-		"importError": "Une erreur s'est produite lors de l'importation des paroles",
-		"title": "Importer des paroles depuis LRCLIB",
-		"synced": "Synchronisé",
-		"unsynced": "Non synchronisé",
-		"noLyrics": "Aucun contenu de paroles disponible pour cette piste",
-		"extractBg": "Extraire les parenthèses comme voix de fond",
-		"autoSegment": "Segmentation automatique",
-		"import": "Importer les paroles"
-	},
-	"lyricEditor": {
-		"locate": "Locate",
-		"lineSpectrogram": {
-			"title": "Line Spectrogram Alignment",
-			"desc": "Adjust the start and end points of this line using the spectrogram. The line duration will be split proportionally into its words based on character count.",
-			"startTime": "Start:",
-			"endTime": "End:",
-			"duration": "Duration:",
-			"playPause": "Play/Pause"
-		}
-	},
-	"lyricLineView": {
-		"translatedLabel": "Traduction :",
-		"romanLabel": "Romanisation :",
-		"empty": "Aucun",
-		"duplicateLinesHere": "Duplicate {count} selected line(s) here",
-		"insertLine": "Insérer une nouvelle ligne ici",
-		"insertWord": "Insérer un mot ici…"
-	},
-	"lyricWordView": {
-		"empty": "Vide",
-		"spaceCount": "Espace x{count}",
-		"removeWord": "Remove Duplicate Word",
-		"editingWordTitle": "Editing Word",
-		"editingWordDesc": "Edit the word or apply suggested quick fixes.",
-		"noSuggestions": "No suggestions"
-	},
-	"touchSyncPanel": {
-		"prevWord": "Aller au mot précédent",
-		"nextWord": "Aller au mot suivant"
-	},
-	"grammarCheck": {
-		"capitalization": "Le mot devrait être en majuscule",
-		"capitalInMiddle": "Word has capital letters in middle",
-		"title": "Vérification grammaire et orthographe",
-		"issues": "Issues",
-		"history": "Historique",
-		"ignoredWords": "Mots ignorés",
-		"noIssues": "Aucun problème trouvé !",
-		"issuesFound": "problèmes trouvés",
-		"undoLast": "Annuler le dernier",
-		"clearHistory": "Effacer l'historique",
-		"noHistory": "Aucun changement effectué",
-		"fixed": "corrigé",
-		"ignored": "ignoré",
-		"line": "Ligne",
-		"clearIgnoredWords": "Tout effacer",
-		"noIgnoredWords": "Aucun mot ignoré",
-		"noIssuesMessage": "Aucun problème trouvé ! Vos paroles sont bonnes."
-	},
-	"replaceWordDialog": {
-		"title": "Remplacer le mot",
-		"description": "Nouveau mot :",
-		"placeholder": "Nouveau mot",
-		"applyToAll": "Appliquer ce remplacement à tous les mots identiques",
-		"caseSensitive": "Match case (Exact match)"
-	},
-	"urbanDictionary": {
-		"title": "Urban Dictionary",
-		"slang": "slang dictionary",
-		"noDefinitions": "No definitions found for \"{word}\"",
-		"viewOnline": "View online",
-		"by": "By"
-	},
-	"timeShiftDialog": {
-		"title": "Décalage temporel",
-		"amount": "Décalage (ms)",
-		"direction": "Direction",
-		"advance": "Avancer (-)",
-		"delay": "Retarder (+)",
-		"scopeLabel": "Portée",
-		"scope": {
-			"all": "Toutes les lignes de paroles",
-			"selected": "Lignes de paroles sélectionnées",
-			"selectedFollowing": "Sélectionnées et suivantes",
-			"custom": "Plage personnalisée"
-		},
-		"fromLine": "De la ligne",
-		"toLine": "à la ligne",
-		"line": ""
-	},
-	"lyrically": {
-		"noLyricsLabel": "No lyrics available for this track.",
-		"previewTitle": "Lyrically — Lyrics Preview",
-		"importTitle": "Import Lyrics safely via Lyrically (No CORS via API endpoint)"
-	},
-	"globalDragOverlay": {
-		"title": "Relâchez pour charger"
-	},
-	"historyRestoreDialog": {
-		"loadError": "Échec du chargement de l'historique",
-		"confirm": {
-			"title": "Confirmer la restauration",
-			"description": "Cela écrasera tout le contenu de l'éditeur actuel. Êtes-vous sûr de vouloir restaurer cet instantané ?"
-		},
-		"deleteProject": {
-			"title": "Supprimer l'historique du projet",
-			"description": "Êtes-vous sûr de vouloir supprimer tous les enregistrements sauvegardés automatiquement pour ce projet ? Cette action ne peut pas être annulée."
-		},
-		"projects": "Projets récents",
-		"noProjects": "Aucun enregistrement n'a été automatiquement sauvegardé.",
-		"latestState": "Dernière version",
-		"restoreLatest": "Restaurer cette version",
-		"historyVersions": "Autres versions",
-		"noHistory": "Aucun historique disponible",
-		"selectProject": "Veuillez sélectionner un élément dans le panneau de gauche"
-	},
-	"autosave": {
-		"legacyProjectName": "Anciens instantanés",
-		"untitledProjectName": "Projet sans titre"
-	},
-	"time": {
-		"daysAgo": "Il y a {count} jours",
-		"hoursAgo": "Il y a {count} heures",
-		"minutesAgo": "Il y a {count} minutes",
-		"justNow": "À l'instant"
-	},
-	"metadata": {
-		"title": "Métadonnées"
-	},
-	"submitToAMLLDB": {
-		"validation": {
-			"missingMusicName": "Nom de la piste manquant dans les métadonnées",
-			"missingArtists": "Artistes de la piste manquants dans les métadonnées",
-			"missingAlbum": "Nom de l'album manquant dans les métadonnées",
-			"missingMusicId": "ID de piste de la plateforme manquant dans les métadonnées"
-		},
-		"defaultReason": "Nouvelle soumission de paroles",
-		"errors": {
-			"validation": "Échec de la validation de la soumission :\n{errors}",
-			"noLyrics": "Il n'y a pas encore de contenu de paroles ?",
-			"uploadFailed": "Échec de la demande de téléversement du fichier de paroles : {status} {statusText}",
-			"submitFailed": "La soumission a échoué, vérifiez la console pour la raison !"
-		},
-		"labels": {
-			"submit": "Soumettre/Corriger les paroles"
-		},
-		"issueTitle": "[Soumission/Correction de paroles] {name}",
-		"unknownTitle": "Titre inconnu",
-		"unknownArtist": "Artiste inconnu",
-		"description": "Soumettre des paroles à la base de données AMLL",
-		"title": "Soumettre des paroles à la base de données AMLL (utilisateurs chinois simplifiés uniquement)",
-		"chineseOnlyWarning": "Cette fonctionnalité n'est disponible que pour les utilisateurs chinois simplifiés de la base de données AMLL. Si vous éditez des paroles pour les utiliser dans un autre logiciel, suivez la méthode de soumission de ce logiciel !",
-		"thankYou": "Tout d'abord, merci pour votre généreuse contribution de paroles !",
-		"cc0Agreement": "En soumettant, vous acceptez",
-		"cc0Rights": "d'utiliser la licence CC0 et de renoncer entièrement à la propriété des paroles",
-		"andSubmit": "et de soumettre à la base de données de paroles !",
-		"futureUse": "Et les paroles seront utilisées comme source TTML par défaut par les systèmes AMLL à l'avenir !",
-		"rightsWarning": "Si vous tenez à conserver la propriété, NE soumettez PAS !",
-		"submitInstructions": "Entrez les informations suivantes puis accédez à la page de soumission d'issue GitHub !",
-		"closeWarning": "Fermer le message d'avertissement"
-	},
-	"splitWordDialog": {
-		"spaceCount": "Espace x{count}",
-		"empty": "Vide",
-		"title": "Diviser le mot",
-		"tip": "Après la division, les nouveaux mots diviseront équitablement le temps de début/fin du mot original. Les temps vides seront effacés.",
-		"syllableSplit": "Syllable Split",
-		"applyToAll": "Appliquer cette division à tous les mots identiques",
-		"ignoreCase": "Ignorer la casse",
-		"actionButton": "Confirmer"
-	},
-	"advancedSegmentDialog": {
-		"test": {
-			"outputError": "Erreur d'aperçu de division",
-			"title": "Test de division",
-			"input": "Entrez une ligne de paroles ou un mot à tester...",
-			"output": "Aperçu du résultat :"
-		},
-		"title": "Segmentation avancée",
-		"scope": {
-			"title": "Portée d'application",
-			"all": "Toutes les lignes de paroles",
-			"range": {
-				"from": "De la ligne",
-				"to": "à la ligne",
-				"end": ""
-			}
-		},
-		"rules": {
-			"title": "Règles de segmentation automatique",
-			"cjk": "Diviser les caractères CJK",
-			"syllable": "Diviser les mots occidentaux par syllabes"
-		},
-		"language": {
-			"select": "Sélectionnez un modèle de langue pour la césure :"
-		},
-		"tip": "Après la division, la durée totale du mot original sera redistribuée en fonction du nombre de caractères et de leurs poids.",
-		"postProcess": {
-			"title": "Post-traitement",
-			"punct": {
-				"caption": "Gestion de la ponctuation :",
-				"merge": "Fusionner avec la syllabe adjacente",
-				"standalone": "Définir comme segment indépendant",
-				"weight": "Poids temporel de la ponctuation :"
-			},
-			"empty": "Supprimer les segments vides"
-		},
-		"custom": {
-			"title": "Règles de segmentation personnalisées",
-			"input": "Entrez un mot pour division manuelle...",
-			"add": "Ajouter aux règles personnalisées",
-			"list": "Liste des règles personnalisées :"
-		},
-		"ignore": {
-			"title": "Liste d'exclusion",
-			"placeholder": "Un mot par ligne, les mots de cette liste ne seront pas segmentés automatiquement"
-		}
-	},
-	"aboutModal": {
-		"appName": "Outil TTML de paroles style Apple Music",
-		"description": "Un outil d'édition et de chronométrage TTML mot par mot pour les paroles style Apple Music",
-		"buildDate": "Date de compilation : {date}",
-		"gitCommit": "Commit Git : {commit}"
-	},
-	"spectrogram": {
-		"invalidEndTime": "Impossible de sélectionner ce temps de fin",
-		"noAudioLoaded": "Veuillez charger un fichier audio pour afficher le spectrogramme",
-		"loadAudio": "Charger un fichier audio",
-		"showUnselectedLines": "Afficher les lignes non sélectionnées"
-	},
-	"pwa": {
-		"offlineReady": "Site mis en cache avec succès pour une utilisation hors ligne",
-		"updateRefresh": "Site mis à jour, actualisez pour utiliser la dernière version !",
-		"refresh": "Actualiser"
-	}
+    "dev": {
+      "previewPerformance": "Preview Performance",
+      "showFps": "Show FPS Counter in Preview",
+      "wasmPlugins": {
+        "title": "Community Plugin System (WASM)",
+        "description": "Manage and upload custom WebAssembly plugins to extend the tool's importing and exporting capabilities."
+      },
+      "debugInfo": {
+        "title": "Debug Information"
+      }
+    },
+    "spectrogram": {
+      "palette": "Palette de couleurs",
+      "paletteCustom": "Personnalisée",
+      "gradientEditorDesc": "Une valeur Pos de 0.0 correspond à la partie la plus silencieuse, et 1.0 à la partie la plus forte. Il est recommandé d'utiliser des couleurs plus vives pour les valeurs Pos plus grandes.",
+      "addStop": "Ajouter un point de couleur"
+    }
+  },
+  "timingOverview": {
+    "start": "Start",
+    "end": "End",
+    "duration": "Duration",
+    "emptyBeat": "Empty Beat",
+    "romanization": "Roman",
+    "backgroundVocal": "BG",
+    "title": "Technical Timing Overview",
+    "lines": "Lines",
+    "words": "Words",
+    "lyricsAndTimings": "Lyrics & Word Timings"
+  },
+  "topBar": {
+    "modeBtns": {
+      "edit": "Éditer",
+      "sync": "Temps",
+      "preview": "Aperçu"
+    },
+    "boykisser": "boykisser",
+    "appName": "Outil TTML de paroles style Apple Music",
+    "menu": {
+      "undo": "Annuler",
+      "redo": "Rétablir",
+      "selectAllLines": "Sélectionner toutes les lignes",
+      "unselectAllLines": "Désélectionner toutes les lignes",
+      "invertSelectAllLines": "Inverser la sélection des lignes",
+      "selectWordsOfMatchedSelection": "Sélectionner les mots correspondants",
+      "timeShift": "Décalage temporel...",
+      "timeStretch": "时间伸缩...",
+      "editMetadata": "Modifier les métadonnées des paroles…",
+      "edit": "Édition",
+      "newLyric": "Nouvelles paroles",
+      "openLyric": "Ouvrir des paroles",
+      "openFromClipboard": "Ouvrir TTML depuis le presse-papiers",
+      "saveLyric": "Enregistrer les paroles",
+      "restoreFromHistory": "Restaurer depuis l'historique…",
+      "saveLyricToClipboard": "Enregistrer TTML dans le presse-papiers",
+      "uploadToAMLLDB": "Téléverser vers la base de données (CN uniquement)",
+      "file": "Fichier",
+      "helpDoc": "Documentation (CN)",
+      "help": "Aide",
+      "segmentationTools": "Outils de segmentation",
+      "autoSegment": "Segmentation automatique",
+      "rubySegment": "Ruby Segmentation",
+      "advancedSegment": "Segmentation avancée...",
+      "learnedSplits": "Learned Splits...",
+      "syncLineTimestamps": "Synchroniser les horodatages des lignes",
+      "tool": "Outils",
+      "importLyric": {
+        "import": "Importer des paroles",
+        "fromPlainText": "Importer depuis du texte brut…",
+        "fromLRCLIB": "Importer depuis LRCLIB...",
+        "fromLyrically": "Import from Lyrically...",
+        "fromGenius": "Import from Genius…",
+        "fromLyRiC": "Importer depuis un fichier LyRiC…",
+        "fromESLyRiC": "Importer depuis un fichier ESLyRiC…",
+        "fromQRC": "Importer depuis un fichier QRC…",
+        "fromYRC": "Importer depuis un fichier YRC…",
+        "fromLrcfySylb": "Importer depuis un fichier Lyricify Syllable…"
+      },
+      "exportLyric": {
+        "export": "Exporter les paroles",
+        "toLyRiC": "Exporter vers LyRiC",
+        "toESLyRiC": "Exporter vers ESLyRiC",
+        "toQRC": "Exporter vers QRC",
+        "toYRC": "Exporter vers YRC",
+        "toLrcfySylb": "Exporter vers Lyricify Syllable",
+        "toASS": "Exporter vers sous-titres ASS"
+      }
+    }
+  },
+  "header": {
+    "status": {
+      "autoSavedAt": "Autosaved at {time}"
+    }
+  },
+  "contextMenu": {
+    "deleteWords": "Supprimer {count, plural, one {mot} other {mots}",
+    "bgLyric": "Ligne de fond",
+    "duetLyric": "Ligne de duo",
+    "moveLineToPlayhead": "Move line to playhead",
+    "insertLineBefore": "Insérer une nouvelle ligne avant",
+    "insertLineAfter": "Insérer une nouvelle ligne après",
+    "copyLine": "Dupliquer {count, plural, one {ligne} other {lignes}",
+    "duplicateTo": "Duplicate to...",
+    "combineLine": "Combiner les lignes",
+    "deleteLine": "Supprimer {count, plural, one {ligne} other {lignes}",
+    "splitWord": "Diviser le mot…",
+    "noSyllablesFound": "No multiple syllables found.",
+    "splitIntoSyllables": "Split into Syllables (Romanized)",
+    "replaceWord": "Remplacer le mot…",
+    "combineWords": "Combiner les mots",
+    "moveFollowingWordToNewLine": "Déplacer les suivants vers une nouvelle ligne",
+    "moveWordToNewLine": "Déplacer {count, plural, one {mot} other {mots} vers une nouvelle ligne"
+  },
+  "settingsDialog": {
+    "title": "Préférences",
+    "common": {
+      "latencyTest": "Test de latence audio/entrée"
+    },
+    "keybindings": {
+      "newFile": "Nouveau fichier",
+      "openFile": "Ouvrir un fichier",
+      "saveFile": "Enregistrer le fichier",
+      "undo": "Annuler",
+      "redo": "Rétablir",
+      "selectAll": "Tout sélectionner",
+      "unselectAll": "Deselect All",
+      "selectInverted": "Inverser la sélection",
+      "selectWordsOfMatchedSelection": "Sélectionner les mots similaires",
+      "deleteSelection": "Supprimer la sélection",
+      "autoSegment": "",
+      "switchEditMode": "Changement de mode - Passer en mode édition",
+      "switchSyncMode": "Changement de mode - Passer en mode timing",
+      "switchPreviewMode": "Changement de mode - Passer en mode aperçu",
+      "moveNextWord": "Timing - Aller au mot suivant",
+      "movePrevWord": "Timing - Aller au mot précédent",
+      "moveNextLine": "Timing - Aller au début de la ligne suivante",
+      "movePrevLine": "Timing - Aller au début de la ligne précédente",
+      "movePrevWordAndPlay": "Timing - Aller au mot précédent et lire",
+      "moveNextWordAndPlay": "Timing - Aller au mot suivant et lire",
+      "syncStart": "Timing - Marquer le début",
+      "syncNext": "Timing - Valider",
+      "syncEnd": "Timing - Marquer la fin",
+      "toggleWordHighlight": "Timing - Toggle active word highlight",
+      "urbanDictionary": "Edit - Look up in Urban Dictionary",
+      "urbanDictionarySync": "Timing - Look up in Urban Dictionary",
+      "moveFirstWordAndPlay": "Timing - Move to first word and play",
+      "moveLastWordAndPlay": "Timing - Move to last word and play",
+      "playPause": "Lecture - Lecture/Pause",
+      "seekForward": "Lecture - Avancer de 5s",
+      "seekBackward": "Lecture - Reculer de 5s",
+      "volumeUp": "Lecture - Augmenter le volume",
+      "volumeDown": "Lecture - Diminuer le volume",
+      "playbackRateUp": "Lecture - Augmenter la vitesse",
+      "playbackRateDown": "Lecture - Diminuer la vitesse",
+      "playbackRateReset": "Lecture - Réinitialiser la vitesse",
+      "duplicatePaste": "",
+      "auditionSelectionBefore": "Spectrogramme - Écouter la sélection (500ms avant)",
+      "auditionSelection": "Spectrogramme - Écouter la sélection",
+      "auditionSelectionAfter": "Spectrogramme - Écouter la sélection (500ms après)",
+      "category": {
+        "File": "Fichier",
+        "Edit": "Édition",
+        "View": "Affichage",
+        "Sync": "Synchro",
+        "Audio": "Audio",
+        "Spectrogram": "Spectrogramme"
+      },
+      "autoSegmentOptions": "Auto Segment",
+      "autoSegmentDoublePress": "Require double press",
+      "autoSegmentDoublePressDesc": "Run Auto Segment only after pressing its shortcut twice quickly."
+    },
+    "tab": {
+      "common": "Général",
+      "assistant": "Assistant",
+      "appearance": "Appearance",
+      "audio": "Audio",
+      "keybindings": "Raccourcis clavier",
+      "spectrogram": "Spectrogramme",
+      "backup": "Backup",
+      "dev": "Dev"
+    }
+  },
+  "autoSegmentApplied": "Auto-segmented with {engine}",
+  "error": {
+    "unsupportedFileFormat": "Format de fichier non pris en charge : {ext}",
+    "openFileFailed": "Échec de l'ouverture du fichier",
+    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing."
+  },
+  "audio": {
+    "marker": "Marker",
+    "markerLabel": "Label (e.g. Verse 1 Start)",
+    "markerDescription": "Description...",
+    "deleteMarker": "Delete Marker",
+    "waveform": "Audio Waveform",
+    "status": {
+      "transcoding": "Échec du décodage, tentative de transcodage de l'audio...",
+      "loading": "Chargement de l'audio...",
+      "processing": "Traitement..."
+    },
+    "error": {
+      "workerError": "Erreur lors du traitement de l'audio"
+    }
+  },
+  "audioPanel": {
+    "volume": "Volume",
+    "playbackRate": "Vitesse de lecture",
+    "preservesPitch": "Preserve Pitch",
+    "clickToLoadMusic": "Cliquez sur l'icône pour charger la musique",
+    "playPause": "Lecture / pause de la musique",
+    "expandSpectrogram": "Développer / réduire le spectrogramme"
+  },
+  "latencyTestDialog": {
+    "title": "Timing Offset Latency Test",
+    "latencyDisplay": {
+      "fastest": "Fastest",
+      "current": {
+        "none": "Not Measured",
+        "fast": "Early",
+        "slow": "Late",
+        "perfect": "Perfect"
+      },
+      "slowest": "Slowest"
+    },
+    "bpmInputLabel": "Tempo (BPM)",
+    "button": {
+      "stop": "Stop",
+      "start": "Start"
+    }
+  },
+  "metadataDialog": {
+    "fetchSongwriters": {
+      "error": "Failed to fetch songwriters",
+      "noSongwriters": "No songwriting credits recorded for this song",
+      "findingRealName": "Finding real name for {name} ({current}/{total})...",
+      "success": "Songwriters successfully fetched from Genius",
+      "setupTitle": "Genius API Key Setup",
+      "setupDesc": "To use this feature, please configure your Genius API Key (specifically, you need the \"CLIENT ACCESS TOKEN\"). You can generate one from the ",
+      "setupDescEnd": " developer portal.",
+      "keyPlaceholder": "Enter CLIENT ACCESS TOKEN",
+      "button": "Fetch Songwriters from Genius",
+      "tryFindRealNames": "Try to find real names (Legal Names)",
+      "searchError": "Search failed: {error}",
+      "fetchError": "Could not fetch lyrics: {error}",
+      "noLyricsError": "No lyrics to import.",
+      "importSuccess": "Imported {count} lines from Genius."
+    },
+    "openLink": "Ouvrir le lien",
+    "duplicateMsg": "Valeurs de métadonnées en double trouvées",
+    "addValue": "Ajouter",
+    "builtinOptions": {
+      "musicName": "Nom de la piste",
+      "artists": "Artistes de la piste",
+      "artistsInvalidMsg": "S'il y a plusieurs artistes, ajoutez cette clé plusieurs fois au lieu d'utiliser des délimiteurs ; si un nom d'artiste contient des délimiteurs, ignorez ce message",
+      "songwriter": "Auteur-compositeur",
+      "songwriterInvalidMsg": "S'il y a plusieurs auteurs-compositeurs, ajoutez cette clé plusieurs fois au lieu d'utiliser des délimiteurs",
+      "album": "Nom de l'album",
+      "coverArt": "Cover URL",
+      "ncmMusicId": "ID NetEase Music",
+      "ncmMusicIdInvalidMsg": "L'ID NetEase Music doit être numérique",
+      "qqMusicId": "ID QQ Music",
+      "qqMusicIdInvalidMsg": "L'ID QQ Music doit être alphanumérique",
+      "spotifyId": "ID de piste Spotify",
+      "spotifyIdInvalidMsg": "L'ID de piste Spotify doit être alphanumérique",
+      "appleMusicId": "ID de piste Apple Music",
+      "appleMusicIdInvalidMsg": "L'ID de piste Apple Music doit être numérique",
+      "isrc": "Code ISRC de la piste",
+      "isrcInvalidMsg": "Le format du code ISRC doit être CC-XXX-YY-NNNNN",
+      "ttmlAuthorGithub": "ID GitHub de l'auteur des paroles",
+      "ttmlAuthorGithubInvalidMsg": "L'ID GitHub doit être numérique",
+      "ttmlAuthorGithubLogin": "Nom d'utilisateur GitHub de l'auteur des paroles",
+      "ttmlAuthorGithubLoginInvalidMsg": "Le nom d'utilisateur GitHub doit être alphanumérique ou contenir des tirets, jusqu'à 39 caractères"
+    },
+    "title": "Éditeur de métadonnées",
+    "key": "Clé",
+    "value": "Valeur",
+    "empty": "Aucune métadonnée",
+    "addKeyValue": "Ajouter une nouvelle paire clé-valeur",
+    "customKey": "Clé personnalisée",
+    "addPresets": "Ajouter toutes les clés prédéfinies",
+    "clear": "Effacer"
+  },
+  "lrclib": {
+    "placeholder": "Titre Artiste...",
+    "notFound": "Aucun résultat trouvé, essayez d'autres mots-clés",
+    "noResult": "Entrez des mots-clés pour commencer la recherche",
+    "title": "Importer des paroles depuis LRCLIB"
+  },
+  "lyricEditor": {
+    "locate": "Locate",
+    "lineSpectrogram": {
+      "title": "Line Spectrogram Alignment",
+      "desc": "Adjust the start and end points of this line using the spectrogram. The line duration will be split proportionally into its words based on character count.",
+      "startTime": "Start:",
+      "endTime": "End:",
+      "duration": "Duration:",
+      "playPause": "Play/Pause"
+    }
+  },
+  "lyricLineView": {
+    "translatedLabel": "Traduction :",
+    "romanLabel": "Romanisation :",
+    "empty": "Aucun",
+    "duplicateLinesHere": "Duplicate {count} selected line(s) here",
+    "insertLine": "Insérer une nouvelle ligne ici",
+    "insertWord": "Insérer un mot ici…"
+  },
+  "lyricWordView": {
+    "empty": "Vide",
+    "spaceCount": "Espace x{count}",
+    "removeWord": "Remove Duplicate Word",
+    "editingWordTitle": "Editing Word",
+    "editingWordDesc": "Edit the word or apply suggested quick fixes.",
+    "correctedWordPlaceholder": "Type the corrected word",
+    "noSuggestions": "No suggestions"
+  },
+  "sectionActions": {
+    "categorizeSelected": "Categorize selected {count, plural, one {line} other {lines}}",
+    "categorizeTitle": "Categorize selected lines",
+    "categorize": "Categorize",
+    "expand": "Expand section",
+    "collapse": "Collapse section",
+    "editTitle": "Edit section",
+    "vocalist": "Vocalist / role",
+    "notes": "Notes",
+    "goPrevious": "Go to previous section",
+    "goNext": "Go to next section",
+    "editMetadata": "Edit metadata",
+    "split": "Split at selected line",
+    "mergePrevious": "Merge with previous",
+    "mergeNext": "Merge with next",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "linkPrevious": "Link to previous {category}",
+    "unlinkRepeat": "Unlink repeat",
+    "removeHeader": "Remove header (keep lyrics)",
+    "section": "Section"
+  },
+  "touchSyncPanel": {
+    "prevWord": "Aller au mot précédent",
+    "nextWord": "Aller au mot suivant"
+  },
+  "grammarCheck": {
+    "ambiguous": "Possible grammar issue",
+    "repeatedWord": "Repeated word",
+    "capitalization": "Le mot devrait être en majuscule",
+    "capitalInMiddle": "Word has capital letters in middle",
+    "title": "Vérification grammaire et orthographe",
+    "issues": "Issues",
+    "history": "Historique",
+    "ignoredWords": "Mots ignorés",
+    "noIssues": "Aucun problème trouvé !",
+    "issuesFound": "problèmes trouvés",
+    "undoLast": "Annuler le dernier",
+    "clearHistory": "Effacer l'historique",
+    "noHistory": "Aucun changement effectué",
+    "fixed": "corrigé",
+    "ignored": "ignoré",
+    "line": "Ligne",
+    "clearIgnoredWords": "Tout effacer",
+    "noIgnoredWords": "Aucun mot ignoré",
+    "noIssuesMessage": "Aucun problème trouvé ! Vos paroles sont bonnes.",
+    "applyFix": "Apply suggested fix",
+    "ignoreSession": "Ignore this word in this session",
+    "ignoreAlways": "Always ignore this word"
+  },
+  "urbanDictionary": {
+    "title": "Urban Dictionary",
+    "slang": "slang dictionary",
+    "noDefinitions": "No definitions found for \"{word}\"",
+    "by": "By",
+    "viewOnline": "View online"
+  },
+  "replaceWordDialog": {
+    "title": "Remplacer le mot",
+    "description": "Nouveau mot :",
+    "placeholder": "Nouveau mot",
+    "applyToAll": "Appliquer ce remplacement à tous les mots identiques",
+    "caseSensitive": "Match case (Exact match)"
+  },
+  "timeShiftDialog": {
+    "title": "Décalage temporel",
+    "amount": "Décalage (ms)",
+    "direction": "Direction",
+    "advance": "Avancer (-)",
+    "delay": "Retarder (+)",
+    "scopeLabel": "Portée",
+    "scope": {
+      "all": "Toutes les lignes de paroles",
+      "selected": "Lignes de paroles sélectionnées",
+      "selectedFollowing": "Sélectionnées et suivantes",
+      "custom": "Plage personnalisée"
+    },
+    "fromLine": "De la ligne",
+    "toLine": "à la ligne",
+    "line": "",
+    "snapToPlayhead": "Snap start of affected lines to current playback time"
+  },
+  "timeStretchDialog": {
+    "durationPlaceholder": "MM:SS.mmm or seconds",
+    "useCurrentSong": "Use current song",
+    "audioReadError": "Could not read the selected audio file's duration.",
+    "invalidDuration": "Enter a valid duration.",
+    "positiveDuration": "Duration must be greater than zero.",
+    "title": "Time Stretch",
+    "description": "Stretch or squeeze every TTML timestamp to fit a new song duration.",
+    "oldDuration": "Old song duration",
+    "readingAudio": "Reading audio...",
+    "chooseAudio": "Upload audio...",
+    "newDuration": "New song duration",
+    "noChange": "The durations match; no timing change is needed.",
+    "scaleFactor": "Scale factor: {factor}×",
+    "scopeLabel": "Apply to",
+    "scope": {
+      "all": "All lines",
+      "selected": "Selected lines",
+      "selectedFollowing": "Selected lines and following",
+      "custom": "Custom range"
+    },
+    "fromLine": "From",
+    "toLine": "to",
+    "line": "lines"
+  },
+  "lyrically": {
+    "noLyricsLabel": "No lyrics available for this track.",
+    "previewTitle": "Lyrically — Lyrics Preview",
+    "editingRawText": "Editing Raw Text",
+    "backToPreview": "Back to Preview",
+    "manualEdit": "Manual Edit",
+    "importTitle": "Import Lyrics safely via Lyrically (No CORS via API endpoint)",
+    "source": "Source: "
+  },
+  "genius": {
+    "setupTitle": "Genius API Key Setup",
+    "setupDesc": "To import lyrics from Genius you need a CLIENT ACCESS TOKEN. You can generate one from the Genius developer portal.",
+    "keyPlaceholder": "Paste CLIENT ACCESS TOKEN here…",
+    "previewTitle": "Genius — Lyrics Preview",
+    "back": "Back",
+    "previewSubtitle": "You can edit the lyrics below before importing.",
+    "linesCount": "{count} lines",
+    "importButton": "Import Lyrics",
+    "importTitle": "Import Lyrics from Genius",
+    "searchPlaceholder": "Artist – Song title…",
+    "notFound": "No results found. Try different keywords.",
+    "noResult": "Enter a song name or artist to start."
+  },
+  "textImportDialog": {
+    "processLyrics": "Process Lyrics",
+    "processedSuccess": "Lyrics automated for syllable sync.",
+    "title": "Importer des paroles depuis du texte brut",
+    "tab": {
+      "import": "Import"
+    },
+    "guides": "Guides",
+    "actionButton": "Importer",
+    "contentMode": {
+      "caption": "Contenu du texte",
+      "lyric": "Paroles uniquement",
+      "withTranslation": "Paroles avec traduction",
+      "withRoman": "Paroles avec romanisation",
+      "withBoth": "Paroles avec les deux"
+    },
+    "separationMode": {
+      "caption": "Format de traduction/romanisation",
+      "multipleLine": "Lignes multiples intercalées",
+      "sameLine": "Séparation sur la même ligne"
+    },
+    "separator": "Séparateur de ligne",
+    "swapTransAndRoman": "Permuter les lignes de traduction et de romanisation",
+    "wordSeparator": "Séparateur de mots",
+    "enableSpecialPrefix": "Activer le préfixe spécial",
+    "bgLyricPrefix": "Préfixe de paroles de fond",
+    "duetLyricPrefix": "Préfixe de paroles de duo",
+    "enableEmptyBeat": "Activer le temps vide",
+    "emptyBeatSymbol": "Symbole de temps vide",
+    "guide": {
+      "prepare": {
+        "title": "1. Prepare Lyrics",
+        "desc": "It is recommended to use the Lyrprep tool to prepare your lyrics. You can search for songs, select a version, and copy the output text."
+      },
+      "import": {
+        "title": "2. Import to TTML Tool",
+        "desc": "Paste the prepared text into the editor on the left. Make sure to select the correct \"Import Mode\" based on your text format. If your text contains special prefixes (like background vocal markers), ensure \"Special Prefix\" is enabled."
+      },
+      "sync": {
+        "title": "3. Start Syncing",
+        "desc": "After clicking \"Import\", switch to the \"Time\" (Sync) mode. Use hotkeys for precise alignment:",
+        "f": "Set word start time",
+        "g": "Set word end & start next",
+        "h": "Set word end only",
+        "ad": "Switch between words"
+      },
+      "community": {
+        "title": "Community Guides & Cheat Sheets",
+        "desc": "Helpful resources from the community for specific languages and genres."
+      }
+    },
+    "guidesMenu": {
+      "full": "Full TTML Guide"
+    }
+  },
+  "sectionImportReview": {
+    "title": "Review detected sections",
+    "description": "Check normalized categories and metadata before replacing the lyrics.",
+    "sourceLyrics": "Source lyrics",
+    "structure": "Structure",
+    "sectionCount": "{count} sections",
+    "vocalist": "Vocalist / role",
+    "color": "Section color",
+    "notes": "Notes",
+    "lineCount": "{count} lyric lines",
+    "import": "Import reviewed lyrics"
+  },
+  "pluginManager": {
+    "trigger": "Plugins",
+    "title": "Plugin Management",
+    "description": "Extend your lyric editing capabilities",
+    "installed": "Installed",
+    "store": "Plugin Store",
+    "empty": "No plugins installed",
+    "browse": "Browse Store",
+    "techniques": "Techniques",
+    "usage": "Usage",
+    "sideload": "Sideload .wasm plugin",
+    "loading": "Loading community plugins...",
+    "install": "Install"
+  },
+  "globalDragOverlay": {
+    "title": "Relâchez pour charger"
+  },
+  "historyRestoreDialog": {
+    "loadError": "Échec du chargement de l'historique",
+    "confirm": {
+      "title": "Confirmer la restauration",
+      "description": "Cela écrasera tout le contenu de l'éditeur actuel. Êtes-vous sûr de vouloir restaurer cet instantané ?"
+    },
+    "deleteProject": {
+      "title": "Supprimer l'historique du projet",
+      "description": "Êtes-vous sûr de vouloir supprimer tous les enregistrements sauvegardés automatiquement pour ce projet ? Cette action ne peut pas être annulée."
+    },
+    "projects": "Projets récents",
+    "noProjects": "Aucun enregistrement n'a été automatiquement sauvegardé.",
+    "latestState": "Dernière version",
+    "restoreLatest": "Restaurer cette version",
+    "historyVersions": "Autres versions",
+    "noHistory": "Aucun historique disponible",
+    "selectProject": "Veuillez sélectionner un élément dans le panneau de gauche"
+  },
+  "autosave": {
+    "legacyProjectName": "Anciens instantanés",
+    "untitledProjectName": "Projet sans titre"
+  },
+  "time": {
+    "daysAgo": "Il y a {count} jours",
+    "hoursAgo": "Il y a {count} heures",
+    "minutesAgo": "Il y a {count} minutes",
+    "justNow": "À l'instant"
+  },
+  "metadata": {
+    "title": "Métadonnées"
+  },
+  "submitToAMLLDB": {
+    "validation": {
+      "missingMusicName": "Nom de la piste manquant dans les métadonnées",
+      "missingArtists": "Artistes de la piste manquants dans les métadonnées",
+      "missingAlbum": "Nom de l'album manquant dans les métadonnées",
+      "missingMusicId": "ID de piste de la plateforme manquant dans les métadonnées"
+    },
+    "defaultReason": "Nouvelle soumission de paroles",
+    "errors": {
+      "validation": "Échec de la validation de la soumission :\n{errors}",
+      "noLyrics": "Il n'y a pas encore de contenu de paroles ?",
+      "uploadFailed": "Échec de la demande de téléversement du fichier de paroles : {status} {statusText}",
+      "submitFailed": "La soumission a échoué, vérifiez la console pour la raison !"
+    },
+    "labels": {
+      "submit": "Soumettre/Corriger les paroles"
+    },
+    "issueTitle": "[Soumission/Correction de paroles] {name}",
+    "unknownTitle": "Titre inconnu",
+    "unknownArtist": "Artiste inconnu",
+    "description": "Soumettre des paroles à la base de données AMLL",
+    "title": "Soumettre des paroles à la base de données AMLL (utilisateurs chinois simplifiés uniquement)",
+    "chineseOnlyWarning": "Cette fonctionnalité n'est disponible que pour les utilisateurs chinois simplifiés de la base de données AMLL. Si vous éditez des paroles pour les utiliser dans un autre logiciel, suivez la méthode de soumission de ce logiciel !",
+    "thankYou": "Tout d'abord, merci pour votre généreuse contribution de paroles !",
+    "cc0Agreement": "En soumettant, vous acceptez",
+    "cc0Rights": "d'utiliser la licence CC0 et de renoncer entièrement à la propriété des paroles",
+    "andSubmit": "et de soumettre à la base de données de paroles !",
+    "futureUse": "Et les paroles seront utilisées comme source TTML par défaut par les systèmes AMLL à l'avenir !",
+    "rightsWarning": "Si vous tenez à conserver la propriété, NE soumettez PAS !",
+    "submitInstructions": "Entrez les informations suivantes puis accédez à la page de soumission d'issue GitHub !",
+    "closeWarning": "Fermer le message d'avertissement",
+    "uploadDbType": "歌词库类型",
+    "uploadDbTypeOfficial": "官方歌词库",
+    "uploadDbTypeUser": "用户歌词库",
+    "uploadDbTypeBoth": "全部歌词库",
+    "officialDesc": "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
+    "userDesc": "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
+    "bothDesc": "两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
+    "genFromName": "从元数据中生成",
+    "musicName": "音乐名称",
+    "musicNameDesc": "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
+    "submitReason": "提交缘由",
+    "submitReasonNew": "新歌词提交",
+    "submitReasonFix": "修正已有歌词",
+    "comment": "备注",
+    "commentPlaceholder": "有什么需要补充说明的呢？",
+    "issueFoundTitle": "发现以下问题，请修正后再提交：",
+    "submitBtn": "上传歌词并创建议题"
+  },
+  "splitWordDialog": {
+    "spaceCount": "Espace x{count}",
+    "empty": "Vide",
+    "title": "Diviser le mot",
+    "tip": "Après la division, les nouveaux mots diviseront équitablement le temps de début/fin du mot original. Les temps vides seront effacés.",
+    "syllableSplit": "Syllable Split",
+    "applyToAll": "Appliquer cette division à tous les mots identiques",
+    "remember": "Remember this split",
+    "ignoreCase": "Ignorer la casse",
+    "actionButton": "Confirmer"
+  },
+  "advancedSegmentDialog": {
+    "test": {
+      "outputError": "Erreur d'aperçu de division",
+      "title": "Test de division",
+      "input": "Entrez une ligne de paroles ou un mot à tester...",
+      "output": "Aperçu du résultat :"
+    },
+    "title": "Segmentation avancée",
+    "scope": {
+      "title": "Portée d'application",
+      "all": "Toutes les lignes de paroles",
+      "range": {
+        "from": "De la ligne",
+        "to": "à la ligne",
+        "end": ""
+      }
+    },
+    "rules": {
+      "title": "Règles de segmentation automatique",
+      "cjk": "Diviser les caractères CJK",
+      "syllable": "Diviser les mots occidentaux par syllabes"
+    },
+    "engine": {
+      "select": "Choose a syllabification engine:"
+    },
+    "tip": "Après la division, la durée totale du mot original sera redistribuée en fonction du nombre de caractères et de leurs poids.",
+    "postProcess": {
+      "title": "Post-traitement",
+      "punct": {
+        "caption": "Gestion de la ponctuation :",
+        "merge": "Fusionner avec la syllabe adjacente",
+        "standalone": "Définir comme segment indépendant",
+        "weight": "Poids temporel de la ponctuation :"
+      },
+      "empty": "Supprimer les segments vides"
+    },
+    "custom": {
+      "title": "Règles de segmentation personnalisées",
+      "input": "Entrez un mot pour division manuelle...",
+      "add": "Ajouter aux règles personnalisées",
+      "list": "Liste des règles personnalisées :"
+    },
+    "ignore": {
+      "title": "Liste d'exclusion",
+      "placeholder": "Un mot par ligne, les mots de cette liste ne seront pas segmentés automatiquement"
+    },
+    "learned": {
+      "title": "Learned Split Rules",
+      "description": "These rules match any casing and ignore surrounding punctuation.",
+      "input": "Enter a word to teach the splitter...",
+      "saveHint": "Saving replaces the existing rule for this word.",
+      "save": "Save learned split",
+      "saved": "Saved rules ({count})",
+      "clear": "Clear all",
+      "search": "Search saved rules...",
+      "noResults": "No matching learned splits.",
+      "clearTitle": "Clear all learned splits?",
+      "clearDescription": "This permanently removes every learned split rule from this device."
+    }
+  },
+  "autoSegmentDialog": {
+    "title": "Auto Segment",
+    "description": "Choose a syllabification engine for all lyric lines.",
+    "suggested": "Suggested from lyrics:",
+    "applyAll": "Apply to all lines"
+  },
+  "suggestedSplits": {
+    "title": "Suggested Splits",
+    "description": "Choose a suggested split pattern for this {type}.",
+    "apply": "Apply Suggestion",
+    "noSuggestions": "No automated split suggestions available for this content."
+  },
+  "aboutModal": {
+    "appName": "Outil TTML de paroles style Apple Music",
+    "description": "Un outil d'édition et de chronométrage TTML mot par mot pour les paroles style Apple Music",
+    "maintainers": "Fork Maintainers",
+    "maintainersDesc": "This fork is maintained and developed by:",
+    "forkMaintainer": "Fork maintainer & contributor",
+    "visitWebsite": "Visit website",
+    "credits": "Credits & Third-Party Notices",
+    "creditsIntro": "This project includes work adapted from the following open-source projects.",
+    "community": "Community & Contributions",
+    "communityDesc": "Help us make the tool better by contributing code, reporting issues, or providing translations.",
+    "github": "GitHub Repository",
+    "crowdin": "Help Translate in Crowdin",
+    "buildDate": "Date de compilation : {date}",
+    "gitCommit": "Commit Git : {commit}"
+  },
+  "spectrogram": {
+    "invalidEndTime": "Impossible de sélectionner ce temps de fin",
+    "noAudioLoaded": "Veuillez charger un fichier audio pour afficher le spectrogramme",
+    "loadAudio": "Charger un fichier audio",
+    "showUnselectedLines": "Afficher les lignes non sélectionnées",
+    "settings": "频谱图设置",
+    "fftSize": "FFT Size",
+    "resolution": "解析度",
+    "fftSizeOption": {
+      "512": "512 (Fast)",
+      "1024": "1024 (Normal)",
+      "2048": "2048 (Better Freq)",
+      "4096": "4096 (High Res)"
+    },
+    "height": "高度"
+  },
+  "pwa": {
+    "offlineReady": "Site mis en cache avec succès pour une utilisation hors ligne",
+    "updateRefresh": "Site mis à jour, actualisez pour utiliser la dernière version !",
+    "refresh": "Actualiser"
+  }
 }

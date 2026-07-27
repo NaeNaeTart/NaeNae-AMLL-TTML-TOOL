@@ -105,7 +105,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</SegmentedControl.Root>
 			</RibbonSection>
 			{previewModeType === PreviewModeType.Spicy && (
-				<RibbonSection isSidebar={isSidebar} label="Spicy">
+				<RibbonSection isSidebar={isSidebar} label={t("ribbonBar.previewMode.spicy", "Spicy")}>
 					<Grid
 						columns="max-content auto"
 						gap="2"
@@ -114,21 +114,21 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 						align="center"
 					>
 						<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
-							Simple lyrics
+							{t("ribbonBar.previewMode.simpleLyrics", "Simple lyrics")}
 						</Text>
 						<Checkbox
 							checked={spicySimpleMode}
 							onCheckedChange={(v) => setSpicySimpleMode(!!v)}
 						/>
 						<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
-							Force line rendering
+							{t("ribbonBar.previewMode.forceLineRendering", "Force line rendering")}
 						</Text>
 						<Checkbox
 							checked={spicyForceLineSynced}
 							onCheckedChange={(v) => setSpicyForceLineSynced(!!v)}
 						/>
 						<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
-							Background
+							{t("ribbonBar.previewMode.background", "Background")}
 						</Text>
 						<SegmentedControl.Root
 							value={spicyBackgroundMode}
@@ -138,11 +138,11 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 							size="1"
 						>
 							<SegmentedControl.Item value="animated">
-								Animated
+								{t("ribbonBar.previewMode.backgroundAnimated", "Animated")}
 							</SegmentedControl.Item>
-							<SegmentedControl.Item value="color">Color</SegmentedControl.Item>
+							<SegmentedControl.Item value="color">{t("ribbonBar.previewMode.backgroundColor", "Color")}</SegmentedControl.Item>
 							<SegmentedControl.Item value="static">
-								Static
+								{t("ribbonBar.previewMode.backgroundStatic", "Static")}
 							</SegmentedControl.Item>
 						</SegmentedControl.Root>
 					</Grid>
@@ -237,7 +237,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					<Checkbox checked={vsync} onCheckedChange={(v) => setVsync(!!v)} />
 				</Grid>
 			</RibbonSection>
-			<RibbonSection isSidebar={isSidebar} label={"Dev"}>
+			<RibbonSection isSidebar={isSidebar} label={t("ribbonBar.previewMode.dev", "Dev")}>
 				<Grid
 					columns="max-content auto"
 					gap="2"
@@ -246,7 +246,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					align="center"
 				>
 					<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
-						{"Show FPS"}
+						{t("ribbonBar.previewMode.showFps", "Show FPS")}
 					</Text>
 					<Checkbox
 						checked={showFps}

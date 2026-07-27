@@ -5,6 +5,7 @@ import {
 } from "@applemusic-like-lyrics/react";
 import { useAtomValue } from "jotai";
 import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { 
 	accentColorAtom, 
@@ -22,6 +23,7 @@ import classNames from "classnames";
  * Features: Mesh Warp background, Optimized CSS culling, and Fluid typography.
  */
 export const AMLL = memo(() => {
+	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const darkMode = useAtomValue(isDarkThemeAtom);
 	const albumImg = useAtomValue(customBackgroundImageAtom);
@@ -106,7 +108,7 @@ export const AMLL = memo(() => {
                         playing={isPlaying}
                     />
                 ) : (
-                    <div className={styles.noLyrics}>No lyrics available in store</div>
+					<div className={styles.noLyrics}>{t("amll.noLyrics", "No lyrics available in store")}</div>
                 )}
             </div>
 		</div>

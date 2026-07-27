@@ -1399,7 +1399,7 @@ export const LyricWordView: FC<LyricWordViewProps & { isHeaderLine?: boolean }> 
 									);
 								}
 							}}
-							placeholder="Type the corrected word"
+							placeholder={t("lyricWordView.correctedWordPlaceholder", "Type the corrected word")}
 						/>
 						<Flex direction="column" gap="2">
 							<Text size="2" weight="bold">

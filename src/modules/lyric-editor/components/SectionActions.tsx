@@ -12,6 +12,7 @@ import {
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { uid } from "uid";
 import {
 	collapsedSectionIdsAtom,
@@ -38,6 +39,7 @@ const editingSectionIdAtom = atom<string | null>(null);
 const categorizingSelectionAtom = atom(false);
 
 export function CategorizeSelectionContextMenuItem() {
+	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const selectedLines = useAtomValue(selectedLinesAtom);
 	const setCategorizingSelection = useSetAtom(categorizingSelectionAtom);
@@ -51,12 +53,13 @@ export function CategorizeSelectionContextMenuItem() {
 			disabled={selectedCount === 0 || hasAssignedLine}
 			onSelect={() => setCategorizingSelection(true)}
 		>
-			Categorize selected line{selectedCount === 1 ? "" : "s"}…
+			{t("sectionActions.categorizeSelected", { count: selectedCount })}…
 		</ContextMenu.Item>
 	);
 }
 
 export function CategorizeSelectionDialog() {
+	const { t } = useTranslation();
 	const selectedLines = useAtomValue(selectedLinesAtom);
 	const editLyrics = useSetImmerAtom(lyricLinesAtom);
 	const [open, setOpen] = useAtom(categorizingSelectionAtom);
@@ -72,7 +75,7 @@ export function CategorizeSelectionDialog() {
 	return (
 		<Dialog.Root open={open} onOpenChange={setOpen}>
 			<Dialog.Content maxWidth="400px">
-				<Dialog.Title>Categorize selected lines</Dialog.Title>
+				<Dialog.Title>{t("sectionActions.categorizeTitle", "Categorize selected lines")}</Dialog.Title>
 				<Flex direction="column" gap="3">
 					<Select.Root value={category} onValueChange={(value) => setCategory(value as LyricSectionCategory)}>
 						<Select.Trigger />
@@ -86,10 +89,10 @@ export function CategorizeSelectionDialog() {
 					</Select.Root>
 					<Flex justify="end" gap="2">
 						<Button variant="soft" color="gray" onClick={() => setOpen(false)}>
-							Cancel
+							{t("common.cancel", "Cancel")}
 						</Button>
 						<Button onClick={save} disabled={selectedLines.size === 0}>
-							Categorize
+							{t("sectionActions.categorize", "Categorize")}
 						</Button>
 					</Flex>
 				</Flex>
@@ -99,6 +102,7 @@ export function CategorizeSelectionDialog() {
 }
 
 export function SectionActions({ section }: { section: LyricSection }) {
+	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const [collapsed, setCollapsed] = useAtom(collapsedSectionIdsAtom);
 	const selectedLineIds = useAtomValue(selectedLinesAtom);
@@ -150,7 +154,7 @@ export function SectionActions({ section }: { section: LyricSection }) {
 				color="gray"
 				onClick={toggleCollapsed}
 				title={
-					collapsed.has(section.id) ? "Expand section" : "Collapse section"
+					collapsed.has(section.id) ? t("sectionActions.expand", "Expand section") : t("sectionActions.collapse", "Collapse section")
 				}
 			>
 				{collapsed.has(section.id) ? "▸" : "▾"}
@@ -160,6 +164,7 @@ export function SectionActions({ section }: { section: LyricSection }) {
 }
 
 export function SectionMetadataDialog() {
+	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const editLyrics = useSetImmerAtom(lyricLinesAtom);
 	const [editingSectionId, setEditingSectionId] = useAtom(editingSectionIdAtom);
@@ -183,7 +188,7 @@ export function SectionMetadataDialog() {
 			onOpenChange={(open) => !open && closeEditor()}
 		>
 			<Dialog.Content maxWidth="500px">
-				<Dialog.Title>Edit section</Dialog.Title>
+				<Dialog.Title>{t("sectionActions.editTitle", "Edit section")}</Dialog.Title>
 				{editing && (
 					<Flex direction="column" gap="3">
 						<TextField.Root
@@ -212,7 +217,7 @@ export function SectionMetadataDialog() {
 							</Select.Content>
 						</Select.Root>
 						<TextField.Root
-							placeholder="Vocalist / role"
+							placeholder={t("sectionActions.vocalist", "Vocalist / role")}
 							value={editing.vocalist ?? ""}
 							onChange={(event) =>
 								setEditing({
@@ -230,7 +235,7 @@ export function SectionMetadataDialog() {
 							style={{ width: "100%", height: 32 }}
 						/>
 						<TextArea
-							placeholder="Notes"
+							placeholder={t("sectionActions.notes", "Notes")}
 							value={editing.notes ?? ""}
 							onChange={(event) =>
 								setEditing({
@@ -241,7 +246,7 @@ export function SectionMetadataDialog() {
 						/>
 						<Flex justify="end" gap="2">
 							<Button variant="soft" color="gray" onClick={closeEditor}>
-								Cancel
+								{t("common.cancel", "Cancel")}
 							</Button>
 							<Button
 								onClick={() => {
@@ -260,7 +265,7 @@ export function SectionMetadataDialog() {
 									closeEditor();
 								}}
 							>
-								Save
+								{t("common.save", "Save")}
 							</Button>
 						</Flex>
 					</Flex>
@@ -275,6 +280,7 @@ export function SectionContextMenuItems({
 }: {
 	section: LyricSection;
 }) {
+	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const editLyrics = useSetImmerAtom(lyricLinesAtom);
 	const selectedLines = useAtomValue(selectedLinesAtom);
@@ -332,7 +338,7 @@ export function SectionContextMenuItems({
 				disabled={sectionIndex <= 0}
 				onSelect={() => navigateToSection(orderedSections[sectionIndex - 1])}
 			>
-				Go to previous section
+				{t("sectionActions.goPrevious", "Go to previous section")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={
@@ -340,11 +346,11 @@ export function SectionContextMenuItems({
 				}
 				onSelect={() => navigateToSection(orderedSections[sectionIndex + 1])}
 			>
-				Go to next section
+				{t("sectionActions.goNext", "Go to next section")}
 			</ContextMenu.Item>
 			<ContextMenu.Separator />
 			<ContextMenu.Item onSelect={() => setEditingSectionId(section.id)}>
-				Edit metadata
+				{t("sectionActions.editMetadata", "Edit metadata")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={!bounds || bounds.end - bounds.start < 2}
@@ -365,7 +371,7 @@ export function SectionContextMenuItems({
 					})
 				}
 			>
-				Split at selected line
+				{t("sectionActions.split", "Split at selected line")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={!previousId || previousId === section.id}
@@ -375,7 +381,7 @@ export function SectionContextMenuItems({
 					})
 				}
 			>
-				Merge with previous
+				{t("sectionActions.mergePrevious", "Merge with previous")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={!nextId || nextId === section.id}
@@ -385,7 +391,7 @@ export function SectionContextMenuItems({
 					})
 				}
 			>
-				Merge with next
+				{t("sectionActions.mergeNext", "Merge with next")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={!previousId || previousId === section.id}
@@ -395,7 +401,7 @@ export function SectionContextMenuItems({
 					})
 				}
 			>
-				Move up
+				{t("sectionActions.moveUp", "Move up")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={!nextId || nextId === section.id}
@@ -405,10 +411,10 @@ export function SectionContextMenuItems({
 					})
 				}
 			>
-				Move down
+				{t("sectionActions.moveDown", "Move down")}
 			</ContextMenu.Item>
 			<ContextMenu.Item disabled={!hasPreviousMatch} onSelect={linkToPrevious}>
-				Link to previous {section.category}
+				{t("sectionActions.linkPrevious", { category: section.category })}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={!section.repeatGroupId}
@@ -421,7 +427,7 @@ export function SectionContextMenuItems({
 					})
 				}
 			>
-				Unlink repeat
+				{t("sectionActions.unlinkRepeat", "Unlink repeat")}
 			</ContextMenu.Item>
 			<ContextMenu.Separator />
 			<ContextMenu.Item
@@ -432,16 +438,17 @@ export function SectionContextMenuItems({
 					})
 				}
 			>
-				Remove header (keep lyrics)
+				{t("sectionActions.removeHeader", "Remove header (keep lyrics)")}
 			</ContextMenu.Item>
 		</>
 	);
 }
 
 export function SectionContextMenuSub({ section }: { section: LyricSection }) {
+	const { t } = useTranslation();
 	return (
 		<ContextMenu.Sub>
-			<ContextMenu.SubTrigger>Section</ContextMenu.SubTrigger>
+			<ContextMenu.SubTrigger>{t("sectionActions.section", "Section")}</ContextMenu.SubTrigger>
 			<ContextMenu.SubContent sideOffset={12}>
 				<SectionContextMenuItems section={section} />
 			</ContextMenu.SubContent>

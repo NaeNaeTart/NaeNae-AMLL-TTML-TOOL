@@ -1,6 +1,7 @@
 import { Card, Flex, Popover, Text, TextField, TextArea, Box, IconButton } from "@radix-ui/themes";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import WaveSurfer from "wavesurfer.js";
 import { msToTimestamp } from "$/utils/timestamp";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -28,6 +29,7 @@ const WaveformMarkers = memo(
 		updateMark: (timeMs: number, data: Partial<Mark>) => void;
 		toggleMark: (timeMs: number) => void;
 	}) => {
+		const { t } = useTranslation();
 		return (
 			<>
 				{markers.map((marker) => (
@@ -130,19 +132,19 @@ const MarkerItem = memo(
 					<Flex direction="column" gap="2">
 						<Box>
 							<Text size="1" weight="bold" color="gray">
-								Marker @ {marker.timestamp}
+								{t("audio.marker", "Marker")} @ {marker.timestamp}
 							</Text>
 						</Box>
 						<TextField.Root
 							size="1"
-							placeholder="Label (e.g. Verse 1 Start)"
+							placeholder={t("audio.markerLabel", "Label (e.g. Verse 1 Start)")}
 							value={localLabel}
 							onChange={(e) => setLocalLabel(e.target.value)}
 							onBlur={commitChanges}
 						/>
 						<TextArea
 							size="1"
-							placeholder="Description..."
+							placeholder={t("audio.markerDescription", "Description...")}
 							value={localDescription}
 							onChange={(e) => setLocalDescription(e.target.value)}
 							onBlur={commitChanges}
@@ -154,7 +156,7 @@ const MarkerItem = memo(
 								variant="ghost"
 								color="red"
 								onClick={() => toggleMark(marker.timeMs)}
-								title="Delete Marker"
+								title={t("audio.deleteMarker", "Delete Marker")}
 							>
 								<Delete16Regular />
 							</IconButton>
@@ -167,6 +169,7 @@ const MarkerItem = memo(
 );
 
 export const AudioSlider = memo(() => {
+	const { t } = useTranslation();
 	const setCurrentTime = useSetAtom(currentTimeAtom);
 	const setCurrentDuration = useSetAtom(currentDurationAtom);
 	const setAudioPlaying = useSetAtom(audioPlayingAtom);
@@ -403,7 +406,7 @@ export const AudioSlider = memo(() => {
 		>
 			<section
 				className={styles.waveformContainer}
-				aria-label="Audio Waveform"
+				aria-label={t("audio.waveform", "Audio Waveform")}
 				ref={wsContainerRef}
 				style={{ width: "100%", height: "100%", overflow: "hidden" }}
 				onMouseDown={handleContainerMouseDown}

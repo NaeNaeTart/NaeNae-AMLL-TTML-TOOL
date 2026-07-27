@@ -25,7 +25,7 @@ export const SuspensePlaceHolder = (props: PropsWithChildren) => {
 					>
 						<Spinner />
 						<Text color="gray" size="1">
-							{t("ribbonBar.loading", "面板载入中...")}
+							{t("ribbonBar.loading", "Loading panel...")}
 						</Text>
 					</motion.div></Flex>
 			}

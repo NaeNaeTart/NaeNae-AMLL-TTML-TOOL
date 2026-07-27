@@ -2,6 +2,7 @@ import { Box, Card, Flex, Text, Tooltip } from "@radix-ui/themes";
 import classNames from "classnames";
 import { useAtomValue, useSetAtom } from "jotai";
 import { memo, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { ViewportList } from "react-viewport-list";
 import { currentTimeAtom } from "$/modules/audio/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -10,6 +11,7 @@ import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
 
 const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTime: number, isGrouped?: boolean }) => {
+	const { t } = useTranslation();
 	const isWordActive = currentTime >= word.startTime && currentTime <= word.endTime;
 	const wordDur = word.endTime - word.startTime;
 	const isWhitespace = !word.word || word.word.trim() === "";
@@ -38,11 +40,11 @@ const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTim
 		<Tooltip
 			content={
 				<Flex direction="column" gap="1">
-					<Text size="1">Start: {msToTimestamp(word.startTime)}</Text>
-					<Text size="1">End: {msToTimestamp(word.endTime)}</Text>
-					<Text size="1">Duration: {wordDur}ms</Text>
-					{word.emptyBeat > 0 && <Text size="1" color="orange">Empty Beat: {word.emptyBeat}</Text>}
-					{word.romanWord && <Text size="1">Roman: {word.romanWord}</Text>}
+					<Text size="1">{t("timingOverview.start", "Start")}: {msToTimestamp(word.startTime)}</Text>
+					<Text size="1">{t("timingOverview.end", "End")}: {msToTimestamp(word.endTime)}</Text>
+					<Text size="1">{t("timingOverview.duration", "Duration")}: {wordDur}ms</Text>
+					{word.emptyBeat > 0 && <Text size="1" color="orange">{t("timingOverview.emptyBeat", "Empty Beat")}: {word.emptyBeat}</Text>}
+					{word.romanWord && <Text size="1">{t("timingOverview.romanization", "Roman")}: {word.romanWord}</Text>}
 				</Flex>
 			}
 		>
@@ -88,6 +90,7 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 	totalDuration: number,
 	onRowClick: (line: any) => void
 }) => {
+	const { t } = useTranslation();
 	const isActive = currentTime >= line.startTime && currentTime <= line.endTime;
 	const duration = line.endTime - line.startTime;
 	const durationPercent = totalDuration ? (duration / totalDuration) * 100 : 0;
@@ -133,7 +136,7 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 				<Box>
 					<Flex align="center" gap="2" mb="1">
 						<Text className={styles.lineText}>{line.words.map((w: any) => w.word).join("")}</Text>
-						{line.isBG && <Text size="1" style={{ background: "var(--accent-9)", color: "white", padding: "0 4px", borderRadius: "2px", fontSize: "9px" }}>BG</Text>}
+						{line.isBG && <Text size="1" style={{ background: "var(--accent-9)", color: "white", padding: "0 4px", borderRadius: "2px", fontSize: "9px" }}>{t("timingOverview.backgroundVocal", "BG")}</Text>}
 					</Flex>
 					<div className={styles.wordPills}>
 						{wordGroups.map((group, gIdx) => (
@@ -156,6 +159,7 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 });
 
 export const TimingOverview = memo(() => {
+	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const currentTime = useAtomValue(currentTimeAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
@@ -187,18 +191,18 @@ export const TimingOverview = memo(() => {
 	return (
 		<Card className={styles.timingOverview}>
 			<div className={styles.header}>
-				<Text size="2" weight="bold">Technical Timing Overview</Text>
+				<Text size="2" weight="bold">{t("timingOverview.title", "Technical Timing Overview")}</Text>
 				<div className={styles.stats}>
 					<div className={styles.statItem}>
-						<Text size="1">Lines:</Text>
+						<Text size="1">{t("timingOverview.lines", "Lines")}:</Text>
 						<Text size="1" weight="bold">{stats.lineCount}</Text>
 					</div>
 					<div className={styles.statItem}>
-						<Text size="1">Words:</Text>
+						<Text size="1">{t("timingOverview.words", "Words")}:</Text>
 						<Text size="1" weight="bold">{stats.wordCount}</Text>
 					</div>
 					<div className={styles.statItem}>
-						<Text size="1">Duration:</Text>
+						<Text size="1">{t("timingOverview.duration", "Duration")}:</Text>
 						<Text size="1" weight="bold" className={styles.monospaced}>{msToTimestamp(stats.totalMs)}</Text>
 					</div>
 				</div>
@@ -207,10 +211,10 @@ export const TimingOverview = memo(() => {
 				<div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
 					<div className={styles.tableHeader} style={{ display: "flex", borderBottom: "1px solid var(--gray-6)", background: "var(--gray-2)", position: "sticky", top: 0, zIndex: 10 }}>
 						<div style={{ width: "40px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>#</div>
-						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>Start</div>
-						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>End</div>
-						<div style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>Duration</div>
-						<div style={{ flexGrow: 1, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>Lyrics & Word Timings</div>
+						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.start", "Start")}</div>
+						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.end", "End")}</div>
+						<div style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.duration", "Duration")}</div>
+						<div style={{ flexGrow: 1, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}</div>
 					</div>
 					<ViewportList items={sortedLines} viewportRef={scrollRef}>
 						{(line, index) => (
