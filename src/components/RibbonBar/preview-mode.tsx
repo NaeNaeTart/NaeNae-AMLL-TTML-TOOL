@@ -30,6 +30,7 @@ import {
 	showRomanLinesAtom,
 	showTranslationLinesAtom,
 	spicyBackgroundModeAtom,
+	spicyForceLineSyncedAtom,
 	spicySimpleLyricsModeAtom,
 	vsyncAtom,
 } from "$/modules/settings/states/preview";
@@ -53,6 +54,9 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 	const [showFps, setShowFps] = useAtom(showFpsCounterAtom);
 	const [spicySimpleMode, setSpicySimpleMode] = useAtom(
 		spicySimpleLyricsModeAtom,
+	);
+	const [spicyForceLineSynced, setSpicyForceLineSynced] = useAtom(
+		spicyForceLineSyncedAtom,
 	);
 	const [spicyBackgroundMode, setSpicyBackgroundMode] = useAtom(
 		spicyBackgroundModeAtom,
@@ -115,6 +119,13 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 						<Checkbox
 							checked={spicySimpleMode}
 							onCheckedChange={(v) => setSpicySimpleMode(!!v)}
+						/>
+						<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+							Force line rendering
+						</Text>
+						<Checkbox
+							checked={spicyForceLineSynced}
+							onCheckedChange={(v) => setSpicyForceLineSynced(!!v)}
 						/>
 						<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
 							Background

@@ -110,6 +110,8 @@ export interface LyricLine extends AMLLLyricLine {
 	startTime: number;
 	endTime: number;
 	ignoreSync: boolean;
+	/** Whether the source stores this lyric as direct text in a timed <p>. */
+	isLineSynced?: boolean;
 	language?: string;
 	agent?: string;
 	/**
@@ -140,5 +142,6 @@ export const newLyricLine = (): LyricLine => ({
 	startTime: 0,
 	endTime: 0,
 	ignoreSync: false,
+	isLineSynced: false,
 	language: "auto",
 });
