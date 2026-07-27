@@ -23,12 +23,10 @@ import {
 	Text,
 	TextField,
 } from "@radix-ui/themes";
-import { suggestedSplitsDialogAtom } from "$/states/dialogs.ts";
 import classNames from "classnames";
-import { toast } from "react-toastify";
-import { useAtom, type Atom, atom, useAtomValue, useStore } from "jotai";
-import { useSetImmerAtom } from "jotai-immer";
+import { type Atom, atom, useAtom, useAtomValue, useStore } from "jotai";
 import { selectAtom, splitAtom } from "jotai/utils";
+import { useSetImmerAtom } from "jotai-immer";
 import {
 	type FC,
 	Fragment,
@@ -42,42 +40,49 @@ import {
 	useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import {
-	showLineTranslationAtom,
-	showLineRomanizationAtom,
-	showTimestampsAtom,
-	showWordRomanizationInputAtom,
+	advGeniusHeaderColorAtom,
 	compactBGInSyncAtom,
 	geniusCategorizationEnabledAtom,
-	advGeniusHeaderColorAtom,
+	showLineRomanizationAtom,
+	showLineTranslationAtom,
+	showTimestampsAtom,
+	showWordRomanizationInputAtom,
 } from "$/modules/settings/states/index.ts";
 import {
 	syncLevelModeAtom,
 	visualizeTimestampUpdateAtom,
 } from "$/modules/settings/states/sync.ts";
+import { suggestedSplitsDialogAtom } from "$/states/dialogs.ts";
 import {
+	collapsedSectionIdsAtom,
 	lyricLinesAtom,
 	selectedLinesAtom,
 	selectedWordsAtom,
 	showEndTimeAsDurationAtom,
-	toolModeAtom,
 	ToolMode,
+	toolModeAtom,
 } from "$/states/main.ts";
 import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml.ts";
 import { msToTimestamp } from "$/utils/timestamp.ts";
-import { currentTimeAtom } from "$/modules/audio/states/index.ts";
-import { getSynchronizableUnits } from "../utils/lyric-states.ts";
 import {
 	copySectionTimings,
 	findPreviousMatchingSection,
 	shiftSectionToTime,
 } from "../utils/genius-sections.ts";
+import { getSynchronizableUnits } from "../utils/lyric-states.ts";
+import {
+	duplicateLinesWithSections,
+	repairSectionIntegrity,
+} from "../utils/section-system.ts";
 import styles from "./index.module.css";
+import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import {
 	draggingIdAtom,
 	globalEnableInsertAtom,
 } from "./lyric-line-view-states.ts";
-import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import LyricWordView from "./lyric-word-view.tsx";
 import { RomanWordView } from "./roman-word-view.tsx";
 import {
@@ -85,6 +90,7 @@ import {
 	SectionActions,
 	SectionContextMenuItems,
 	SectionContextMenuSub,
+	UnassignedSectionContextMenuItems,
 } from "./SectionActions.tsx";
 
 const isDraggingAtom = atom(false);
@@ -321,18 +327,9 @@ const InsertLineButton = ({
 				editLyricLines((state) => {
 					const selectedLines = store.get(selectedLinesAtom);
 					if (selectedLines.size > 0) {
-						const linesToCopy = state.lyricLines.filter((l) =>
-							selectedLines.has(l.id),
-						);
-						const newLines = linesToCopy.map((l) => ({
-							...l,
-							id: newLyricLine().id,
-							words: l.words.map((w) => ({
-								...w,
-								id: newLyricWord().id,
-							})),
-						}));
+						const newLines = duplicateLinesWithSections(state, selectedLines);
 						state.lyricLines.splice(lineIndex, 0, ...newLines);
+						repairSectionIntegrity(state);
 					} else {
 						state.lyricLines.splice(lineIndex, 0, newLyricLine());
 					}
@@ -682,12 +679,12 @@ export const LyricLineView: FC<{
 				}}
 			>
 				<ContextMenu.Trigger
-						disabled={
-							toolMode === ToolMode.Preview ||
-							(toolMode !== ToolMode.Edit &&
-								!sectionActionsEnabled &&
-								!manualCategorizationEnabled)
-						}
+					disabled={
+						toolMode === ToolMode.Preview ||
+						(toolMode !== ToolMode.Edit &&
+							!sectionActionsEnabled &&
+							!manualCategorizationEnabled)
+					}
 				>
 					<Flex
 						mx="2"
@@ -781,6 +778,7 @@ export const LyricLineView: FC<{
 									...targetLines,
 									...filteredLines.slice(targetIndex + indexDelta),
 								];
+								repairSectionIntegrity(state);
 							});
 						}}
 						onDragLeave={(evt) => {
@@ -837,6 +835,20 @@ export const LyricLineView: FC<{
 									}
 								});
 							} else {
+								if (
+									line.sectionId &&
+									store.get(collapsedSectionIdsAtom).has(line.sectionId)
+								) {
+									setSelectedLines((state) => {
+										state.clear();
+										for (const candidate of store.get(lyricLinesAtom)
+											.lyricLines) {
+											if (candidate.sectionId === line.sectionId)
+												state.add(candidate.id);
+										}
+									});
+									return;
+								}
 								setSelectedLines((state) => {
 									if (!state.has(line.id) || state.size !== 1) {
 										state.clear();
@@ -1178,13 +1190,22 @@ export const LyricLineView: FC<{
 					{sectionActionsEnabled &&
 						activeSection &&
 						toolMode === ToolMode.Sync && (
-							<SectionContextMenuItems section={activeSection} />
+							<SectionContextMenuItems
+								section={activeSection}
+								lineIndex={lineIndex}
+							/>
 						)}
 					{sectionActionsEnabled &&
 						activeSection &&
 						toolMode === ToolMode.Edit && (
-							<SectionContextMenuSub section={activeSection} />
+							<SectionContextMenuSub
+								section={activeSection}
+								lineIndex={lineIndex}
+							/>
 						)}
+					{manualCategorizationEnabled && toolMode === ToolMode.Edit && (
+						<UnassignedSectionContextMenuItems lineIndex={lineIndex} />
+					)}
 					{sectionActionsEnabled &&
 						activeSection &&
 						toolMode === ToolMode.Edit && <ContextMenu.Separator />}
@@ -1206,18 +1227,12 @@ export const LyricLineView: FC<{
 						editLyricLines((state) => {
 							const selectedLines = store.get(selectedLinesAtom);
 							if (selectedLines.size > 0) {
-								const linesToCopy = state.lyricLines.filter((l) =>
-									selectedLines.has(l.id),
+								const newLines = duplicateLinesWithSections(
+									state,
+									selectedLines,
 								);
-								const newLines = linesToCopy.map((l) => ({
-									...l,
-									id: newLyricLine().id,
-									words: l.words.map((w) => ({
-										...w,
-										id: newLyricWord().id,
-									})),
-								}));
 								state.lyricLines.splice(lineIndex + 1, 0, ...newLines);
+								repairSectionIntegrity(state);
 							} else {
 								state.lyricLines.splice(lineIndex + 1, 0, newLyricLine());
 							}

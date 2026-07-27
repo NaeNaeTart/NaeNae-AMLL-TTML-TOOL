@@ -27,22 +27,23 @@ import { useTranslation } from "react-i18next";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { currentTimeAtom } from "$/modules/audio/states";
 import {
+	geniusCategorizationEnabledAtom,
+	geniusHeaderDetectionDialogOpenAtom,
+	geniusHeaderDetectionDialogShownAtom,
+} from "$/modules/settings/states/index.ts";
+import {
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
 	selectedLinesAtom,
 	ToolMode,
 	toolModeAtom,
 } from "$/states/main.ts";
-import {
-	geniusCategorizationEnabledAtom,
-	geniusHeaderDetectionDialogShownAtom,
-	geniusHeaderDetectionDialogOpenAtom,
-} from "$/modules/settings/states/index.ts";
 import type { LyricLine } from "$/types/ttml.ts";
 import styles from "./index.module.css";
 import { LyricLineView } from "./lyric-line-view";
 import {
 	CategorizeSelectionDialog,
+	SectionManagerDialog,
 	SectionMetadataDialog,
 } from "./SectionActions";
 
@@ -97,25 +98,6 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const lastScrolledIndexRef = useRef<number | undefined>(undefined);
 	const lyricLines = useAtomValue(lyricLinesAtom).lyricLines;
 	const collapsedSections = useAtomValue(collapsedSectionIdsAtom);
-	const selectedLineIds = useAtomValue(selectedLinesAtom);
-	const temporarilyRevealedSectionIds = useMemo(() => {
-		const firstLineBySection = new Map<string, string>();
-		for (const line of lyricLines) {
-			if (line.sectionId && !firstLineBySection.has(line.sectionId)) {
-				firstLineBySection.set(line.sectionId, line.id);
-			}
-		}
-		return new Set(
-			lyricLines
-				.filter(
-					(line) =>
-						selectedLineIds.has(line.id) &&
-						line.sectionId &&
-						firstLineBySection.get(line.sectionId) !== line.id,
-				)
-				.map((line) => line.sectionId as string),
-		);
-	}, [lyricLines, selectedLineIds]);
 	const visibleItems = useMemo(
 		() =>
 			editLyric
@@ -128,12 +110,11 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					({ line, sourceIndex }) =>
 						!line?.sectionId ||
 						!collapsedSections.has(line.sectionId) ||
-						temporarilyRevealedSectionIds.has(line.sectionId) ||
 						lyricLines.findIndex(
 							(candidate) => candidate.sectionId === line.sectionId,
 						) === sourceIndex,
 				),
-		[editLyric, lyricLines, collapsedSections, temporarilyRevealedSectionIds],
+		[editLyric, lyricLines, collapsedSections],
 	);
 
 	const scrollToLineIndex = useCallback(
@@ -222,6 +203,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	return (
 		<Flex direction="column" flexGrow="1" className={styles.lyricLinesWrapper}>
 			<SectionMetadataDialog />
+			<SectionManagerDialog />
 			<CategorizeSelectionDialog />
 			<Box
 				flexGrow="1"

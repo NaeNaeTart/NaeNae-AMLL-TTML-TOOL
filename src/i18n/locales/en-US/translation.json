@@ -80,6 +80,7 @@
     "search": "Search",
     "success": "Restore successful",
     "error": "Data corrupted or lost",
+    "edit": "Edit",
     "apply": "Apply",
     "confirm": "Confirm",
     "back": "Back",
@@ -780,6 +781,7 @@
     "editTitle": "Edit section",
     "vocalist": "Vocalist / role",
     "notes": "Notes",
+    "manage": "Manage sections",
     "goPrevious": "Go to previous section",
     "goNext": "Go to next section",
     "editMetadata": "Edit metadata",
@@ -791,6 +793,8 @@
     "linkPrevious": "Link to previous {category}",
     "unlinkRepeat": "Unlink repeat",
     "removeHeader": "Remove header (keep lyrics)",
+    "addToPrevious": "Add unassigned lines to previous section",
+    "addToNext": "Add unassigned lines to next section",
     "section": "Section"
   },
   "touchSyncPanel": {

@@ -25,10 +25,11 @@ import {
 	type LyricSectionCategory,
 } from "$/types/ttml";
 import {
+	createSectionsFromSelectedLines,
 	getOrderedSections,
 	getSectionBoundsById,
-	createSectionsFromSelectedLines,
 	mergeSectionWithAdjacent,
+	mergeUnassignedBlock,
 	moveSection,
 	removeSectionMetadata,
 	splitSection,
@@ -37,6 +38,7 @@ import {
 
 const editingSectionIdAtom = atom<string | null>(null);
 const categorizingSelectionAtom = atom(false);
+const sectionManagerOpenAtom = atom(false);
 
 export function CategorizeSelectionContextMenuItem() {
 	const { t } = useTranslation();
@@ -75,9 +77,16 @@ export function CategorizeSelectionDialog() {
 	return (
 		<Dialog.Root open={open} onOpenChange={setOpen}>
 			<Dialog.Content maxWidth="400px">
-				<Dialog.Title>{t("sectionActions.categorizeTitle", "Categorize selected lines")}</Dialog.Title>
+				<Dialog.Title>
+					{t("sectionActions.categorizeTitle", "Categorize selected lines")}
+				</Dialog.Title>
 				<Flex direction="column" gap="3">
-					<Select.Root value={category} onValueChange={(value) => setCategory(value as LyricSectionCategory)}>
+					<Select.Root
+						value={category}
+						onValueChange={(value) =>
+							setCategory(value as LyricSectionCategory)
+						}
+					>
 						<Select.Trigger />
 						<Select.Content>
 							{LYRIC_SECTION_CATEGORIES.map((item) => (
@@ -105,8 +114,6 @@ export function SectionActions({ section }: { section: LyricSection }) {
 	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const [collapsed, setCollapsed] = useAtom(collapsedSectionIdsAtom);
-	const selectedLineIds = useAtomValue(selectedLinesAtom);
-	const setSelectedLines = useSetAtom(selectedLinesAtom);
 	const issues = useMemo(
 		() =>
 			validateSections(lyrics).filter(
@@ -118,18 +125,6 @@ export function SectionActions({ section }: { section: LyricSection }) {
 	const toggleCollapsed = (event: React.MouseEvent) => {
 		event.preventDefault();
 		event.stopPropagation();
-		if (!collapsed.has(section.id)) {
-			const bounds = getSectionBoundsById(lyrics.lyricLines, section.id);
-			const firstLine = bounds ? lyrics.lyricLines[bounds.start] : undefined;
-			const hasSelectedSectionLine = bounds
-				? lyrics.lyricLines
-						.slice(bounds.start, bounds.end)
-						.some((line) => selectedLineIds.has(line.id))
-				: false;
-			if (firstLine && hasSelectedSectionLine) {
-				setSelectedLines(new Set([firstLine.id]));
-			}
-		}
 		setCollapsed((current) => {
 			const next = new Set(current);
 			if (next.has(section.id)) next.delete(section.id);
@@ -154,7 +149,9 @@ export function SectionActions({ section }: { section: LyricSection }) {
 				color="gray"
 				onClick={toggleCollapsed}
 				title={
-					collapsed.has(section.id) ? t("sectionActions.expand", "Expand section") : t("sectionActions.collapse", "Collapse section")
+					collapsed.has(section.id)
+						? t("sectionActions.expand", "Expand section")
+						: t("sectionActions.collapse", "Collapse section")
 				}
 			>
 				{collapsed.has(section.id) ? "▸" : "▾"}
@@ -188,7 +185,9 @@ export function SectionMetadataDialog() {
 			onOpenChange={(open) => !open && closeEditor()}
 		>
 			<Dialog.Content maxWidth="500px">
-				<Dialog.Title>{t("sectionActions.editTitle", "Edit section")}</Dialog.Title>
+				<Dialog.Title>
+					{t("sectionActions.editTitle", "Edit section")}
+				</Dialog.Title>
 				{editing && (
 					<Flex direction="column" gap="3">
 						<TextField.Root
@@ -275,17 +274,67 @@ export function SectionMetadataDialog() {
 	);
 }
 
+export function SectionManagerDialog() {
+	const { t } = useTranslation();
+	const lyrics = useAtomValue(lyricLinesAtom);
+	const [open, setOpen] = useAtom(sectionManagerOpenAtom);
+	const setSelectedLines = useSetAtom(selectedLinesAtom);
+	const setEditingSectionId = useSetAtom(editingSectionIdAtom);
+	const sections = getOrderedSections(lyrics);
+	return (
+		<Dialog.Root open={open} onOpenChange={setOpen}>
+			<Dialog.Content maxWidth="560px">
+				<Dialog.Title>
+					{t("sectionActions.manage", "Manage sections")}
+				</Dialog.Title>
+				<Flex direction="column" gap="2" mt="3">
+					{sections.map((section) => {
+						const bounds = getSectionBoundsById(lyrics.lyricLines, section.id);
+						return (
+							<Flex key={section.id} align="center" justify="between" gap="2">
+								<Button
+									variant="ghost"
+									onClick={() => {
+										if (!bounds) return;
+										setSelectedLines(
+											new Set(
+												lyrics.lyricLines
+													.slice(bounds.start, bounds.end)
+													.map((line) => line.id),
+											),
+										);
+									}}
+								>
+									{section.label} ({bounds ? bounds.end - bounds.start : 0})
+								</Button>
+								<Button
+									size="1"
+									onClick={() => setEditingSectionId(section.id)}
+								>
+									{t("common.edit", "Edit")}
+								</Button>
+							</Flex>
+						);
+					})}
+				</Flex>
+			</Dialog.Content>
+		</Dialog.Root>
+	);
+}
+
 export function SectionContextMenuItems({
 	section,
+	lineIndex,
 }: {
 	section: LyricSection;
+	lineIndex: number;
 }) {
 	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const editLyrics = useSetImmerAtom(lyricLinesAtom);
-	const selectedLines = useAtomValue(selectedLinesAtom);
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
 	const setEditingSectionId = useSetAtom(editingSectionIdAtom);
+	const setSectionManagerOpen = useSetAtom(sectionManagerOpenAtom);
 	const orderedSections = getOrderedSections(lyrics);
 	const sectionIndex = orderedSections.findIndex(
 		(item) => item.id === section.id,
@@ -352,22 +401,19 @@ export function SectionContextMenuItems({
 			<ContextMenu.Item onSelect={() => setEditingSectionId(section.id)}>
 				{t("sectionActions.editMetadata", "Edit metadata")}
 			</ContextMenu.Item>
+			<ContextMenu.Item onSelect={() => setSectionManagerOpen(true)}>
+				{t("sectionActions.manage", "Manage sections")}
+			</ContextMenu.Item>
 			<ContextMenu.Item
-				disabled={!bounds || bounds.end - bounds.start < 2}
+				disabled={
+					!bounds ||
+					bounds.end - bounds.start < 2 ||
+					lineIndex <= bounds.start ||
+					lineIndex >= bounds.end
+				}
 				onSelect={() =>
 					editLyrics((draft) => {
-						const sectionLines = draft.lyricLines.filter(
-							(line) => line.sectionId === section.id,
-						);
-						const selectedId =
-							sectionLines.find((line) => selectedLines.has(line.id))?.id ??
-							sectionLines[1]?.id;
-						const lineIndex = draft.lyricLines.findIndex(
-							(line) => line.id === selectedId,
-						);
-						if (lineIndex !== -1) {
-							splitSection(draft, section.id, lineIndex);
-						}
+						splitSection(draft, section.id, lineIndex);
 					})
 				}
 			>
@@ -444,13 +490,70 @@ export function SectionContextMenuItems({
 	);
 }
 
-export function SectionContextMenuSub({ section }: { section: LyricSection }) {
+export function UnassignedSectionContextMenuItems({
+	lineIndex,
+}: {
+	lineIndex: number;
+}) {
+	const { t } = useTranslation();
+	const lyrics = useAtomValue(lyricLinesAtom);
+	const editLyrics = useSetImmerAtom(lyricLinesAtom);
+	const line = lyrics.lyricLines[lineIndex];
+	let start = lineIndex;
+	let end = lineIndex + 1;
+	while (start > 0 && !lyrics.lyricLines[start - 1].sectionId) start--;
+	while (end < lyrics.lyricLines.length && !lyrics.lyricLines[end].sectionId)
+		end++;
+	const previousId =
+		line && !line.sectionId
+			? lyrics.lyricLines[start - 1]?.sectionId
+			: undefined;
+	const nextId =
+		line && !line.sectionId ? lyrics.lyricLines[end]?.sectionId : undefined;
+	return (
+		<>
+			<ContextMenu.Item
+				disabled={!previousId}
+				onSelect={() =>
+					editLyrics((draft) => {
+						mergeUnassignedBlock(draft, lineIndex, "previous");
+					})
+				}
+			>
+				{t(
+					"sectionActions.addToPrevious",
+					"Add unassigned lines to previous section",
+				)}
+			</ContextMenu.Item>
+			<ContextMenu.Item
+				disabled={!nextId}
+				onSelect={() =>
+					editLyrics((draft) => {
+						mergeUnassignedBlock(draft, lineIndex, "next");
+					})
+				}
+			>
+				{t("sectionActions.addToNext", "Add unassigned lines to next section")}
+			</ContextMenu.Item>
+		</>
+	);
+}
+
+export function SectionContextMenuSub({
+	section,
+	lineIndex,
+}: {
+	section: LyricSection;
+	lineIndex: number;
+}) {
 	const { t } = useTranslation();
 	return (
 		<ContextMenu.Sub>
-			<ContextMenu.SubTrigger>{t("sectionActions.section", "Section")}</ContextMenu.SubTrigger>
+			<ContextMenu.SubTrigger>
+				{t("sectionActions.section", "Section")}
+			</ContextMenu.SubTrigger>
 			<ContextMenu.SubContent sideOffset={12}>
-				<SectionContextMenuItems section={section} />
+				<SectionContextMenuItems section={section} lineIndex={lineIndex} />
 			</ContextMenu.SubContent>
 		</ContextMenu.Sub>
 	);

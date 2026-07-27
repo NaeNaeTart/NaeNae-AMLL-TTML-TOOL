@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newLyricLine, newLyricWord, type LyricLine } from "$/types/ttml.ts";
+import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml.ts";
 import {
 	copySectionTimings,
 	findPreviousMatchingSection,
@@ -12,6 +12,7 @@ const line = (
 	header: string | undefined,
 	startTime = 0,
 	words = 1,
+	text = "",
 ): LyricLine => ({
 	...newLyricLine(),
 	geniusHeader: header,
@@ -19,6 +20,7 @@ const line = (
 	endTime: startTime + 100,
 	words: Array.from({ length: words }, (_, index) => ({
 		...newLyricWord(),
+		word: text,
 		startTime: startTime + index * 10,
 		endTime: startTime + index * 10 + 5,
 	})),
@@ -43,12 +45,12 @@ describe("Genius sections", () => {
 
 	it("shifts whole sections and copies matching line/word timing only", () => {
 		const lines = [
-			line("[Chorus]", 100, 2),
-			line("[Chorus]", 250),
+			line("[Chorus]", 100, 2, "one"),
+			line("[Chorus]", 250, 1, "two"),
 			line("[Verse]", 400),
-			line("[Chorus]", 700, 2),
-			line("[Chorus]", 850),
-			line("[Chorus]", 1000),
+			line("[Chorus]", 700, 2, "one"),
+			line("[Chorus]", 850, 1, "two"),
+			line("[Chorus]", 1000, 1, "different"),
 		];
 		shiftSectionToTime(lines, 3, 900);
 		expect(lines[3].startTime).toBe(900);
@@ -61,5 +63,19 @@ describe("Genius sections", () => {
 		expect(lines[3].startTime).toBe(100);
 		expect(lines[3].words[1].endTime).toBe(115);
 		expect(lines[5].startTime).toBe(1200);
+	});
+
+	it("copies only matching lyric lines when repeated sections differ", () => {
+		const lines = [
+			line("[Chorus]", 100, 1, "same"),
+			line("[Chorus]", 200, 1, "source only"),
+			line("[Verse]", 400),
+			line("[Chorus]", 700, 1, "target only"),
+			line("[Chorus]", 800, 1, "same"),
+		];
+		const result = copySectionTimings(lines, 3, { start: 0, end: 2 });
+		expect(result).toEqual({ copiedLineCount: 1, lengthsMatch: true });
+		expect(lines[3].startTime).toBe(700);
+		expect(lines[4].startTime).toBe(100);
 	});
 });

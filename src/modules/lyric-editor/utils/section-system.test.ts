@@ -4,12 +4,15 @@ import {
 	applyReviewedSections,
 	assignHighConfidenceRepeatGroups,
 	createSectionsFromSelectedLines,
+	duplicateLinesWithSections,
 	getOrderedSections,
 	mergeSectionWithAdjacent,
+	mergeUnassignedBlock,
 	migrateLegacySections,
 	moveSection,
 	normalizeSectionHeader,
 	removeSectionMetadata,
+	repairSectionIntegrity,
 	splitSection,
 	validateSections,
 } from "./section-system";
@@ -194,5 +197,45 @@ describe("first-class sections", () => {
 			),
 		).toEqual([]);
 		expect(lyrics.sections).toHaveLength(1);
+	});
+
+	it("duplicates categorized lines into a new repeat-linked section", () => {
+		const lyrics = {
+			metadata: [],
+			lyricLines: [line("a", "[Verse]"), line("b", "[Verse]")],
+		} as TTMLLyric;
+		migrateLegacySections(lyrics);
+		const sourceId = lyrics.lyricLines[0].sectionId ?? "";
+		const copies = duplicateLinesWithSections(
+			lyrics,
+			new Set(lyrics.lyricLines.map((item) => item.id)),
+		);
+		lyrics.lyricLines.push(...copies);
+		repairSectionIntegrity(lyrics);
+		expect(lyrics.sections).toHaveLength(2);
+		expect(copies[0].sectionId).not.toBe(sourceId);
+		expect(lyrics.sections?.[0].repeatGroupId).toBeTruthy();
+		expect(lyrics.sections?.[1].repeatGroupId).toBe(
+			lyrics.sections?.[0].repeatGroupId,
+		);
+		expect(validateSections(lyrics).map((issue) => issue.code)).not.toContain(
+			"noncontiguous-section",
+		);
+	});
+
+	it("repairs non-contiguous section ids and merges unassigned blocks", () => {
+		const lyrics = {
+			metadata: [],
+			sections: [{ id: "verse", label: "[Verse]", category: "verse" }],
+			lyricLines: [
+				{ ...line("a"), sectionId: "verse" },
+				line("gap"),
+				{ ...line("b"), sectionId: "verse" },
+			],
+		} as TTMLLyric;
+		repairSectionIntegrity(lyrics);
+		expect(lyrics.lyricLines[2].sectionId).not.toBe("verse");
+		expect(mergeUnassignedBlock(lyrics, 1, "previous")).toBe(true);
+		expect(lyrics.lyricLines[1].sectionId).toBe("verse");
 	});
 });

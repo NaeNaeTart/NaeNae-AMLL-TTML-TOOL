@@ -25,7 +25,12 @@ export function getSectionBounds(lines: LyricLine[], lineIndex: number) {
 	)
 		end++;
 
-	return { header: target.geniusHeader, sectionId: target.sectionId, start, end };
+	return {
+		header: target.geniusHeader,
+		sectionId: target.sectionId,
+		start,
+		end,
+	};
 }
 
 export function findPreviousMatchingSection(
@@ -52,7 +57,8 @@ export function findPreviousMatchingSection(
 				((!!currentSection.repeatGroupId &&
 					sectionMap.get(candidate.sectionId)?.repeatGroupId ===
 						currentSection.repeatGroupId) ||
-					sectionMap.get(candidate.sectionId)?.label === currentSection.label)) ||
+					sectionMap.get(candidate.sectionId)?.label ===
+						currentSection.label)) ||
 				(!currentSection && candidate.header === current.header)) &&
 			lines[candidate.start].endTime > lines[candidate.start].startTime
 		) {
@@ -90,14 +96,29 @@ export function copySectionTimings(
 ) {
 	const target = getSectionBounds(lines, targetLineIndex);
 	if (!target) return undefined;
-	const copiedLineCount = Math.min(
-		target.end - target.start,
-		source.end - source.start,
-	);
-
-	for (let offset = 0; offset < copiedLineCount; offset++) {
-		const targetLine = lines[target.start + offset];
-		const sourceLine = lines[source.start + offset];
+	const normalizeLine = (line: LyricLine) =>
+		line.words
+			.map((word) => word.word)
+			.join(" ")
+			.normalize("NFKC")
+			.toLocaleLowerCase()
+			.replace(/[^\p{L}\p{N}]+/gu, " ")
+			.trim();
+	const sourceByText = new Map<string, LyricLine[]>();
+	for (let index = source.start; index < source.end; index++) {
+		const sourceLine = lines[index];
+		const text = normalizeLine(sourceLine);
+		if (!text) continue;
+		const matches = sourceByText.get(text) ?? [];
+		matches.push(sourceLine);
+		sourceByText.set(text, matches);
+	}
+	let copiedLineCount = 0;
+	for (let index = target.start; index < target.end; index++) {
+		const targetLine = lines[index];
+		const matches = sourceByText.get(normalizeLine(targetLine));
+		const sourceLine = matches?.shift();
+		if (!sourceLine) continue;
 		targetLine.startTime = sourceLine.startTime;
 		targetLine.endTime = sourceLine.endTime;
 		for (
@@ -109,6 +130,7 @@ export function copySectionTimings(
 				sourceLine.words[wordIndex].startTime;
 			targetLine.words[wordIndex].endTime = sourceLine.words[wordIndex].endTime;
 		}
+		copiedLineCount++;
 	}
 
 	return {

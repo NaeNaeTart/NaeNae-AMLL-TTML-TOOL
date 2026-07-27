@@ -195,6 +195,101 @@ export function getSectionBoundsById(lines: LyricLine[], sectionId: string) {
 	return { start, end };
 }
 
+/** Keeps the persisted section model compatible with the editor's contiguous-range UI. */
+export function repairSectionIntegrity(lyrics: TTMLLyric) {
+	lyrics.sections ??= [];
+	const sectionsById = new Map(
+		lyrics.sections.map((section) => [section.id, section]),
+	);
+	const seenRanges = new Set<string>();
+	let previousOriginalId: string | undefined;
+	let activeId: string | undefined;
+	for (const line of lyrics.lyricLines) {
+		const sectionId = line.sectionId;
+		if (!sectionId) {
+			previousOriginalId = undefined;
+			activeId = undefined;
+			continue;
+		}
+		const source = sectionsById.get(sectionId);
+		if (!source) {
+			delete line.sectionId;
+			delete line.geniusHeader;
+			previousOriginalId = undefined;
+			activeId = undefined;
+			continue;
+		}
+		if (sectionId === previousOriginalId && activeId) {
+			line.sectionId = activeId;
+			line.geniusHeader = sectionsById.get(activeId)?.label;
+			continue;
+		}
+		if (seenRanges.has(sectionId)) {
+			const repeatGroupId = source.repeatGroupId ?? uid();
+			source.repeatGroupId = repeatGroupId;
+			const clone = { ...source, id: uid(), repeatGroupId };
+			lyrics.sections.push(clone);
+			sectionsById.set(clone.id, clone);
+			line.sectionId = clone.id;
+			line.geniusHeader = clone.label;
+			previousOriginalId = sectionId;
+			activeId = clone.id;
+			seenRanges.add(clone.id);
+			continue;
+		}
+		seenRanges.add(sectionId);
+		line.geniusHeader = source.label;
+		previousOriginalId = sectionId;
+		activeId = sectionId;
+	}
+	const usedIds = new Set(
+		lyrics.lyricLines.flatMap((line) =>
+			line.sectionId ? [line.sectionId] : [],
+		),
+	);
+	lyrics.sections = lyrics.sections.filter((section) =>
+		usedIds.has(section.id),
+	);
+	return lyrics;
+}
+
+export function duplicateLinesWithSections(
+	lyrics: TTMLLyric,
+	selectedLineIds: ReadonlySet<string>,
+) {
+	const sectionById = new Map(
+		(lyrics.sections ?? []).map((section) => [section.id, section]),
+	);
+	const clones = new Map<string, LyricSection>();
+	const duplicated: LyricLine[] = [];
+	for (const line of lyrics.lyricLines) {
+		if (!selectedLineIds.has(line.id)) continue;
+		const copy: LyricLine = {
+			...line,
+			id: uid(),
+			words: line.words.map((word) => ({ ...word, id: uid() })),
+		};
+		if (line.sectionId) {
+			const source = sectionById.get(line.sectionId);
+			if (source) {
+				let clone = clones.get(source.id);
+				if (!clone) {
+					const repeatGroupId = source.repeatGroupId ?? uid();
+					source.repeatGroupId = repeatGroupId;
+					clone = { ...source, id: uid(), repeatGroupId };
+					lyrics.sections ??= [];
+					lyrics.sections.push(clone);
+					clones.set(source.id, clone);
+				}
+				copy.sectionId = clone.id;
+				copy.geniusHeader = clone.label;
+			}
+		}
+		duplicated.push(copy);
+	}
+	return duplicated;
+}
+
 export function getOrderedSections(lyrics: TTMLLyric) {
 	const sectionById = new Map(
 		(lyrics.sections ?? []).map((section) => [section.id, section]),
@@ -537,7 +632,6 @@ export function splitSection(
 	const section: LyricSection = {
 		...source,
 		id: uid(),
-		label: `${source.label.replace(/\]$/, "")} (split)]`,
 		repeatGroupId: undefined,
 	};
 	lyrics.sections?.push(section);
@@ -546,6 +640,31 @@ export function splitSection(
 		lyrics.lyricLines[index].geniusHeader = section.label;
 	}
 	return section;
+}
+
+export function mergeUnassignedBlock(
+	lyrics: TTMLLyric,
+	lineIndex: number,
+	direction: "previous" | "next",
+) {
+	const line = lyrics.lyricLines[lineIndex];
+	if (!line || line.sectionId) return false;
+	let start = lineIndex;
+	let end = lineIndex + 1;
+	while (start > 0 && !lyrics.lyricLines[start - 1].sectionId) start--;
+	while (end < lyrics.lyricLines.length && !lyrics.lyricLines[end].sectionId)
+		end++;
+	const targetId =
+		direction === "previous"
+			? lyrics.lyricLines[start - 1]?.sectionId
+			: lyrics.lyricLines[end]?.sectionId;
+	const target = lyrics.sections?.find((section) => section.id === targetId);
+	if (!targetId || !target) return false;
+	for (let index = start; index < end; index++) {
+		lyrics.lyricLines[index].sectionId = targetId;
+		lyrics.lyricLines[index].geniusHeader = target.label;
+	}
+	return true;
 }
 
 export function mergeSectionWithAdjacent(
