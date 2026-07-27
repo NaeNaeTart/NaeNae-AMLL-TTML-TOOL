@@ -10,7 +10,14 @@ import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
 	segmentWord,
+	segmentLyricLines,
 } from "$/modules/segmentation/utils/segmentation";
+import { matchesSavedSyllabificationEngine } from "$/modules/segmentation/utils/detect-syllabification-engine";
+import { SYLLABIFICATION_ENGINES } from "$/modules/segmentation/utils/syllabification-engines";
+import {
+	segmentationEngineAtom,
+	segmentationSplitEnglishAtom,
+} from "$/modules/segmentation/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { getSynchronizableUnits } from "$/modules/lyric-editor/utils/lyric-states.ts";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system.ts";
@@ -71,12 +78,15 @@ export const useTopMenuActions = () => {
 		advancedSegmentationDialogAtom,
 	);
 	const setAutoSegmentDialog = useSetAtom(autoSegmentDialogAtom);
+	const savedSegmentationEngine = useAtomValue(segmentationEngineAtom);
+	const setSplitEnglish = useSetAtom(segmentationSplitEnglishAtom);
 	const setLearnedSplitsDialog = useSetAtom(learnedSplitsDialogAtom);
 	const setTimeShiftDialog = useSetAtom(timeShiftDialogAtom);
 	const setTimeStretchDialog = useSetAtom(timeStretchDialogAtom);
 	const { openFile } = useFileOpener();
 	const setProjectId = useSetAtom(projectIdAtom);
 	const { config: segmentationConfig } = useSegmentationConfig();
+	const lyricLines = useAtomValue(lyricLinesAtom);
 	const newFileKey = useAtomValue(keyNewFileAtom);
 	const openFileKey = useAtomValue(keyOpenFileAtom);
 	const saveFileKey = useAtomValue(keySaveFileAtom);
@@ -411,6 +421,44 @@ export const useTopMenuActions = () => {
 		setAutoSegmentDialog(true);
 	}, [setAutoSegmentDialog]);
 
+	const onQuickAutoSegment = useCallback(() => {
+		if (
+			!matchesSavedSyllabificationEngine(
+				lyricLines.lyricLines,
+				savedSegmentationEngine,
+			)
+		) {
+			setAutoSegmentDialog(true);
+			return;
+		}
+
+		setSplitEnglish(savedSegmentationEngine !== "none");
+		editLyricLines((draft) => {
+			draft.lyricLines = segmentLyricLines(draft.lyricLines, {
+				...segmentationConfig,
+				engine: savedSegmentationEngine,
+				splitEnglish: savedSegmentationEngine !== "none",
+			});
+		});
+		toast.success(
+			t("autoSegmentApplied", {
+				defaultValue: "Auto-segmented with {engine}",
+				engine:
+					SYLLABIFICATION_ENGINES.find(
+						({ id }) => id === savedSegmentationEngine,
+					)?.name ?? savedSegmentationEngine,
+			}),
+		);
+	}, [
+		editLyricLines,
+		lyricLines.lyricLines,
+		savedSegmentationEngine,
+		segmentationConfig,
+		setAutoSegmentDialog,
+		setSplitEnglish,
+		t,
+	]);
+
 	const onRubySegment = useCallback(() => {
 		const selectedWordIds = store.get(selectedWordsAtom);
 		const hasSelection = selectedWordIds.size > 0;
@@ -527,6 +575,7 @@ export const useTopMenuActions = () => {
 		onOpenMetadataEditor,
 		onOpenSettings,
 		onAutoSegment,
+		onQuickAutoSegment,
 		onRubySegment,
 		onOpenAdvancedSegmentation,
 		onOpenLearnedSplits,

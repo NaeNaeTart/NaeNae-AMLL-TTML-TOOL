@@ -531,6 +531,10 @@
 			"selectInverted": "Invert Selection",
 			"selectWordsOfMatchedSelection": "Select similar words",
 			"deleteSelection": "Delete Selection",
+			"autoSegment": "Tools - Auto Segment",
+			"autoSegmentOptions": "Auto Segment",
+			"autoSegmentDoublePress": "Require double press",
+			"autoSegmentDoublePressDesc": "Run Auto Segment only after pressing its shortcut twice quickly.",
 			"switchEditMode": "Mode Switch - Switch to Edit Mode",
 			"switchSyncMode": "Mode Switch - Switch to Timing Mode",
 			"switchPreviewMode": "Mode Switch - Switch to Preview Mode",
@@ -767,6 +771,7 @@
 			"full": "Full TTML Guide"
 		}
 	},
+	"autoSegmentApplied": "Auto-segmented with {engine}",
 	"experimentalFeatures": {
 		"title": "Experimental Features",
 		"description": "These features are currently in development and may be unstable. Use with caution.",

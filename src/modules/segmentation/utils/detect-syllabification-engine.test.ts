@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { LyricLine } from "$/types/ttml";
-import { detectSyllabificationEngine } from "./detect-syllabification-engine";
+import {
+	detectSyllabificationEngine,
+	matchesSavedSyllabificationEngine,
+} from "./detect-syllabification-engine";
 
 const lyrics = (text: string) =>
 	[
@@ -34,5 +37,17 @@ describe("detectSyllabificationEngine", () => {
 
 	it("does not guess when there are no lyrics", () => {
 		expect(detectSyllabificationEngine([])).toBeUndefined();
+	});
+
+	it("only auto-applies when the suggestion matches the saved engine", () => {
+		const japaneseLyrics = lyrics("これは日本語の歌詞です");
+
+		expect(matchesSavedSyllabificationEngine(japaneseLyrics, "japanese")).toBe(
+			true,
+		);
+		expect(matchesSavedSyllabificationEngine(japaneseLyrics, "prosodic")).toBe(
+			false,
+		);
+		expect(matchesSavedSyllabificationEngine([], "prosodic")).toBe(false);
 	});
 });

@@ -355,6 +355,52 @@ export function useKeyBindingAtom(
 	return keyBindings;
 }
 
+export function useDoubleKeyBindingAtom(
+	thisAtom: ReturnType<typeof atomWithKeybindingStorage>,
+	callback: KeyBindingCallback,
+	deps?: DependencyList,
+	enabled = true,
+): KeyBindingsConfig {
+	const keyBindings = useAtomValue(thisAtom);
+	useEffect(() => {
+		if (!enabled) return;
+
+		let lastPressTime = -Infinity;
+		const joinedKey = getShortcutKey(keyBindings);
+		const onKeyDown = (evt: KeyboardEvent) => {
+			if (evt.repeat || isEditing(evt)) return;
+
+			const keys = [
+				...(evt.ctrlKey ? ["Control"] : []),
+				...(evt.metaKey ? ["Meta"] : []),
+				...(evt.altKey ? ["Alt"] : []),
+				...(evt.shiftKey ? ["Shift"] : []),
+				removeSideOfKeyCode(evt.code),
+			];
+			if (getShortcutKey(keys) !== joinedKey) return;
+
+			if (evt.timeStamp - lastPressTime <= 350) {
+				callback({
+					downTime: lastPressTime,
+					downTimeOffset: evt.timeStamp - lastPressTime,
+					triggerTime: evt.timeStamp,
+				});
+				evt.preventDefault();
+				evt.stopPropagation();
+				evt.stopImmediatePropagation();
+				lastPressTime = -Infinity;
+				return;
+			}
+
+			lastPressTime = evt.timeStamp;
+		};
+
+		window.addEventListener("keydown", onKeyDown, true);
+		return () => window.removeEventListener("keydown", onKeyDown, true);
+	}, [keyBindings, callback, enabled, ...(deps || [])]);
+	return keyBindings;
+}
+
 let currentKeyDownEvent: ((evt: KeyboardEvent) => void) | undefined;
 let currentKeyUpEvent: ((evt: KeyboardEvent) => void) | undefined;
 

@@ -37,3 +37,8 @@ export const detectSyllabificationEngine = (lyricLines: LyricLine[]) => {
 	const detectedLanguage = franc(text, { minLength: 20 });
 	return engineForLanguage[detectedLanguage];
 };
+
+export const matchesSavedSyllabificationEngine = (
+	lyricLines: LyricLine[],
+	savedEngine: SegmentationEngineId,
+) => detectSyllabificationEngine(lyricLines) === savedEngine;

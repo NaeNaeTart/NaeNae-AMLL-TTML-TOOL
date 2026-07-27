@@ -1,6 +1,7 @@
 import { Box, Flex } from "@radix-ui/themes";
+import { useAtomValue } from "jotai";
 import { Toolbar } from "radix-ui";
-import { type FC, useEffect, useState } from "react";
+import { type FC, useCallback, useEffect, useState } from "react";
 
 import { HeaderFileInfo } from "./HeaderFileInfo";
 import { EditMenu } from "./modals/EditMenu";
@@ -11,6 +12,7 @@ import { ToolMenu } from "./modals/ToolMenu";
 import { useTopMenuActions } from "./useTopMenuActions";
 
 import {
+	keyAutoSegmentAtom,
 	keyDeleteSelectionAtom,
 	keyNewFileAtom,
 	keyOpenFileAtom,
@@ -21,7 +23,12 @@ import {
 	keySelectWordsOfMatchedSelectionAtom,
 	keyUndoAtom,
 } from "$/states/keybindings";
-import { registerKeyBindings, useKeyBindingAtom } from "$/utils/keybindings";
+import { autoSegmentDoublePressAtom } from "$/modules/keyboard/states";
+import {
+	registerKeyBindings,
+	useDoubleKeyBindingAtom,
+	useKeyBindingAtom,
+} from "$/utils/keybindings";
 // top menu actions are used inside individual menu components
 
 const useWindowSize = () => {
@@ -49,6 +56,10 @@ export const TopMenu: FC = () => {
 	const { width } = useWindowSize();
 	const showHomeButton = width < 800;
 	const menu = useTopMenuActions();
+	const autoSegmentDoublePress = useAtomValue(autoSegmentDoublePressAtom);
+	const onSingleAutoSegment = useCallback(() => {
+		if (!autoSegmentDoublePress) menu.onQuickAutoSegment();
+	}, [autoSegmentDoublePress, menu.onQuickAutoSegment]);
 
 	useKeyBindingAtom(keyNewFileAtom, menu.onNewFile, [menu.onNewFile]);
 	useKeyBindingAtom(keyOpenFileAtom, menu.onOpenFile, [menu.onOpenFile]);
@@ -80,6 +91,15 @@ export const TopMenu: FC = () => {
 	useKeyBindingAtom(keyDeleteSelectionAtom, menu.onDeleteSelection, [
 		menu.onDeleteSelection,
 	]);
+	useKeyBindingAtom(keyAutoSegmentAtom, onSingleAutoSegment, [
+		onSingleAutoSegment,
+	]);
+	useDoubleKeyBindingAtom(
+		keyAutoSegmentAtom,
+		menu.onQuickAutoSegment,
+		[menu.onQuickAutoSegment],
+		autoSegmentDoublePress,
+	);
 
 	return (
 		<Flex
