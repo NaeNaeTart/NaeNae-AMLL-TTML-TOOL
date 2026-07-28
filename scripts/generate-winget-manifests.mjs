@@ -23,7 +23,7 @@ const outputRoot = resolve(readArgument("--output"));
 const metadata = JSON.parse(
 	readFileSync(join(process.cwd(), "winget", "package.json"), "utf8"),
 );
-const manifestVersion = "1.10.0";
+const manifestVersion = "1.12.0";
 const manifestDirectory = join(
 	outputRoot,
 	"manifests",
