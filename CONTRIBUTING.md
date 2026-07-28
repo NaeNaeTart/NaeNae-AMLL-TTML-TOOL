@@ -63,6 +63,37 @@ Releases are maintainer-only. A stable release starts by updating the version
 in `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml`, then
 creating a matching tag such as `v0.7.4`.
 
+### Make a release
+
+Use this exact order for every new version. Example: releasing `0.7.4` after
+`0.7.3`.
+
+1. Change the version to `0.7.4` in all three files:
+   - `package.json`
+   - `src-tauri/tauri.conf.json`
+   - `src-tauri/Cargo.toml`
+2. Add a `v0.7.4 Updates` section at the top of
+   `src/components/Dialogs/changelog.tsx`. These entries become the GitHub
+   Release notes.
+3. Run the relevant tests, `pnpm exec biome check <changed files>`, and
+   `pnpm run build`.
+4. Commit and push the version and changelog changes.
+5. Create and push exactly one matching tag:
+
+   ```bash
+   git tag -a v0.7.4 -m "Release v0.7.4"
+   git push origin v0.7.4
+   ```
+
+6. Wait for the **Build desktop app** GitHub Action. It creates the permanent
+   GitHub Release, updater manifest, installers, and Winget submission PR.
+7. Check that the release has `latest.json` and the Windows x64 `.msi` before
+   announcing it.
+
+Never reuse, move, or overwrite an existing release tag. If a release fails,
+fix the workflow or source in a new commit and ask a maintainer how to recover
+the affected release.
+
 Do not create release tags, change updater signing keys, change updater release
 endpoints, or alter Winget publishing secrets/workflows without maintainer
 approval. Tagged releases publish immutable GitHub assets; ordinary branch
