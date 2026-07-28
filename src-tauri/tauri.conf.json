@@ -47,7 +47,7 @@
 		"updater": {
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYyNzRERDQ3NEZCQjQxOTMKUldTVFFidFBSOTEwWXV2V1NIaGJ6ZGdkZUJvMTQ1ZFR6Y1RkVWFSTUx2NzNqTWR6d0lQajRWbzcK",
 			"endpoints": [
-				"https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/releases/latest.json"
+				"https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/releases/download/main-release/latest.json"
 			]
 		}
 	}

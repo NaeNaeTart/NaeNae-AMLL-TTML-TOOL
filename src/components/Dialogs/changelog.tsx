@@ -56,6 +56,9 @@ export function ChangelogDialog() {
 									<strong>Prosodic Segmentation Fix:</strong> English contractions using typographic apostrophes, such as “we’re” and “they’re”, now stay together.
 								</Text>
 								<Text size="2">
+									<strong>Desktop Update Fix:</strong> Desktop builds now check the published updater manifest and keep their version consistent across the app and build metadata.
+								</Text>
+								<Text size="2">
 									<strong>Spicy Lyrics Fix:</strong> The Spicy Lyrics preview now preserves TTML line order when line timestamps are out of sequence.
 								</Text>
 								<Text size="2">

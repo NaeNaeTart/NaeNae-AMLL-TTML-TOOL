@@ -13,20 +13,31 @@ const getGitCommitCount = () => {
 };
 
 const tauriConfigPath = join(process.cwd(), "src-tauri", "tauri.conf.json");
+const packageJsonPath = join(process.cwd(), "package.json");
+const cargoTomlPath = join(process.cwd(), "src-tauri", "Cargo.toml");
 
 try {
 	const tauriConfig = JSON.parse(readFileSync(tauriConfigPath, "utf-8"));
 	const currentVersion = tauriConfig.version;
 
-	const [major, minor] = currentVersion.split(".");
-
 	const commitCount = getGitCommitCount();
-	const newVersion = `${major}.${minor}.${commitCount}`;
+	const baseVersion = currentVersion.replace(/-\d+$/, "");
+	const newVersion = `${baseVersion}-${commitCount}`;
 
 	console.log(`正在更新版本号: ${currentVersion} -> ${newVersion}`);
 
 	tauriConfig.version = newVersion;
 	writeFileSync(tauriConfigPath, `${JSON.stringify(tauriConfig, null, 4)}\n`);
+
+	const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+	packageJson.version = newVersion;
+	writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, "\t")}\n`);
+
+	const cargoToml = readFileSync(cargoTomlPath, "utf-8");
+	writeFileSync(
+		cargoTomlPath,
+		cargoToml.replace(/^version = ".*"$/m, `version = "${newVersion}"`),
+	);
 } catch (e) {
 	console.error("更新版本号失败", e);
 	process.exit(1);
