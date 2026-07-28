@@ -210,7 +210,7 @@ jobs:
           git config user.name "TheX24 release bot"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
-          git add manifests/t/TheX24/AMLLTTMLTool/"$version"
+          git add manifests/n/NaeNaeTart/AMLLTTMLTool/"$version"
           git commit -m "New version: NaeNaeTart.AMLLTTMLTool version $version" || true
           git push --force origin "$branch"
           if ! gh pr list --repo microsoft/winget-pkgs --head "TheX24:$branch" --state open --json url --jq '.[0].url' | grep -q .; then
