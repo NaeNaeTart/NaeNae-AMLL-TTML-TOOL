@@ -1,104 +1,103 @@
-# Contributing to AMLL TTML Tool | 贡献指南
+# Contributing to AMLL TTML Tool
 
-English | [简体中文](#简体中文)
+Thanks for helping. Keep changes focused, tested, and easy to review.
 
-Welcome to the AMLL TTML Tool! We are excited that you are interested in contributing. Whether you are fixing a bug, adding a feature, or improving documentation, your help is appreciated.
+## Setup
 
----
+Use Node.js LTS, pnpm, and Rust/Cargo for desktop work. pnpm is mandatory;
+do not use npm or Yarn.
 
-## English
+```bash
+pnpm install
+pnpm dev          # web app
+pnpm tauri dev    # desktop app
+```
 
-### 🛠️ Development Setup
+Run a production build before opening a PR that changes UI, dependencies,
+configuration, or Tauri code:
 
-This project is a React-based application using Vite, Jotai for state management, and Radix UI for components. It also supports desktop builds via Tauri.
+```bash
+pnpm run build
+```
 
-1.  **Prerequisites**:
-    *   Node.js (LTS recommended)
-    *   [pnpm](https://pnpm.io/) (Mandatory: do not use npm/yarn)
-    *   Rust & Cargo (If you plan to work on Tauri/WASM features)
-2.  **Installation**:
-    ```bash
-    pnpm install
-    ```
-3.  **Development**:
-    *   Web: `pnpm dev`
-    *   Desktop: `pnpm tauri dev`
-4.  **Linting & Formatting**:
-    *   We use [Biome](https://biomejs.dev/). Please run `pnpm fmt` before committing.
+## Project layout
 
-### 🏗️ Project Structure
+- `src/components` contains shared UI.
+- `src/modules` contains feature-specific UI and logic.
+- `src/states` contains shared Jotai atoms.
+- `src-tauri` contains the Rust/Tauri desktop app.
+- `locales` contains Crowdin-managed translations.
 
-*   `src/components`: UI components (Radix UI + CSS Modules).
-*   `src/modules`: Core logic, including audio processing and plugin systems.
-*   `src/states`: Jotai atoms for global state.
-*   `src-tauri`: Backend code for the desktop version (Rust).
-*   `locales`: Translation files managed via Crowdin.
+Keep feature-local state in its module. Put state shared by unrelated features
+in `src/states`.
 
-### 🔌 Plugin Development
+## Code, tests, and translations
 
-The tool supports Extism-based WASM plugins.
-*   WASM plugins should be compiled for the `wasm32-unknown-unknown` target.
-*   Refer to `PLUGIN.md` for the technical specifications of the plugin API.
-*   Check `src/modules/plugins` for the implementation details.
+- Add or update focused Vitest coverage for non-trivial behavior changes.
+- Check only the files you changed before committing:
 
-### 🌍 Localization
+  ```bash
+  pnpm exec biome check <changed files>
+  ```
 
-We use `i18next` for translations.
-*   If you want to contribute a new language, please use our [Crowdin Project](https://crowdin.com/project/very-cool-ttml-tool).
-*   Local changes can be tested in `locales/`.
+- Do not run a broad formatter over unrelated files. Do not hand-edit
+  `pnpm-lock.yaml`.
+- Use the existing i18next pattern for new user-facing strings when practical.
+  Translation updates are managed through Crowdin; do not make bulk locale
+  rewrites unless the change requires them.
 
----
+## Pull requests
 
-## 简体中文
+Use a focused branch and explain what changed, why, and how you tested it.
+Include screenshots for visual changes and clear reproduction steps for bug
+fixes. Do not mix refactors with unrelated feature work.
 
-感谢你对 AMLL TTML Tool 的关注！我们欢迎各种形式的贡献，包括修复 Bug、增加功能、改进文档或提供翻译。
+Every user-visible feature or fix needs an entry in
+`src/components/Dialogs/changelog.tsx`. Keep entries ordered by user impact:
+features first, then fixes. A release tag should have a matching heading such
+as `v0.7.4 Updates`; GitHub Release notes are generated from that section.
 
-### 🛠️ 开发环境配置
+## Releases and distribution
 
-本项目是基于 React 的应用程序，使用 Vite 构建，Jotai 进行状态管理，Radix UI 驱动组件库。同时支持通过 Tauri 构建桌面端。
+Releases are maintainer-only. A stable release starts by updating the version
+in `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml`, then
+creating a matching tag such as `v0.7.4`.
 
-1.  **准备工作**:
-    *   Node.js (建议 LTS 版本)
-    *   [pnpm](https://pnpm.io/) (**必须**：请勿使用 npm/yarn)
-    *   Rust & Cargo (如果你需要开发 Tauri 或 WASM 相关功能)
-2.  **安装依赖**:
-    ```bash
-    pnpm install
-    ```
-3.  **启动开发环境**:
-    *   网页端: `pnpm dev`
-    *   桌面端: `pnpm tauri dev`
-4.  **代码规范与格式化**:
-    *   本项目使用 [Biome](https://biomejs.dev/)。请在提交代码前执行 `pnpm fmt`。
+### Make a release
 
-### 🏗️ 项目架构
+Use this exact order for every new version. Example: releasing `0.7.4` after
+`0.7.3`.
 
-*   `src/components`: UI 组件（使用 Radix UI 和 CSS Modules）。
-*   `src/modules`: 核心业务逻辑，包括音频处理和插件系统。
-*   `src/states`: 使用 Jotai 定义的全局状态。
-*   `src-tauri`: 桌面端的后端代码（Rust）。
-*   `locales`: 国际化翻译文件（通过 Crowdin 同步）。
+1. Change the version to `0.7.4` in all three files:
+   - `package.json`
+   - `src-tauri/tauri.conf.json`
+   - `src-tauri/Cargo.toml`
+2. Add a `v0.7.4 Updates` section at the top of
+   `src/components/Dialogs/changelog.tsx`. These entries become the GitHub
+   Release notes.
+3. Run the relevant tests, `pnpm exec biome check <changed files>`, and
+   `pnpm run build`.
+4. Commit and push the version and changelog changes.
+5. Create and push exactly one matching tag:
 
-### 🔌 插件开发
+   ```bash
+   git tag -a v0.7.4 -m "Release v0.7.4"
+   git push origin v0.7.4
+   ```
 
-本工具支持基于 Extism 的 WASM 插件。
-*   WASM 插件应针对 `wasm32-unknown-unknown` 目标进行编译。
-*   具体 API 规范请参考 `PLUGIN.md`。
-*   插件系统的实现位于 `src/modules/plugins`。
+6. Wait for the **Build desktop app** GitHub Action. It creates the permanent
+   GitHub Release, updater manifest, installers, and Winget submission PR.
+7. Check that the release has `latest.json` and the Windows x64 `.msi` before
+   announcing it.
 
-### 🌍 国际化 (i18n)
+Never reuse, move, or overwrite an existing release tag. If a release fails,
+fix the workflow or source in a new commit and ask a maintainer how to recover
+the affected release.
 
-我们使用 `i18next` 进行翻译管理。
-*   如果你想提供新的语言支持，请前往 [Crowdin 项目页面](https://crowdin.com/project/very-cool-ttml-tool)。
-*   本地测试可以修改 `locales/` 下的文件。
+Do not create release tags, change updater signing keys, change updater release
+endpoints, or alter Winget publishing secrets/workflows without maintainer
+approval. Tagged releases publish immutable GitHub assets; ordinary branch
+builds are GitHub Actions artifacts only.
 
----
-
-## 🤝 Workflow | 贡献流程
-
-1.  **Fork** 仓库并创建你的功能分支 (`git checkout -b feature/AmazingFeature`)。
-2.  **Commit** 你的修改 (`git commit -m 'Add some AmazingFeature'`)。
-3.  **Push** 到分支 (`git push origin feature/AmazingFeature`)。
-4.  提交 **Pull Request**。
-
-请确保你的 PR 描述清晰，并附带相关的截图或测试结果（如果是 UI 改动）。
+Winget manifests are generated from `winget/package.json` and submitted by CI.
+Do not edit generated manifests in the Winget fork by hand.

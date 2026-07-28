@@ -53,6 +53,12 @@ export function ChangelogDialog() {
 									<strong>Localization:</strong> Added missing translation keys and localized section, timing, and auto-segmentation controls.
 								</Text>
 								<Text size="2">
+									<strong>Prosodic Segmentation Fix:</strong> English contractions using typographic apostrophes, such as “we’re” and “they’re”, now stay together.
+								</Text>
+								<Text size="2">
+									<strong>Desktop Update Fix:</strong> Desktop builds now check immutable published releases for updates, so future updates download from permanent versioned installers.
+								</Text>
+								<Text size="2">
 									<strong>Spicy Lyrics Fix:</strong> The Spicy Lyrics preview now preserves TTML line order when line timestamps are out of sequence.
 								</Text>
 								<Text size="2">

@@ -1,8 +1,23 @@
 import { describe, expect, it } from "vitest";
+import { newLyricWord } from "$/types/ttml";
+import type { SegmentationConfig } from "../types";
+import { segmentWord } from "./segmentation";
 import {
 	getSyllabificationEngine,
 	splitJapaneseText,
 } from "./syllabification-engines";
+
+const prosodicConfig: SegmentationConfig = {
+	engine: "prosodic",
+	splitCJK: true,
+	splitEnglish: true,
+	punctuationWeight: 0.2,
+	punctuationMode: "merge",
+	removeEmptySegments: true,
+	ignoreList: new Set(),
+	customRules: new Map(),
+	learnedRules: new Map(),
+};
 
 describe("syllabification engines", () => {
 	it("uses Prosodic dictionary entries before its speech fallback", () => {
@@ -15,6 +30,15 @@ describe("syllabification engines", () => {
 		const parts = getSyllabificationEngine("prosodic").split("singin");
 		expect(parts.join("")).toBe("singin");
 		expect(parts.length).toBeGreaterThan(1);
+	});
+
+	it("keeps contractions with typographic apostrophes together", () => {
+		for (const contraction of ["we’re", "you’ve", "they’re"]) {
+			const word = { ...newLyricWord(), word: contraction };
+			expect(
+				segmentWord(word, prosodicConfig).map((part) => part.word),
+			).toEqual([contraction]);
+		}
 	});
 
 	it("keeps basic and none engines unsplit", () => {

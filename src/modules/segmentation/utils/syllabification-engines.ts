@@ -83,6 +83,18 @@ const compromiseSplit = (word: string) => {
 		.filter(Boolean);
 };
 
+const mergeContractionSuffix = (parts: string[]) => {
+	const result: string[] = [];
+	for (const part of parts) {
+		if (/^[’'](?:s|re|ve|ll|d|m|t)$/i.test(part) && result.length > 0) {
+			result[result.length - 1] += part;
+		} else {
+			result.push(part);
+		}
+	}
+	return result;
+};
+
 const prosodicSplit = (word: string) => {
 	const key = word.toLowerCase();
 	const entry =
@@ -91,7 +103,7 @@ const prosodicSplit = (word: string) => {
 	if (entry !== undefined) {
 		return splitAtLengths(word, typeof entry === "number" ? [entry] : entry);
 	}
-	return compromiseSplit(word);
+	return mergeContractionSuffix(compromiseSplit(word));
 };
 
 const isJapaneseCharacter = (char: string | undefined) =>
