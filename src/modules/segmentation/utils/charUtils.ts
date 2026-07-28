@@ -2,7 +2,7 @@ import { CharType } from "../types";
 
 export const RE_WHITESPACE = /[\s\n\t]/;
 export const RE_LATIN =
-	/[\p{Script=Latin}\p{Script=Cyrillic}\p{Script=Greek}\p{M}']/u;
+	/[\p{Script=Latin}\p{Script=Cyrillic}\p{Script=Greek}\p{M}'’]/u;
 export const RE_NUMERIC = /[0-9]/;
 
 /**
