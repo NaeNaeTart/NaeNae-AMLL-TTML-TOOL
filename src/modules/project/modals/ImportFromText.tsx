@@ -44,6 +44,7 @@ import {
 	importAddSpacesAtom,
 	importSplitHyphensAtom,
 	normalizeApostrophesOnImportAtom,
+	normalizeCyrillicEsOnImportAtom,
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
 	geniusHeaderDetectionDialogShownAtom,
@@ -52,7 +53,10 @@ import {
 
 import { error as logError } from "$/utils/logging.ts";
 import { prepareLyricLine } from "$/utils/lyric-prep";
-import { normalizeImportedLyricApostrophes } from "$/utils/apostrophe-normalization";
+import {
+	normalizeImportedLyricApostrophes,
+	normalizeImportedLyricCyrillicEs,
+} from "$/utils/apostrophe-normalization";
 import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
 import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import {
@@ -220,6 +224,9 @@ export const ImportFromText = () => {
 			const splitHyphens = store.get(importSplitHyphensAtom);
 			const normalizeApostrophesOnImport = store.get(
 				normalizeApostrophesOnImportAtom,
+			);
+			const normalizeCyrillicEsOnImport = store.get(
+				normalizeCyrillicEsOnImportAtom,
 			);
 
 			const lines = text.split("\n");
@@ -404,9 +411,12 @@ export const ImportFromText = () => {
 			applyReviewedSections(importedLyrics, reviewed);
 			store.set(
 				lyricLinesAtom,
-				normalizeImportedLyricApostrophes(
-					importedLyrics,
-					normalizeApostrophesOnImport,
+				normalizeImportedLyricCyrillicEs(
+					normalizeImportedLyricApostrophes(
+						importedLyrics,
+						normalizeApostrophesOnImport,
+					),
+					normalizeCyrillicEsOnImport,
 				),
 			);
 			if (result.length > 0) {

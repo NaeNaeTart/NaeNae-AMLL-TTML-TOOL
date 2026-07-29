@@ -41,6 +41,9 @@ export function ChangelogDialog() {
 							<Heading size="4" mb="2" color="ruby">Unreleased</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Cyrillic E Import Preference:</strong> Added an optional workaround that corrects Cyrillic Е/е lookalikes inside otherwise Latin lyric words.
+								</Text>
+								<Text size="2">
 									<strong>Apostrophe Import Preference:</strong> Added a setting to standardize curly and other apostrophe-like characters when importing lyrics.
 								</Text>
 								<Text size="2">

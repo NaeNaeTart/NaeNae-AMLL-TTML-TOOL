@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { TTMLLyric } from "$/types/ttml";
 import {
 	normalizeApostrophes,
+	normalizeCyrillicEs,
 	normalizeImportedLyricApostrophes,
+	normalizeImportedLyricCyrillicEs,
 } from "./apostrophe-normalization";
 
 describe("normalizeApostrophes", () => {
@@ -13,6 +15,18 @@ describe("normalizeApostrophes", () => {
 	it("leaves unrelated text unchanged while normalizing apostrophe-like characters", () => {
 		expect(normalizeApostrophes('"Keep — punctuation, 1′ 2″"')).toBe(
 			'"Keep — punctuation, 1\' 2″"',
+		);
+	});
+});
+
+describe("normalizeCyrillicEs", () => {
+	it("converts Cyrillic Е and е embedded in Latin words", () => {
+		expect(normalizeCyrillicEs("thе Еcho тeст")).toBe("the Echo тeст");
+	});
+
+	it("preserves genuine Cyrillic words", () => {
+		expect(normalizeCyrillicEs("Елена, привет, ещё")).toBe(
+			"Елена, привет, ещё",
 		);
 	});
 });
@@ -60,5 +74,34 @@ describe("normalizeImportedLyricApostrophes", () => {
 
 	it("preserves source text when disabled", () => {
 		expect(normalizeImportedLyricApostrophes(lyrics, false)).toBe(lyrics);
+	});
+
+	it("normalizes all lyric text when enabled", () => {
+		const normalized = normalizeImportedLyricCyrillicEs(
+			{
+				...lyrics,
+				lyricLines: [
+					{
+						...lyrics.lyricLines[0],
+						translatedLyric: "Теst",
+						romanLyric: "Еcho",
+						words: [
+							{
+								...lyrics.lyricLines[0].words[0],
+								word: "Неy",
+								romanWord: "Еcho",
+							},
+						],
+					},
+				],
+			},
+			true,
+		);
+
+		expect(normalized.lyricLines[0]).toMatchObject({
+			translatedLyric: "Тest",
+			romanLyric: "Echo",
+			words: [{ word: "Нey", romanWord: "Echo" }],
+		});
 	});
 });

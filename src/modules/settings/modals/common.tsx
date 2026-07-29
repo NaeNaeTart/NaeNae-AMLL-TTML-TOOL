@@ -40,6 +40,7 @@ import {
 	syncJudgeModeAtom,
 	compactBGInSyncAtom,
 	normalizeApostrophesOnImportAtom,
+	normalizeCyrillicEsOnImportAtom,
 } from "$/modules/settings/states";
 import {
 	enableUpcomingWordHighlightAtom,
@@ -81,6 +82,8 @@ export const SettingsCommonTab = () => {
 	const [compactBGInSync, setCompactBGInSync] = useAtom(compactBGInSyncAtom);
 	const [normalizeApostrophesOnImport, setNormalizeApostrophesOnImport] =
 		useAtom(normalizeApostrophesOnImportAtom);
+	const [normalizeCyrillicEsOnImport, setNormalizeCyrillicEsOnImport] =
+		useAtom(normalizeCyrillicEsOnImportAtom);
 
 	const { t, i18n } = useTranslation();
 	const currentLanguage = i18n.resolvedLanguage || i18n.language;
@@ -604,6 +607,36 @@ export const SettingsCommonTab = () => {
 										{t(
 											"settings.common.normalizeApostrophesOnImportDesc",
 											"Convert curly and other apostrophe-like characters to '.",
+										)}
+									</Text>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<ContentView24Regular />
+							<Box flexGrow="1">
+								<Flex direction="column" gap="1">
+									<Flex align="center" justify="between" gap="4">
+										<Text>
+											{t(
+												"settings.common.normalizeCyrillicEsOnImport",
+												"Fix isolated Cyrillic Е/е in Latin words",
+											)}
+										</Text>
+										<Switch
+											checked={normalizeCyrillicEsOnImport}
+											onCheckedChange={setNormalizeCyrillicEsOnImport}
+										/>
+									</Flex>
+									<Text size="1" color="gray">
+										{t(
+											"settings.common.normalizeCyrillicEsOnImportDesc",
+											"Corrects hidden Cyrillic lookalikes only when the same word contains Latin letters.",
 										)}
 									</Text>
 								</Flex>

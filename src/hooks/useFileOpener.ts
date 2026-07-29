@@ -25,6 +25,7 @@ import {
 	Mp3ConversionMode,
 	mp3ConversionModeAtom,
 	normalizeApostrophesOnImportAtom,
+	normalizeCyrillicEsOnImportAtom,
 } from "$/modules/settings/states";
 import {
 	confirmDialogAtom,
@@ -39,7 +40,10 @@ import {
 import type { TTMLLyric } from "$/types/ttml";
 import { error as logError, log } from "$/utils/logging";
 import { parseLrc } from "$/utils/parse-lrc";
-import { normalizeImportedLyricApostrophes } from "$/utils/apostrophe-normalization";
+import {
+	normalizeImportedLyricApostrophes,
+	normalizeImportedLyricCyrillicEs,
+} from "$/utils/apostrophe-normalization";
 
 const LYRIC_PARSERS: Record<string, (text: string) => LyricLine[]> = {
 	lrc: parseLrc,
@@ -77,6 +81,9 @@ export const useFileOpener = () => {
 	const [conversionMode] = useAtom(mp3ConversionModeAtom);
 	const normalizeApostrophesOnImport = useAtomValue(
 		normalizeApostrophesOnImportAtom,
+	);
+	const normalizeCyrillicEsOnImport = useAtomValue(
+		normalizeCyrillicEsOnImportAtom,
 	);
 
 	const normalizeLyricLines = useCallback(
@@ -225,6 +232,10 @@ export const useFileOpener = () => {
 					lyricData,
 					normalizeApostrophesOnImport,
 				);
+				lyricData = normalizeImportedLyricCyrillicEs(
+					lyricData,
+					normalizeCyrillicEsOnImport,
+				);
 
 				let resolvedProjectId = uid();
 
@@ -267,6 +278,7 @@ export const useFileOpener = () => {
 			t,
 			conversionMode,
 			normalizeApostrophesOnImport,
+			normalizeCyrillicEsOnImport,
 			setMp3ConversionDialog,
 		],
 	);

@@ -213,6 +213,11 @@ export const normalizeApostrophesOnImportAtom = atomWithStorage<boolean>(
 	true,
 );
 
+export const normalizeCyrillicEsOnImportAtom = atomWithStorage<boolean>(
+	"normalizeCyrillicEsOnImport",
+	false,
+);
+
 export enum Mp3ConversionMode {
 	Never = "never",
 	Always = "always",

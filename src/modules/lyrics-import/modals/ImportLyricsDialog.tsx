@@ -27,6 +27,7 @@ import {
 	geniusApiKeyAtom,
 	geniusCategorizationEnabledAtom,
 	normalizeApostrophesOnImportAtom,
+	normalizeCyrillicEsOnImportAtom,
 } from "$/modules/settings/states/index.ts";
 import {
 	confirmDialogAtom,
@@ -43,7 +44,10 @@ import {
 } from "$/states/main.ts";
 import type { LyricLine, LyricWord } from "$/types/ttml.ts";
 import { prepareLyricLine } from "$/utils/lyric-prep";
-import { normalizeImportedLyricApostrophes } from "$/utils/apostrophe-normalization";
+import {
+	normalizeImportedLyricApostrophes,
+	normalizeImportedLyricCyrillicEs,
+} from "$/utils/apostrophe-normalization";
 import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
 import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import {
@@ -89,6 +93,9 @@ export const ImportLyricsDialog = ({
 	const isDirty = useAtomValue(isDirtyAtom);
 	const normalizeApostrophesOnImport = useAtomValue(
 		normalizeApostrophesOnImportAtom,
+	);
+	const normalizeCyrillicEsOnImport = useAtomValue(
+		normalizeCyrillicEsOnImportAtom,
 	);
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 
@@ -390,9 +397,12 @@ export const ImportLyricsDialog = ({
 					});
 				}
 
-				const normalizedLyrics = normalizeImportedLyricApostrophes(
-					{ lyricLines: processedLines, metadata: [], sections: [] },
-					normalizeApostrophesOnImport,
+				const normalizedLyrics = normalizeImportedLyricCyrillicEs(
+					normalizeImportedLyricApostrophes(
+						{ lyricLines: processedLines, metadata: [], sections: [] },
+						normalizeApostrophesOnImport,
+					),
+					normalizeCyrillicEsOnImport,
 				);
 				setLyricLines((prev) => {
 					prev.lyricLines = normalizedLyrics.lyricLines;
@@ -475,9 +485,12 @@ export const ImportLyricsDialog = ({
 				}
 			}
 
-			const normalizedLyrics = normalizeImportedLyricApostrophes(
-				{ lyricLines: processedLines, metadata: [], sections: [] },
-				normalizeApostrophesOnImport,
+			const normalizedLyrics = normalizeImportedLyricCyrillicEs(
+				normalizeImportedLyricApostrophes(
+					{ lyricLines: processedLines, metadata: [], sections: [] },
+					normalizeApostrophesOnImport,
+				),
+				normalizeCyrillicEsOnImport,
 			);
 			setLyricLines((prev) => {
 				prev.lyricLines = normalizedLyrics.lyricLines;
@@ -523,6 +536,7 @@ export const ImportLyricsDialog = ({
 			store,
 			categorizeGeniusHeaders,
 			normalizeApostrophesOnImport,
+			normalizeCyrillicEsOnImport,
 			source,
 			fetchSongwriters,
 			selectedHit,
