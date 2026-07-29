@@ -32,6 +32,7 @@ import {
 	latencyTestDialogAtom,
 	metadataEditorDialogAtom,
 	settingsDialogAtom,
+	ttmlChecklistDialogAtom,
 	submitToAMLLDBDialogAtom,
 	timeShiftDialogAtom,
 	timeStretchDialogAtom,
@@ -83,6 +84,7 @@ export const useTopMenuActions = () => {
 	const setLearnedSplitsDialog = useSetAtom(learnedSplitsDialogAtom);
 	const setTimeShiftDialog = useSetAtom(timeShiftDialogAtom);
 	const setTimeStretchDialog = useSetAtom(timeStretchDialogAtom);
+	const setTTMLChecklistDialog = useSetAtom(ttmlChecklistDialogAtom);
 	const { openFile } = useFileOpener();
 	const setProjectId = useSetAtom(projectIdAtom);
 	const { config: segmentationConfig } = useSegmentationConfig();
@@ -318,6 +320,10 @@ export const useTopMenuActions = () => {
 	const onOpenLatencyTest = useCallback(() => {
 		store.set(latencyTestDialogAtom, true);
 	}, [store]);
+
+	const onOpenTTMLChecklist = useCallback(() => {
+		setTTMLChecklistDialog(true);
+	}, [setTTMLChecklistDialog]);
 
 	const onOpenGitHub = useCallback(async () => {
 		if (import.meta.env.TAURI_ENV_PLATFORM) {
@@ -581,6 +587,7 @@ export const useTopMenuActions = () => {
 		onOpenLearnedSplits,
 		onSyncLineTimestamps,
 		onOpenLatencyTest,
+		onOpenTTMLChecklist,
 		onOpenGitHub,
 		onOpenWiki,
 	};
