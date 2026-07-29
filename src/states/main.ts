@@ -37,6 +37,7 @@ export const aiSyncPickModeAtom = atom(false);
 
 export const showPreviewPanelAtom = atom(false);
 export const previewPanelWidthAtom = atomWithStorage("previewPanelWidth", 400);
+export const aiSidebarWidthAtom = atomWithStorage("aiSidebarWidth", 360);
 
 export const darkModeAtom = atom(DarkMode.Auto);
 export const isDarkThemeAtom = atom((get) => {

@@ -41,6 +41,9 @@ export function ChangelogDialog() {
 							<Heading size="4" mb="2" color="ruby">Unreleased</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Optional AI Fun Sidebar:</strong> Enable a manual, bring-your-own-provider TTML vibe check with personalities ranging from Glazer to Unhinged. It stays off by default and never changes your lyrics.
+								</Text>
+								<Text size="2">
 									<strong>Cyrillic E Import Preference:</strong> Added an optional workaround that corrects Cyrillic Е/е lookalikes inside otherwise Latin lyric words.
 								</Text>
 								<Text size="2">

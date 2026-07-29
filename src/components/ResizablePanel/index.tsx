@@ -1,19 +1,21 @@
 import { type FC, useCallback, useRef, useState } from "react";
-import { useAtom } from "jotai";
+import { useAtom, type PrimitiveAtom } from "jotai";
 import { previewPanelWidthAtom } from "$/states/main.ts";
 
 interface ResizablePanelProps {
 	children: React.ReactNode;
 	minWidth?: number;
 	maxWidth?: number;
+	widthAtom?: PrimitiveAtom<number>;
 }
 
 export const ResizablePanel: FC<ResizablePanelProps> = ({
 	children,
 	minWidth = 300,
 	maxWidth = 600,
+	widthAtom = previewPanelWidthAtom,
 }) => {
-	const [width, setWidth] = useAtom(previewPanelWidthAtom);
+	const [width, setWidth] = useAtom(widthAtom);
 	const [isDragging, setIsDragging] = useState(false);
 	const startXRef = useRef(0);
 	const startWidthRef = useRef(width);

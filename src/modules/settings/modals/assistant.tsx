@@ -7,6 +7,7 @@ import {
 	enableManualTimestampEditAtom,
 	quickFixesAtom,
 	highlightErrorsAtom,
+	aiSidebarEnabledAtom,
 } from "$/modules/settings/states";
 import { visualizeTimestampUpdateAtom } from "$/modules/settings/states/sync";
 import { 
@@ -14,6 +15,7 @@ import {
 	TimeAndWeather24Regular, 
 	ErrorCircle24Regular, 
 	TextT24Regular,
+	Bot24Regular,
 } from "@fluentui/react-icons";
 
 export const SettingsAssistantTab = () => {
@@ -25,12 +27,30 @@ export const SettingsAssistantTab = () => {
 		visualizeTimestampUpdateAtom,
 	);
 	const [highlightErrors, setHighlightErrors] = useAtom(highlightErrorsAtom);
+	const [aiSidebarEnabled, setAiSidebarEnabled] = useAtom(aiSidebarEnabledAtom);
 
 	const { t } = useTranslation();
 
 	return (
 		<Flex direction="column" gap="4">
 			<Heading size="4">{t("settings.group.assistant", "Assistant")}</Heading>
+
+			<Card>
+				<Text as="label">
+					<Flex gap="3" align="center">
+						<Bot24Regular />
+						<Box flexGrow="1">
+							<Flex gap="2" align="center" justify="between">
+								<Flex direction="column" gap="1">
+									<Text>{t("settings.assistant.aiSidebar", "AI Fun Sidebar")}</Text>
+									<Text size="1" color="gray">{t("settings.assistant.aiSidebarDesc", "Enable an optional, manual AI vibe check for your TTML. Setup appears in the AI tab.")}</Text>
+								</Flex>
+								<Switch checked={aiSidebarEnabled} onCheckedChange={setAiSidebarEnabled} />
+							</Flex>
+						</Box>
+					</Flex>
+				</Text>
+			</Card>
 
 			<Card>
 				<Text as="label">

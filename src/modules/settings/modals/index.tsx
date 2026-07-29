@@ -1,5 +1,5 @@
 import { Box, Dialog, Tabs } from "@radix-ui/themes";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { settingsDialogAtom, settingsTabAtom } from "$/states/dialogs.ts";
@@ -12,12 +12,15 @@ import { SettingsSpectrogramTab } from "./spectrogram";
 import { AudioSettingsTab } from "./audio";
 import { SettingsBackupTab } from "./backup";
 import { SettingsDevTab } from "./dev";
+import { SettingsAiTab } from "./ai";
+import { aiSidebarEnabledAtom } from "../states";
 
 export const SettingsDialog = memo(() => {
 	const [settingsDialogOpen, setSettingsDialogOpen] =
 		useAtom(settingsDialogAtom);
 	const [activeTab, setActiveTab] = useAtom(settingsTabAtom);
 	const { t } = useTranslation();
+	const aiSidebarEnabled = useAtomValue(aiSidebarEnabledAtom);
 
 	const handleWheel = useCallback((e: React.WheelEvent) => {
 		if (e.deltaY !== 0) {
@@ -51,6 +54,11 @@ export const SettingsDialog = memo(() => {
 						<Tabs.Trigger value="assistant" style={{ flexShrink: 0 }}>
 							{t("settingsDialog.tab.assistant", "Assistant")}
 						</Tabs.Trigger>
+						{aiSidebarEnabled && (
+							<Tabs.Trigger value="ai" style={{ flexShrink: 0 }}>
+								{t("settingsDialog.tab.ai", "AI")}
+							</Tabs.Trigger>
+						)}
 						<Tabs.Trigger value="appearance" style={{ flexShrink: 0 }}>
 							{t("settingsDialog.tab.appearance", "Appearance")}
 						</Tabs.Trigger>
@@ -88,6 +96,7 @@ export const SettingsDialog = memo(() => {
 						<Tabs.Content value="assistant">
 							<SettingsAssistantTab />
 						</Tabs.Content>
+						{aiSidebarEnabled && <Tabs.Content value="ai"><SettingsAiTab /></Tabs.Content>}
 						<Tabs.Content value="appearance">
 							<SettingsAppearanceTab />
 						</Tabs.Content>

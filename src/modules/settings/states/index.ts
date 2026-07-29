@@ -208,6 +208,17 @@ export const importSplitHyphensAtom = atomWithStorage<boolean>(
 	true,
 );
 
+export const aiSidebarEnabledAtom = atomWithStorage("aiSidebarEnabled", false);
+export const aiSidebarBaseUrlAtom = atomWithStorage(
+	"aiSidebarBaseUrl",
+	"https://api.openai.com/v1",
+);
+export const aiSidebarModelAtom = atomWithStorage("aiSidebarModel", "gpt-4o-mini");
+export const aiSidebarPersistKeyAtom = atomWithStorage(
+	"aiSidebarPersistKey",
+	false,
+);
+
 export const normalizeApostrophesOnImportAtom = atomWithStorage<boolean>(
 	"normalizeApostrophesOnImport",
 	true,
