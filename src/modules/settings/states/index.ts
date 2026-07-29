@@ -208,6 +208,11 @@ export const importSplitHyphensAtom = atomWithStorage<boolean>(
 	true,
 );
 
+export const normalizeApostrophesOnImportAtom = atomWithStorage<boolean>(
+	"normalizeApostrophesOnImport",
+	true,
+);
+
 export enum Mp3ConversionMode {
 	Never = "never",
 	Always = "always",

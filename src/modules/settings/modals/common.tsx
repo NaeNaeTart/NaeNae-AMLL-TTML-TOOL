@@ -39,6 +39,7 @@ import {
 	smartLastWordAtom,
 	syncJudgeModeAtom,
 	compactBGInSyncAtom,
+	normalizeApostrophesOnImportAtom,
 } from "$/modules/settings/states";
 import {
 	enableUpcomingWordHighlightAtom,
@@ -78,6 +79,8 @@ export const SettingsCommonTab = () => {
 	const [syncCommitOffset, setSyncCommitOffset] = useAtom(syncCommitOffsetAtom);
 
 	const [compactBGInSync, setCompactBGInSync] = useAtom(compactBGInSyncAtom);
+	const [normalizeApostrophesOnImport, setNormalizeApostrophesOnImport] =
+		useAtom(normalizeApostrophesOnImportAtom);
 
 	const { t, i18n } = useTranslation();
 	const currentLanguage = i18n.resolvedLanguage || i18n.language;
@@ -573,6 +576,40 @@ export const SettingsCommonTab = () => {
 							</Flex>
 						</Box>
 					</Flex>
+				</Card>
+			</Flex>
+
+			<Flex direction="column" gap="2">
+				<Heading size="4">{t("settings.group.import", "Import")}</Heading>
+
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<ContentView24Regular />
+							<Box flexGrow="1">
+								<Flex direction="column" gap="1">
+									<Flex align="center" justify="between" gap="4">
+										<Text>
+											{t(
+												"settings.common.normalizeApostrophesOnImport",
+												"Normalize apostrophes on import",
+											)}
+										</Text>
+										<Switch
+											checked={normalizeApostrophesOnImport}
+											onCheckedChange={setNormalizeApostrophesOnImport}
+										/>
+									</Flex>
+									<Text size="1" color="gray">
+										{t(
+											"settings.common.normalizeApostrophesOnImportDesc",
+											"Convert curly and other apostrophe-like characters to '.",
+										)}
+									</Text>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
 				</Card>
 			</Flex>
 

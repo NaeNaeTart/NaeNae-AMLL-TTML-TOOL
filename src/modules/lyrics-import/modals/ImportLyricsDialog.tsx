@@ -26,6 +26,7 @@ import { LyricallyApi } from "$/modules/lyrically/api/client";
 import {
 	geniusApiKeyAtom,
 	geniusCategorizationEnabledAtom,
+	normalizeApostrophesOnImportAtom,
 } from "$/modules/settings/states/index.ts";
 import {
 	confirmDialogAtom,
@@ -42,6 +43,7 @@ import {
 } from "$/states/main.ts";
 import type { LyricLine, LyricWord } from "$/types/ttml.ts";
 import { prepareLyricLine } from "$/utils/lyric-prep";
+import { normalizeImportedLyricApostrophes } from "$/utils/apostrophe-normalization";
 import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
 import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import {
@@ -85,6 +87,9 @@ export const ImportLyricsDialog = ({
 	const [, setLyricLines] = useImmerAtom(lyricLinesAtom);
 	const setSaveFileName = useSetAtom(saveFileNameAtom);
 	const isDirty = useAtomValue(isDirtyAtom);
+	const normalizeApostrophesOnImport = useAtomValue(
+		normalizeApostrophesOnImportAtom,
+	);
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 
 	// Search
@@ -385,8 +390,12 @@ export const ImportLyricsDialog = ({
 					});
 				}
 
+				const normalizedLyrics = normalizeImportedLyricApostrophes(
+					{ lyricLines: processedLines, metadata: [], sections: [] },
+					normalizeApostrophesOnImport,
+				);
 				setLyricLines((prev) => {
-					prev.lyricLines = processedLines;
+					prev.lyricLines = normalizedLyrics.lyricLines;
 					prev.sections = [];
 					applyReviewedSections(prev, reviewed);
 				});
@@ -466,8 +475,12 @@ export const ImportLyricsDialog = ({
 				}
 			}
 
+			const normalizedLyrics = normalizeImportedLyricApostrophes(
+				{ lyricLines: processedLines, metadata: [], sections: [] },
+				normalizeApostrophesOnImport,
+			);
 			setLyricLines((prev) => {
-				prev.lyricLines = processedLines;
+				prev.lyricLines = normalizedLyrics.lyricLines;
 				prev.sections = [];
 				applyReviewedSections(prev, reviewed);
 			});
@@ -509,6 +522,7 @@ export const ImportLyricsDialog = ({
 			processLyrics,
 			store,
 			categorizeGeniusHeaders,
+			normalizeApostrophesOnImport,
 			source,
 			fetchSongwriters,
 			selectedHit,
