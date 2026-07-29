@@ -318,6 +318,17 @@ export const AudioSlider = memo(() => {
 			setCurrentTime(Math.round(anchorAudioTime * 1000));
 		};
 
+		const handleTimeUpdate = () => {
+			const elapsed = (performance.now() - anchorRealTime) / 1000;
+			const interpolatedTime =
+				anchorAudioTime + elapsed * audioEngine.musicPlayBackRate;
+
+			// Correct stalls and long frame gaps without resetting the smooth clock.
+			if (Math.abs(audioEngine.musicCurrentTime - interpolatedTime) > 0.1) {
+				syncClock();
+			}
+		};
+
 		const onFrame = () => {
 			if (isDestroyed || !audioEngine.musicPlaying) {
 				frameId = null;
@@ -347,6 +358,7 @@ export const AudioSlider = memo(() => {
 		audioEngine.addEventListener("music-resume", handlePlay);
 		audioEngine.addEventListener("music-pause", handlePause);
 		audioEngine.addEventListener("music-seeked", handleSeek);
+		audioEngine.addEventListener("music-timeupdate", handleTimeUpdate);
 		audioEngine.addEventListener(
 			"music-playback-rate-change",
 			handlePlaybackRateChange,
@@ -365,6 +377,7 @@ export const AudioSlider = memo(() => {
 			audioEngine.removeEventListener("music-resume", handlePlay);
 			audioEngine.removeEventListener("music-pause", handlePause);
 			audioEngine.removeEventListener("music-seeked", handleSeek);
+			audioEngine.removeEventListener("music-timeupdate", handleTimeUpdate);
 			audioEngine.removeEventListener(
 				"music-playback-rate-change",
 				handlePlaybackRateChange,

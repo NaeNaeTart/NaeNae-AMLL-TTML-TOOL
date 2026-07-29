@@ -38,6 +38,14 @@ export function ChangelogDialog() {
 				<ScrollArea type="always" scrollbars="vertical" style={{ height: "calc(100% - 60px)" }}>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="ruby">Unreleased</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Playback Timeline Fix:</strong> The waveform playhead now recovers from audio stalls and long frame gaps without sacrificing smooth playback at slower speeds.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="ruby">v0.7.3 Updates</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
