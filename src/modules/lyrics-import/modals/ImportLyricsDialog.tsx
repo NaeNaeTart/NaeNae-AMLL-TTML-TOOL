@@ -956,6 +956,16 @@ export const ImportLyricsDialog = ({
 				</ScrollArea>
 
 				<Flex justify="between" align="center" mt="3">
+					{source === "genius" && (
+						<Button
+							variant="ghost"
+							size="1"
+							color="gray"
+							onClick={() => setGeniusApiKey("")}
+						>
+							{t("genius.changeKey", "Change API Key")}
+						</Button>
+					)}
 					<Dialog.Close>
 						<Button variant="soft" color="gray">
 							{t("common.close", "Close")}

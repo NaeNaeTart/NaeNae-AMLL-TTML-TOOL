@@ -41,6 +41,9 @@ export function ChangelogDialog() {
 							<Heading size="4" mb="2" color="ruby">Unreleased</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Genius Import Fix:</strong> Restored the Change API Key button in the Genius lyric-import dialog.
+								</Text>
+								<Text size="2">
 									<strong>Playback Timeline Fix:</strong> The waveform playhead now recovers from audio stalls and long frame gaps without sacrificing smooth playback at slower speeds.
 								</Text>
 							</Flex>
