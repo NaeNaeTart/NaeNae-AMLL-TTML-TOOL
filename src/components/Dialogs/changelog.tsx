@@ -38,7 +38,7 @@ export function ChangelogDialog() {
 				<ScrollArea type="always" scrollbars="vertical" style={{ height: "calc(100% - 60px)" }}>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
-							<Heading size="4" mb="2" color="ruby">Unreleased</Heading>
+							<Heading size="4" mb="2" color="red">Unreleased</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Inline Time-Tab Editing:</strong> Double-click a synced word to edit it directly; when per-word romanization is displayed, it edits the romanization instead.
@@ -67,7 +67,7 @@ export function ChangelogDialog() {
 							</Flex>
 						</Box>
 						<Box>
-							<Heading size="4" mb="2" color="ruby">v0.7.4 Updates</Heading>
+							<Heading size="4" mb="2" color="indigo">v0.7.4 Updates (AI Fun & Import Polish)</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Optional AI Fun Sidebar:</strong> Enable a manual, bring-your-own-provider TTML vibe check with personalities ranging from Glazer to Unhinged. It stays off by default and never changes your lyrics.
@@ -87,7 +87,7 @@ export function ChangelogDialog() {
 							</Flex>
 						</Box>
 						<Box>
-							<Heading size="4" mb="2" color="ruby">v0.7.3 Updates</Heading>
+							<Heading size="4" mb="2" color="cyan">v0.7.3 Updates (Sections & Segmentation)</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Genius Section Improvements:</strong> Duplicated lyric lines now create independent repeat-linked sections; collapsed headers select their whole section; unassigned lyric blocks can be merged into neighboring sections; repeated-section timing copy matches lyric text and skips mismatches; and a section manager makes reviewing and editing sections easier.
@@ -116,7 +116,7 @@ export function ChangelogDialog() {
 							</Flex>
 						</Box>
 						<Box>
-							<Heading size="4" mb="2" color="ruby">v0.7.2 Updates (Lyrics Segmentation)</Heading>
+							<Heading size="4" mb="2" color="grass">v0.7.2 Updates (Lyrics Segmentation)</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Selectable Syllabification Engines:</strong> Auto Segment and Advanced Segmentation now offer dedicated English, Spanish, French, Russian, Japanese, and CJK engines alongside clearly labelled legacy fallbacks. The Auto Segment dialog suggests an engine from the lyric language.
@@ -133,7 +133,7 @@ export function ChangelogDialog() {
 							</Flex>
 						</Box>
 						<Box>
-							<Heading size="4" mb="2" color="ruby">v0.7.1 Updates (Scoped Time Stretch)</Heading>
+							<Heading size="4" mb="2" color="orange">v0.7.1 Updates (Scoped Time Stretch)</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Scoped Time Stretch:</strong> Time Stretch can now be applied to all lines, selected lines, selected lines and everything following them, or a custom line range.
@@ -441,7 +441,7 @@ export function ChangelogDialog() {
 						</Box>
 
 						<Box>
-							<Heading size="4" mb="2" color="teal">v0.1.7 Updates</Heading>
+							<Heading size="4" mb="2" color="violet">v0.1.7 Updates</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Compact Sync Layout:</strong> Added a new "Compact Background Vocals" feature for the Time tab. This reduces vertical space for background vocals during synchronization, making it easier to manage dense projects. This behavior is toggleable in the Display settings.
@@ -480,7 +480,7 @@ export function ChangelogDialog() {
 						</Box>
 
 						<Box>
-							<Heading size="4" mb="2" color="teal">v0.1.5 Updates</Heading>
+							<Heading size="4" mb="2" color="jade">v0.1.5 Updates</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Duplicate-to-Spot:</strong> Introduced a "Duplicate to..." workflow. Click indicators between any two lines to instantly place copies of your selection at that exact position.
