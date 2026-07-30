@@ -98,7 +98,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 
 	useEffect(() => {
 		const viewEl = viewElRef.current;
-		if (!viewEl || toolMode !== ToolMode.Edit) return;
+		if (editLyric.length === 0 || !viewEl || toolMode !== ToolMode.Edit) return;
 
 		let pointer: { x: number; y: number } | null = null;
 		let animationFrame: number | null = null;
@@ -224,6 +224,23 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			animationFrame = requestAnimationFrame(scrollWhileDragging);
 		};
 
+		const startPointerDrag = (event: PointerEvent) => {
+			if (!event.isPrimary || event.button !== 0) return;
+			const target = event.target;
+			if (!(target instanceof Element)) return;
+			const lineElement = target.closest<HTMLElement>("[data-lyric-line-id]");
+			if (!target.closest(`.${styles.lineNumber}`)) return;
+			const lineId = lineElement?.dataset.lyricLineId;
+			if (!lineElement || !lineId || !viewEl.contains(lineElement)) return;
+			lineElement.setPointerCapture(event.pointerId);
+			store.set(lineDragAtom, {
+				id: lineId,
+				pointerId: event.pointerId,
+				startX: event.clientX,
+				startY: event.clientY,
+				isDragging: false,
+			});
+		};
 		const updatePointer = (event: PointerEvent) => {
 			const drag = store.get(lineDragAtom);
 			if (!drag || drag.pointerId !== event.pointerId) return;
@@ -302,6 +319,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		};
 		const handleWindowBlur = () => finishDragging();
 
+		window.addEventListener("pointerdown", startPointerDrag, true);
 		window.addEventListener("pointermove", updatePointer, true);
 		window.addEventListener("pointerup", finishDragging, true);
 		window.addEventListener("pointercancel", finishDragging, true);
@@ -313,13 +331,14 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 
 		return () => {
 			finishDragging();
+			window.removeEventListener("pointerdown", startPointerDrag, true);
 			window.removeEventListener("pointermove", updatePointer, true);
 			window.removeEventListener("pointerup", finishDragging, true);
 			window.removeEventListener("pointercancel", finishDragging, true);
 			window.removeEventListener("wheel", scrollWithWheel, true);
 			window.removeEventListener("blur", handleWindowBlur);
 		};
-	}, [editLyricLines, store, toolMode]);
+	}, [editLyric.length, editLyricLines, store, toolMode]);
 
 	const scrollToIndexAtom = useMemo(
 		() =>
