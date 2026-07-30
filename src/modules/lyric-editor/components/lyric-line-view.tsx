@@ -80,8 +80,9 @@ import {
 import styles from "./index.module.css";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import {
-	draggingIdAtom,
 	globalEnableInsertAtom,
+	lastLineDragEndAtom,
+	lineDragAtom,
 } from "./lyric-line-view-states.ts";
 import LyricWordView from "./lyric-word-view.tsx";
 import { RomanWordView } from "./roman-word-view.tsx";
@@ -93,7 +94,6 @@ import {
 	UnassignedSectionContextMenuItems,
 } from "./SectionActions.tsx";
 
-const isDraggingAtom = atom(false);
 const parseRubyShortcut = (value: string) => {
 	if (value.endsWith("|")) {
 		return {
@@ -708,88 +708,40 @@ export const LyricLineView: FC<{
 						)}
 						align="center"
 						gapX="4"
-						draggable={toolMode === ToolMode.Edit}
+						data-lyric-line-draggable={
+							toolMode === ToolMode.Edit ? "" : undefined
+						}
+						data-lyric-line-id={line.id}
 						style={{
 							...(isSectionStart ? { marginTop: "16px" } : {}),
 						}}
 						onPointerDown={(evt) => {
 							blockDragRef.current =
 								(evt.target as HTMLElement | null)?.tagName === "INPUT";
+							if (
+								toolMode !== ToolMode.Edit ||
+								blockDragRef.current ||
+								evt.button !== 0
+							)
+								return;
+							evt.currentTarget.setPointerCapture(evt.pointerId);
+							store.set(lineDragAtom, {
+								id: line.id,
+								pointerId: evt.pointerId,
+								startX: evt.clientX,
+								startY: evt.clientY,
+								isDragging: false,
+							});
 						}}
 						onPointerUp={() => {
 							blockDragRef.current = false;
-						}}
-						onDragStart={(evt) => {
-							if (blockDragRef.current) {
-								blockDragRef.current = false;
-								evt.preventDefault();
-								evt.stopPropagation();
-								return;
-							}
-							evt.dataTransfer.dropEffect = "move";
-							store.set(isDraggingAtom, true);
-							store.set(draggingIdAtom, line.id);
-						}}
-						onDragEnd={() => {
-							store.set(isDraggingAtom, false);
-						}}
-						onDragOver={(evt) => {
-							if (!store.get(isDraggingAtom)) return;
-							if (store.get(draggingIdAtom) === line.id) return;
-							if (lineSelected) return;
-							evt.preventDefault();
-							evt.dataTransfer.dropEffect = "move";
-							const rect = evt.currentTarget.getBoundingClientRect();
-							const innerY = evt.clientY - rect.top;
-							if (innerY < rect.height / 2) {
-								evt.currentTarget.classList.add(styles.dropTop);
-								evt.currentTarget.classList.remove(styles.dropBottom);
-							} else {
-								evt.currentTarget.classList.remove(styles.dropTop);
-								evt.currentTarget.classList.add(styles.dropBottom);
-							}
-						}}
-						onDrop={(evt) => {
-							evt.currentTarget.classList.remove(styles.dropTop);
-							evt.currentTarget.classList.remove(styles.dropBottom);
-							if (!store.get(isDraggingAtom)) return;
-							const rect = evt.currentTarget.getBoundingClientRect();
-							const innerY = evt.clientY - rect.top;
-							const selectedLines = store.get(selectedLinesAtom);
-							const selectedLineIds = selectedLines.has(
-								store.get(draggingIdAtom),
-							)
-								? selectedLines
-								: new Set([store.get(draggingIdAtom)]);
-							const indexDelta = innerY >= rect.height / 2 ? 1 : 0;
-							editLyricLines((state) => {
-								const filteredLines = state.lyricLines.filter(
-									(l) => !selectedLineIds.has(l.id),
-								);
-								const targetLines = state.lyricLines.filter((l) =>
-									selectedLineIds.has(l.id),
-								);
-								const targetIndex = filteredLines.findIndex(
-									(l) => l.id === line.id,
-								);
-								if (targetIndex < 0) return;
-								state.lyricLines = [
-									...filteredLines.slice(0, targetIndex + indexDelta),
-									...targetLines,
-									...filteredLines.slice(targetIndex + indexDelta),
-								];
-								repairSectionIntegrity(state);
-							});
-						}}
-						onDragLeave={(evt) => {
-							evt.currentTarget.classList.remove(styles.dropTop);
-							evt.currentTarget.classList.remove(styles.dropBottom);
 						}}
 						onClick={(evt) => {
 							evt.stopPropagation();
 							evt.preventDefault();
 
 							const now = Date.now();
+							if (now - store.get(lastLineDragEndAtom) < 250) return;
 							const clickInterval = now - lastClickTimeRef.current;
 							lastClickTimeRef.current = now;
 
