@@ -229,7 +229,12 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			const target = event.target;
 			if (!(target instanceof Element)) return;
 			const lineElement = target.closest<HTMLElement>("[data-lyric-line-id]");
-			if (!target.closest(`.${styles.lineNumber}`)) return;
+			if (
+				target.closest(
+					"input, [data-lyric-word-interactive], [data-lyric-line-interactive]",
+				)
+			)
+				return;
 			const lineId = lineElement?.dataset.lyricLineId;
 			if (!lineElement || !lineId || !viewEl.contains(lineElement)) return;
 			lineElement.setPointerCapture(event.pointerId);
