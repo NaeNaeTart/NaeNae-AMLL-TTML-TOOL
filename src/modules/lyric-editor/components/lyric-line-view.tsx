@@ -257,6 +257,7 @@ const SubLineEdit = memo(
 		return (
 			<Flex
 				align="baseline"
+				data-lyric-line-interactive=""
 				style={{
 					color:
 						type === "translatedLyric"
@@ -686,7 +687,7 @@ export const LyricLineView: FC<{
 					onContextMenu={(evt) => {
 						if (
 							(evt.target as HTMLElement | null)?.closest(
-								"[data-lyric-word-interactive]",
+								"[data-lyric-word-interactive], [data-lyric-line-interactive]",
 							)
 						) {
 							evt.preventDefault();
@@ -726,7 +727,7 @@ export const LyricLineView: FC<{
 						onPointerDown={(evt) => {
 							if (
 								(evt.target as HTMLElement | null)?.closest(
-									"[data-lyric-word-interactive]",
+									"[data-lyric-word-interactive], [data-lyric-line-interactive]",
 								)
 							)
 								return;
@@ -753,7 +754,7 @@ export const LyricLineView: FC<{
 						onClick={(evt) => {
 							if (
 								(evt.target as HTMLElement | null)?.closest(
-									"[data-lyric-word-interactive]",
+									"[data-lyric-word-interactive], [data-lyric-line-interactive]",
 								)
 							)
 								return;

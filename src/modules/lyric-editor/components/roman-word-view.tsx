@@ -93,6 +93,7 @@ export const RomanWordView = ({
 			<TextField.Root
 				ref={inputRef}
 				size="1"
+				data-lyric-line-interactive=""
 				className={styles.romanWordView}
 				value={inputValue}
 				onChange={(e) => setInputValue(e.currentTarget.value)}
@@ -107,6 +108,7 @@ export const RomanWordView = ({
 			size="1"
 			variant="soft"
 			color="gray"
+				data-lyric-line-interactive=""
 			className={classNames(
 				styles.romanWordView,
 				!word.romanWord && styles.placeholder,
