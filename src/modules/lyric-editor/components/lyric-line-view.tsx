@@ -81,6 +81,7 @@ import styles from "./index.module.css";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import {
 	globalEnableInsertAtom,
+	lastLineDragEndAtom,
 	lineDragAtom,
 } from "./lyric-line-view-states.ts";
 import LyricWordView from "./lyric-word-view.tsx";
@@ -740,6 +741,7 @@ export const LyricLineView: FC<{
 							evt.preventDefault();
 
 							const now = Date.now();
+							if (now - store.get(lastLineDragEndAtom) < 250) return;
 							const clickInterval = now - lastClickTimeRef.current;
 							lastClickTimeRef.current = now;
 

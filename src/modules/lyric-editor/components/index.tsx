@@ -49,7 +49,11 @@ import {
 } from "./drag-scroll";
 import styles from "./index.module.css";
 import { LyricLineView } from "./lyric-line-view";
-import { draggingIdAtom, lineDragAtom } from "./lyric-line-view-states";
+import {
+	draggingIdAtom,
+	lastLineDragEndAtom,
+	lineDragAtom,
+} from "./lyric-line-view-states";
 import {
 	CategorizeSelectionDialog,
 	SectionManagerDialog,
@@ -229,6 +233,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				});
 			}
 			clearDropTarget();
+			if (drag.isDragging) store.set(lastLineDragEndAtom, Date.now());
 			store.set(lineDragAtom, null);
 			store.set(draggingIdAtom, "");
 			stopScrolling();
