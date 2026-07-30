@@ -1,8 +1,8 @@
 import { BUILD_TIME, GIT_COMMIT } from "virtual:buildmeta";
 import {
+	BoxRegular,
 	CheckmarkCircle24Regular,
 	CloudArrowDown24Regular,
-	BoxRegular,
 	MusicNote1Regular,
 	Open16Regular,
 	SettingsRegular,
@@ -21,8 +21,17 @@ import {
 	Progress,
 	Text,
 } from "@radix-ui/themes";
+import { open } from "@tauri-apps/plugin-shell";
 import { useTranslation } from "react-i18next";
 import { useAppUpdate } from "$/utils/useAppUpdate";
+
+const openExternal = async (url: string) => {
+	if (import.meta.env.TAURI_ENV_PLATFORM) {
+		await open(url);
+	} else {
+		window.open(url, "_blank");
+	}
+};
 
 export const SettingsAboutTab = () => {
 	const { t } = useTranslation();
@@ -171,14 +180,14 @@ export const SettingsAboutTab = () => {
 					<Flex gap="3" mt="1">
 						<Button
 							variant="soft"
-							onClick={() => open("https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL")}
+							onClick={() => openExternal("https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL")}
 						>
 							{t("aboutModal.github", "GitHub Repository")}
 						</Button>
 						<Button
 							variant="soft"
 							color="indigo"
-							onClick={() => open("https://crowdin.com/project/very-cool-ttml-tool")}
+							onClick={() => openExternal("https://crowdin.com/project/very-cool-ttml-tool")}
 						>
 							{t("aboutModal.crowdin", "Help Translate in Crowdin")}
 						</Button>
