@@ -84,12 +84,14 @@ import {
 	customFontNameAtom,
 	appLayoutOrderAtom,
 	vRibbonPositionAtom,
+	aiSidebarEnabledAtom,
 } from "$/modules/settings/states/index.ts";
 import styles from "./App.module.css";
 import DarkThemeDetector from "./components/DarkThemeDetector";
 import RibbonBar from "./components/RibbonBar";
 import { TitleBar } from "./components/TitleBar";
 import { ResizablePanel } from "./components/ResizablePanel";
+import { AiSidebar } from "./modules/ai-sidebar/AiSidebar";
 import { useFileOpener } from "./hooks/useFileOpener.ts";
 import AudioControls from "./modules/audio/components/index.tsx";
 import { useAudioFeedback } from "./modules/audio/hooks/useAudioFeedback.ts";
@@ -113,6 +115,7 @@ import {
 	isGlobalFileDraggingAtom,
 	lyricLinesAtom,
 	showPreviewPanelAtom,
+	aiSidebarWidthAtom,
 	ToolMode,
 	toolModeAtom,
 } from "./states/main.ts";
@@ -252,6 +255,7 @@ function App() {
 	const isDarkTheme = useAtomValue(isDarkThemeAtom);
 	const toolMode = useAtomValue(toolModeAtom);
 	const showTouchSyncPanel = useAtomValue(showTouchSyncPanelAtom);
+	const aiSidebarEnabled = useAtomValue(aiSidebarEnabledAtom);
 	const showPreviewPanel = useAtomValue(showPreviewPanelAtom);
 	// Preview mode already owns the entire editor area. Keep the sync preview
 	// pane's setting intact for when the user returns, but never render a second
@@ -707,7 +711,9 @@ function App() {
 							if (id === "editor") {
 								const editorContent = (
 									<Box flexGrow="1" overflow="hidden" key="editor-content">
-										{previewPanelVisible ? (
+										<Flex height="100%" overflow="hidden">
+											<Box flexGrow="1" minWidth="0" overflow="hidden">
+												{previewPanelVisible ? (
 											<Flex height="100%" gap="2" p="2">
 												<Box flexGrow="1" overflow="hidden">
 													<AnimatePresence mode="wait">
@@ -790,7 +796,15 @@ function App() {
 													</SuspensePlaceHolder>
 												)}
 											</AnimatePresence>
-										)}
+												)}
+											</Box>
+											{aiSidebarEnabled &&
+												(toolMode === ToolMode.Edit || toolMode === ToolMode.Sync) && (
+													<ResizablePanel widthAtom={aiSidebarWidthAtom} minWidth={280} maxWidth={560}>
+														<AiSidebar />
+													</ResizablePanel>
+												)}
+										</Flex>
 									</Box>
 								);
 

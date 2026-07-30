@@ -72,7 +72,7 @@
   },
   "common": {
     "close": "关闭",
-    "autoDetect": "自动检测",
+    "autoDetect": "Auto Detect",
     "about": "关于",
     "resultsFound": "找到 {count} 个结果",
     "cancel": "取消",
@@ -121,17 +121,17 @@
         "error": "获取注音失败"
       },
       "romanization": {
-        "section": "注音/罗马音",
+        "section": "Romanization",
         "info": {
-          "title": "关于注音",
-          "canDo": "✓ 支持：自动生成日语罗马音（JA）、汉语拼音（ZH）和韩语罗马音（KO）。支持汉字！",
-          "cannotDo": "✗ 局限：对于罕见的汉字或专有名词，准确率并非 100%。仅支持 CJK。可能会出现微小错误。"
+          "title": "About Romanization",
+          "canDo": "✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!",
+          "cannotDo": "✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur."
         },
-        "ja": "日语 (罗马音)",
-        "zh": "中文 (拼音)",
-        "yue": "粤语 (粤拼)",
-        "ko": "韩语 (罗马音)",
-        "autoFetch": "自动注音"
+        "ja": "Japanese (Romaji)",
+        "zh": "Chinese (Pinyin)",
+        "yue": "Cantonese (Jyutping)",
+        "ko": "Korean (Romaji)",
+        "autoFetch": "Romanize"
       },
       "new": "新建",
       "lyricLine": "歌词行",
@@ -157,10 +157,10 @@
       "previewPanel": "预览面板"
     },
     "previewMode": {
-      "mode": "模式",
-      "amllDeprecated": "AMLL 模式已弃用，请使用标准模式",
-      "standard": "标准",
-      "timing": "打轴",
+      "mode": "Mode",
+      "amllDeprecated": "AMLL mode is deprecated, please use Standard mode",
+      "standard": "Standard",
+      "timing": "Timing",
       "spicy": "Spicy",
       "simpleLyrics": "Simple lyrics",
       "forceLineRendering": "Force line rendering",
@@ -175,7 +175,7 @@
       "word": "单词",
       "fadeWidth": "淡化宽度",
       "instantFade": "即时淡出",
-      "render": "渲染",
+      "render": "Render",
       "dev": "Dev",
       "showFps": "Show FPS"
     },
@@ -183,7 +183,7 @@
       "currentEmptyBeat": "当前空拍",
       "syncAdjustment": "同步调整",
       "timeOffset": "时间偏移",
-      "commitOffset": "提交位移",
+      "commitOffset": "Commit Offset",
       "syncLevel": "同步精度",
       "syncLevelWord": "逐词同步",
       "syncLevelLine": "逐行同步",
@@ -204,13 +204,13 @@
       "continuousSync": "提交",
       "endSync": "标记结束",
       "manageQuickFixExclusions": {
-        "title": "管理快速修复排除项",
-        "description": "添加要在快速修复中忽略的单词。",
-        "placeholder": "输入要忽略的单词"
+        "title": "Manage Quick Fix Exclusions",
+        "description": "Add words to ignore in quick fixes.",
+        "placeholder": "Enter word to ignore"
       }
     },
     "experimentalFeatures": "Experimental Features",
-    "loading": "正在加载面板..."
+    "loading": "面板载入中..."
   },
   "settings": {
     "common": {
@@ -244,10 +244,10 @@
         "keyDown": "按下时触发",
         "keyUp": "松开时触发"
       },
-      "syncTimeOffset": "全局同步位移 (ms)",
-      "syncTimeOffsetDesc": "统一调整所有同步时间点，用于补偿音频延迟。",
-      "syncCommitOffset": "“提交”输入位移 (ms)",
-      "syncCommitOffsetDesc": "专门针对“提交”操作的位移，用于修复部分用户的音频延迟问题。",
+      "syncTimeOffset": "Global Sync Time Offset (ms)",
+      "syncTimeOffsetDesc": "Adjust all sync timestamps by this amount to compensate for audio latency.",
+      "syncCommitOffset": "Commit Input Offset (ms)",
+      "syncCommitOffsetDesc": "Specific offset for the 'Commit' action to fix delayed audio issues.",
       "smartFirstWord": "智能首词",
       "smartFirstWordDesc": "同步每行的第一个单词时，第一次按下快捷键仅设置其开始时间，不会立即设置其结束时间。",
       "smartLastWord": "智能末词",
@@ -292,17 +292,17 @@
         "gradient": "渐变"
       },
       "presets": {
-        "title": "外观预设",
-        "namePlaceholder": "主题名称...",
-        "save": "保存当前",
-        "empty": "尚无保存的预设。"
+        "title": "Appearance Presets",
+        "namePlaceholder": "Theme Name...",
+        "save": "Save Current",
+        "empty": "No saved presets yet."
       },
       "theme": "主题",
       "useCustomAccent": "自定义强调色",
       "useCustomAccentDesc": "设置主颜色",
-      "glass": "玻璃拟态",
-      "glassBlur": "玻璃强度",
-      "glassBlurDesc": "调整玻璃拟态元素的背景模糊效果。",
+      "glass": "Glassmorphism",
+      "glassBlur": "Glass Intensity",
+      "glassBlurDesc": "Adjust the background blur effect for glassmorphic elements.",
       "background": "背景",
       "useCustomGradient": "自定义渐变颜色",
       "useCustomGradientDesc": "从单一颜色生成渐变。",
@@ -612,7 +612,7 @@
       "playbackRateUp": "回放 - 增加速度",
       "playbackRateDown": "回放 - 降低速度",
       "playbackRateReset": "回放 - 重置速度",
-      "duplicatePaste": "",
+      "duplicatePaste": "Edit - Duplicate to current time",
       "auditionSelectionBefore": "频谱图 - 试听选区 (前 500ms)",
       "auditionSelection": "频谱图 - 试听选区",
       "auditionSelectionAfter": "频谱图 - 试听选区 (后 500ms)",
@@ -1050,24 +1050,24 @@
     "futureUse": "这些歌词将来由于 AMLL 系统作为默认 TTML 源码使用！",
     "rightsWarning": "如果您重视保留所有权，请不要提交！",
     "submitInstructions": "输入以下信息，然后跳到 GitHub issue 提交页面！",
-    "closeWarning": "关闭上述警告信息",
-    "uploadDbType": "歌词库类型",
-    "uploadDbTypeOfficial": "官方歌词库",
-    "uploadDbTypeUser": "用户歌词库",
-    "uploadDbTypeBoth": "全部歌词库",
-    "officialDesc": "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
-    "userDesc": "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
-    "bothDesc": "两个都要也不坏，知晓情况即可。上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
-    "genFromName": "从元数据中生成",
-    "musicName": "音乐名称",
-    "musicNameDesc": "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
-    "submitReason": "提交缘由",
-    "submitReasonNew": "新歌词提交",
-    "submitReasonFix": "修正已有歌词",
-    "comment": "备注",
-    "commentPlaceholder": "有什么需要补充说明的呢？",
-    "issueFoundTitle": "发现以下问题，请修正后再提交：",
-    "submitBtn": "上传歌词并创建议题"
+    "closeWarning": "关闭警告消息",
+    "uploadDbType": "Lyrics Database Type",
+    "uploadDbTypeOfficial": "Official Database",
+    "uploadDbTypeUser": "User Database",
+    "uploadDbTypeBoth": "Both Databases",
+    "officialDesc": "Submitting to the official database requires manual review to ensure lyrics quality and synchronization. This is recommended for high-quality contributions.",
+    "userDesc": "Submitting to the user database only requires bot verification. It is faster but doesn't guarantee the same level of performance quality.",
+    "bothDesc": "This will open submission pages for both repositories. Please create an issue in each manually.",
+    "genFromName": "Generate from metadata",
+    "musicName": "Track Title",
+    "musicNameDesc": "Recommended format: Artist - Song Title",
+    "submitReason": "Reason",
+    "submitReasonNew": "New lyrics submission",
+    "submitReasonFix": "Fix existing lyrics",
+    "comment": "Comment",
+    "commentPlaceholder": "Anything else you want to add?",
+    "issueFoundTitle": "Please fix the following issues before submitting:",
+    "submitBtn": "Upload and Create Issue"
   },
   "splitWordDialog": {
     "spaceCount": "空格 x{count}",
@@ -1171,18 +1171,18 @@
   "spectrogram": {
     "invalidEndTime": "不能选择此结束时间",
     "noAudioLoaded": "请先加载一个音频文件来渲染频谱图哦",
-    "loadAudio": "加载音频文件",
+    "loadAudio": "Load audio file",
     "showUnselectedLines": "显示未选中行",
-    "settings": "频谱图设置",
+    "settings": "Spectrogram Settings",
     "fftSize": "FFT Size",
-    "resolution": "解析度",
+    "resolution": "FFT Resolution",
     "fftSizeOption": {
       "512": "512 (Fast)",
       "1024": "1024 (Normal)",
       "2048": "2048 (Better Freq)",
       "4096": "4096 (High Res)"
     },
-    "height": "高度"
+    "height": "Display Height"
   },
   "pwa": {
     "offlineReady": "网站已成功离线缓存，后续可离线访问本网页",

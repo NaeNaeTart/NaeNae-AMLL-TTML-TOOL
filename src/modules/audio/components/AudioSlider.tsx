@@ -308,10 +308,26 @@ export const AudioSlider = memo(() => {
 		};
 
 		let frameId: number | null = null;
-		let lastAudioTime = -1;
-		let lastRealTime = performance.now();
-		let interpolatedTime = 0;
+		let anchorAudioTime = 0;
+		let anchorRealTime = performance.now();
 		let isDestroyed = false;
+
+		const syncClock = () => {
+			anchorAudioTime = audioEngine.musicCurrentTime;
+			anchorRealTime = performance.now();
+			setCurrentTime(Math.round(anchorAudioTime * 1000));
+		};
+
+		const handleTimeUpdate = () => {
+			const elapsed = (performance.now() - anchorRealTime) / 1000;
+			const interpolatedTime =
+				anchorAudioTime + elapsed * audioEngine.musicPlayBackRate;
+
+			// Correct stalls and long frame gaps without resetting the smooth clock.
+			if (Math.abs(audioEngine.musicCurrentTime - interpolatedTime) > 0.1) {
+				syncClock();
+			}
+		};
 
 		const onFrame = () => {
 			if (isDestroyed || !audioEngine.musicPlaying) {
@@ -319,38 +335,34 @@ export const AudioSlider = memo(() => {
 				return;
 			}
 
-			const currentRealTime = performance.now();
-			const currentAudioTime = audioEngine.musicCurrentTime;
-
-			if (currentAudioTime !== lastAudioTime) {
-				interpolatedTime = currentAudioTime;
-				lastAudioTime = currentAudioTime;
-			} else {
-				const dt = (currentRealTime - lastRealTime) / 1000;
-				interpolatedTime += dt * audioEngine.musicPlayBackRate;
-			}
-			lastRealTime = currentRealTime;
-
-			setCurrentTime((interpolatedTime * 1000) | 0);
+			const elapsed = (performance.now() - anchorRealTime) / 1000;
+			const currentTime =
+				anchorAudioTime + elapsed * audioEngine.musicPlayBackRate;
+			setCurrentTime(Math.round(currentTime * 1000));
 			frameId = requestAnimationFrame(onFrame);
 		};
 
 		const handlePlay = () => {
-			if (frameId !== null) return; // Already running
-			lastAudioTime = audioEngine.musicCurrentTime;
-			interpolatedTime = lastAudioTime;
-			lastRealTime = performance.now();
-			onFrame();
+			syncClock();
+			if (frameId === null) onFrame();
 			setAudioPlaying(true);
 		};
-		const handlePause = () => setAudioPlaying(false);
-		const handleSeek = () =>
-			setCurrentTime((audioEngine.musicCurrentTime * 1000) | 0);
+		const handlePause = () => {
+			syncClock();
+			setAudioPlaying(false);
+		};
+		const handleSeek = syncClock;
+		const handlePlaybackRateChange = syncClock;
 
 		audioEngine.addEventListener("music-unload", handleMusicUnload);
 		audioEngine.addEventListener("music-resume", handlePlay);
 		audioEngine.addEventListener("music-pause", handlePause);
 		audioEngine.addEventListener("music-seeked", handleSeek);
+		audioEngine.addEventListener("music-timeupdate", handleTimeUpdate);
+		audioEngine.addEventListener(
+			"music-playback-rate-change",
+			handlePlaybackRateChange,
+		);
 
 		// Start loop if already playing
 		if (audioEngine.musicPlaying) {
@@ -365,6 +377,11 @@ export const AudioSlider = memo(() => {
 			audioEngine.removeEventListener("music-resume", handlePlay);
 			audioEngine.removeEventListener("music-pause", handlePause);
 			audioEngine.removeEventListener("music-seeked", handleSeek);
+			audioEngine.removeEventListener("music-timeupdate", handleTimeUpdate);
+			audioEngine.removeEventListener(
+				"music-playback-rate-change",
+				handlePlaybackRateChange,
+			);
 		};
 	}, [destroyWaveSurfer, setCurrentDuration, setCurrentTime, setAudioPlaying]);
 

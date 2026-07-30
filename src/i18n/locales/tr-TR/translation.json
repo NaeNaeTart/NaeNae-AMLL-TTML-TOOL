@@ -72,7 +72,7 @@
   },
   "common": {
     "close": "Kapat",
-    "autoDetect": "Auto Detect",
+    "autoDetect": "Otomatik Algıla",
     "about": "Hakkında",
     "resultsFound": "{count} tane sonuç bulundu",
     "cancel": "İptal",
@@ -121,17 +121,17 @@
         "error": "Fonetikler alınamadı"
       },
       "romanization": {
-        "section": "Romanization",
+        "section": "Romanizasyon",
         "info": {
-          "title": "About Romanization",
-          "canDo": "✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!",
-          "cannotDo": "✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur."
+          "title": "Romanizasyon Hakkında",
+          "canDo": "✓ Yapılabilir: Otomatik olarak Romaji (JA), Pinyin (ZH) ve Romaji (KO) oluşturun. Kanji'yi destekliyor!",
+          "cannotDo": "✗ Yapılamaz: Nadir Kanji veya özel isimler için %100 doğruluk. Sadece CJK. Küçük hatalar meydana gelebilir."
         },
-        "ja": "Japanese (Romaji)",
-        "zh": "Chinese (Pinyin)",
-        "yue": "Cantonese (Jyutping)",
-        "ko": "Korean (Romaji)",
-        "autoFetch": "Romanize"
+        "ja": "Japonca (Latin Alfabesi)",
+        "zh": "Çince (Pinyin)",
+        "yue": "Kantonca (Jyutping)",
+        "ko": "Korece (Latin Alfabesi)",
+        "autoFetch": "Romanlaştır"
       },
       "new": "Yeni",
       "lyricLine": "Şarkı Sözü Satırı",
@@ -158,7 +158,7 @@
     },
     "previewMode": {
       "mode": "Mod",
-      "amllDeprecated": "AMLL 模式已弃用，请使用标准模式",
+      "amllDeprecated": "AMLL modu kullanımdan kaldırılmıştır, lütfen Standart modu kullanın",
       "standard": "Standart",
       "timing": "Zamanlama",
       "spicy": "Spicy",
@@ -175,15 +175,15 @@
       "word": "Kelime",
       "fadeWidth": "Geçiş Genişliği",
       "instantFade": "即时淡出",
-      "render": "渲染",
-      "dev": "Dev",
-      "showFps": "Show FPS"
+      "render": "İşle",
+      "dev": "Geliştirici",
+      "showFps": "FPS'i Göster"
     },
     "syncMode": {
       "currentEmptyBeat": "Boş Ritim",
       "syncAdjustment": "Zamanlama Ayarı",
       "timeOffset": "Zaman Kayması",
-      "commitOffset": "Commit Offset",
+      "commitOffset": "Sonraki Kayması",
       "syncLevel": "Senkronizasyon Seviyesi",
       "syncLevelWord": "Kelime Senkronizasyonu",
       "syncLevelLine": "Satır Senkronizasyonu",
@@ -204,13 +204,13 @@
       "continuousSync": "Bitir ve Sonrakini Başlat",
       "endSync": "Sonu Ayarla",
       "manageQuickFixExclusions": {
-        "title": "Manage Quick Fix Exclusions",
-        "description": "Add words to ignore in quick fixes.",
-        "placeholder": "Enter word to ignore"
+        "title": "Hızlı Düzeltme İstisnalarını Yönet",
+        "description": "Hızlı düzeltmelerde görmezden gelinecek kelimeler ekleyin.",
+        "placeholder": "Görmezden gelinecek kelime yazın"
       }
     },
     "experimentalFeatures": "Experimental Features",
-    "loading": "Loading panel..."
+    "loading": "面板载入中..."
   },
   "settings": {
     "common": {
@@ -244,10 +244,10 @@
         "keyDown": "Tuşa Basıldığında Tetikle",
         "keyUp": "Tuş Bırakıldığında Tetikle"
       },
-      "syncTimeOffset": "Global Sync Time Offset (ms)",
-      "syncTimeOffsetDesc": "Adjust all sync timestamps by this amount to compensate for audio latency.",
-      "syncCommitOffset": "Commit Input Offset (ms)",
-      "syncCommitOffsetDesc": "Specific offset for the 'Commit' action to fix delayed audio issues.",
+      "syncTimeOffset": "Küresel Senkronizasyon Zaman Kayması (ms)",
+      "syncTimeOffsetDesc": "Ses gecikmesini telafi etmek için tüm senkronizasyon zaman damgalarını bu miktara göre ayarlayın.",
+      "syncCommitOffset": "Sonraki Giriş Kayması (ms)",
+      "syncCommitOffsetDesc": "Gecikmeli ses sorunlarını düzeltmek için 'Sonraki' aksiyonuna spesifik bir kayma.",
       "smartFirstWord": "Akıllı İlk Kelime",
       "smartFirstWordDesc": "Bir satırın ilk kelimesi senkronize edilirken, ilk tuşa basıldığında yalnızca başlangıç zamanı ayarlanır; bitiş zamanı hemen belirlenmez.",
       "smartLastWord": "Akıllı Son Kelime",
@@ -292,17 +292,17 @@
         "gradient": "Gradyan"
       },
       "presets": {
-        "title": "Appearance Presets",
-        "namePlaceholder": "Theme Name...",
-        "save": "Save Current",
-        "empty": "No saved presets yet."
+        "title": "Görünüm Ön Ayarları",
+        "namePlaceholder": "Tema Adı...",
+        "save": "Geçerli Olanı Kaydet",
+        "empty": "Henüz kaydedilmiş ön ayar yok."
       },
       "theme": "Tema",
       "useCustomAccent": "Özel Aksan Rengi",
       "useCustomAccentDesc": "Aksan Rengini ayarla",
-      "glass": "Glassmorphism",
-      "glassBlur": "Glass Intensity",
-      "glassBlurDesc": "Adjust the background blur effect for glassmorphic elements.",
+      "glass": "Cammorfizm",
+      "glassBlur": "Cam Yoğunluğu",
+      "glassBlurDesc": "Cammorfizim elementleri için arkaplan bulanıklık efektini ayarla.",
       "background": "Arkaplan",
       "useCustomGradient": "Özel Gradyan Rengi",
       "useCustomGradientDesc": "Tek bir renkten bir gradyan oluştur.",
@@ -504,7 +504,7 @@
       "selectWordsOfMatchedSelection": "Seçilen kelimeyle eşleşenleri seç",
       "timeShift": "Zaman Kayması...",
       "timeStretch": "时间伸缩...",
-      "editMetadata": "Şarkı sözü metadata'sını düzenle…",
+      "editMetadata": "Şarkı sözü metaverisini düzenle…",
       "edit": "Düzenle",
       "newLyric": "Yeni şarkı sözü",
       "openLyric": "Şarkı sözü aç",
@@ -599,9 +599,9 @@
       "syncStart": "Zamanlama - Başlangıcı ayarla",
       "syncNext": "Zamanlama - Bitir ve sonrakine geç",
       "syncEnd": "Zamanlama - Sonu ayarla",
-      "toggleWordHighlight": "Zamanlama - Aktif kelime işaretşemesini aç/kapat",
-      "urbanDictionary": "Edit - Look up in Urban Dictionary",
-      "urbanDictionarySync": "Timing - Look up in Urban Dictionary",
+      "toggleWordHighlight": "Zamanlama - Aktif kelime işaretlemesini aç/kapat",
+      "urbanDictionary": "Düzenleme - Urban Dictionary'e bakın",
+      "urbanDictionarySync": "Zamanlama - Urban Dictionary'de bakın",
       "moveFirstWordAndPlay": "Zamanlama - İlk kelimeye geç ve oynat",
       "moveLastWordAndPlay": "Zamanlama - Son kelimeye geç ve oynat",
       "playPause": "Oynatma - Oynat/Duraklat",
@@ -612,7 +612,7 @@
       "playbackRateUp": "Oynatma - Hızı arttır",
       "playbackRateDown": "Oynatma - Hızı azalt",
       "playbackRateReset": "Oynatma - Hızı sıfırla",
-      "duplicatePaste": "",
+      "duplicatePaste": "Düzenleme - Geçerli zamana çoğalt",
       "auditionSelectionBefore": "Spektrogram - Seçimi Dinle (500ms önce)",
       "auditionSelection": "Spektrogram - Seçimi Dinle",
       "auditionSelectionAfter": "Spektrogram - Seçimi Dinle (500ms sonra)",
@@ -663,7 +663,7 @@
   "audioPanel": {
     "volume": "Ses Düzeyi",
     "playbackRate": "Oynatma hızı",
-    "preservesPitch": "Preserve Pitch",
+    "preservesPitch": "Ses Perdesini Aynı Tut",
     "clickToLoadMusic": "İkon tuşuna basarak müzik yükleyin",
     "playPause": "Müziği oynat/duraklat",
     "expandSpectrogram": "Spektrogramı genişlet/daralt"
@@ -693,7 +693,7 @@
       "findingRealName": "{name} için gerçek isim bulunuyor ({current}/{total})...",
       "success": "Şarkıyazarları başarıyla Genius'tan alındı",
       "setupTitle": "Genius API Anahtarı Kurulumu",
-      "setupDesc": "Bu özelliği kullanmak için Genius API Anahtarını ayarlaman gerekiyor (özelllikle, \"CLIENT ACCESS TOKEN\" değerine ihtiyacın var) Bu şuaradan oluşturabilirsin ",
+      "setupDesc": "Bu özelliği kullanmak için Genius API Anahtarını ayarlaman gerekiyor (özelllikle, \"CLIENT ACCESS TOKEN\" değerine ihtiyacın var). Bunu şuradan oluşturabilirsin ",
       "setupDescEnd": " geliştirici portalı.",
       "keyPlaceholder": "CLIENT ACCESS TOKEN gir",
       "button": "Genius'tan şarkıyazarlarını al",
@@ -718,7 +718,7 @@
       "ncmMusicIdInvalidMsg": "NetEase Music ID numerik olmalıdır",
       "qqMusicId": "QQ Music ID",
       "qqMusicIdInvalidMsg": "QQ Music ID alfanumerik olmalı",
-      "spotifyId": "Spoitfy Parça ID'si",
+      "spotifyId": "Spotify Parça ID'si",
       "spotifyIdInvalidMsg": "Spotify Parça ID'si alfanumerik olmalı",
       "appleMusicId": "Apple Music Parça ID'si",
       "appleMusicIdInvalidMsg": "Apple Music Parça ID'si numerik olmalı",
@@ -827,10 +827,10 @@
   },
   "urbanDictionary": {
     "title": "Urban Dictionary",
-    "slang": "slang dictionary",
-    "noDefinitions": "No definitions found for \"{word}\"",
-    "by": "By",
-    "viewOnline": "View online"
+    "slang": "argo sözlüğü",
+    "noDefinitions": "\"{word}\" için bir tanım bulunamadı",
+    "by": "Tarafından",
+    "viewOnline": "Çevrim içi görüntüle"
   },
   "replaceWordDialog": {
     "title": "Kelimeyi Değiştir",
@@ -1024,7 +1024,7 @@
     "validation": {
       "missingMusicName": "Metaveri'de parça ismi yok",
       "missingArtists": "Metaveri'de parça sanatçısı yok",
-      "missingAlbum": "Metaveri'de albüm parça ismi yok",
+      "missingAlbum": "Metaveri'de albüm ismi yok",
       "missingMusicId": "Metaveri'de platform parça ID'si yok"
     },
     "defaultReason": "Yeni Şarkı Sözü gönderimi",
@@ -1051,23 +1051,23 @@
     "rightsWarning": "Eğer sahipliği önemsiyorsanız, lütfen şarkı sözlerinizi GÖNDERMEYİN!",
     "submitInstructions": "Aşağıdaki bilgileri girin ve ardından GitHub sayı gönderme sayfasına atlayın!",
     "closeWarning": "Uyarı mesajını kapat",
-    "uploadDbType": "歌词库类型",
-    "uploadDbTypeOfficial": "官方歌词库",
-    "uploadDbTypeUser": "用户歌词库",
-    "uploadDbTypeBoth": "全部歌词库",
-    "officialDesc": "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
-    "userDesc": "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
-    "bothDesc": "两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
-    "genFromName": "从元数据中生成",
-    "musicName": "音乐名称",
-    "musicNameDesc": "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
-    "submitReason": "提交缘由",
-    "submitReasonNew": "新歌词提交",
-    "submitReasonFix": "修正已有歌词",
-    "comment": "备注",
-    "commentPlaceholder": "有什么需要补充说明的呢？",
-    "issueFoundTitle": "发现以下问题，请修正后再提交：",
-    "submitBtn": "上传歌词并创建议题"
+    "uploadDbType": "Şarkı Sözü Veritabanı Türü",
+    "uploadDbTypeOfficial": "Resmi Veritabanı",
+    "uploadDbTypeUser": "Kullanıcı Veritabanı",
+    "uploadDbTypeBoth": "Tüm Veritabanları",
+    "officialDesc": "Şarkı sözlerinin kalitesini ve senkronizasyonunu doğrulamak için resmi veritabanına gönderirken manuel inceleme gerekir. Bu, yüksek kaliteli katkılar için önerilir.",
+    "userDesc": "Kullanıcı veritabanına göndermek için yalnızca bot doğrulaması gerekir. Daha hızlıdır ancak aynı düzeyde performans kalitesini garanti etmez.",
+    "bothDesc": "Bu, her iki depo için de gönderim sayfaları açacaktır. Lütfen her birinde manuel olarak bir sorun oluşturun.",
+    "genFromName": "Metaveri'den oluştur",
+    "musicName": "Parça Adı",
+    "musicNameDesc": "Tavsiye edilen format: Sanatçı - Şarkı İsmi",
+    "submitReason": "Sebep",
+    "submitReasonNew": "Yeni Şarkı Sözü gönderimi",
+    "submitReasonFix": "Var olan şarkı sözünü tamir et",
+    "comment": "Yorum",
+    "commentPlaceholder": "Eklemek istediğiniz başka bir şey var mı?",
+    "issueFoundTitle": "Göndermeden önce lütfen aşağıdaki sorunları düzeltin:",
+    "submitBtn": "Yükle ve Sorun Oluştur"
   },
   "splitWordDialog": {
     "spaceCount": "Boşluk x{count}",
@@ -1171,18 +1171,18 @@
   "spectrogram": {
     "invalidEndTime": "Bu son zamanı seçilemez",
     "noAudioLoaded": "Spektrogramı oluşturmak için lütfen bir ses dosyası yükleyin",
-    "loadAudio": "Bir ses dosyası yükle",
+    "loadAudio": "Ses dosyası yükle",
     "showUnselectedLines": "Seçili olmayan satırları göster",
-    "settings": "频谱图设置",
+    "settings": "Spektrogram ayarları",
     "fftSize": "FFT Size",
-    "resolution": "解析度",
+    "resolution": "FFT Çözünürlüğü",
     "fftSizeOption": {
       "512": "512 (Fast)",
       "1024": "1024 (Normal)",
       "2048": "2048 (Better Freq)",
       "4096": "4096 (High Res)"
     },
-    "height": "高度"
+    "height": "Görüntüleme Yüksekliği"
   },
   "pwa": {
     "offlineReady": "Site çevrimdışı kullanım için başarıyla kaydedildi",

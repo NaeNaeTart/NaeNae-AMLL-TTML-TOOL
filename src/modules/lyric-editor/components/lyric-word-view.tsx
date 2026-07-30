@@ -18,13 +18,8 @@ import {
 	TaskListLtrRegular,
 } from "@fluentui/react-icons";
 import {
-	Button,
 	ContextMenu,
-	Dialog,
-	Flex,
-	Grid,
 	IconButton,
-	Text,
 	TextField,
 } from "@radix-ui/themes";
 import classNames from "classnames";
@@ -53,7 +48,6 @@ import {
 	highlightErrorsAtom,
 	LayoutMode,
 	layoutModeAtom,
-	quickFixesAtom,
 	showTimestampsAtom,
 } from "$/modules/settings/states/index.ts";
 
@@ -65,9 +59,8 @@ import {
 	syncLevelModeAtom,
 } from "$/modules/settings/states/sync.ts";
 import { instantHighlightFadeAtom } from "$/modules/settings/states/preview";
-import { splitWordDialogAtom, suggestedSplitsDialogAtom } from "$/states/dialogs.ts";
+import { splitWordDialogAtom } from "$/states/dialogs.ts";
 import {
-	allLyricsWordsAtom,
 	editingWordStateAtom,
 	lyricLinesAtom,
 	selectedLinesAtom,
@@ -79,7 +72,6 @@ import {
 import { type LyricLine, type LyricWord, newLyricWord } from "$/types/ttml.ts";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
 import { RubyEditor } from "../tools/RubyEditor.tsx";
-import { getGrammarSuggestions } from "../utils/grammar-warning.ts";
 import {
 	buildRubySelectionId,
 	getSynchronizableUnits,
@@ -143,7 +135,7 @@ type LyricWordViewEditSpanProps = {
 	wordIndex: number;
 	line: LyricLine;
 	className?: string;
-	onDoubleClick?: () => void;
+	onDoubleClick?: (evt: MouseEvent<HTMLSpanElement>) => void;
 };
 
 const LyricWordViewEditSpan = ({
@@ -238,6 +230,7 @@ const LyricWordViewEditSpan = ({
 	return (
 		<span
 			{...props}
+			data-lyric-word-interactive=""
 			draggable={toolMode === ToolMode.Edit}
 			onPointerDown={(evt) => {
 				blockDragRef.current =
@@ -344,10 +337,24 @@ const LyricWordViewEditSpan = ({
 
 				evt.stopPropagation();
 				evt.preventDefault();
+
+				if ((evt.ctrlKey || evt.metaKey) && evt.detail === 2) {
+					setSelectedLines((state) => {
+						state.clear();
+						state.add(line.id);
+					});
+					setSelectedWords((state) => {
+						state.clear();
+						state.add(word.id);
+					});
+					onDoubleClick?.(evt);
+					return;
+				}
+
 				onWordSelect(evt);
 
 				if (wasAlreadySelected && isSelectionClick && clickInterval > 100) {
-					onDoubleClick?.();
+					onDoubleClick?.(evt);
 				}
 			}}
 		>
@@ -518,8 +525,14 @@ const LyricWordViewEditAdvance = ({
 					wordIndex={wordIndex}
 					className={className}
 					line={line}
-					onDoubleClick={() => {
-						// Grammar actions disabled in Edit mode
+					onDoubleClick={(evt) => {
+						if (!evt.ctrlKey && !evt.metaKey) return;
+						setSplitState({
+							wordIndex,
+							lineIndex,
+							word: currentWord.word,
+						});
+						setOpenSplitWordDialog(true);
 					}}
 				>
 					<WordEditField
@@ -585,11 +598,6 @@ const LyricWordViewEditAdvance = ({
 							showIcon
 							className={styles.rubyEditorCompact}
 						/>
-						{currentWord.romanWord && (
-							<Text size="1" color="gray" style={{ fontStyle: "italic", marginLeft: "4px" }}>
-								{currentWord.romanWord}
-							</Text>
-						)}
 					</div>
 					<WordEditField
 						size="1"
@@ -639,7 +647,10 @@ const LyricWordViewEditAdvance = ({
 					</div>
 				</LyricWordViewEditSpan>
 			</ContextMenu.Trigger>
-			<ContextMenu.Content>
+			<ContextMenu.Content
+				onPointerDown={(evt) => evt.stopPropagation()}
+				onClick={(evt) => evt.stopPropagation()}
+			>
 				<LyricWordMenu
 					wordAtom={wordAtom}
 					wordIndex={wordIndex}
@@ -667,13 +678,13 @@ const LyricWorldViewEdit = ({
 	);
 	const isWordSelected = useAtomValue(isWordSelectedAtom);
 	const setSelectedWords = useSetImmerAtom(selectedWordsAtom);
+	const setOpenSplitWordDialog = useSetAtom(splitWordDialogAtom);
+	const setSplitState = useSetAtom(editingWordStateAtom);
 	const [editing, setEditing] = useState(false);
 	const store = useStore();
 	const toolMode = useAtomValue(toolModeAtom);
-	const displayRomanizationInSync = useAtomValue(displayRomanizationInSyncAtom);
 	const isWordBlank = useWordBlank(word.word);
 	// In Edit Mode, we always want to see the original word in the capsule.
-	// We only show romanization in the sync display or as secondary text in advance view.
 	const displayWord = getDisplayWordText(t, word.word, isWordBlank, word.romanWord, false);
 	const showRubyEditor = useMemo(() => word.ruby !== undefined, [word.ruby]);
 
@@ -752,25 +763,31 @@ const LyricWorldViewEdit = ({
 					wordIndex={wordIndex}
 					className={className}
 					line={line}
-					onDoubleClick={() => {
-						// Open inline editor directly (grammar actions disabled in Edit mode)
+					onDoubleClick={(evt) => {
+						if (evt.ctrlKey || evt.metaKey) {
+							setSplitState({
+								wordIndex,
+								lineIndex,
+								word: word.word,
+							});
+							setOpenSplitWordDialog(true);
+							return;
+						}
 						setEditing(true);
 					}}
 				>
 					<span className={styles.wordEditRow}>
 						<div className={styles.wordMainContainer}>
 							<div className={styles.wordMainText}>{displayWord}</div>
-							{displayRomanizationInSync && word.romanWord && (
-								<div className={styles.wordRomanSecondary}>
-									{word.romanWord}
-								</div>
-							)}
 						</div>
 						{showRubyEditor && <RubyEditor wordAtom={wordAtom} />}
 					</span>
 				</LyricWordViewEditSpan>
 			</ContextMenu.Trigger>
-			<ContextMenu.Content>
+			<ContextMenu.Content
+				onPointerDown={(evt) => evt.stopPropagation()}
+				onClick={(evt) => evt.stopPropagation()}
+			>
 				<LyricWordMenu
 					wordAtom={wordAtom}
 					wordIndex={wordIndex}
@@ -784,25 +801,30 @@ const LyricWorldViewEdit = ({
 
 const LyricSyncWordView: FC<{
 	syncId: string;
+	wordAtom: Atom<LyricWord>;
 	line: LyricLine;
 	startTime: number;
 	endTime: number;
 	displayWord: string;
 	isWordBlank: boolean;
 	wordIndex: number;
+	lineIndex: number;
 	rubyIndex?: number;
-	allWordsInLyrics?: Set<string>;
+	editableField: "word" | "romanWord";
 }> = ({
 	syncId,
+	wordAtom,
 	line,
 	startTime,
 	endTime,
 	displayWord,
 	isWordBlank,
 	wordIndex,
+	lineIndex,
 	rubyIndex = -1,
-	setCorrectionDialog,
+	editableField,
 }) => {
+	const word = useAtomValue(wordAtom);
 	const isWordSelectedAtom = useMemo(
 		() => atom((get) => get(selectedWordsAtom).has(syncId)),
 		[syncId],
@@ -816,7 +838,6 @@ const LyricSyncWordView: FC<{
 	const highlightErrors = useAtomValue(highlightErrorsAtom);
 	const highlightActiveWord = useAtomValue(highlightActiveWordAtom);
 	const toolMode = useAtomValue(toolModeAtom);
-	const quickFixes = useAtomValue(quickFixesAtom);
 	const syncLevelMode = useAtomValue(syncLevelModeAtom);
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const enableSyncGlowAnimation = useAtomValue(enableSyncGlowAnimationAtom);
@@ -875,6 +896,58 @@ const LyricSyncWordView: FC<{
 	// Inline timestamp editing state: null = not editing, "start" | "end" = editing that field
 	const [editingTime, setEditingTime] = useState<"start" | "end" | null>(null);
 	const [editingInput, setEditingInput] = useState("");
+	const [editingTextField, setEditingTextField] = useState<
+		"word" | "romanWord" | null
+	>(null);
+	const [editingTextValue, setEditingTextValue] = useState("");
+	const editingTextInputRef = useRef<HTMLInputElement>(null);
+	const editingTextMeasureRef = useRef<HTMLSpanElement>(null);
+	const editingTextValueRef = useRef("");
+	const [editingTextWidth, setEditingTextWidth] = useState<number>();
+	const textForMeasurement = editingTextValue || " ";
+
+	useEffect(() => {
+		if (!editingTextField) return;
+		editingTextInputRef.current?.focus();
+		editingTextInputRef.current?.select();
+	}, [editingTextField]);
+
+	useLayoutEffect(() => {
+		if (
+			!editingTextField ||
+			!editingTextMeasureRef.current ||
+			!textForMeasurement
+		)
+			return;
+		setEditingTextWidth(
+			Math.ceil(editingTextMeasureRef.current.getBoundingClientRect().width),
+		);
+	}, [editingTextField, textForMeasurement]);
+
+	const commitTextEdit = useCallback(
+		(field: "word" | "romanWord", value: string) => {
+			editLyricLines((state) => {
+				const targetLine = state.lyricLines.find((item) => item.id === line.id);
+				const targetWord = targetLine?.words[wordIndex];
+				if (targetWord) targetWord[field] = value;
+			});
+			setEditingTextField(null);
+		},
+		[editLyricLines, line.id, wordIndex],
+	);
+
+	useEffect(() => {
+		if (!editingTextField) return;
+
+		const commitOnOutsidePointerDown = (event: PointerEvent) => {
+			if (editingTextInputRef.current?.contains(event.target as Node)) return;
+			commitTextEdit(editingTextField, editingTextValueRef.current);
+		};
+
+		document.addEventListener("pointerdown", commitOnOutsidePointerDown, true);
+		return () =>
+			document.removeEventListener("pointerdown", commitOnOutsidePointerDown, true);
+	}, [commitTextEdit, editingTextField]);
 
 	const commitTimeEdit = useCallback(
 		(field: "start" | "end", rawValue: string) => {
@@ -1001,6 +1074,8 @@ const LyricSyncWordView: FC<{
 
 	const instantFade = useAtomValue(instantHighlightFadeAtom);
 	const hasError = useMemo(() => startTime > endTime, [startTime, endTime]);
+	const setOpenSplitWordDialog = useSetAtom(splitWordDialogAtom);
+	const setEditingWordState = useSetAtom(editingWordStateAtom);
 
 	// active/animated classes are applied imperatively by the store.sub effect above
 	const className = useMemo(
@@ -1063,36 +1138,23 @@ const LyricSyncWordView: FC<{
 				const clickInterval = now - lastClickTimeRef.current;
 				lastClickTimeRef.current = now;
 
-				// Only trigger grammar actions if two clicks happen within 300ms (standard double click)
+				// Only trigger double-click actions within the standard double-click window.
 				if (clickInterval > 300) return;
 
 				if (evt.ctrlKey || evt.metaKey) {
-					// Open Suggested Splits Dialog
-					store.set(suggestedSplitsDialogAtom, {
-						open: true,
-						lineId: line.id,
-						wordIndex: wordIndex,
+					setEditingWordState({
+						wordIndex,
+						lineIndex,
+						word: word.word,
 					});
+					setOpenSplitWordDialog(true);
 					return;
 				}
 
-				// Only open the dialog if Quick Fixes is enabled
-				if (!quickFixes) return;
-
-				const wordText = line.words[wordIndex]?.word || "";
-				const suggestions = getGrammarSuggestions(
-					line,
-					wordIndex,
-					store.get(allLyricsWordsAtom),
-				);
-
-				// Always open the correction dialog on double-click in Sync mode (Time tab)
-				setCorrectionDialog({
-					open: true,
-					wordIndex: wordIndex,
-					currentWord: wordText,
-					suggestions: suggestions,
-				});
+				const value = word[editableField] || "";
+				editingTextValueRef.current = value;
+				setEditingTextValue(value);
+				setEditingTextField(editableField);
 			}}
 		>
 			<div
@@ -1152,7 +1214,43 @@ const LyricSyncWordView: FC<{
 					)}
 				</div>
 			)}
-			<div className={styles.displayWord}>{displayWord}</div>
+			{editingTextField ? (
+				<>
+					<span ref={editingTextMeasureRef} className={styles.syncWordInputMeasure}>
+						{textForMeasurement}
+					</span>
+					<input
+						ref={editingTextInputRef}
+						value={editingTextValue}
+						style={
+							editingTextWidth ? { width: `${editingTextWidth}px` } : undefined
+						}
+						onChange={(event) => {
+							editingTextValueRef.current = event.currentTarget.value;
+							setEditingTextValue(event.currentTarget.value);
+						}}
+						onBlur={(event) =>
+							commitTextEdit(editingTextField, event.currentTarget.value)
+						}
+						onPointerDown={(event) => event.stopPropagation()}
+						onClick={(event) => event.stopPropagation()}
+						onKeyDown={(event) => {
+							event.stopPropagation();
+							if (event.key === "Enter") {
+								event.preventDefault();
+								commitTextEdit(editingTextField, event.currentTarget.value);
+							}
+							if (event.key === "Escape") {
+								event.preventDefault();
+								setEditingTextField(null);
+							}
+						}}
+						className={styles.syncWordInput}
+					/>
+				</>
+			) : (
+				<div className={styles.displayWord}>{displayWord}</div>
+			)}
 			{showTimestamps && (
 				<div
 					className={classNames(styles.endTime)}
@@ -1207,18 +1305,12 @@ const LyricWorldViewSync: FC<{
 	wordIndex: number;
 	line: LyricLine;
 	lineIndex: number;
-	setCorrectionDialog: (
-		dialog: {
-			open: boolean;
-			wordIndex: number;
-			currentWord: string;
-			suggestions: string[];
-		} | null,
-	) => void;
-}> = ({ wordAtom, line, wordIndex, setCorrectionDialog }) => {
+}> = ({ wordAtom, line, lineIndex, wordIndex }) => {
 	const { t } = useTranslation();
 	const word = useAtomValue(wordAtom);
 	const displayRomanizationInSync = useAtomValue(displayRomanizationInSyncAtom);
+	const hasRomanization =
+		displayRomanizationInSync && word.romanWord?.trim() !== "";
 	const isWordBlank = useWordBlank(word.word);
 	const getDisplayWord = useCallback(
 		(
@@ -1242,14 +1334,16 @@ const LyricWorldViewSync: FC<{
 						<LyricSyncWordView
 							key={`${word.id}-ruby-${rubyIndex}`}
 							syncId={buildRubySelectionId(word.id, rubyIndex)}
+							wordAtom={wordAtom}
 							line={line}
 							startTime={rubyWord.startTime}
 							endTime={rubyWord.endTime}
 							displayWord={getDisplayWord(rubyWord.word, isRubyBlank)}
 							isWordBlank={isRubyBlank}
 							wordIndex={wordIndex}
+							lineIndex={lineIndex}
 							rubyIndex={rubyIndex}
-							setCorrectionDialog={setCorrectionDialog}
+							editableField="word"
 						/>
 					);
 				})}
@@ -1257,6 +1351,7 @@ const LyricWorldViewSync: FC<{
 		) : (
 			<LyricSyncWordView
 				syncId={word.id}
+				wordAtom={wordAtom}
 				line={line}
 				startTime={word.startTime}
 				endTime={word.endTime}
@@ -1268,7 +1363,8 @@ const LyricWorldViewSync: FC<{
 				)}
 				isWordBlank={isWordBlank}
 				wordIndex={wordIndex}
-				setCorrectionDialog={setCorrectionDialog}
+				lineIndex={lineIndex}
+				editableField={hasRomanization ? "romanWord" : "word"}
 			/>
 		);
 
@@ -1284,49 +1380,12 @@ type LyricWordViewProps = {
 
 export const LyricWordView: FC<LyricWordViewProps & { isHeaderLine?: boolean }> = memo(
 	({ wordAtom, wordIndex, line, lineIndex, isHeaderLine }) => {
-	const { t } = useTranslation();
 	const word = useAtomValue(wordAtom);
 	const toolMode = useAtomValue(toolModeAtom);
 	const layoutMode = useAtomValue(layoutModeAtom);
 
 	const isWordBlank = useWordBlank(word.word);
 	const hasRuby = word.ruby && word.ruby.length > 0;
-	const [correctionDialog, setCorrectionDialog] = useState<{
-		open: boolean;
-		wordIndex: number;
-		currentWord: string;
-		suggestions: string[];
-	} | null>(null);
-	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
-
-	const handleDialogClose = () => setCorrectionDialog(null);
-
-	const handleWordUpdate = (targetWordIndex: number, newWord: string) => {
-		editLyricLines((state) => {
-			const targetLine = state.lyricLines[lineIndex];
-			if (targetLine) {
-				targetLine.words[targetWordIndex].word = newWord;
-			}
-		});
-		setCorrectionDialog(null);
-	};
-
-	// Sub-component for suggestion buttons
-	const SuggestionButton = ({
-		suggestion,
-		onApply,
-	}: {
-		suggestion: string;
-		onApply: (s: string) => void;
-	}) => {
-		return (
-			<Button variant="soft" onClick={() => onApply(suggestion)}>
-				{suggestion === "__REMOVE_REPEATED_WORD__"
-					? t("lyricWordView.removeWord", "删除重复单词")
-					: suggestion}
-			</Button>
-		);
-	};
 
 	if (isHeaderLine) {
 		return (
@@ -1360,83 +1419,8 @@ export const LyricWordView: FC<LyricWordViewProps & { isHeaderLine?: boolean }> 
 					line={line}
 					lineIndex={lineIndex}
 					wordIndex={wordIndex}
-					setCorrectionDialog={setCorrectionDialog}
 				/>
 			)}
-			<Dialog.Root
-				open={correctionDialog?.open || false}
-				onOpenChange={handleDialogClose}
-			>
-				<Dialog.Content>
-					<Dialog.Title>
-						{t("lyricWordView.editingWordTitle", "Editing Word")}
-					</Dialog.Title>
-					<Dialog.Description>
-						{t(
-							"lyricWordView.editingWordDesc",
-							"Edit the word or apply suggested quick fixes.",
-						)}
-					</Dialog.Description>
-					<Flex direction="column" gap="3">
-						<Text size="1" color="gray" mb="-2">
-							Input:
-						</Text>
-						<TextField.Root
-							value={correctionDialog?.currentWord || ""}
-							onChange={(e) => {
-								if (correctionDialog) {
-									setCorrectionDialog({
-										...correctionDialog,
-										currentWord: e.target.value,
-									});
-								}
-							}}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" && correctionDialog) {
-									handleWordUpdate(
-										correctionDialog.wordIndex,
-										correctionDialog.currentWord,
-									);
-								}
-							}}
-							placeholder={t("lyricWordView.correctedWordPlaceholder", "Type the corrected word")}
-						/>
-						<Flex direction="column" gap="2">
-							<Text size="2" weight="bold">
-								Suggestions:
-							</Text>
-							{correctionDialog?.suggestions &&
-							correctionDialog.suggestions.length > 0 ? (
-								<Grid columns="2" gap="2">
-									{correctionDialog.suggestions.map((suggestion) => (
-										<SuggestionButton
-											key={suggestion}
-											suggestion={suggestion}
-											onApply={(s) =>
-												handleWordUpdate(
-													correctionDialog.wordIndex,
-													s === "__REMOVE_REPEATED_WORD__" ? "" : s,
-												)
-											}
-										/>
-									))}
-								</Grid>
-							) : (
-								<Text size="1" color="gray" align="center">
-									{t("lyricWordView.noSuggestions", "No suggestions")}
-								</Text>
-							)}
-						</Flex>
-					</Flex>
-					<Flex gap="3" mt="4" justify="end">
-						<Dialog.Close>
-							<Button variant="soft" color="gray">
-								Cancel
-							</Button>
-						</Dialog.Close>
-					</Flex>
-				</Dialog.Content>
-			</Dialog.Root>
 		</div>
 	);
 	},

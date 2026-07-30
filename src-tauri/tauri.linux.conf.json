@@ -1,0 +1,18 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"app": {
+		"windows": [
+			{
+				"title": "",
+				"label": "main",
+				"width": 800,
+				"height": 600,
+				"resizable": true,
+				"devtools": true,
+				"fullscreen": false,
+				"dragDropEnabled": false,
+				"visible": true
+			}
+		]
+	}
+}

@@ -75,15 +75,6 @@ export const enableSyncGlowAnimationAtom = atomWithStorage(
 
 export const highlightErrorsAtom = atomWithStorage("highlightErrors", false);
 
-export const quickFixesAtom = atomWithStorage(
-	"highlightGrammarWarnings",
-	false,
-);
-export const ignoredQuickFixWordsAtom = atomWithStorage(
-	"ignoredGrammarWords",
-	[] as string[],
-);
-
 export const smartFirstWordAtom = atomWithStorage("smartFirstWord", false);
 export const smartLastWordAtom = atomWithStorage("smartLastWord", false);
 export const compactBGInSyncAtom = atomWithStorage("compactBGInSync", true);
@@ -206,6 +197,27 @@ export const importAddSpacesAtom = atomWithStorage<boolean>(
 export const importSplitHyphensAtom = atomWithStorage<boolean>(
 	"importSplitHyphens",
 	true,
+);
+
+export const aiSidebarEnabledAtom = atomWithStorage("aiSidebarEnabled", false);
+export const aiSidebarBaseUrlAtom = atomWithStorage(
+	"aiSidebarBaseUrl",
+	"https://api.openai.com/v1",
+);
+export const aiSidebarModelAtom = atomWithStorage("aiSidebarModel", "gpt-4o-mini");
+export const aiSidebarPersistKeyAtom = atomWithStorage(
+	"aiSidebarPersistKey",
+	false,
+);
+
+export const normalizeApostrophesOnImportAtom = atomWithStorage<boolean>(
+	"normalizeApostrophesOnImport",
+	true,
+);
+
+export const normalizeCyrillicEsOnImportAtom = atomWithStorage<boolean>(
+	"normalizeCyrillicEsOnImport",
+	false,
 );
 
 export enum Mp3ConversionMode {

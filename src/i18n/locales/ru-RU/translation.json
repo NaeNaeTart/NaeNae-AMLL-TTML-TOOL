@@ -72,7 +72,7 @@
   },
   "common": {
     "close": "Закрыть",
-    "autoDetect": "Auto Detect",
+    "autoDetect": "Автоопределение",
     "about": "О программе",
     "resultsFound": "Найдено результатов: {count}",
     "cancel": "Отмена",
@@ -121,17 +121,17 @@
         "error": "Не удалось получить фонетику"
       },
       "romanization": {
-        "section": "Romanization",
+        "section": "Романизация",
         "info": {
-          "title": "About Romanization",
-          "canDo": "✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!",
-          "cannotDo": "✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur."
+          "title": "О романизации",
+          "canDo": "✓ Возможно: автоматическое создание Ромадзи (JA), Пиньинь (ZH) и Ромадзи (KO). Поддерживает Кандзи!",
+          "cannotDo": "✗ Не может: со 100% точностью переводить редкие Кандзи иероглифы или имена собственные. Только для CJK. Возможны незначительные ошибки."
         },
-        "ja": "Japanese (Romaji)",
-        "zh": "Chinese (Pinyin)",
-        "yue": "Cantonese (Jyutping)",
-        "ko": "Korean (Romaji)",
-        "autoFetch": "Romanize"
+        "ja": "Японский (Ромадзи)",
+        "zh": "Китайский (Пиньинь)",
+        "yue": "Кантонский (Ютпхин)",
+        "ko": "Корейский (Ромадзи)",
+        "autoFetch": "Романизировать"
       },
       "new": "Новая",
       "lyricLine": "Строка",
@@ -158,7 +158,7 @@
     },
     "previewMode": {
       "mode": "Режим",
-      "amllDeprecated": "AMLL 模式已弃用，请使用标准模式",
+      "amllDeprecated": "AMLL-режим устарел, пожалуйста, используйте стандартный режим",
       "standard": "Стандартный",
       "timing": "Тайминги",
       "spicy": "Spicy",
@@ -175,15 +175,15 @@
       "word": "Слово",
       "fadeWidth": "Ширина затухания",
       "instantFade": "即时淡出",
-      "render": "渲染",
+      "render": "Рендер",
       "dev": "Dev",
-      "showFps": "Show FPS"
+      "showFps": "Показывать FPS"
     },
     "syncMode": {
       "currentEmptyBeat": "Пустой Бит",
       "syncAdjustment": "Регулировка времени",
       "timeOffset": "Смещение времени",
-      "commitOffset": "Commit Offset",
+      "commitOffset": "Смещение коммита",
       "syncLevel": "Уровень синхронизации",
       "syncLevelWord": "Синхронизация слов",
       "syncLevelLine": "Синхронизация линий",
@@ -204,13 +204,13 @@
       "continuousSync": "Коммит",
       "endSync": "Пометить конец",
       "manageQuickFixExclusions": {
-        "title": "Manage Quick Fix Exclusions",
-        "description": "Add words to ignore in quick fixes.",
-        "placeholder": "Enter word to ignore"
+        "title": "Управление исключениями быстрого исправления",
+        "description": "Добавьте слова для игнорирования в быстрых правках.",
+        "placeholder": "Введите слово для игнорирования"
       }
     },
     "experimentalFeatures": "Experimental Features",
-    "loading": "Loading panel..."
+    "loading": "面板载入中..."
   },
   "settings": {
     "common": {
@@ -244,10 +244,10 @@
         "keyDown": "Триггер при нажатии клавиши вниз",
         "keyUp": "Срабатывать при отжатии клавиши"
       },
-      "syncTimeOffset": "Global Sync Time Offset (ms)",
-      "syncTimeOffsetDesc": "Adjust all sync timestamps by this amount to compensate for audio latency.",
-      "syncCommitOffset": "Commit Input Offset (ms)",
-      "syncCommitOffsetDesc": "Specific offset for the 'Commit' action to fix delayed audio issues.",
+      "syncTimeOffset": "Смещение времени глобальной синхронизации (мс)",
+      "syncTimeOffsetDesc": "Настройте все временные метки синхронизации с учетом этого значения, чтобы компенсировать задержку звука.",
+      "syncCommitOffset": "Смещение ввода при коммите (мс)",
+      "syncCommitOffsetDesc": "Особое смещение действий «Commit» для устранения проблем с задержкой звука.",
       "smartFirstWord": "Умное первое слово",
       "smartFirstWordDesc": "При синхронизации первого слова строки, первое нажатие клавиши устанавливает только время начала, без немедленного указания времени окончания.",
       "smartLastWord": "Умное последнее слово",
@@ -292,17 +292,17 @@
         "gradient": "Градиент"
       },
       "presets": {
-        "title": "Appearance Presets",
-        "namePlaceholder": "Theme Name...",
-        "save": "Save Current",
-        "empty": "No saved presets yet."
+        "title": "Пресеты внешнего вида",
+        "namePlaceholder": "Название темы...",
+        "save": "Сохранить текущую",
+        "empty": "Пока нет сохраненных пресетов."
       },
       "theme": "Тема",
       "useCustomAccent": "Пользовательский цвет акцента",
       "useCustomAccentDesc": "Задать основной цвет",
-      "glass": "Glassmorphism",
-      "glassBlur": "Glass Intensity",
-      "glassBlurDesc": "Adjust the background blur effect for glassmorphic elements.",
+      "glass": "Глассморфизм",
+      "glassBlur": "Интенсивность стекла",
+      "glassBlurDesc": "Настройте эффект размытия фона для стекломорфных элементов.",
       "background": "Фон",
       "useCustomGradient": "Пользовательский цвет градиента",
       "useCustomGradientDesc": "Градиент из одного цвета.",
@@ -612,7 +612,7 @@
       "playbackRateUp": "Воспроизведение - Увеличить скорость",
       "playbackRateDown": "Снижение скорости воспроизведения",
       "playbackRateReset": "Воспроизведение - Сброс скорости",
-      "duplicatePaste": "",
+      "duplicatePaste": "Редактирование - Дублировать к текущему времени",
       "auditionSelectionBefore": "Спектрограмма - выбор аудитории (более 500мс)",
       "auditionSelection": "Спектрограмма - Выбор аудитории",
       "auditionSelectionAfter": "Спектрограмма - Выбор аудитории (500мс после)",
@@ -1051,23 +1051,23 @@
     "rightsWarning": "Если вам важно сохранить собственность, пожалуйста, НЕ отправляйте их!",
     "submitInstructions": "Введите следующую информацию, затем перейдите на страницу отправки заявки на GitHub!",
     "closeWarning": "Закрыть предупреждение",
-    "uploadDbType": "歌词库类型",
-    "uploadDbTypeOfficial": "官方歌词库",
-    "uploadDbTypeUser": "用户歌词库",
-    "uploadDbTypeBoth": "全部歌词库",
-    "officialDesc": "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
-    "userDesc": "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
-    "bothDesc": "两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
-    "genFromName": "从元数据中生成",
-    "musicName": "音乐名称",
-    "musicNameDesc": "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
-    "submitReason": "提交缘由",
-    "submitReasonNew": "新歌词提交",
-    "submitReasonFix": "修正已有歌词",
-    "comment": "备注",
-    "commentPlaceholder": "有什么需要补充说明的呢？",
-    "issueFoundTitle": "发现以下问题，请修正后再提交：",
-    "submitBtn": "上传歌词并创建议题"
+    "uploadDbType": "Тип базы данных с текстами песен",
+    "uploadDbTypeOfficial": "Официальная база",
+    "uploadDbTypeUser": "Пользовательская база",
+    "uploadDbTypeBoth": "Обе базы",
+    "officialDesc": "Отправка в официальную базу потребует ручной проверки для обеспечения качества. Рекомендуется для работ высокого качества.",
+    "userDesc": "Для отправки данных в базу пользователей требуется только проверка ботом. Это быстрее, но не гарантирует такого же уровня качества обработки.",
+    "bothDesc": "После этого откроются страницы для подачи заявок в обоих репозиториях. Пожалуйста, создайте заявку в каждом из них вручную.",
+    "genFromName": "Сгенерировать из метаданных",
+    "musicName": "Название трека",
+    "musicNameDesc": "Рекомендованный формат: Исполнитель - Название трека",
+    "submitReason": "Причина",
+    "submitReasonNew": "Новые тексты песен",
+    "submitReasonFix": "Исправить существующие тексты песен",
+    "comment": "Комментарий",
+    "commentPlaceholder": "Хотите что-нибудь ещё добавить?",
+    "issueFoundTitle": "Пожалуйста, исправьте следующие проблемы перед отправкой:",
+    "submitBtn": "Загрузить и создать вопрос"
   },
   "splitWordDialog": {
     "spaceCount": "Пробел х{count} раз(а)",
@@ -1161,28 +1161,28 @@
     "visitWebsite": "Visit website",
     "credits": "Credits & Third-Party Notices",
     "creditsIntro": "This project includes work adapted from the following open-source projects.",
-    "community": "Community & Contributions",
-    "communityDesc": "Help us make the tool better by contributing code, reporting issues, or providing translations.",
-    "github": "GitHub Repository",
-    "crowdin": "Help Translate in Crowdin",
+    "community": "Вклад сообщества",
+    "communityDesc": "Помогите нам сделать этот инструмент лучше, помогая с кодом, сообщая о проблемах или создавая перевод.",
+    "github": "GitHub репозиторий",
+    "crowdin": "Помогите с переводом на Crowdin",
     "buildDate": "Дата сборки: {date}",
     "gitCommit": "Git-коммит: {commit}"
   },
   "spectrogram": {
     "invalidEndTime": "Не удается выбрать это время окончания",
     "noAudioLoaded": "Пожалуйста, загрузите аудиофайл для отрисовки спектрограммы",
-    "loadAudio": "Загрузить аудиофайл",
+    "loadAudio": "Загрузить аудио-файл",
     "showUnselectedLines": "Показать невыделенные строки",
-    "settings": "频谱图设置",
+    "settings": "Параметры спектрограммы",
     "fftSize": "FFT Size",
-    "resolution": "解析度",
+    "resolution": "Разрешение FFT",
     "fftSizeOption": {
       "512": "512 (Fast)",
       "1024": "1024 (Normal)",
       "2048": "2048 (Better Freq)",
       "4096": "4096 (High Res)"
     },
-    "height": "高度"
+    "height": "Высота"
   },
   "pwa": {
     "offlineReady": "Сайт успешно кэширован для оффлайн использования",

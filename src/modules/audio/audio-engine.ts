@@ -181,7 +181,7 @@ class AudioEngine extends EventTarget {
 		const events = {
 			play: "music-resume",
 			pause: "music-pause",
-			timeupdate: "music-seeked",
+			timeupdate: "music-timeupdate",
 			ended: "music-pause",
 			seeked: "music-seeked",
 			volumechange: "volume-change",

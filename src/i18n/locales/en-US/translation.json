@@ -281,7 +281,13 @@
       "updateNow": "Update now",
       "downloading": "Downloading update...",
       "ready": "Update is ready. Restart the application for it to take effect.",
-      "restart": "Restart"
+      "restart": "Restart",
+      "websiteUpdate": "Website Update",
+      "websiteUpdateDescription": "Refresh the website to retrieve the latest version if an update prompt did not appear.",
+      "forceRefresh": "Force refresh",
+      "clearWebsiteCache": "Clear cached website data",
+      "clearWebsiteCacheTitle": "Clear cached website data?",
+      "clearWebsiteCacheDescription": "This removes offline website files and reloads the page. Your saved projects and preferences will not be deleted."
     },
     "appearance": {
       "mode": {
@@ -522,6 +528,7 @@
       "advancedSegment": "Advanced Segment...",
       "learnedSplits": "Learned Splits...",
       "syncLineTimestamps": "Sync Line Timestamps",
+      "ttmlChecklist": "TTML Checklist",
       "tool": "Tools",
       "importLyric": {
         "import": "Import lyrics",
@@ -1139,6 +1146,24 @@
       "clearTitle": "Clear all learned splits?",
       "clearDescription": "This permanently removes every learned split rule from this device."
     }
+  },
+  "ttmlChecklist": {
+    "title": "TTML Checklist",
+    "description": "Keep track of songs and ideas you want to sync later.",
+    "songPlaceholder": "Song title *",
+    "artistPlaceholder": "Artist (optional)",
+    "notesPlaceholder": "Notes, version, source, or timing idea (optional)",
+    "add": "Add to checklist",
+    "save": "Save",
+    "cancel": "Cancel",
+    "empty": "No future TTMLs yet. Add the next song before the idea disappears.",
+    "showNotes": "Show notes",
+    "showCompleted": "Completed ({count})",
+    "hideCompleted": "Hide completed",
+    "markDone": "Done",
+    "reopen": "Reopen",
+    "edit": "Edit checklist item",
+    "delete": "Delete checklist item"
   },
   "autoSegmentDialog": {
     "title": "Auto Segment",

@@ -59,6 +59,9 @@ const ToolMenuItems = () => {
 			<DropdownMenu.Item onSelect={menu.onOpenLatencyTest}>
 				{t("settingsDialog.common.latencyTest", "音频/输入延迟测试")}
 			</DropdownMenu.Item>
+			<DropdownMenu.Item onSelect={menu.onOpenTTMLChecklist}>
+				{t("topBar.menu.ttmlChecklist", "TTML Checklist")}
+			</DropdownMenu.Item>
 
 			{tools.length > 0 && <DropdownMenu.Separator />}
 			{tools.map(tool => (

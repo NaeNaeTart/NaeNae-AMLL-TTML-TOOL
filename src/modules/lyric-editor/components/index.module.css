@@ -79,6 +79,19 @@
 	text-align: left;
 }
 
+.withRomanization {
+	.lyricWord.edit {
+		padding-bottom: 0.15em;
+		border-bottom-right-radius: var(--radius-2);
+		border-bottom-left-radius: var(--radius-2);
+	}
+
+	[data-word-romanization-editor] {
+		border-top-right-radius: var(--radius-2);
+		border-top-left-radius: var(--radius-2);
+	}
+}
+
 .rubySyncRow {
 	display: inline-flex;
 	align-items: stretch;
@@ -108,15 +121,6 @@
 .wordMainText {
 	font-weight: 500;
 	font-size: 1.1em;
-}
-
-.wordRomanSecondary {
-	font-size: 0.75em;
-	color: var(--romanization-color, var(--gray-10));
-	font-style: italic;
-	margin-top: -1px;
-	line-height: 1;
-	opacity: 0.8;
 }
 
 .rubyEditorCompact {
@@ -161,6 +165,29 @@
 }
 
 .displayWord {
+	font-size: 1.5em;
+}
+
+.syncWordInput {
+	box-sizing: content-box;
+	min-width: 2ch;
+	max-width: 24ch;
+	padding: 0 0.15em;
+	border: none;
+	border-radius: var(--radius-2);
+	outline: 1px solid var(--accent-8);
+	background: var(--color-panel);
+	color: inherit;
+	font: inherit;
+	font-size: 1.5em;
+	text-align: center;
+}
+
+.syncWordInputMeasure {
+	position: absolute;
+	visibility: hidden;
+	white-space: pre;
+	font: inherit;
 	font-size: 1.5em;
 }
 
@@ -263,6 +290,62 @@
 			font-size: 1.1em;
 		}
 	}
+}
+
+.dragPreview {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	width: min(380px, calc(100vw - 32px));
+	min-height: 42px;
+	box-sizing: border-box;
+	padding: 0 12px;
+	pointer-events: none;
+	border: 1px solid #4a4a4a;
+	border-radius: 6px;
+	box-shadow: 0 8px 20px rgb(0 0 0 / 35%);
+	background: #232323;
+	color: #f1f1f1;
+	font-size: 16px;
+	font-weight: 500;
+
+	&:not([data-line-count])::after {
+		display: none;
+	}
+
+	&::after {
+		position: absolute;
+		top: calc(var(--space-2) * -1);
+		right: calc(var(--space-2) * -1);
+		min-width: var(--space-5);
+		padding: 0 var(--space-1);
+		border-radius: var(--radius-6);
+		background: var(--accent-a9);
+		color: var(--accent-contrast);
+		content: attr(data-line-count);
+		font-size: var(--font-size-1);
+		font-weight: 700;
+		text-align: center;
+	}
+}
+
+.dragPreviewNumber {
+	flex: none;
+	margin-right: 8px;
+	padding-right: 8px;
+	border-right: 1px solid #4a4a4a;
+	color: #969696;
+	font-variant-numeric: tabular-nums;
+}
+
+.dragPreviewText {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .lyricLineContainer {

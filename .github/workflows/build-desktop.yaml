@@ -128,6 +128,33 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      - name: Install AppImage repacking tool
+        if: matrix.platform == 'ubuntu-latest'
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 \
+            --output /usr/local/bin/appimagetool \
+            https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x /usr/local/bin/appimagetool
+      - name: Remove host-incompatible Wayland libraries from AppImage
+        if: matrix.platform == 'ubuntu-latest'
+        shell: bash
+        run: |
+          appimage_path=$(find src-tauri/target -path '*/release/bundle/appimage/*.AppImage' -type f -print -quit)
+          test -n "$appimage_path"
+          bash scripts/patch-appimage.sh "$appimage_path"
+      - name: Replace published Linux AppImage
+        if: matrix.platform == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          appimage_path=$(find src-tauri/target -path '*/release/bundle/appimage/*.AppImage' -type f -print -quit)
+          test -n "$appimage_path"
+          for asset in $(gh release view "${{ github.ref_name }}" --json assets --jq '.assets[].name | select(endswith(".AppImage"))'); do
+            gh release delete-asset "${{ github.ref_name }}" "$asset" --yes || true
+          done
+          gh release upload "${{ github.ref_name }}" "$appimage_path" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@v6
         with:
           name: AMLL TTML Tool ${{ matrix.name }}-${{ matrix.arch }}

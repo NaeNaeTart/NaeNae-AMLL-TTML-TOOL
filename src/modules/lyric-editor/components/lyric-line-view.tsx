@@ -55,7 +55,6 @@ import {
 	syncLevelModeAtom,
 	visualizeTimestampUpdateAtom,
 } from "$/modules/settings/states/sync.ts";
-import { suggestedSplitsDialogAtom } from "$/states/dialogs.ts";
 import {
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
@@ -80,8 +79,9 @@ import {
 import styles from "./index.module.css";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import {
-	draggingIdAtom,
 	globalEnableInsertAtom,
+	lastLineDragEndAtom,
+	lineDragAtom,
 } from "./lyric-line-view-states.ts";
 import LyricWordView from "./lyric-word-view.tsx";
 import { RomanWordView } from "./roman-word-view.tsx";
@@ -93,7 +93,6 @@ import {
 	UnassignedSectionContextMenuItems,
 } from "./SectionActions.tsx";
 
-const isDraggingAtom = atom(false);
 const parseRubyShortcut = (value: string) => {
 	if (value.endsWith("|")) {
 		return {
@@ -258,6 +257,7 @@ const SubLineEdit = memo(
 		return (
 			<Flex
 				align="baseline"
+				data-lyric-line-interactive=""
 				style={{
 					color:
 						type === "translatedLyric"
@@ -450,7 +450,6 @@ export const LyricLineView: FC<{
 
 	const wordsContainerRef = useRef<HTMLDivElement>(null);
 	const blockDragRef = useRef(false);
-	const lastClickTimeRef = useRef(0);
 
 	const isLastLineAtom = useMemo(
 		() =>
@@ -685,6 +684,16 @@ export const LyricLineView: FC<{
 							!sectionActionsEnabled &&
 							!manualCategorizationEnabled)
 					}
+					onContextMenu={(evt) => {
+						if (
+							(evt.target as HTMLElement | null)?.closest(
+								"[data-lyric-word-interactive], [data-lyric-line-interactive]",
+							)
+						) {
+							evt.preventDefault();
+							evt.stopPropagation();
+						}
+					}}
 				>
 					<Flex
 						mx="2"
@@ -708,102 +717,52 @@ export const LyricLineView: FC<{
 						)}
 						align="center"
 						gapX="4"
-						draggable={toolMode === ToolMode.Edit}
+						data-lyric-line-draggable={
+							toolMode === ToolMode.Edit ? "" : undefined
+						}
+						data-lyric-line-id={line.id}
 						style={{
 							...(isSectionStart ? { marginTop: "16px" } : {}),
 						}}
 						onPointerDown={(evt) => {
+							if (
+								(evt.target as HTMLElement | null)?.closest(
+									"[data-lyric-word-interactive], [data-lyric-line-interactive]",
+								)
+							)
+								return;
 							blockDragRef.current =
 								(evt.target as HTMLElement | null)?.tagName === "INPUT";
+							if (
+								toolMode !== ToolMode.Edit ||
+								blockDragRef.current ||
+								evt.button !== 0
+							)
+								return;
+							evt.currentTarget.setPointerCapture(evt.pointerId);
+							store.set(lineDragAtom, {
+								id: line.id,
+								pointerId: evt.pointerId,
+								startX: evt.clientX,
+								startY: evt.clientY,
+								isDragging: false,
+							});
 						}}
 						onPointerUp={() => {
 							blockDragRef.current = false;
 						}}
-						onDragStart={(evt) => {
-							if (blockDragRef.current) {
-								blockDragRef.current = false;
-								evt.preventDefault();
-								evt.stopPropagation();
-								return;
-							}
-							evt.dataTransfer.dropEffect = "move";
-							store.set(isDraggingAtom, true);
-							store.set(draggingIdAtom, line.id);
-						}}
-						onDragEnd={() => {
-							store.set(isDraggingAtom, false);
-						}}
-						onDragOver={(evt) => {
-							if (!store.get(isDraggingAtom)) return;
-							if (store.get(draggingIdAtom) === line.id) return;
-							if (lineSelected) return;
-							evt.preventDefault();
-							evt.dataTransfer.dropEffect = "move";
-							const rect = evt.currentTarget.getBoundingClientRect();
-							const innerY = evt.clientY - rect.top;
-							if (innerY < rect.height / 2) {
-								evt.currentTarget.classList.add(styles.dropTop);
-								evt.currentTarget.classList.remove(styles.dropBottom);
-							} else {
-								evt.currentTarget.classList.remove(styles.dropTop);
-								evt.currentTarget.classList.add(styles.dropBottom);
-							}
-						}}
-						onDrop={(evt) => {
-							evt.currentTarget.classList.remove(styles.dropTop);
-							evt.currentTarget.classList.remove(styles.dropBottom);
-							if (!store.get(isDraggingAtom)) return;
-							const rect = evt.currentTarget.getBoundingClientRect();
-							const innerY = evt.clientY - rect.top;
-							const selectedLines = store.get(selectedLinesAtom);
-							const selectedLineIds = selectedLines.has(
-								store.get(draggingIdAtom),
-							)
-								? selectedLines
-								: new Set([store.get(draggingIdAtom)]);
-							const indexDelta = innerY >= rect.height / 2 ? 1 : 0;
-							editLyricLines((state) => {
-								const filteredLines = state.lyricLines.filter(
-									(l) => !selectedLineIds.has(l.id),
-								);
-								const targetLines = state.lyricLines.filter((l) =>
-									selectedLineIds.has(l.id),
-								);
-								const targetIndex = filteredLines.findIndex(
-									(l) => l.id === line.id,
-								);
-								if (targetIndex < 0) return;
-								state.lyricLines = [
-									...filteredLines.slice(0, targetIndex + indexDelta),
-									...targetLines,
-									...filteredLines.slice(targetIndex + indexDelta),
-								];
-								repairSectionIntegrity(state);
-							});
-						}}
-						onDragLeave={(evt) => {
-							evt.currentTarget.classList.remove(styles.dropTop);
-							evt.currentTarget.classList.remove(styles.dropBottom);
-						}}
 						onClick={(evt) => {
+							if (
+								(evt.target as HTMLElement | null)?.closest(
+									"[data-lyric-word-interactive], [data-lyric-line-interactive]",
+								)
+							)
+								return;
 							evt.stopPropagation();
 							evt.preventDefault();
 
 							const now = Date.now();
-							const clickInterval = now - lastClickTimeRef.current;
-							lastClickTimeRef.current = now;
-
-							if (clickInterval < 300) {
-								if (evt.ctrlKey || evt.metaKey) {
-									// Open Suggested Splits Dialog for the whole line
-									store.set(suggestedSplitsDialogAtom, {
-										open: true,
-										lineId: line.id,
-									});
-									return;
-								}
-							}
-
+							if (now - store.get(lastLineDragEndAtom) < 250) return;
 							if (evt.ctrlKey) {
 								setSelectedLines((v) => {
 									if (v.has(line.id)) {
@@ -1035,9 +994,12 @@ export const LyricLineView: FC<{
 												<Flex
 													direction="column"
 													align="stretch"
-													gap="3"
+													gap={showWordRomanizationInput ? "1" : "3"}
 													data-word-index={wi}
-													className={styles.wordGroup}
+													className={classNames(
+														styles.wordGroup,
+														showWordRomanizationInput && styles.withRomanization,
+													)}
 												>
 													<LyricWordView
 														wordAtom={wordAtom}

@@ -24,6 +24,20 @@ export function WhatsNewDialog() {
 
 	const features = [
 		{
+			title: "Inline Time-Tab Editing",
+			description: "Double-click a synced word to edit it directly in Time mode, or edit its per-word romanization when displayed.",
+			icon: <FlashRegular />,
+			color: "indigo",
+			info: "In Time mode, double-clicking a word opens an inline text box to make immediate corrections without switching tabs."
+		},
+		{
+			title: "TTML Checklist",
+			description: "Keep a persistent local queue of songs to sync, complete with notes, status tracking, and history.",
+			icon: <TaskListLtrRegular />,
+			color: "blue",
+			info: "Access TTML Checklist from the tools menu to organize your pending lyrics sync tasks and keep notes."
+		},
+		{
 			title: "Smarter Lyrics Splitting",
 			description: "Choose dedicated syllabification engines for English, Spanish, French, Russian, Japanese, and CJK lyrics, with legacy fallbacks still available.",
 			icon: <MusicNote1Regular />,

@@ -1,8 +1,8 @@
 import { BUILD_TIME, GIT_COMMIT } from "virtual:buildmeta";
 import {
+	BoxRegular,
 	CheckmarkCircle24Regular,
 	CloudArrowDown24Regular,
-	BoxRegular,
 	MusicNote1Regular,
 	Open16Regular,
 	SettingsRegular,
@@ -10,6 +10,7 @@ import {
 } from "@fluentui/react-icons";
 import {
 	Avatar,
+	AlertDialog,
 	Badge,
 	Box,
 	Button,
@@ -21,14 +22,47 @@ import {
 	Progress,
 	Text,
 } from "@radix-ui/themes";
+import { open } from "@tauri-apps/plugin-shell";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppUpdate } from "$/utils/useAppUpdate";
+import { clearWebsiteCache, forceWebsiteRefresh } from "$/utils/pwa";
+
+const openExternal = async (url: string) => {
+	if (import.meta.env.TAURI_ENV_PLATFORM) {
+		await open(url);
+	} else {
+		window.open(url, "_blank");
+	}
+};
 
 export const SettingsAboutTab = () => {
 	const { t } = useTranslation();
 	const { status, update, progress, installUpdate } = useAppUpdate();
+	const [cacheConfirmationOpen, setCacheConfirmationOpen] = useState(false);
+	const [recoveryAction, setRecoveryAction] = useState<"refresh" | "clear" | null>(null);
 
 	const showUpdateCard = ["available", "downloading", "ready"].includes(status);
+	const isWebsite = !import.meta.env.TAURI_ENV_PLATFORM;
+
+	const handleForceRefresh = async () => {
+		setRecoveryAction("refresh");
+		try {
+			await forceWebsiteRefresh();
+		} finally {
+			setRecoveryAction(null);
+		}
+	};
+
+	const handleClearCache = async () => {
+		setRecoveryAction("clear");
+		try {
+			await clearWebsiteCache();
+		} finally {
+			setRecoveryAction(null);
+			setCacheConfirmationOpen(false);
+		}
+	};
 
 	return (
 		<Flex direction="column" gap="4">
@@ -171,20 +205,79 @@ export const SettingsAboutTab = () => {
 					<Flex gap="3" mt="1">
 						<Button
 							variant="soft"
-							onClick={() => open("https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL")}
+							onClick={() => openExternal("https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL")}
 						>
 							{t("aboutModal.github", "GitHub Repository")}
 						</Button>
 						<Button
 							variant="soft"
 							color="indigo"
-							onClick={() => open("https://crowdin.com/project/very-cool-ttml-tool")}
+							onClick={() => openExternal("https://crowdin.com/project/very-cool-ttml-tool")}
 						>
 							{t("aboutModal.crowdin", "Help Translate in Crowdin")}
 						</Button>
 					</Flex>
 				</Flex>
 			</Card>
+
+
+			{isWebsite && (
+				<Card>
+					<Flex direction="column" gap="3">
+						<Heading size="3">
+							{t("settings.about.websiteUpdate", "Website Update")}
+						</Heading>
+						<Text size="2" color="gray">
+							{t(
+								"settings.about.websiteUpdateDescription",
+								"Refresh the website to retrieve the latest version if an update prompt did not appear.",
+							)}
+						</Text>
+						<Flex gap="3" wrap="wrap">
+							<Button onClick={handleForceRefresh} disabled={recoveryAction !== null}>
+								{t("settings.about.forceRefresh", "Force refresh")}
+							</Button>
+							<Button
+								variant="soft"
+								color="red"
+								onClick={() => setCacheConfirmationOpen(true)}
+								disabled={recoveryAction !== null}
+							>
+								{t("settings.about.clearWebsiteCache", "Clear cached website data")}
+							</Button>
+						</Flex>
+					</Flex>
+				</Card>
+			)}
+
+			<AlertDialog.Root
+				open={cacheConfirmationOpen}
+				onOpenChange={setCacheConfirmationOpen}
+			>
+				<AlertDialog.Content maxWidth="420px">
+					<AlertDialog.Title>
+						{t("settings.about.clearWebsiteCacheTitle", "Clear cached website data?")}
+					</AlertDialog.Title>
+					<AlertDialog.Description size="2">
+						{t(
+							"settings.about.clearWebsiteCacheDescription",
+							"This removes offline website files and reloads the page. Your saved projects and preferences will not be deleted.",
+						)}
+					</AlertDialog.Description>
+					<Flex gap="3" mt="4" justify="end">
+						<AlertDialog.Cancel>
+							<Button variant="soft" color="gray" disabled={recoveryAction !== null}>
+								{t("common.cancel", "Cancel")}
+							</Button>
+						</AlertDialog.Cancel>
+						<AlertDialog.Action>
+							<Button color="red" onClick={handleClearCache} disabled={recoveryAction !== null}>
+								{t("settings.about.clearWebsiteCache", "Clear cached website data")}
+							</Button>
+						</AlertDialog.Action>
+					</Flex>
+				</AlertDialog.Content>
+			</AlertDialog.Root>
 
 			<Card>
 				<Flex direction="column" gap="2">
@@ -204,6 +297,12 @@ export const SettingsAboutTab = () => {
 											href={`https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/commit/${GIT_COMMIT}`}
 											target="_blank"
 											rel="noreferrer"
+											onClick={(event) => {
+												if (import.meta.env.TAURI_ENV_PLATFORM) {
+													event.preventDefault();
+													openExternal(`https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/commit/${GIT_COMMIT}`);
+												}
+											}}
 										>
 											{GIT_COMMIT}
 										</Link>

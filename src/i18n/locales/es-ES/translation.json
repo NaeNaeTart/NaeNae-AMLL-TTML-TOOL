@@ -1,10 +1,10 @@
 {
   "app": {
     "error": {
-      "title": "Oops, an error occurred!",
+      "title": "Vaya, ¡ha ocurrido un error!",
       "description": "An error occurred while running AMLL TTML Tools",
       "checkDevTools": "Details can be found in Developer Tools",
-      "saveLyrics": "Try saving current lyrics",
+      "saveLyrics": "Intenta guardar las letras actuales",
       "tryRestart": "Try reloading the app",
       "details": "Approximate error info:"
     },
@@ -141,7 +141,7 @@
       "lineProperties": "Line Properties",
       "bgLyric": "Background Vocal",
       "duetLyric": "Duet Vocal",
-      "ignoreSync": "Ignore Sync",
+      "ignoreSync": "Ignorar sincronización",
       "wordTiming": "Word Timing",
       "emptyBeatCount": "Empty Beat Count",
       "wordProperties": "Word Properties",
@@ -158,7 +158,7 @@
     },
     "previewMode": {
       "mode": "Mode",
-      "amllDeprecated": "AMLL 模式已弃用，请使用标准模式",
+      "amllDeprecated": "AMLL mode is deprecated, please use Standard mode",
       "standard": "Standard",
       "timing": "Timing",
       "spicy": "Spicy",
@@ -175,7 +175,7 @@
       "word": "Word",
       "fadeWidth": "Fade Width",
       "instantFade": "即时淡出",
-      "render": "渲染",
+      "render": "Render",
       "dev": "Dev",
       "showFps": "Show FPS"
     },
@@ -210,7 +210,7 @@
       }
     },
     "experimentalFeatures": "Experimental Features",
-    "loading": "Loading panel..."
+    "loading": "面板载入中..."
   },
   "settings": {
     "common": {
@@ -612,7 +612,7 @@
       "playbackRateUp": "Playback - Increase speed",
       "playbackRateDown": "Playback - Decrease speed",
       "playbackRateReset": "Playback - Reset speed",
-      "duplicatePaste": "",
+      "duplicatePaste": "Edit - Duplicate to current time",
       "auditionSelectionBefore": "Spectrogram - Audition selection (500ms before)",
       "auditionSelection": "Spectrogram - Audition selection",
       "auditionSelectionAfter": "Spectrogram - Audition selection (500ms after)",
@@ -1051,23 +1051,23 @@
     "rightsWarning": "If you value retaining ownership, please do NOT submit!",
     "submitInstructions": "Enter the following info then jump to the GitHub issue submission page!",
     "closeWarning": "Close warning message",
-    "uploadDbType": "歌词库类型",
-    "uploadDbTypeOfficial": "官方歌词库",
-    "uploadDbTypeUser": "用户歌词库",
-    "uploadDbTypeBoth": "全部歌词库",
-    "officialDesc": "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
-    "userDesc": "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
-    "bothDesc": "两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
-    "genFromName": "从元数据中生成",
-    "musicName": "音乐名称",
-    "musicNameDesc": "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
-    "submitReason": "提交缘由",
-    "submitReasonNew": "新歌词提交",
-    "submitReasonFix": "修正已有歌词",
-    "comment": "备注",
-    "commentPlaceholder": "有什么需要补充说明的呢？",
-    "issueFoundTitle": "发现以下问题，请修正后再提交：",
-    "submitBtn": "上传歌词并创建议题"
+    "uploadDbType": "Lyrics Database Type",
+    "uploadDbTypeOfficial": "Official Database",
+    "uploadDbTypeUser": "User Database",
+    "uploadDbTypeBoth": "Both Databases",
+    "officialDesc": "Submitting to the official database requires manual review to ensure lyrics quality and synchronization. This is recommended for high-quality contributions.",
+    "userDesc": "Submitting to the user database only requires bot verification. It is faster but doesn't guarantee the same level of performance quality.",
+    "bothDesc": "This will open submission pages for both repositories. Please create an issue in each manually.",
+    "genFromName": "Generate from metadata",
+    "musicName": "Track Title",
+    "musicNameDesc": "Recommended format: Artist - Song Title",
+    "submitReason": "Reason",
+    "submitReasonNew": "New lyrics submission",
+    "submitReasonFix": "Fix existing lyrics",
+    "comment": "Comment",
+    "commentPlaceholder": "Anything else you want to add?",
+    "issueFoundTitle": "Please fix the following issues before submitting:",
+    "submitBtn": "Upload and Create Issue"
   },
   "splitWordDialog": {
     "spaceCount": "Space x{count}",
@@ -1171,18 +1171,18 @@
   "spectrogram": {
     "invalidEndTime": "Cannot select this end time",
     "noAudioLoaded": "Please load an audio file to render the spectrogram",
-    "loadAudio": "Load an audio file",
+    "loadAudio": "Load audio file",
     "showUnselectedLines": "Show unselected lines",
-    "settings": "频谱图设置",
+    "settings": "Spectrogram Settings",
     "fftSize": "FFT Size",
-    "resolution": "解析度",
+    "resolution": "FFT Resolution",
     "fftSizeOption": {
       "512": "512 (Fast)",
       "1024": "1024 (Normal)",
       "2048": "2048 (Better Freq)",
       "4096": "4096 (High Res)"
     },
-    "height": "高度"
+    "height": "Display Height"
   },
   "pwa": {
     "offlineReady": "Site successfully cached for offline use",

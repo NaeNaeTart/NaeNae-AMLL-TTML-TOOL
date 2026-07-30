@@ -25,6 +25,8 @@ You can also use the Tauri desktop version built via GitHub Actions; see [GitHub
 
 ## New Editor Features over the Original AMLL TTML Tool
 
+- **Inline Time-Tab Editing** — Double-click a synced word to edit it directly in Time mode, or edit per-word romanizations inline when displayed.
+- **TTML Checklist** — Maintain a persistent local queue of songs to sync with notes, progress tracking, and completed history.
 - **Smarter Lyrics Splitting** — Choose dedicated syllabification engines for English, Spanish, French, Russian, Japanese, and CJK lyrics; Auto Segment suggests an engine from the lyric language, while legacy fallbacks remain available.
 - **Learned Word Splits** — Remember manual split boundaries and automatically reuse them for future occurrences of the same word.
 - **Persistent Split Options** — The Split Word dialog remembers its last-used options, reducing repeated setup while correcting multiple words.

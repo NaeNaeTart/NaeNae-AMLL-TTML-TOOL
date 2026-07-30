@@ -1,23 +1,22 @@
 import { 
-	Card, Flex, Heading, Switch, Text, Box, TextField, Select, Separator 
+	Card, Flex, Heading, Switch, Text, Box
 } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import {
 	enableManualTimestampEditAtom,
-	quickFixesAtom,
 	highlightErrorsAtom,
+	aiSidebarEnabledAtom,
 } from "$/modules/settings/states";
 import { visualizeTimestampUpdateAtom } from "$/modules/settings/states/sync";
 import { 
-	Sparkle24Regular, 
 	TimeAndWeather24Regular, 
 	ErrorCircle24Regular, 
 	TextT24Regular,
+	Bot24Regular,
 } from "@fluentui/react-icons";
 
 export const SettingsAssistantTab = () => {
-	const [quickFixes, setQuickFixes] = useAtom(quickFixesAtom);
 	const [enableManualTimestampEdit, setEnableManualTimestampEdit] = useAtom(
 		enableManualTimestampEditAtom,
 	);
@@ -25,6 +24,7 @@ export const SettingsAssistantTab = () => {
 		visualizeTimestampUpdateAtom,
 	);
 	const [highlightErrors, setHighlightErrors] = useAtom(highlightErrorsAtom);
+	const [aiSidebarEnabled, setAiSidebarEnabled] = useAtom(aiSidebarEnabledAtom);
 
 	const { t } = useTranslation();
 
@@ -35,16 +35,14 @@ export const SettingsAssistantTab = () => {
 			<Card>
 				<Text as="label">
 					<Flex gap="3" align="center">
-						<Sparkle24Regular />
+						<Bot24Regular />
 						<Box flexGrow="1">
 							<Flex gap="2" align="center" justify="between">
 								<Flex direction="column" gap="1">
-									<Text>{t("settings.assistant.quickFixes", "Quick Fixes (Grammar)")}</Text>
-									<Text size="1" color="gray">
-										{t("settings.assistant.quickFixesDesc", "Enable suggestions for repeated words and common transcription errors.")}
-									</Text>
+									<Text>{t("settings.assistant.aiSidebar", "AI Fun Sidebar")}</Text>
+									<Text size="1" color="gray">{t("settings.assistant.aiSidebarDesc", "Enable an optional, manual AI vibe check for your TTML. Setup appears in the AI tab.")}</Text>
 								</Flex>
-								<Switch checked={quickFixes} onCheckedChange={setQuickFixes} />
+								<Switch checked={aiSidebarEnabled} onCheckedChange={setAiSidebarEnabled} />
 							</Flex>
 						</Box>
 					</Flex>

@@ -26,6 +26,8 @@ import { LyricallyApi } from "$/modules/lyrically/api/client";
 import {
 	geniusApiKeyAtom,
 	geniusCategorizationEnabledAtom,
+	normalizeApostrophesOnImportAtom,
+	normalizeCyrillicEsOnImportAtom,
 } from "$/modules/settings/states/index.ts";
 import {
 	confirmDialogAtom,
@@ -42,6 +44,10 @@ import {
 } from "$/states/main.ts";
 import type { LyricLine, LyricWord } from "$/types/ttml.ts";
 import { prepareLyricLine } from "$/utils/lyric-prep";
+import {
+	normalizeImportedLyricApostrophes,
+	normalizeImportedLyricCyrillicEs,
+} from "$/utils/apostrophe-normalization";
 import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
 import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import {
@@ -85,6 +91,12 @@ export const ImportLyricsDialog = ({
 	const [, setLyricLines] = useImmerAtom(lyricLinesAtom);
 	const setSaveFileName = useSetAtom(saveFileNameAtom);
 	const isDirty = useAtomValue(isDirtyAtom);
+	const normalizeApostrophesOnImport = useAtomValue(
+		normalizeApostrophesOnImportAtom,
+	);
+	const normalizeCyrillicEsOnImport = useAtomValue(
+		normalizeCyrillicEsOnImportAtom,
+	);
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 
 	// Search
@@ -385,8 +397,15 @@ export const ImportLyricsDialog = ({
 					});
 				}
 
+				const normalizedLyrics = normalizeImportedLyricCyrillicEs(
+					normalizeImportedLyricApostrophes(
+						{ lyricLines: processedLines, metadata: [], sections: [] },
+						normalizeApostrophesOnImport,
+					),
+					normalizeCyrillicEsOnImport,
+				);
 				setLyricLines((prev) => {
-					prev.lyricLines = processedLines;
+					prev.lyricLines = normalizedLyrics.lyricLines;
 					prev.sections = [];
 					applyReviewedSections(prev, reviewed);
 				});
@@ -466,8 +485,15 @@ export const ImportLyricsDialog = ({
 				}
 			}
 
+			const normalizedLyrics = normalizeImportedLyricCyrillicEs(
+				normalizeImportedLyricApostrophes(
+					{ lyricLines: processedLines, metadata: [], sections: [] },
+					normalizeApostrophesOnImport,
+				),
+				normalizeCyrillicEsOnImport,
+			);
 			setLyricLines((prev) => {
-				prev.lyricLines = processedLines;
+				prev.lyricLines = normalizedLyrics.lyricLines;
 				prev.sections = [];
 				applyReviewedSections(prev, reviewed);
 			});
@@ -509,6 +535,8 @@ export const ImportLyricsDialog = ({
 			processLyrics,
 			store,
 			categorizeGeniusHeaders,
+			normalizeApostrophesOnImport,
+			normalizeCyrillicEsOnImport,
 			source,
 			fetchSongwriters,
 			selectedHit,
@@ -956,6 +984,16 @@ export const ImportLyricsDialog = ({
 				</ScrollArea>
 
 				<Flex justify="between" align="center" mt="3">
+					{source === "genius" && (
+						<Button
+							variant="ghost"
+							size="1"
+							color="gray"
+							onClick={() => setGeniusApiKey("")}
+						>
+							{t("genius.changeKey", "Change API Key")}
+						</Button>
+					)}
 					<Dialog.Close>
 						<Button variant="soft" color="gray">
 							{t("common.close", "Close")}
