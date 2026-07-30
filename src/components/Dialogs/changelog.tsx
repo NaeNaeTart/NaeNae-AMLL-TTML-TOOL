@@ -44,7 +44,7 @@ export function ChangelogDialog() {
 									<strong>Inline Time-Tab Editing:</strong> Double-click a synced word to edit it directly; when per-word romanization is displayed, it edits the romanization instead.
 								</Text>
 								<Text size="2">
-									<strong>Split Word Shortcut:</strong> Ctrl/Cmd-double-clicking a synced word now opens the standard Split Word dialog for that word.
+									<strong>Split Word Shortcut:</strong> Ctrl/Cmd-double-clicking a word in either Edit or Time mode now opens the standard Split Word dialog for that word instead of using the legacy line-level shortcut.
 								</Text>
 								<Text size="2">
 									<strong>Quick Fixes Cleanup:</strong> Removed the unused grammar Quick Fixes controls from sync and assistant settings.

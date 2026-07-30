@@ -136,7 +136,7 @@ type LyricWordViewEditSpanProps = {
 	wordIndex: number;
 	line: LyricLine;
 	className?: string;
-	onDoubleClick?: () => void;
+	onDoubleClick?: (evt: MouseEvent<HTMLSpanElement>) => void;
 };
 
 const LyricWordViewEditSpan = ({
@@ -338,10 +338,24 @@ const LyricWordViewEditSpan = ({
 
 				evt.stopPropagation();
 				evt.preventDefault();
+
+				if ((evt.ctrlKey || evt.metaKey) && evt.detail === 2) {
+					setSelectedLines((state) => {
+						state.clear();
+						state.add(line.id);
+					});
+					setSelectedWords((state) => {
+						state.clear();
+						state.add(word.id);
+					});
+					onDoubleClick?.(evt);
+					return;
+				}
+
 				onWordSelect(evt);
 
 				if (wasAlreadySelected && isSelectionClick && clickInterval > 100) {
-					onDoubleClick?.();
+					onDoubleClick?.(evt);
 				}
 			}}
 		>
@@ -512,8 +526,14 @@ const LyricWordViewEditAdvance = ({
 					wordIndex={wordIndex}
 					className={className}
 					line={line}
-					onDoubleClick={() => {
-						// Grammar actions disabled in Edit mode
+					onDoubleClick={(evt) => {
+						if (!evt.ctrlKey && !evt.metaKey) return;
+						setSplitState({
+							wordIndex,
+							lineIndex,
+							word: currentWord.word,
+						});
+						setOpenSplitWordDialog(true);
 					}}
 				>
 					<WordEditField
@@ -664,6 +684,8 @@ const LyricWorldViewEdit = ({
 	);
 	const isWordSelected = useAtomValue(isWordSelectedAtom);
 	const setSelectedWords = useSetImmerAtom(selectedWordsAtom);
+	const setOpenSplitWordDialog = useSetAtom(splitWordDialogAtom);
+	const setSplitState = useSetAtom(editingWordStateAtom);
 	const [editing, setEditing] = useState(false);
 	const store = useStore();
 	const toolMode = useAtomValue(toolModeAtom);
@@ -749,8 +771,16 @@ const LyricWorldViewEdit = ({
 					wordIndex={wordIndex}
 					className={className}
 					line={line}
-					onDoubleClick={() => {
-						// Open inline editor directly (grammar actions disabled in Edit mode)
+					onDoubleClick={(evt) => {
+						if (evt.ctrlKey || evt.metaKey) {
+							setSplitState({
+								wordIndex,
+								lineIndex,
+								word: word.word,
+							});
+							setOpenSplitWordDialog(true);
+							return;
+						}
 						setEditing(true);
 					}}
 				>

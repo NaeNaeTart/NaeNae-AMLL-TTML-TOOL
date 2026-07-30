@@ -55,7 +55,6 @@ import {
 	syncLevelModeAtom,
 	visualizeTimestampUpdateAtom,
 } from "$/modules/settings/states/sync.ts";
-import { suggestedSplitsDialogAtom } from "$/states/dialogs.ts";
 import {
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
@@ -450,7 +449,6 @@ export const LyricLineView: FC<{
 
 	const wordsContainerRef = useRef<HTMLDivElement>(null);
 	const blockDragRef = useRef(false);
-	const lastClickTimeRef = useRef(0);
 
 	const isLastLineAtom = useMemo(
 		() =>
@@ -764,20 +762,6 @@ export const LyricLineView: FC<{
 
 							const now = Date.now();
 							if (now - store.get(lastLineDragEndAtom) < 250) return;
-							const clickInterval = now - lastClickTimeRef.current;
-							lastClickTimeRef.current = now;
-
-							if (clickInterval < 300) {
-								if (evt.ctrlKey || evt.metaKey) {
-									// Open Suggested Splits Dialog for the whole line
-									store.set(suggestedSplitsDialogAtom, {
-										open: true,
-										lineId: line.id,
-									});
-									return;
-								}
-							}
-
 							if (evt.ctrlKey) {
 								setSelectedLines((v) => {
 									if (v.has(line.id)) {
