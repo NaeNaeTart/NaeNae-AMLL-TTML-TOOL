@@ -105,6 +105,46 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		let lastFrameTime: number | null = null;
 		let dropTarget: { element: HTMLElement; insertAfter: boolean } | null =
 			null;
+		let dragPreview: HTMLElement | null = null;
+
+		const updateDragPreview = () => {
+			if (!dragPreview || !pointer) return;
+			dragPreview.style.transform = `translate(${pointer.x + 16}px, ${pointer.y + 16}px)`;
+		};
+
+		const clearDragPreview = () => {
+			dragPreview?.remove();
+			dragPreview = null;
+		};
+
+		const showDragPreview = (dragId: string) => {
+			const lines = store.get(lyricLinesAtom).lyricLines;
+			const lineIndex = lines.findIndex((candidate) => candidate.id === dragId);
+			const line = lines[lineIndex];
+			if (!line || lineIndex < 0) return;
+			dragPreview = document.createElement("div");
+			dragPreview.className = styles.dragPreview;
+			dragPreview.setAttribute("aria-hidden", "true");
+			const lineNumber = document.createElement("span");
+			lineNumber.className = styles.dragPreviewNumber;
+			lineNumber.textContent = String(
+				lines
+					.slice(0, lineIndex + 1)
+					.filter((candidate, index) => (index === 0 ? true : !candidate.isBG))
+					.length,
+			);
+			const lyricText = document.createElement("span");
+			lyricText.className = styles.dragPreviewText;
+			lyricText.textContent =
+				line.words.map((word) => word.word).join("") || "…";
+			dragPreview.append(lineNumber, lyricText);
+			const selectedCount = store.get(selectedLinesAtom).size;
+			if (selectedCount > 1) {
+				dragPreview.dataset.lineCount = String(selectedCount);
+			}
+			document.body.append(dragPreview);
+			updateDragPreview();
+		};
 
 		const clearDropTarget = () => {
 			if (!dropTarget) return;
@@ -195,9 +235,11 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					return;
 				store.set(lineDragAtom, { ...drag, isDragging: true });
 				store.set(draggingIdAtom, drag.id);
+				showDragPreview(drag.id);
 			}
 			event.preventDefault();
 			pointer = { x: event.clientX, y: event.clientY };
+			updateDragPreview();
 			updateDropTarget();
 			ensureScrolling();
 		};
@@ -233,6 +275,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				});
 			}
 			clearDropTarget();
+			clearDragPreview();
 			if (drag.isDragging) store.set(lastLineDragEndAtom, Date.now());
 			store.set(lineDragAtom, null);
 			store.set(draggingIdAtom, "");
