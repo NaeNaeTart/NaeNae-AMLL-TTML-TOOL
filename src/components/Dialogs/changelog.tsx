@@ -41,6 +41,12 @@ export function ChangelogDialog() {
 							<Heading size="4" mb="2" color="ruby">Unreleased</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Inline Time-Tab Editing:</strong> Double-click a synced word to edit it directly; when per-word romanization is displayed, it edits the romanization instead.
+								</Text>
+								<Text size="2">
+									<strong>Split Word Shortcut:</strong> Ctrl/Cmd-double-clicking a synced word now opens the standard Split Word dialog for that word.
+								</Text>
+								<Text size="2">
 									<strong>Line Reordering Fix:</strong> Dragging lyric lines now scrolls the editor reliably at its edges and supports mouse-wheel and trackpad scrolling while held.
 								</Text>
 								<Text size="2">

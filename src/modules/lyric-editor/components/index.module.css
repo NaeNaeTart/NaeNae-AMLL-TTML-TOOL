@@ -164,6 +164,29 @@
 	font-size: 1.5em;
 }
 
+.syncWordInput {
+	box-sizing: content-box;
+	min-width: 2ch;
+	max-width: 24ch;
+	padding: 0 0.15em;
+	border: none;
+	border-radius: var(--radius-2);
+	outline: 1px solid var(--accent-8);
+	background: var(--color-panel);
+	color: inherit;
+	font: inherit;
+	font-size: 1.5em;
+	text-align: center;
+}
+
+.syncWordInputMeasure {
+	position: absolute;
+	visibility: hidden;
+	white-space: pre;
+	font: inherit;
+	font-size: 1.5em;
+}
+
 .startTime,
 .endTime {
 	padding: 0.05em 0.5em;
