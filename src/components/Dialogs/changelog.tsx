@@ -46,6 +46,9 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>TTML Checklist:</strong> Keep a persistent local queue of songs to sync, with notes and a completed history.
 								</Text>
+								<Text size="2">
+									<strong>Linux AppImage Fix:</strong> AppImages now use the host Wayland libraries and show their window reliably, preventing startup failures on newer Linux graphics stacks.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
