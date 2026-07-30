@@ -44,9 +44,6 @@ export function ChangelogDialog() {
 									<strong>Inline Time-Tab Editing:</strong> Double-click a synced word to edit it directly; when per-word romanization is displayed, it edits the romanization instead.
 								</Text>
 								<Text size="2">
-									<strong>Inline Edit Fix:</strong> Double-clicking text inside an active Time-tab edit field now selects it without closing the editor.
-								</Text>
-								<Text size="2">
 									<strong>Split Word Shortcut:</strong> Ctrl/Cmd-double-clicking a word in either Edit or Time mode now opens the standard Split Word dialog for that word instead of using the legacy line-level shortcut.
 								</Text>
 								<Text size="2">
@@ -54,9 +51,6 @@ export function ChangelogDialog() {
 								</Text>
 								<Text size="2">
 									<strong>Line Reordering Fix:</strong> Dragging lyric lines now scrolls the editor reliably at its edges and supports mouse-wheel and trackpad scrolling while held.
-								</Text>
-								<Text size="2">
-									<strong>Word Context Menu Fix:</strong> Right-click word actions now preserve the selected word and execute correctly.
 								</Text>
 								<Text size="2">
 									<strong>Website Update Recovery:</strong> Website users can now force a refresh or clear cached website files when an update prompt fails to appear.
