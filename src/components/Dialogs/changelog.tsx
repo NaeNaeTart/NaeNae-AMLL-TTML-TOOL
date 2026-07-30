@@ -53,6 +53,9 @@ export function ChangelogDialog() {
 									<strong>Line Reordering Fix:</strong> Dragging lyric lines now scrolls the editor reliably at its edges and supports mouse-wheel and trackpad scrolling while held.
 								</Text>
 								<Text size="2">
+									<strong>Word Context Menu Fix:</strong> Right-click word actions now preserve the selected word and execute correctly.
+								</Text>
+								<Text size="2">
 									<strong>Website Update Recovery:</strong> Website users can now force a refresh or clear cached website files when an update prompt fails to appear.
 								</Text>
 								<Text size="2">

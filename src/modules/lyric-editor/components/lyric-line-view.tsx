@@ -685,6 +685,16 @@ export const LyricLineView: FC<{
 							!sectionActionsEnabled &&
 							!manualCategorizationEnabled)
 					}
+					onContextMenu={(evt) => {
+						if (
+							(evt.target as HTMLElement | null)?.closest(
+								"[data-lyric-word-interactive]",
+							)
+						) {
+							evt.preventDefault();
+							evt.stopPropagation();
+						}
+					}}
 				>
 					<Flex
 						mx="2"
@@ -716,6 +726,12 @@ export const LyricLineView: FC<{
 							...(isSectionStart ? { marginTop: "16px" } : {}),
 						}}
 						onPointerDown={(evt) => {
+							if (
+								(evt.target as HTMLElement | null)?.closest(
+									"[data-lyric-word-interactive]",
+								)
+							)
+								return;
 							blockDragRef.current =
 								(evt.target as HTMLElement | null)?.tagName === "INPUT";
 							if (
@@ -737,6 +753,12 @@ export const LyricLineView: FC<{
 							blockDragRef.current = false;
 						}}
 						onClick={(evt) => {
+							if (
+								(evt.target as HTMLElement | null)?.closest(
+									"[data-lyric-word-interactive]",
+								)
+							)
+								return;
 							evt.stopPropagation();
 							evt.preventDefault();
 

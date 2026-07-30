@@ -231,6 +231,7 @@ const LyricWordViewEditSpan = ({
 	return (
 		<span
 			{...props}
+			data-lyric-word-interactive=""
 			draggable={toolMode === ToolMode.Edit}
 			onPointerDown={(evt) => {
 				blockDragRef.current =
@@ -632,7 +633,10 @@ const LyricWordViewEditAdvance = ({
 					</div>
 				</LyricWordViewEditSpan>
 			</ContextMenu.Trigger>
-			<ContextMenu.Content>
+			<ContextMenu.Content
+				onPointerDown={(evt) => evt.stopPropagation()}
+				onClick={(evt) => evt.stopPropagation()}
+			>
 				<LyricWordMenu
 					wordAtom={wordAtom}
 					wordIndex={wordIndex}
@@ -763,7 +767,10 @@ const LyricWorldViewEdit = ({
 					</span>
 				</LyricWordViewEditSpan>
 			</ContextMenu.Trigger>
-			<ContextMenu.Content>
+			<ContextMenu.Content
+				onPointerDown={(evt) => evt.stopPropagation()}
+				onClick={(evt) => evt.stopPropagation()}
+			>
 				<LyricWordMenu
 					wordAtom={wordAtom}
 					wordIndex={wordIndex}
@@ -880,6 +887,7 @@ const LyricSyncWordView: FC<{
 	const editingTextMeasureRef = useRef<HTMLSpanElement>(null);
 	const editingTextValueRef = useRef("");
 	const [editingTextWidth, setEditingTextWidth] = useState<number>();
+	const textForMeasurement = editingTextValue || " ";
 
 	useEffect(() => {
 		if (!editingTextField) return;
@@ -888,11 +896,16 @@ const LyricSyncWordView: FC<{
 	}, [editingTextField]);
 
 	useLayoutEffect(() => {
-		if (!editingTextField || !editingTextMeasureRef.current) return;
+		if (
+			!editingTextField ||
+			!editingTextMeasureRef.current ||
+			!textForMeasurement
+		)
+			return;
 		setEditingTextWidth(
 			Math.ceil(editingTextMeasureRef.current.getBoundingClientRect().width),
 		);
-	}, [editingTextField, editingTextValue]);
+	}, [editingTextField, textForMeasurement]);
 
 	const commitTextEdit = useCallback(
 		(field: "word" | "romanWord", value: string) => {
@@ -1187,7 +1200,7 @@ const LyricSyncWordView: FC<{
 			{editingTextField ? (
 				<>
 					<span ref={editingTextMeasureRef} className={styles.syncWordInputMeasure}>
-						{editingTextValue || " "}
+						{textForMeasurement}
 					</span>
 					<input
 						ref={editingTextInputRef}
