@@ -213,6 +213,12 @@ export const SettingsAboutTab = () => {
 											href={`https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/commit/${GIT_COMMIT}`}
 											target="_blank"
 											rel="noreferrer"
+											onClick={(event) => {
+												if (import.meta.env.TAURI_ENV_PLATFORM) {
+													event.preventDefault();
+													openExternal(`https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/commit/${GIT_COMMIT}`);
+												}
+											}}
 										>
 											{GIT_COMMIT}
 										</Link>
