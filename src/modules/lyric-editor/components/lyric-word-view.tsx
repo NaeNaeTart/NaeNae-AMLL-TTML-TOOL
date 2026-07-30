@@ -1247,10 +1247,6 @@ const LyricSyncWordView: FC<{
 						}
 						onPointerDown={(event) => event.stopPropagation()}
 						onClick={(event) => event.stopPropagation()}
-						onDoubleClick={(event) => {
-							event.stopPropagation();
-							commitTextEdit(editingTextField, event.currentTarget.value);
-						}}
 						onKeyDown={(event) => {
 							event.stopPropagation();
 							if (event.key === "Enter") {
