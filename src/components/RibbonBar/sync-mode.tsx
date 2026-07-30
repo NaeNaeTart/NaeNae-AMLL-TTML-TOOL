@@ -9,24 +9,19 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-import { DeleteRegular, MoreHorizontalRegular, Beaker24Regular } from "@fluentui/react-icons";
 import {
 	Checkbox,
-	Dialog,
 	Flex,
 	Grid,
-	IconButton,
 	SegmentedControl,
 	Slider,
 	Switch,
 	Text,
 	TextField,
-	Button,
-	Separator,
 } from "@radix-ui/themes";
-import { useAtom, useAtomValue, useStore } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
-import { type FC, forwardRef, useState } from "react";
+import { type FC, forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocation } from "$/modules/lyric-editor/utils/lyric-states.ts";
 import {
@@ -35,11 +30,8 @@ import {
 	enableSyncGlowAnimationAtom,
 	highlightActiveWordAtom,
 	highlightErrorsAtom,
-	ignoredQuickFixWordsAtom,
-	quickFixesAtom,
 	showTimestampsAtom,
 	showWordRomanizationInputAtom,
-	experimentalFeaturesDialogOpenAtom,
 } from "$/modules/settings/states/index.ts";
 import {
 	currentEmptyBeatAtom,
@@ -95,7 +87,6 @@ const EmptyBeatField = () => {
 
 export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDivElement, { isSidebar?: boolean }>(
 	({ isSidebar }, ref) => {
-		const store = useStore();
 		const [visualizeTimestampUpdate, setVisualizeTimestampUpdate] = useAtom(
 			visualizeTimestampUpdateAtom,
 		);
@@ -106,13 +97,6 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 			useAtom(showPreviewPanelAtom);
 		const [showTimestamps, setShowTimestamps] = useAtom(showTimestampsAtom);
 		const [highlightErrors, setHighlightErrors] = useAtom(highlightErrorsAtom);
-		const [quickFixes, setQuickFixes] = useAtom(quickFixesAtom);
-		const [ignoredQuickFixWords, setIgnoredQuickFixWords] = useAtom(
-			ignoredQuickFixWordsAtom,
-		);
-		const [isQuickFixExclusionsDialogOpen, setIsQuickFixExclusionsDialogOpen] =
-			useState(false);
-		const [newWord, setNewWord] = useState("");
 		const [highlightActiveWord, setHighlightActiveWord] = useAtom(
 			highlightActiveWordAtom,
 		);
@@ -140,8 +124,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const { t } = useTranslation();
 
 		return (
-			<>
-				<RibbonFrame ref={ref} isSidebar={isSidebar}>
+			<RibbonFrame ref={ref} isSidebar={isSidebar}>
 					<RibbonSection
 						isSidebar={isSidebar}
 						label={t("ribbonBar.syncMode.currentEmptyBeat", "当前空拍")}
@@ -295,26 +278,6 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 									});
 								}}
 							/>
-							<Flex align="center" gap="1">
-								<Text
-									wrap="nowrap"
-									size="1"
-									style={{ color: "var(--accent-11)" }}
-								>
-									{t("ribbonBar.syncMode.quickFixes", "Quick Fixes")}
-								</Text>
-								<IconButton
-									size="1"
-									variant="ghost"
-									onClick={() => setIsQuickFixExclusionsDialogOpen(true)}
-								>
-									<MoreHorizontalRegular />
-								</IconButton>
-							</Flex>
-							<Checkbox
-								checked={quickFixes}
-								onCheckedChange={(v) => setQuickFixes(!!v)}
-							/>
 							<Text
 								wrap="nowrap"
 								size="1"
@@ -467,63 +430,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							/>
 						</Flex>
 					</RibbonSection>
-				</RibbonFrame>
-				<Dialog.Root
-					open={isQuickFixExclusionsDialogOpen}
-					onOpenChange={setIsQuickFixExclusionsDialogOpen}
-				>
-					<Dialog.Content>
-						<Dialog.Title>{t("ribbonBar.syncMode.manageQuickFixExclusions.title", "Manage Quick Fix Exclusions")}</Dialog.Title>
-						<Dialog.Description>
-							{t("ribbonBar.syncMode.manageQuickFixExclusions.description", "Add words to ignore in quick fixes.")}
-						</Dialog.Description>
-						<Flex direction="column" gap="3">
-							<TextField.Root
-								placeholder={t("ribbonBar.syncMode.manageQuickFixExclusions.placeholder", "Enter word to ignore")}
-								value={newWord}
-								onChange={(e) => setNewWord(e.target.value)}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" && newWord.trim()) {
-										setIgnoredQuickFixWords((prev) => [
-											...prev,
-											newWord.trim(),
-										]);
-										setNewWord("");
-									}
-								}}
-							/>
-							<Flex direction="column" gap="2">
-								{ignoredQuickFixWords.map((word, index) => (
-									<Flex key={word} align="center" justify="between">
-										<Text>{word}</Text>
-										<IconButton
-											size="1"
-											variant="ghost"
-											onClick={() =>
-												setIgnoredQuickFixWords((prev) =>
-													prev.filter((_, i) => i !== index),
-												)
-											}
-										>
-											<DeleteRegular />
-										</IconButton>
-									</Flex>
-								))}
-							</Flex>
-						</Flex>
-						<Separator size="4" mt="4" mb="2" />
-						<Flex direction="column" gap="2">
-							<Button
-								variant="soft"
-								onClick={() => store.set(experimentalFeaturesDialogOpenAtom, true)}
-							>
-								<Beaker24Regular />
-								{t("ribbonBar.experimentalFeatures", "Experimental Features")}
-							</Button>
-						</Flex>
-					</Dialog.Content>
-				</Dialog.Root>
-			</>
+			</RibbonFrame>
 		);
 	},
 );

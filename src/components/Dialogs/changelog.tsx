@@ -47,6 +47,9 @@ export function ChangelogDialog() {
 									<strong>Split Word Shortcut:</strong> Ctrl/Cmd-double-clicking a synced word now opens the standard Split Word dialog for that word.
 								</Text>
 								<Text size="2">
+									<strong>Quick Fixes Cleanup:</strong> Removed the unused grammar Quick Fixes controls from sync and assistant settings.
+								</Text>
+								<Text size="2">
 									<strong>Line Reordering Fix:</strong> Dragging lyric lines now scrolls the editor reliably at its edges and supports mouse-wheel and trackpad scrolling while held.
 								</Text>
 								<Text size="2">

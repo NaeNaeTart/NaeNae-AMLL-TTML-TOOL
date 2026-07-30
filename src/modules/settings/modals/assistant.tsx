@@ -1,17 +1,15 @@
 import { 
-	Card, Flex, Heading, Switch, Text, Box, TextField, Select, Separator 
+	Card, Flex, Heading, Switch, Text, Box
 } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import {
 	enableManualTimestampEditAtom,
-	quickFixesAtom,
 	highlightErrorsAtom,
 	aiSidebarEnabledAtom,
 } from "$/modules/settings/states";
 import { visualizeTimestampUpdateAtom } from "$/modules/settings/states/sync";
 import { 
-	Sparkle24Regular, 
 	TimeAndWeather24Regular, 
 	ErrorCircle24Regular, 
 	TextT24Regular,
@@ -19,7 +17,6 @@ import {
 } from "@fluentui/react-icons";
 
 export const SettingsAssistantTab = () => {
-	const [quickFixes, setQuickFixes] = useAtom(quickFixesAtom);
 	const [enableManualTimestampEdit, setEnableManualTimestampEdit] = useAtom(
 		enableManualTimestampEditAtom,
 	);
@@ -46,25 +43,6 @@ export const SettingsAssistantTab = () => {
 									<Text size="1" color="gray">{t("settings.assistant.aiSidebarDesc", "Enable an optional, manual AI vibe check for your TTML. Setup appears in the AI tab.")}</Text>
 								</Flex>
 								<Switch checked={aiSidebarEnabled} onCheckedChange={setAiSidebarEnabled} />
-							</Flex>
-						</Box>
-					</Flex>
-				</Text>
-			</Card>
-
-			<Card>
-				<Text as="label">
-					<Flex gap="3" align="center">
-						<Sparkle24Regular />
-						<Box flexGrow="1">
-							<Flex gap="2" align="center" justify="between">
-								<Flex direction="column" gap="1">
-									<Text>{t("settings.assistant.quickFixes", "Quick Fixes (Grammar)")}</Text>
-									<Text size="1" color="gray">
-										{t("settings.assistant.quickFixesDesc", "Enable suggestions for repeated words and common transcription errors.")}
-									</Text>
-								</Flex>
-								<Switch checked={quickFixes} onCheckedChange={setQuickFixes} />
 							</Flex>
 						</Box>
 					</Flex>
