@@ -72,7 +72,7 @@
   },
   "common": {
     "close": "Chiudi",
-    "autoDetect": "Auto Detect",
+    "autoDetect": "Rileva automaticamente",
     "about": "Info",
     "resultsFound": "Trovato {count} risultati",
     "cancel": "Annulla",
@@ -121,17 +121,17 @@
         "error": "Recupero delle romanizzazioni non riuscito"
       },
       "romanization": {
-        "section": "Romanization",
+        "section": "Romanizzazione",
         "info": {
-          "title": "About Romanization",
-          "canDo": "✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!",
-          "cannotDo": "✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur."
+          "title": "Informazioni sulla Romanizzazione",
+          "canDo": "✓ Può fare: Auto-generare Romaji (JA), Pinyin (ZH), e Romaji (KO). Supporta Kanji!",
+          "cannotDo": "✗ Non può fare: precisione al 100% per Kanji rari o nomi propri. Possono verificarsi errori minori."
         },
-        "ja": "Japanese (Romaji)",
-        "zh": "Chinese (Pinyin)",
+        "ja": "Giapponese (Romaji)",
+        "zh": "Cinese (Pinyin)",
         "yue": "Cantonese (Jyutping)",
-        "ko": "Korean (Romaji)",
-        "autoFetch": "Romanize"
+        "ko": "Coreano (Romaji)",
+        "autoFetch": "Romanizza"
       },
       "new": "Nuovo",
       "lyricLine": "Verso di Testo",
@@ -158,7 +158,7 @@
     },
     "previewMode": {
       "mode": "Modalità",
-      "amllDeprecated": "AMLL 模式已弃用，请使用标准模式",
+      "amllDeprecated": "La modalità AMLL è deprecata, utilizza la modalità Standard",
       "standard": "Standard",
       "timing": "Tempo",
       "spicy": "Spicy",
@@ -175,15 +175,15 @@
       "word": "Word",
       "fadeWidth": "Larghezza della Dissolvenza",
       "instantFade": "即时淡出",
-      "render": "渲染",
+      "render": "Render",
       "dev": "Dev",
-      "showFps": "Show FPS"
+      "showFps": "Mostra FPS"
     },
     "syncMode": {
       "currentEmptyBeat": "Battuta Vuota",
       "syncAdjustment": "Regolazione del Tempo",
       "timeOffset": "Scostamento del Tempo",
-      "commitOffset": "Commit Offset",
+      "commitOffset": "Scostamento del Segno Inizio e Fine",
       "syncLevel": "Livello di Sincronizzazione",
       "syncLevelWord": "Sincronizzazione a Parole",
       "syncLevelLine": "Sincronizzazione a Versi",
@@ -204,13 +204,13 @@
       "continuousSync": "Segna Inizio e Fine",
       "endSync": "Segna il Fine",
       "manageQuickFixExclusions": {
-        "title": "Manage Quick Fix Exclusions",
-        "description": "Add words to ignore in quick fixes.",
-        "placeholder": "Enter word to ignore"
+        "title": "Gestisci Esclusioni Correzioni Rapide",
+        "description": "Aggiungi parole da ignorare nelle correzioni rapide.",
+        "placeholder": "Inserisci la parola da ignorare"
       }
     },
     "experimentalFeatures": "Experimental Features",
-    "loading": "Loading panel..."
+    "loading": "面板载入中..."
   },
   "settings": {
     "common": {
@@ -244,10 +244,10 @@
         "keyDown": "Attiva su Tasto Premuto ",
         "keyUp": "Attiva su Tasto Rilasciato"
       },
-      "syncTimeOffset": "Global Sync Time Offset (ms)",
-      "syncTimeOffsetDesc": "Adjust all sync timestamps by this amount to compensate for audio latency.",
-      "syncCommitOffset": "Commit Input Offset (ms)",
-      "syncCommitOffsetDesc": "Specific offset for the 'Commit' action to fix delayed audio issues.",
+      "syncTimeOffset": "Scostamento Tempo di Sincronizzazione Globale (ms)",
+      "syncTimeOffsetDesc": "Regola tutti i tempi di sincronizzazione di questa quantità per compensare la latenza audio.",
+      "syncCommitOffset": "Scostamento Input Segna Inizio e Fine (ms)",
+      "syncCommitOffsetDesc": "Scostamento specifico per l'azione 'Segna Inizio e Fine' per risolvere problemi audio ritardati.",
       "smartFirstWord": "Prima Parola Intelligente",
       "smartFirstWordDesc": "Quando si sincronizza la prima parola di un verso, il primo tasto imposta solo il tempo d'inizio senza impostare immediatamente il tempo di fine.",
       "smartLastWord": "Ultima Parola Intelligente",
@@ -292,17 +292,17 @@
         "gradient": "Gradiente"
       },
       "presets": {
-        "title": "Appearance Presets",
-        "namePlaceholder": "Theme Name...",
-        "save": "Save Current",
-        "empty": "No saved presets yet."
+        "title": "Profili d'Aspetto",
+        "namePlaceholder": "Nome Tema...",
+        "save": "Salva Attuale",
+        "empty": "Ancora nessun profilo salvato."
       },
       "theme": "Tema",
       "useCustomAccent": "Colore d'Accento Personalizzato",
       "useCustomAccentDesc": "Imposta colore d'Accento",
-      "glass": "Glassmorphism",
-      "glassBlur": "Glass Intensity",
-      "glassBlurDesc": "Adjust the background blur effect for glassmorphic elements.",
+      "glass": "Glassmorfismo",
+      "glassBlur": "Intensità Glassmorfismo",
+      "glassBlurDesc": "Regola l'effetto sfocatura dello sfondo per gli elementi glassmorfici.",
       "background": "Sfondo",
       "useCustomGradient": "Colore di Gradiente Personalizzato",
       "useCustomGradientDesc": "Genera un gradiente da un singolo colore.",
@@ -612,7 +612,7 @@
       "playbackRateUp": "Riproduzione - Aumenta la velocità",
       "playbackRateDown": "Riproduzione - Diminuisci velocità",
       "playbackRateReset": "Riproduzione - Ripristina velocità",
-      "duplicatePaste": "",
+      "duplicatePaste": "Modifica - Duplica al tempo corrente",
       "auditionSelectionBefore": "Spettrogramma - Selezione Audio (500ms prima)",
       "auditionSelection": "Spettrogramma - Selezione Audio",
       "auditionSelectionAfter": "Spettrogramma - Selezione Audio (500ms dopo)",
@@ -1051,23 +1051,23 @@
     "rightsWarning": "Se valuti il mantenimento della proprietà, per favore NON inviare!",
     "submitInstructions": "Inserisci le seguenti informazioni e passa alla pagina d'invio di GitHub!",
     "closeWarning": "Chiudi messaggio di avviso",
-    "uploadDbType": "歌词库类型",
-    "uploadDbTypeOfficial": "官方歌词库",
-    "uploadDbTypeUser": "用户歌词库",
-    "uploadDbTypeBoth": "全部歌词库",
-    "officialDesc": "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
-    "userDesc": "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
-    "bothDesc": "两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
-    "genFromName": "从元数据中生成",
-    "musicName": "音乐名称",
-    "musicNameDesc": "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
-    "submitReason": "提交缘由",
-    "submitReasonNew": "新歌词提交",
-    "submitReasonFix": "修正已有歌词",
-    "comment": "备注",
-    "commentPlaceholder": "有什么需要补充说明的呢？",
-    "issueFoundTitle": "发现以下问题，请修正后再提交：",
-    "submitBtn": "上传歌词并创建议题"
+    "uploadDbType": "Tipo Database Testo",
+    "uploadDbTypeOfficial": "Database Ufficiale",
+    "uploadDbTypeUser": "Database Utente",
+    "uploadDbTypeBoth": "Entrambe Database",
+    "officialDesc": "L'invio al database ufficiale richiede una revisione manuale per garantire la qualità della sincronizzazione e del testo. Questo è raccomandato per contributi di alta qualità.",
+    "userDesc": "L'invio al database utente richiede solo la verifica del bot. È più veloce ma non garantisce lo stesso livello di qualità delle prestazioni.",
+    "bothDesc": "Questo aprirà le pagine di invio per entrambi i repositori. Si prega di creare un problema in ognuna manualmente.",
+    "genFromName": "Genera dai metadati",
+    "musicName": "Titolo Traccia",
+    "musicNameDesc": "Formato consigliato: Artista - Titolo brano",
+    "submitReason": "Motivo",
+    "submitReasonNew": "Nuovo invio del testo",
+    "submitReasonFix": "Correggi il testo esistente",
+    "comment": "Commento",
+    "commentPlaceholder": "Qualcosa altro che vuoi aggiungere?",
+    "issueFoundTitle": "Si prega di risolvere i seguenti problemi prima di inviare:",
+    "submitBtn": "Carica e Crea Problema"
   },
   "splitWordDialog": {
     "spaceCount": "Spazio x{count}",
@@ -1171,18 +1171,18 @@
   "spectrogram": {
     "invalidEndTime": "Impossibile selezionare questo tempo di fine",
     "noAudioLoaded": "Carica un file audio per generare lo spettrogramma",
-    "loadAudio": "Carica un file audio",
+    "loadAudio": "Carica file audio",
     "showUnselectedLines": "Mostra versi non selezionati",
-    "settings": "频谱图设置",
+    "settings": "Impostazioni Spettrogramma",
     "fftSize": "FFT Size",
-    "resolution": "解析度",
+    "resolution": "Risoluzione FFT",
     "fftSizeOption": {
       "512": "512 (Fast)",
       "1024": "1024 (Normal)",
       "2048": "2048 (Better Freq)",
       "4096": "4096 (High Res)"
     },
-    "height": "高度"
+    "height": "Altezza Visualizzazione"
   },
   "pwa": {
     "offlineReady": "Salvataggio del sito nella cache riuscita per l'utilizzo offline",
