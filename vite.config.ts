@@ -47,23 +47,25 @@ const plugins: Plugin[] = [
 		},
 		async load(id) {
 			if (id === "virtual:buildmeta") {
-				let gitCommit = "unknown";
+				let gitCommit = process.env.VERCEL_GIT_COMMIT_SHA?.trim();
 
-				try {
-					gitCommit = await new Promise<string>((resolve, reject) =>
-						exec("git rev-parse HEAD", (err, stdout) => {
-							if (err) {
-								reject(err);
-							} else {
-								resolve(stdout.trim());
-							}
-						}),
-					);
-				} catch {}
+				if (!gitCommit) {
+					try {
+						gitCommit = await new Promise<string>((resolve, reject) =>
+							exec("git rev-parse HEAD", (err, stdout) => {
+								if (err) {
+									reject(err);
+								} else {
+									resolve(stdout.trim());
+								}
+							}),
+						);
+					} catch {}
+				}
 
 				return `
-					export const BUILD_TIME = "${new Date().toISOString()}";
-					export const GIT_COMMIT = "${gitCommit}";
+					export const BUILD_TIME = ${JSON.stringify(new Date().toISOString())};
+					export const GIT_COMMIT = ${JSON.stringify(gitCommit ?? "unknown")};
 				`;
 			}
 		},
