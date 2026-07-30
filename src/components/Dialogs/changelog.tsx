@@ -52,6 +52,9 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Linux AppImage Fix:</strong> AppImages now use the host Wayland libraries and show their window reliably, preventing startup failures on newer Linux graphics stacks.
 								</Text>
+								<Text size="2">
+									<strong>External Links & Build Info Fix:</strong> About and changelog links now open correctly in the desktop app, and hosted builds show their Git commit instead of “unknown.”
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
