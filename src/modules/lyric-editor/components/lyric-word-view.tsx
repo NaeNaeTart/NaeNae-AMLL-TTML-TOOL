@@ -20,7 +20,6 @@ import {
 import {
 	ContextMenu,
 	IconButton,
-	Text,
 	TextField,
 } from "@radix-ui/themes";
 import classNames from "classnames";
@@ -599,11 +598,6 @@ const LyricWordViewEditAdvance = ({
 							showIcon
 							className={styles.rubyEditorCompact}
 						/>
-						{currentWord.romanWord && (
-							<Text size="1" color="gray" style={{ fontStyle: "italic", marginLeft: "4px" }}>
-								{currentWord.romanWord}
-							</Text>
-						)}
 					</div>
 					<WordEditField
 						size="1"
@@ -689,10 +683,8 @@ const LyricWorldViewEdit = ({
 	const [editing, setEditing] = useState(false);
 	const store = useStore();
 	const toolMode = useAtomValue(toolModeAtom);
-	const displayRomanizationInSync = useAtomValue(displayRomanizationInSyncAtom);
 	const isWordBlank = useWordBlank(word.word);
 	// In Edit Mode, we always want to see the original word in the capsule.
-	// We only show romanization in the sync display or as secondary text in advance view.
 	const displayWord = getDisplayWordText(t, word.word, isWordBlank, word.romanWord, false);
 	const showRubyEditor = useMemo(() => word.ruby !== undefined, [word.ruby]);
 
@@ -787,11 +779,6 @@ const LyricWorldViewEdit = ({
 					<span className={styles.wordEditRow}>
 						<div className={styles.wordMainContainer}>
 							<div className={styles.wordMainText}>{displayWord}</div>
-							{displayRomanizationInSync && word.romanWord && (
-								<div className={styles.wordRomanSecondary}>
-									{word.romanWord}
-								</div>
-							)}
 						</div>
 						{showRubyEditor && <RubyEditor wordAtom={wordAtom} />}
 					</span>

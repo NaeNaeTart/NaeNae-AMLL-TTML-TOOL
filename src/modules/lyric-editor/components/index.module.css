@@ -79,6 +79,19 @@
 	text-align: left;
 }
 
+.withRomanization {
+	.lyricWord.edit {
+		padding-bottom: 0.15em;
+		border-bottom-right-radius: var(--radius-2);
+		border-bottom-left-radius: var(--radius-2);
+	}
+
+	[data-word-romanization-editor] {
+		border-top-right-radius: var(--radius-2);
+		border-top-left-radius: var(--radius-2);
+	}
+}
+
 .rubySyncRow {
 	display: inline-flex;
 	align-items: stretch;
@@ -108,15 +121,6 @@
 .wordMainText {
 	font-weight: 500;
 	font-size: 1.1em;
-}
-
-.wordRomanSecondary {
-	font-size: 0.75em;
-	color: var(--romanization-color, var(--gray-10));
-	font-style: italic;
-	margin-top: -1px;
-	line-height: 1;
-	opacity: 0.8;
 }
 
 .rubyEditorCompact {

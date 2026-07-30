@@ -994,9 +994,12 @@ export const LyricLineView: FC<{
 												<Flex
 													direction="column"
 													align="stretch"
-													gap="3"
+													gap={showWordRomanizationInput ? "1" : "3"}
 													data-word-index={wi}
-													className={styles.wordGroup}
+													className={classNames(
+														styles.wordGroup,
+														showWordRomanizationInput && styles.withRomanization,
+													)}
 												>
 													<LyricWordView
 														wordAtom={wordAtom}

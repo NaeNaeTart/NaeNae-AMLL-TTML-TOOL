@@ -94,6 +94,7 @@ export const RomanWordView = ({
 				ref={inputRef}
 				size="1"
 				data-lyric-line-interactive=""
+				data-word-romanization-editor=""
 				className={styles.romanWordView}
 				value={inputValue}
 				onChange={(e) => setInputValue(e.currentTarget.value)}
@@ -109,6 +110,7 @@ export const RomanWordView = ({
 			variant="soft"
 			color="gray"
 				data-lyric-line-interactive=""
+			data-word-romanization-editor=""
 			className={classNames(
 				styles.romanWordView,
 				!word.romanWord && styles.placeholder,
