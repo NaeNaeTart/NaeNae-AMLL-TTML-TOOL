@@ -148,9 +148,11 @@ jobs:
         shell: bash
         run: |
           appimage_path=$(find src-tauri/target -path '*/release/bundle/appimage/*.AppImage' -type f -print -quit)
-          asset_name=$(basename "$appimage_path")
-          gh release delete-asset "${{ github.ref_name }}" "$asset_name" --yes
-          gh release upload "${{ github.ref_name }}" "$appimage_path"
+          test -n "$appimage_path"
+          for asset in $(gh release view "${{ github.ref_name }}" --json assets --jq '.assets[].name | select(endswith(".AppImage"))'); do
+            gh release delete-asset "${{ github.ref_name }}" "$asset" --yes || true
+          done
+          gh release upload "${{ github.ref_name }}" "$appimage_path" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@v6
