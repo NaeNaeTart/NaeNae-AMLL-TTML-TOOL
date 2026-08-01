@@ -126,6 +126,9 @@ export default defineConfig({
 		],
 	},
 	server: {
+		watch: {
+			ignored: ["**/src-tauri/target/**"],
+		},
 		headers: {
 			"Cross-Origin-Embedder-Policy": "require-corp",
 			"Cross-Origin-Opener-Policy": "same-origin",

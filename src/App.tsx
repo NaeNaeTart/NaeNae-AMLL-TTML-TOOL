@@ -121,6 +121,7 @@ import {
 } from "./states/main.ts";
 import { generateGradient, generateRadixScale } from "./utils/colorScale.ts";
 import { useAppUpdate } from "./utils/useAppUpdate.ts";
+import { DiscordPresence } from "./modules/discord-presence/DiscordPresence";
 
 const LyricLinesView = lazy(() => import("./modules/lyric-editor/components"));
 const PreviewModeSwitcher = lazy(() => import("./components/PreviewModeSwitcher"));
@@ -656,6 +657,7 @@ function App() {
 			accentColor={accentColor}
 			className={styles.radixTheme}
 		>
+			<DiscordPresence />
 			{customStyleString ? <style>{customStyleString}</style> : null}
 			<ErrorBoundary
 				FallbackComponent={AppErrorPage}

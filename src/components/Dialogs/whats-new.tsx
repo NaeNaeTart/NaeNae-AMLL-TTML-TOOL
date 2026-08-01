@@ -24,6 +24,13 @@ export function WhatsNewDialog() {
 
 	const features = [
 		{
+			title: "Discord Rich Presence",
+			description: "Optionally share the current file or track, editor mode, line progress, playback status, and live timeline from the desktop app. Website presence now uses a reliable PreMiD bridge.",
+			icon: <MusicNote1Regular />,
+			color: "indigo",
+			info: "Enable Discord Rich Presence under Settings > General > Privacy in the Tauri desktop app. It stays disabled by default and requires the Discord desktop client."
+		},
+		{
 			title: "Inline Time-Tab Editing",
 			description: "Double-click a synced word to edit it directly in Time mode, or edit its per-word romanization when displayed.",
 			icon: <FlashRegular />,
