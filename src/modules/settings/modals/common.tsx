@@ -32,6 +32,7 @@ import {
 	autosaveEnabledAtom,
 	autosaveIntervalAtom,
 	autosaveLimitAtom,
+	discordRichPresenceEnabledAtom,
 	LayoutMode,
 	layoutModeAtom,
 	SyncJudgeMode,
@@ -68,6 +69,9 @@ export const SettingsCommonTab = () => {
 	const [autosaveEnabled, setAutosaveEnabled] = useAtom(autosaveEnabledAtom);
 	const [autosaveInterval, setAutosaveInterval] = useAtom(autosaveIntervalAtom);
 	const [autosaveLimit, setAutosaveLimit] = useAtom(autosaveLimitAtom);
+	const [discordRichPresenceEnabled, setDiscordRichPresenceEnabled] = useAtom(
+		discordRichPresenceEnabledAtom,
+	);
 	const [enableUpcomingWordHighlight, setEnableUpcomingWordHighlight] = useAtom(
 		enableUpcomingWordHighlightAtom,
 	);
@@ -581,6 +585,43 @@ export const SettingsCommonTab = () => {
 					</Flex>
 				</Card>
 			</Flex>
+
+			{import.meta.env.TAURI_ENV_PLATFORM && (
+				<Flex direction="column" gap="2">
+					<Heading size="4">
+						{t("settings.group.privacy", "Privacy")}
+					</Heading>
+					<Card>
+						<Text as="label">
+							<Flex gap="3" align="center">
+								<ContentView24Regular />
+								<Box flexGrow="1">
+									<Flex gap="2" align="center" justify="between">
+										<Flex direction="column" gap="1">
+											<Text>
+												{t(
+													"settings.common.discordRichPresence",
+													"Discord Rich Presence",
+												)}
+											</Text>
+											<Text size="1" color="gray">
+												{t(
+													"settings.common.discordRichPresenceDesc",
+													"Share the current track, editor mode, line progress and playback status with the Discord desktop app.",
+												)}
+											</Text>
+										</Flex>
+										<Switch
+											checked={discordRichPresenceEnabled}
+											onCheckedChange={setDiscordRichPresenceEnabled}
+										/>
+									</Flex>
+								</Box>
+							</Flex>
+						</Text>
+					</Card>
+				</Flex>
+			)}
 
 			<Flex direction="column" gap="2">
 				<Heading size="4">{t("settings.group.import", "Import")}</Heading>

@@ -57,6 +57,11 @@ export const autosaveEnabledAtom = atomWithStorage("autosaveEnabled", true);
 export const autosaveIntervalAtom = atomWithStorage("autosaveInterval", 10);
 export const autosaveLimitAtom = atomWithStorage("autosaveLimit", 10);
 
+export const discordRichPresenceEnabledAtom = atomWithStorage(
+	"discordRichPresenceEnabled",
+	false,
+);
+
 export const showTimestampsAtom = atomWithStorage("showTimestamps", true);
 export const enableManualTimestampEditAtom = atomWithStorage(
 	"enableManualTimestampEdit",

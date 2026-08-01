@@ -25,6 +25,7 @@ You can also use the Tauri desktop version built via GitHub Actions; see [GitHub
 
 ## New Editor Features over the Original AMLL TTML Tool
 
+- **Discord Rich Presence & PreMiD Bridge** — The opt-in Tauri integration shares the current file or track, editor mode, line progress, playback state, and speed-aware timeline with Discord; the website exposes the same live state to PreMiD while preserving a compatibility fallback for the original editor.
 - **Inline Time-Tab Editing** — Double-click a synced word to edit it directly in Time mode, or edit per-word romanizations inline when displayed.
 - **TTML Checklist** — Maintain a persistent local queue of songs to sync with notes, progress tracking, and completed history.
 - **Smarter Lyrics Splitting** — Choose dedicated syllabification engines for English, Spanish, French, Russian, Japanese, and CJK lyrics; Auto Segment suggests an engine from the lyric language, while legacy fallbacks remain available.

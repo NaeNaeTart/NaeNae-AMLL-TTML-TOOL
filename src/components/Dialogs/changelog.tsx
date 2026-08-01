@@ -56,6 +56,25 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="indigo">
+								v0.7.6 Updates (Discord RPC)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Discord Rich Presence:</strong> Desktop users can
+									optionally share the current file or track, editor mode, line
+									progress, play/pause status, and a speed-aware playback
+									timeline, with a link to this repository.
+								</Text>
+								<Text size="2">
+									<strong>Reliable PreMiD Presence:</strong> The website now
+									exposes live editor and playback state through a stable
+									bridge. The base editor keeps a compatibility fallback and
+									each version links to its correct repository.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="indigo">
 								v0.7.5 Updates (Inline Editing & Quality of Life)
 							</Heading>
 							<Flex direction="column" gap="3">
