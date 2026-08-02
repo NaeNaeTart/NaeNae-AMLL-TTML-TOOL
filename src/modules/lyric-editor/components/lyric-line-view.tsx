@@ -1098,6 +1098,7 @@ export const LyricLineView: FC<{
 							{toolMode === ToolMode.Edit && (
 								<Flex p="3">
 									<IconButton
+										data-lyric-line-interactive=""
 										size="1"
 										variant={enableInsert ? "solid" : "soft"}
 										onClick={(evt) => {

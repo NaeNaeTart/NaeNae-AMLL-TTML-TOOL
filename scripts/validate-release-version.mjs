@@ -1,5 +1,9 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import {
+	assertMatchingVersions,
+	assertStableVersion,
+	loadVersionSources,
+	readVersions,
+} from "./version-utils.mjs";
 
 const root = process.cwd();
 const tagIndex = process.argv.indexOf("--tag");
@@ -11,36 +15,13 @@ if (!tag?.startsWith("v")) {
 }
 
 const version = tag.slice(1);
-if (!/^\d+\.\d+\.\d+$/.test(version)) {
-	throw new Error(`Release tag ${tag} must use stable SemVer (vX.Y.Z).`);
-}
-
-const packageVersion = JSON.parse(
-	readFileSync(join(root, "package.json"), "utf8"),
-).version;
-const tauriVersion = JSON.parse(
-	readFileSync(join(root, "src-tauri", "tauri.conf.json"), "utf8"),
-).version;
-const cargoToml = readFileSync(join(root, "src-tauri", "Cargo.toml"), "utf8");
-const cargoVersion = cargoToml.match(/^version = "([^"]+)"$/m)?.[1];
-
-const versions = {
-	"package.json": packageVersion,
-	"src-tauri/tauri.conf.json": tauriVersion,
-	"src-tauri/Cargo.toml": cargoVersion,
-};
-
-const mismatches = Object.entries(versions).filter(
-	([, value]) => value !== version,
+assertStableVersion(version, `Release tag ${tag}`);
+const manifestVersion = assertMatchingVersions(
+	readVersions(loadVersionSources(root)),
 );
-if (mismatches.length > 0) {
+if (manifestVersion !== version)
 	throw new Error(
-		`Release tag ${tag} does not match version files:\n${Object.entries(
-			versions,
-		)
-			.map(([file, value]) => `- ${file}: ${value ?? "missing"}`)
-			.join("\n")}`,
+		`Release tag ${tag} does not match version files (${manifestVersion}).`,
 	);
-}
 
 console.log(`Validated release version ${version}.`);

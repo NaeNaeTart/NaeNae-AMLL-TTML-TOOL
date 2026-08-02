@@ -56,6 +56,24 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="red">
+								v0.8.0 Updates
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Line Insert Button Fix:</strong> The add button at the
+									right of a lyric line now works correctly while line dragging
+									is enabled.
+								</Text>
+								<Text size="2">
+									<strong>Consistent Release Versioning:</strong> Maintainers
+									can preview and apply patch, minor, or major version bumps
+									with one command, keeping the package, Tauri, Cargo, and
+									lockfile versions synchronized.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="red">
 								v0.7.7 Updates (TTML Export Fix)
 							</Heading>
 							<Flex direction="column" gap="3">
