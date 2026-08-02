@@ -19,6 +19,12 @@ import type { LyricLine, LyricWord, TTMLLyric } from "../../../types/ttml.ts";
 import { log } from "../../../utils/logging.ts";
 import { msToTimestamp } from "../../../utils/timestamp.ts";
 
+export function shouldExportAsLineSynced(line: LyricLine): boolean {
+	if (!line.isLineSynced) return false;
+
+	return line.words.filter((word) => word.word.trim().length > 0).length <= 1;
+}
+
 export default function exportTTMLText(ttmlLyric: TTMLLyric): string {
 	const params: LyricLine[][] = [];
 	const lyric = ttmlLyric.lyricLines;
@@ -279,7 +285,7 @@ export default function exportTTMLText(ttmlLyric: TTMLLyric): string {
 			const mainWords = line.words;
 			let bgWords: LyricWord[] = [];
 
-			if (line.isLineSynced) {
+			if (shouldExportAsLineSynced(line)) {
 				lineP.appendChild(
 					doc.createTextNode(line.words.map((word) => word.word).join("")),
 				);
@@ -318,7 +324,7 @@ export default function exportTTMLText(ttmlLyric: TTMLLyric): string {
 				const bgLineSpan = doc.createElement("span");
 				bgLineSpan.setAttribute("ttm:role", "x-bg");
 
-				if (bgLine.isLineSynced) {
+				if (shouldExportAsLineSynced(bgLine)) {
 					bgLineSpan.appendChild(
 						doc.createTextNode(
 							`(${bgLine.words.map((word) => word.word).join("")})`,
