@@ -55,6 +55,18 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="red">
+								v0.7.7 Updates (TTML Export Fix)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Word-Timed TTML Export Fix:</strong> Lines containing
+									multiple timed words no longer export as a single line when
+									they retain a stale line-synced flag.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="indigo">
 								v0.7.6 Updates (Discord RPC)
 							</Heading>
