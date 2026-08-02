@@ -60,6 +60,11 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Line Insert Button Fix:</strong> The add button at the
+									right of a lyric line now works correctly while line dragging
+									is enabled.
+								</Text>
+								<Text size="2">
 									<strong>Consistent Release Versioning:</strong> Maintainers
 									can preview and apply patch, minor, or major version bumps
 									with one command, keeping the package, Tauri, Cargo, and
