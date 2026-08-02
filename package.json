@@ -7,6 +7,8 @@
 		"dev": "vite",
 		"build:tsc": "tsc -b && vite build",
 		"build": "vite build",
+		"version:bump": "node scripts/bump-version.mjs",
+		"test:versioning": "node --test scripts/version-utils.test.mjs",
 		"lint": "biome lint",
 		"fmt": "biome format --write ./src",
 		"preview": "vite preview",

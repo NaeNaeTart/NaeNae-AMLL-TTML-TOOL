@@ -56,6 +56,19 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="red">
+								Unreleased
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Consistent Release Versioning:</strong> Maintainers
+									can preview and apply patch, minor, or major version bumps
+									with one command, keeping the package, Tauri, Cargo, and
+									lockfile versions synchronized.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="red">
 								v0.7.7 Updates (TTML Export Fix)
 							</Heading>
 							<Flex direction="column" gap="3">
