@@ -172,12 +172,12 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Cyrillic E Import Preference:</strong> Added an
 									optional workaround that corrects Cyrillic Е/е lookalikes
-									inside otherwise Latin lyric words.
+									inside otherwise Latin text across imported lyric fields.
 								</Text>
 								<Text size="2">
 									<strong>Apostrophe Import Preference:</strong> Added a setting
 									to standardize curly and other apostrophe-like characters when
-									importing lyrics.
+									importing lyric text, metadata, sections, and marks.
 								</Text>
 								<Text size="2">
 									<strong>Genius Import Fix:</strong> Restored the Change API
