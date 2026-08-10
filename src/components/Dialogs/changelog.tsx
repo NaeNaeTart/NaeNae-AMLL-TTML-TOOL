@@ -71,6 +71,12 @@ export function ChangelogDialog() {
 									fields, including metadata, sections, marks, ruby text, and legacy
 									headers, while preserving internal identifiers.
 								</Text>
+								<Text size="2">
+									<strong>Header-Free Timing Tools:</strong> Copy selected line
+									and word timings onto existing lyric lines, or snap any
+									selected timing block to the playhead in Edit and Time modes
+									without Genius headers.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

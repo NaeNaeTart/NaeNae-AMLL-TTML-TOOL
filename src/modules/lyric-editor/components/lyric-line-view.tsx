@@ -71,17 +71,23 @@ import {
 	findPreviousMatchingSection,
 	shiftSectionToTime,
 } from "../utils/genius-sections.ts";
+import {
+	applyLineTimingSnapshots,
+	type ApplyLineTimingsResult,
+} from "../utils/line-timing.ts";
 import { getSynchronizableUnits } from "../utils/lyric-states.ts";
 import {
 	duplicateLinesWithSections,
 	repairSectionIntegrity,
 } from "../utils/section-system.ts";
 import styles from "./index.module.css";
+import { LineTimingMenuItems } from "./line-timing-menu.tsx";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import {
 	globalEnableInsertAtom,
 	lastLineDragEndAtom,
 	lineDragAtom,
+	timingCopyPlacementAtom,
 } from "./lyric-line-view-states.ts";
 import LyricWordView from "./lyric-word-view.tsx";
 import { RomanWordView } from "./roman-word-view.tsx";
@@ -499,6 +505,9 @@ export const LyricLineView: FC<{
 	const [globalEnableInsert, setGlobalEnableInsert] = useAtom(
 		globalEnableInsertAtom,
 	);
+	const [timingCopyPlacement, setTimingCopyPlacement] = useAtom(
+		timingCopyPlacementAtom,
+	);
 	const enableInsert = enableInsertLocal || globalEnableInsert;
 
 	const disableInsert = useCallback(() => {
@@ -661,6 +670,75 @@ export const LyricLineView: FC<{
 					editingRomanWordIndex={editingRomanWordIndex}
 				/>
 			)}
+			{timingCopyPlacement && (
+				<Button
+					mx="2"
+					my="1"
+					variant="soft"
+					size="1"
+					style={{ width: "calc(100% - var(--space-4))" }}
+					onClick={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						let result: ApplyLineTimingsResult | undefined;
+						editLyricLines((state) => {
+							result = applyLineTimingSnapshots(
+								state.lyricLines,
+								lineIndex,
+								timingCopyPlacement.snapshots,
+							);
+						});
+						setTimingCopyPlacement(null);
+
+						if (!result || result.appliedLineCount === 0) return;
+						toast.success(
+							t("lyricLineView.timingsApplied", {
+								count: result.appliedLineCount,
+								defaultValue: "Applied timing to {count} line(s).",
+							}),
+						);
+						const warnings: string[] = [];
+						if (result.partial) {
+							warnings.push(
+								t("lyricLineView.partialTimingCopy", {
+									applied: result.appliedLineCount,
+									total: timingCopyPlacement.snapshots.length,
+									defaultValue:
+										"Only {applied} of {total} source timings fit before the end of the lyrics.",
+								}),
+							);
+						}
+						if (result.wordCountMismatchCount > 0) {
+							warnings.push(
+								t("lyricLineView.wordTimingMismatch", {
+									count: result.wordCountMismatchCount,
+									defaultValue:
+										"{count} line(s) had different word counts; copied matching word positions only.",
+								}),
+							);
+						}
+						if (warnings.length > 0) toast.info(warnings.join(" "));
+					}}
+				>
+					{Math.min(
+						timingCopyPlacement.snapshots.length,
+						store.get(lyricLinesAtom).lyricLines.length - lineIndex,
+					) < timingCopyPlacement.snapshots.length
+						? t("lyricLineView.applyPartialTimingsHere", {
+								applied: Math.min(
+									timingCopyPlacement.snapshots.length,
+									store.get(lyricLinesAtom).lyricLines.length - lineIndex,
+								),
+								total: timingCopyPlacement.snapshots.length,
+								defaultValue:
+									"Apply {applied} of {total} timings starting here",
+							})
+						: t("lyricLineView.applyTimingsHere", {
+								count: timingCopyPlacement.snapshots.length,
+								defaultValue: "Apply {count} timing(s) starting here",
+							})}
+				</Button>
+			)}
 			{enableInsert && (
 				<InsertLineButton
 					lineIndex={lineIndex}
@@ -678,12 +756,7 @@ export const LyricLineView: FC<{
 				}}
 			>
 				<ContextMenu.Trigger
-					disabled={
-						toolMode === ToolMode.Preview ||
-						(toolMode !== ToolMode.Edit &&
-							!sectionActionsEnabled &&
-							!manualCategorizationEnabled)
-					}
+					disabled={toolMode === ToolMode.Preview}
 					onContextMenu={(evt) => {
 						if (
 							(evt.target as HTMLElement | null)?.closest(
@@ -1143,6 +1216,10 @@ export const LyricLineView: FC<{
 					</Flex>
 				</ContextMenu.Trigger>
 				<ContextMenu.Content>
+					<LineTimingMenuItems />
+					{(toolMode === ToolMode.Edit ||
+						sectionActionsEnabled ||
+						manualCategorizationEnabled) && <ContextMenu.Separator />}
 					{manualCategorizationEnabled &&
 						(toolMode === ToolMode.Edit || toolMode === ToolMode.Sync) && (
 							<CategorizeSelectionContextMenuItem />
