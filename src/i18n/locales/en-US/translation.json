@@ -1087,6 +1087,14 @@
     "ignoreCase": "Ignore case",
     "actionButton": "Confirm"
   },
+  "combineWordsDialog": {
+    "title": "Combine Words",
+    "description": "Confirm how the selected words should be combined.",
+    "preview": "Preview",
+    "applyToAll": "Apply this combination to all identical word sequences",
+    "ignoreCase": "Ignore case",
+    "adjacentOnly": "Apply to all is available only for adjacent selected words."
+  },
   "advancedSegmentDialog": {
     "test": {
       "outputError": "Splitting preview error",
