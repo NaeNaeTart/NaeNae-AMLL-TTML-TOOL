@@ -257,7 +257,6 @@ const SubLineEdit = memo(
 		return (
 			<Flex
 				align="baseline"
-				data-lyric-line-interactive=""
 				style={{
 					color:
 						type === "translatedLyric"
@@ -272,6 +271,7 @@ const SubLineEdit = memo(
 					<TextField.Root
 						autoFocus
 						size="1"
+						data-lyric-line-interactive=""
 						value={inputValue}
 						style={{ width: inputWidth }}
 						onChange={(evt) => setInputValue(evt.currentTarget.value)}
@@ -284,6 +284,7 @@ const SubLineEdit = memo(
 					<Button
 						size="2"
 						variant="ghost"
+						data-lyric-line-interactive=""
 						style={{ color: "inherit" }}
 						onClick={(evt) => {
 							evt.stopPropagation();
