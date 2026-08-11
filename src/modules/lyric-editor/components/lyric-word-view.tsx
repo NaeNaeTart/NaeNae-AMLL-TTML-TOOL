@@ -71,7 +71,7 @@ import {
 } from "$/states/main.ts";
 import { type LyricLine, type LyricWord, newLyricWord } from "$/types/ttml.ts";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
-import { RubyEditor } from "../tools/RubyEditor.tsx";
+import { AutoSizeTextField, RubyEditor } from "../tools/RubyEditor.tsx";
 import {
 	buildRubySelectionId,
 	getSynchronizableUnits,
@@ -681,6 +681,7 @@ const LyricWorldViewEdit = ({
 	const setOpenSplitWordDialog = useSetAtom(splitWordDialogAtom);
 	const setSplitState = useSetAtom(editingWordStateAtom);
 	const [editing, setEditing] = useState(false);
+	const [editingValue, setEditingValue] = useState(word.word);
 	const store = useStore();
 	const toolMode = useAtomValue(toolModeAtom);
 	const isWordBlank = useWordBlank(word.word);
@@ -692,6 +693,10 @@ const LyricWorldViewEdit = ({
 		() => word.startTime > word.endTime,
 		[word.startTime, word.endTime],
 	);
+
+	useEffect(() => {
+		if (editing) setEditingValue(word.word);
+	}, [editing, word.word]);
 
 	const className = useMemo(
 		() =>
@@ -728,9 +733,11 @@ const LyricWorldViewEdit = ({
 	return editing ? (
 		<div className={className}>
 			<span className={styles.wordEditRow}>
-				<TextField.Root
+				<AutoSizeTextField
 					autoFocus
-					defaultValue={word.word}
+					value={editingValue}
+					style={{ minWidth: "2ch" }}
+					onChange={(evt) => setEditingValue(evt.currentTarget.value)}
 					onBlur={onEnter}
 					onKeyDown={(evt) => {
 						if (evt.key === "Enter") onEnter(evt);
