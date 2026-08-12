@@ -576,6 +576,7 @@
     "noSyllablesFound": "No multiple syllables found.",
     "splitIntoSyllables": "Split into Syllables (Romanized)",
     "replaceWord": "Replace word…",
+    "replaceRomanization": "Replace romanization…",
     "combineWords": "Combine words",
     "moveFollowingWordToNewLine": "Move followings to new line",
     "moveWordToNewLine": "Move {count} word(s) to new line"
@@ -853,6 +854,13 @@
     "placeholder": "New word",
     "applyToAll": "Apply this replacing to all identical words",
     "caseSensitive": "Match case (Exact match)"
+  },
+  "replaceRomanizationDialog": {
+    "title": "Replace Romanization",
+    "description": "New romanization:",
+    "placeholder": "New romanization",
+    "applyToAll": "Apply to all identical words",
+    "caseSensitive": "Match case (exact match)"
   },
   "timeShiftDialog": {
     "title": "Time Shift",

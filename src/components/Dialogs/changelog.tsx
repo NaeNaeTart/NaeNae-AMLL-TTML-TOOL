@@ -66,6 +66,12 @@ export function ChangelogDialog() {
 									ignore case and surrounding punctuation.
 								</Text>
 								<Text size="2">
+									<strong>Replace Romanization:</strong> Edit one word's
+									romanization or apply the replacement to every matching lyric
+									word with optional case-sensitive matching. Both replacement
+									tools remember their last-used matching options.
+								</Text>
+								<Text size="2">
 									<strong>Global Text Normalization:</strong> The apostrophe and
 									Cyrillic E options now clean all user-visible fields during
 									import and every export, including metadata, sections, marks,

@@ -4,6 +4,7 @@ import { useSetImmerAtom } from "jotai-immer";
 import { useTranslation } from "react-i18next";
 import {
 	combineWordsDialogAtom,
+	replaceRomanizationDialogAtom,
 	replaceWordDialogAtom,
 	splitWordDialogAtom,
 } from "$/states/dialogs";
@@ -43,6 +44,9 @@ export const LyricWordMenu = ({
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const setOpenSplitWordDialog = useSetAtom(splitWordDialogAtom);
 	const setOpenReplaceWordDialog = useSetAtom(replaceWordDialogAtom);
+	const setReplaceRomanizationDialog = useSetAtom(
+		replaceRomanizationDialogAtom,
+	);
 	const setCombineWordsDialog = useSetAtom(combineWordsDialogAtom);
 	const setEditingWordState = useSetAtom(editingWordStateAtom);
 	const word = useAtomValue(wordAtom);
@@ -127,6 +131,18 @@ export const LyricWordMenu = ({
 				}}
 			>
 				{t("contextMenu.replaceWord", "替换单词…")}
+			</ContextMenu.Item>
+			<ContextMenu.Item
+				disabled={selectedWordsSize !== 1}
+				onSelect={() => {
+					setReplaceRomanizationDialog({
+						open: true,
+						lineIndex,
+						wordIndex,
+					});
+				}}
+			>
+				{t("contextMenu.replaceRomanization", "Replace Romanization…")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={!(selectedWordsSize > 1 && selectedLinesSize === 1)}
