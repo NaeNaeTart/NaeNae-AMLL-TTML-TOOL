@@ -62,7 +62,10 @@ import {
 import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { type LyricLine, type LyricWord, newLyricLine } from "$/types/ttml";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
-import { getPhoneticSyllables } from "$/utils/phonetic";
+import {
+	buildLineRomanization,
+	getPhoneticSyllables,
+} from "$/utils/phonetic";
 import { RibbonFrame, RibbonSection } from "./common";
 
 const GrammarCheckButton = () => {
@@ -789,7 +792,10 @@ const PhoneticSection = () => {
 					if (line.words.length > 0) {
 						// Distribute using capsule-aware mapping
 						const syllables = await getPhoneticSyllables(capsuleTexts, lang);
-						lineUpdates[line.id] = syllables.join("");
+						lineUpdates[line.id] = buildLineRomanization(
+							capsuleTexts,
+							syllables,
+						);
 						for (let i = 0; i < line.words.length; i++) {
 							wordUpdates[line.words[i].id] = syllables[i] ?? "";
 						}

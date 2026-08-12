@@ -45,6 +45,15 @@ const normalizePhoneticForMatching = (text: string) =>
 export const formatPhoneticForDisplay = (text: string) =>
 	text.toLocaleLowerCase().replace(/\s+/g, "");
 
+export const buildLineRomanization = (
+	capsules: string[],
+	romanizations: string[],
+) =>
+	capsules
+		.map((capsule, index) => romanizations[index] || capsule)
+		.join("")
+		.toLocaleLowerCase();
+
 const hasSourceScript = (text: string, language: PhoneticLanguage) => {
 	switch (language) {
 		case "ja":
@@ -91,6 +100,31 @@ const mapContextualChinesePhonetic = (
 			.join(" ");
 		syllableIndex += count;
 		return formatPhoneticForDisplay(result);
+	});
+};
+
+const mapMandarinCapsules = (capsules: string[]) => {
+	const hanText = capsules
+		.flatMap((capsule) => capsule.match(/\p{Script=Han}/gu) ?? [])
+		.join("");
+	if (!hanText) return capsules.map(() => "");
+
+	const readings = getPinyin(hanText, {
+		toneType: "symbol",
+		type: "array",
+		traditional: true,
+	});
+	let readingIndex = 0;
+	return capsules.map((capsule) => {
+		if (!/\p{Script=Han}/u.test(capsule)) return "";
+		return Array.from(capsule)
+			.map((character) =>
+				/\p{Script=Han}/u.test(character)
+					? (readings[readingIndex++] ?? "")
+					: character,
+			)
+			.join("")
+			.toLocaleLowerCase();
 	});
 };
 
@@ -205,11 +239,12 @@ export async function getPhoneticSyllables(
 	if (lang === "auto") {
 		detectedLang = detectLanguage(fullLineText);
 	}
+	if (detectedLang === "zh") return mapMandarinCapsules(originalCapsules);
 
 	// Prefer full-line context for Chinese because individual Han characters can be
 	// polyphonic. Google returns one whitespace-separated reading per character.
 	const rawLinePhoneticPromise = getPhonetic(fullLineText, detectedLang, true);
-	if (detectedLang === "zh" || detectedLang === "yue") {
+	if (detectedLang === "yue") {
 		const contextual = mapContextualChinesePhonetic(
 			originalCapsules,
 			await rawLinePhoneticPromise,

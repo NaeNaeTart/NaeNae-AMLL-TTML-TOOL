@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+	buildLineRomanization,
 	formatPhoneticForDisplay,
 	getPhonetic,
 	getPhoneticSyllables,
@@ -67,7 +68,7 @@ describe("phonetic conversion requests", () => {
 		await expect(getPhoneticSyllables(["音乐", "银行"], "zh")).resolves.toEqual(
 			["yīnyuè", "yínháng"],
 		);
-		expect(fetchMock).toHaveBeenCalledTimes(1);
+		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
 	it("formats displayed romanization as lowercase compact text", () => {
@@ -87,6 +88,15 @@ describe("phonetic conversion requests", () => {
 			"",
 			"zhōngguó",
 		]);
-		expect(fetchMock).toHaveBeenCalledTimes(2);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("preserves source spacing and Latin text in line romanization", () => {
+		expect(
+			buildLineRomanization(
+				["I", " ", "told", " ", "you,", " ", "it's", " ", "中", "国"],
+				["", "", "", "", "", "", "", "", "zhōng", "guó"],
+			),
+		).toBe("i told you, it's zhōngguó");
 	});
 });
