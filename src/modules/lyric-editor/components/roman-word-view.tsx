@@ -1,4 +1,4 @@
-import { Button, TextField } from "@radix-ui/themes";
+import { Button } from "@radix-ui/themes";
 import classNames from "classnames";
 import { type Atom, useAtom, useAtomValue, type WritableAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
@@ -11,6 +11,7 @@ import {
 } from "react";
 import { lyricLinesAtom } from "$/states/main";
 import type { LyricWord } from "$/types/ttml";
+import { AutoSizeTextField } from "../tools/RubyEditor.tsx";
 import styles from "./roman-word-view.module.css";
 
 interface RomanWordViewProps {
@@ -90,12 +91,13 @@ export const RomanWordView = ({
 
 	if (isEditing) {
 		return (
-			<TextField.Root
-				ref={inputRef}
+			<AutoSizeTextField
+				inputRef={inputRef}
 				size="1"
 				data-lyric-line-interactive=""
 				data-word-romanization-editor=""
-				className={styles.romanWordView}
+				className={styles.romanWordInput}
+				style={{ minWidth: "2ch" }}
 				value={inputValue}
 				onChange={(e) => setInputValue(e.currentTarget.value)}
 				onBlur={(e) => saveAndStopEditing(e.currentTarget.value)}

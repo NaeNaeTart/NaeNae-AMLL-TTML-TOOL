@@ -1,11 +1,12 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useAtomValue } from "jotai";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { audioPlayingAtom, playbackRateAtom } from "$/modules/audio/states";
 import { discordRichPresenceEnabledAtom } from "$/modules/settings/states";
 import {
 	lyricLinesAtom,
+	projectIdAtom,
 	saveFileNameAtom,
 	selectedLinesAtom,
 	toolModeAtom,
@@ -16,6 +17,7 @@ import {
 	formatDiscordActivity,
 	PRESENCE_META_NAME,
 } from "./presence";
+import { ProjectTimeTracker } from "./project-time";
 
 const isTauri = Boolean(import.meta.env.TAURI_ENV_PLATFORM);
 
@@ -27,6 +29,24 @@ export function DiscordPresence() {
 	const playing = useAtomValue(audioPlayingAtom);
 	const playbackRate = useAtomValue(playbackRateAtom);
 	const enabled = useAtomValue(discordRichPresenceEnabledAtom);
+	const projectId = useAtomValue(projectIdAtom);
+	const trackerRef = useRef<ProjectTimeTracker | null>(null);
+	if (!trackerRef.current) {
+		trackerRef.current = new ProjectTimeTracker(window.localStorage);
+	}
+	const tracker = trackerRef.current;
+
+	useEffect(() => {
+		tracker.switchProject(projectId);
+		const flush = () => tracker.flush();
+		const timer = window.setInterval(flush, 10_000);
+		window.addEventListener("pagehide", flush);
+		return () => {
+			window.clearInterval(timer);
+			window.removeEventListener("pagehide", flush);
+			flush();
+		};
+	}, [projectId, tracker]);
 
 	const publish = useCallback(() => {
 		const snapshot = createPresenceSnapshot({
@@ -38,6 +58,7 @@ export function DiscordPresence() {
 			positionSeconds: audioEngine.musicCurrentTime,
 			durationSeconds: audioEngine.musicDuration,
 			playbackRate,
+			projectElapsedSeconds: tracker.getElapsedSeconds(projectId),
 		});
 
 		let meta = document.head.querySelector<HTMLMetaElement>(
@@ -55,7 +76,17 @@ export function DiscordPresence() {
 				payload: formatDiscordActivity(snapshot),
 			}).catch((error) => log("Unable to update Discord presence", error));
 		}
-	}, [enabled, fileName, lyrics, mode, playbackRate, playing, selectedLineIds]);
+	}, [
+		enabled,
+		fileName,
+		lyrics,
+		mode,
+		playbackRate,
+		playing,
+		projectId,
+		selectedLineIds,
+		tracker,
+	]);
 
 	useEffect(() => {
 		publish();

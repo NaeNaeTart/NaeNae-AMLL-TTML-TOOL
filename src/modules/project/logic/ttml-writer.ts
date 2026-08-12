@@ -16,6 +16,10 @@
  */
 
 import type { LyricLine, LyricWord, TTMLLyric } from "../../../types/ttml.ts";
+import {
+	type LyricTextNormalizationOptions,
+	normalizeLyricText,
+} from "../../../utils/apostrophe-normalization.ts";
 import { log } from "../../../utils/logging.ts";
 import { msToTimestamp } from "../../../utils/timestamp.ts";
 
@@ -25,7 +29,11 @@ export function shouldExportAsLineSynced(line: LyricLine): boolean {
 	return line.words.filter((word) => word.word.trim().length > 0).length <= 1;
 }
 
-export default function exportTTMLText(ttmlLyric: TTMLLyric): string {
+export default function exportTTMLText(
+	ttmlLyric: TTMLLyric,
+	normalization?: LyricTextNormalizationOptions,
+): string {
+	if (normalization) ttmlLyric = normalizeLyricText(ttmlLyric, normalization);
 	const params: LyricLine[][] = [];
 	const lyric = ttmlLyric.lyricLines;
 

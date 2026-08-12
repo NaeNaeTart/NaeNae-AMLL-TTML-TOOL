@@ -26,8 +26,6 @@ export const ReplaceWordDialog = memo(() => {
 	useEffect(() => {
 		if (isOpen) {
 			setReplacementText(editingState.word);
-			setApplyToAll(false);
-			setCaseSensitive(true);
 		}
 	}, [isOpen, editingState.word]);
 
@@ -121,7 +119,8 @@ export const ReplaceWordDialog = memo(() => {
 				</Flex>
 
 				<Flex gap="3" mt="4" justify="end">
-					<Dialog.Close><Button variant="soft" color="gray">
+					<Dialog.Close>
+						<Button variant="soft" color="gray">
 							{t("common.cancel", "取消")}
 						</Button>
 					</Dialog.Close>

@@ -24,6 +24,7 @@ const hyphenationLanguages = [
 	["it", "Italian", false],
 	["pt", "Portuguese", false],
 	["ru", "Russian", true],
+	["pl", "Polish", false],
 ] as const;
 
 export const getHyphenationLanguage = (engine: SegmentationEngineId) =>

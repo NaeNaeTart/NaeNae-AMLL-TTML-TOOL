@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { newLyricWord } from "$/types/ttml";
 import type { SegmentationConfig } from "../types";
+import { loadHyphenator } from "./hyphen-loader";
 import { segmentWord } from "./segmentation";
 import {
 	getSyllabificationEngine,
@@ -61,5 +62,14 @@ describe("syllabification engines", () => {
 	] as const)("preserves text with the %s engine", (engine, word) => {
 		const parts = getSyllabificationEngine(engine).split(word);
 		expect(parts.join("")).toBe(word);
+	});
+
+	it("loads Polish hyphenation patterns", async () => {
+		const hyphenate = await loadHyphenator("pl");
+		expect(hyphenate?.("przepraszam").split("\u00ad")).toEqual([
+			"prze",
+			"pra",
+			"szam",
+		]);
 	});
 });

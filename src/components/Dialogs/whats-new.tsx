@@ -25,10 +25,31 @@ export function WhatsNewDialog() {
 	const features = [
 		{
 			title: "Discord Rich Presence",
-			description: "Optionally share the current file or track, editor mode, line progress, playback status, and live timeline from the desktop app. Website presence now uses a reliable PreMiD bridge.",
+			description: "Optionally share the current file or track, editor mode, line progress, playback status, and live timeline from the desktop app. Per-project elapsed time persists across app restarts, while website presence uses a reliable PreMiD bridge.",
 			icon: <MusicNote1Regular />,
 			color: "indigo",
 			info: "Enable Discord Rich Presence under Settings > General > Privacy in the Tauri desktop app. It stays disabled by default and requires the Discord desktop client."
+		},
+		{
+			title: "Combine Words Across Lyrics",
+			description: "Preview a word combination, apply it to matching sequences throughout the lyrics, and optionally ignore case and surrounding punctuation.",
+			icon: <CheckmarkCircleRegular />,
+			color: "grass",
+			info: "Select adjacent words and open Combine Words. Review the preview, then combine only that occurrence or every matching sequence in the project."
+		},
+		{
+			title: "Header-Free Timing Tools",
+			description: "Copy line and word timings onto existing lyrics or snap any selected timing block to the playhead without relying on imported Genius headers.",
+			icon: <TimerRegular />,
+			color: "violet",
+			info: "Select the source and target lines in Edit or Time mode to copy timings, or select a timed block and snap its first timestamp to the current playhead."
+		},
+		{
+			title: "Remembered Desktop Window",
+			description: "Restore the previous window size, maximized state, and fullscreen state when reopening the desktop app.",
+			icon: <SettingsRegular />,
+			color: "blue",
+			info: "Window state is restored automatically on Windows, macOS, and Linux. Position, visibility, and decorations are intentionally not persisted."
 		},
 		{
 			title: "Inline Time-Tab Editing",
@@ -46,7 +67,7 @@ export function WhatsNewDialog() {
 		},
 		{
 			title: "Smarter Lyrics Splitting",
-			description: "Choose dedicated syllabification engines for English, Spanish, French, Russian, Japanese, and CJK lyrics, with legacy fallbacks still available.",
+			description: "Choose dedicated syllabification engines for English, Polish, Spanish, French, German, Indonesian, Italian, Portuguese, Russian, Japanese, and CJK lyrics, with legacy fallbacks still available.",
 			icon: <MusicNote1Regular />,
 			color: "cyan",
 			info: "Open Auto Segment to get a language-based engine suggestion before applying it to all lyric lines. Advanced Segmentation exposes the same alphabetized engine list."
@@ -150,11 +171,11 @@ export function WhatsNewDialog() {
 			info: "Filters out strings like [Chorus] or [Verse] and removes whitespace automatically when importing lyrics."
 		},
 		{
-			title: "Advanced Phonetics",
-			description: "Professional Mora-aware Japanese Romanization and capsule distribution system.",
+			title: "Automatic Multilingual Phonetics",
+			description: "Generate contextual Japanese, Mandarin, and Korean romanization, including per-word readings and mixed-language line mapping.",
 			icon: <TranslateRegular />,
 			color: "cyan",
-			info: "Select Japanese lyrics and use the 'Phonetics' tool in the Ribbon Bar to generate Furigana or Romaji."
+			info: "Select lyric lines or words and use Romanization in the Edit ribbon. Mandarin readings keep tone marks and map contextual readings onto individual Han characters."
 		},
 		{
 			title: "Pre-Export Validator",

@@ -9,6 +9,15 @@ export const ttmlChecklistDialogAtom = atom(false);
 export const submitToAMLLDBDialogAtom = atom(false);
 export const splitWordDialogAtom = atom(false);
 export const replaceWordDialogAtom = atom(false);
+export const replaceRomanizationDialogAtom = atom({
+	open: false,
+	lineIndex: -1,
+	wordIndex: -1,
+});
+export const combineWordsDialogAtom = atom<{
+	open: boolean;
+	lineIndex: number;
+}>({ open: false, lineIndex: -1 });
 export const advancedSegmentationDialogAtom = atom(false);
 export const autoSegmentDialogAtom = atom(false);
 export const learnedSplitsDialogAtom = atom(false);

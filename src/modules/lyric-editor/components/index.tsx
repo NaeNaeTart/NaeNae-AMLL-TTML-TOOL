@@ -53,6 +53,7 @@ import {
 	draggingIdAtom,
 	lastLineDragEndAtom,
 	lineDragAtom,
+	timingCopyPlacementAtom,
 } from "./lyric-line-view-states";
 import {
 	CategorizeSelectionDialog,
@@ -95,6 +96,12 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const toolMode = useAtomValue(toolModeAtom);
 	const { t } = useTranslation();
+
+	useEffect(() => {
+		if (toolMode === ToolMode.Preview) {
+			store.set(timingCopyPlacementAtom, null);
+		}
+	}, [store, toolMode]);
 
 	useEffect(() => {
 		const viewEl = viewElRef.current;

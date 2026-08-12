@@ -225,6 +225,11 @@ export const normalizeCyrillicEsOnImportAtom = atomWithStorage<boolean>(
 	false,
 );
 
+export const lyricTextNormalizationOptionsAtom = atom((get) => ({
+	normalizeApostrophes: get(normalizeApostrophesOnImportAtom),
+	normalizeCyrillicEs: get(normalizeCyrillicEsOnImportAtom),
+}));
+
 export enum Mp3ConversionMode {
 	Never = "never",
 	Always = "always",

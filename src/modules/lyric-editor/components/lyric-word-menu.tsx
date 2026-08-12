@@ -2,7 +2,12 @@ import { ContextMenu } from "@radix-ui/themes";
 import { type Atom, atom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { useTranslation } from "react-i18next";
-import { replaceWordDialogAtom, splitWordDialogAtom } from "$/states/dialogs";
+import {
+	combineWordsDialogAtom,
+	replaceRomanizationDialogAtom,
+	replaceWordDialogAtom,
+	splitWordDialogAtom,
+} from "$/states/dialogs";
 import {
 	editingWordStateAtom,
 	lyricLinesAtom,
@@ -39,6 +44,10 @@ export const LyricWordMenu = ({
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const setOpenSplitWordDialog = useSetAtom(splitWordDialogAtom);
 	const setOpenReplaceWordDialog = useSetAtom(replaceWordDialogAtom);
+	const setReplaceRomanizationDialog = useSetAtom(
+		replaceRomanizationDialogAtom,
+	);
+	const setCombineWordsDialog = useSetAtom(combineWordsDialogAtom);
 	const setEditingWordState = useSetAtom(editingWordStateAtom);
 	const word = useAtomValue(wordAtom);
 
@@ -124,43 +133,21 @@ export const LyricWordMenu = ({
 				{t("contextMenu.replaceWord", "替换单词…")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
+				disabled={selectedWordsSize !== 1}
+				onSelect={() => {
+					setReplaceRomanizationDialog({
+						open: true,
+						lineIndex,
+						wordIndex,
+					});
+				}}
+			>
+				{t("contextMenu.replaceRomanization", "Replace Romanization…")}
+			</ContextMenu.Item>
+			<ContextMenu.Item
 				disabled={!(selectedWordsSize > 1 && selectedLinesSize === 1)}
 				onSelect={() => {
-					editLyricLines((state) => {
-						const selectedWords = store.get(selectedWordsAtom);
-						const line = state.lyricLines[lineIndex];
-						if (line) {
-							const selectedWordsInLine = line.words.filter((w) =>
-								selectedWords.has(w.id),
-							);
-
-							if (selectedWordsInLine.length > 1) {
-								const mergedWord = selectedWordsInLine
-									.map((w) => w.word)
-									.join("");
-								const firstWord = selectedWordsInLine[0];
-								const lastWord =
-									selectedWordsInLine[selectedWordsInLine.length - 1];
-								const firstIndex = line.words.indexOf(firstWord);
-
-								const newWord = newLyricWord();
-								newWord.word = mergedWord;
-								newWord.startTime = firstWord.startTime;
-								newWord.endTime = lastWord.endTime;
-
-								state.lyricLines[lineIndex].words = line.words.filter(
-									(w) => !selectedWords.has(w.id),
-								);
-								if (firstIndex !== -1) {
-									state.lyricLines[lineIndex].words.splice(
-										firstIndex,
-										0,
-										newWord,
-									);
-								}
-							}
-						}
-					});
+					setCombineWordsDialog({ open: true, lineIndex });
 				}}
 			>
 				{t("contextMenu.combineWords", "合并单词")}

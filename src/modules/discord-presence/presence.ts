@@ -18,6 +18,7 @@ export interface PresenceSnapshot {
 	positionSeconds: number;
 	durationSeconds: number;
 	playbackRate: number;
+	projectElapsedSeconds?: number;
 }
 
 export interface DiscordActivityPayload {
@@ -43,6 +44,7 @@ export function createPresenceSnapshot({
 	positionSeconds,
 	durationSeconds,
 	playbackRate,
+	projectElapsedSeconds,
 }: {
 	lyrics: TTMLLyric;
 	fileName: string;
@@ -52,6 +54,7 @@ export function createPresenceSnapshot({
 	positionSeconds: number;
 	durationSeconds: number;
 	playbackRate: number;
+	projectElapsedSeconds?: number;
 }): PresenceSnapshot {
 	const primaryLines = lyrics.lyricLines.filter((line) => !line.isBG);
 	let currentIndex = -1;
@@ -80,6 +83,7 @@ export function createPresenceSnapshot({
 		positionSeconds: Math.max(0, positionSeconds),
 		durationSeconds: Math.max(0, durationSeconds),
 		playbackRate: Math.max(0.01, playbackRate),
+		projectElapsedSeconds: Math.max(0, projectElapsedSeconds ?? 0),
 	};
 }
 
@@ -124,6 +128,10 @@ export function formatDiscordActivity(
 			snapshot.playbackRate;
 		payload.startTimestamp = Math.floor(nowSeconds - elapsed);
 		payload.endTimestamp = Math.ceil(nowSeconds + remaining);
+	} else if ((snapshot.projectElapsedSeconds ?? 0) > 0) {
+		payload.startTimestamp = Math.floor(
+			nowSeconds - (snapshot.projectElapsedSeconds ?? 0),
+		);
 	}
 
 	return payload;

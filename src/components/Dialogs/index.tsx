@@ -4,6 +4,8 @@ import { GeniusSearchDialog } from "$/modules/genius/modals/GeniusSearchDialog.t
 import { ImportFromLRCLIB } from "$/modules/lrclib/modals/ImportDialog.tsx";
 import { GrammarCheckDialog } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { UrbanDictionaryDialog } from "$/modules/lyric-editor/modals/UrbanDictionaryDialog.tsx";
+import { CombineWordsDialog } from "$/modules/lyric-editor/tools/CombineWordsDialog.tsx";
+import { ReplaceRomanizationDialog } from "$/modules/lyric-editor/tools/ReplaceRomanizationDialog.tsx";
 import { ReplaceWordDialog } from "$/modules/lyric-editor/tools/ReplaceWordDialog.tsx";
 import { TimeShiftDialog } from "$/modules/lyric-editor/tools/TimeShift.tsx";
 import { TimeStretchDialog } from "$/modules/lyric-editor/tools/TimeStretch.tsx";
@@ -38,7 +40,9 @@ export const Dialogs = () => {
 			<MetadataEditor />
 			<SettingsDialog />
 			<SplitWordDialog />
+			<CombineWordsDialog />
 			<ReplaceWordDialog />
+			<ReplaceRomanizationDialog />
 			<SubmitToAMLLDBDialog />
 			<LatencyTestDialog />
 			<TTMLChecklistDialog />

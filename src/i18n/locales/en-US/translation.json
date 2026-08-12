@@ -563,6 +563,9 @@
     "bgLyric": "Background line",
     "duetLyric": "Duet line",
     "moveLineToPlayhead": "Move line to playhead",
+    "copyTimingsTo": "Copy timings to…",
+    "cancelCopyTimings": "Cancel timing copy",
+    "snapSelectedLinesToPlayhead": "Snap selected lines to playhead",
     "insertLineBefore": "Insert new line before",
     "insertLineAfter": "Insert new line after",
     "copyLine": "Duplicate {count} line(s)",
@@ -573,6 +576,7 @@
     "noSyllablesFound": "No multiple syllables found.",
     "splitIntoSyllables": "Split into Syllables (Romanized)",
     "replaceWord": "Replace word…",
+    "replaceRomanization": "Replace romanization…",
     "combineWords": "Combine words",
     "moveFollowingWordToNewLine": "Move followings to new line",
     "moveWordToNewLine": "Move {count} word(s) to new line"
@@ -767,6 +771,11 @@
     "romanLabel": "Romanization:",
     "empty": "None",
     "duplicateLinesHere": "Duplicate {count} selected line(s) here",
+    "applyTimingsHere": "Apply {count} timing(s) starting here",
+    "applyPartialTimingsHere": "Apply {applied} of {total} timings starting here",
+    "timingsApplied": "Applied timing to {count} line(s).",
+    "partialTimingCopy": "Only {applied} of {total} source timings fit before the end of the lyrics.",
+    "wordTimingMismatch": "{count} line(s) had different word counts; copied matching word positions only.",
     "insertLine": "Insert new line here",
     "insertWord": "Insert word here…"
   },
@@ -845,6 +854,13 @@
     "placeholder": "New word",
     "applyToAll": "Apply this replacing to all identical words",
     "caseSensitive": "Match case (Exact match)"
+  },
+  "replaceRomanizationDialog": {
+    "title": "Replace Romanization",
+    "description": "New romanization:",
+    "placeholder": "New romanization",
+    "applyToAll": "Apply to all identical words",
+    "caseSensitive": "Match case (exact match)"
   },
   "timeShiftDialog": {
     "title": "Time Shift",
@@ -1086,6 +1102,14 @@
     "remember": "Remember this split",
     "ignoreCase": "Ignore case",
     "actionButton": "Confirm"
+  },
+  "combineWordsDialog": {
+    "title": "Combine Words",
+    "description": "Confirm how the selected words should be combined.",
+    "preview": "Preview",
+    "applyToAll": "Apply this combination to all identical word sequences",
+    "ignoreCase": "Ignore case",
+    "adjacentOnly": "Apply to all is available only for adjacent selected words."
   },
   "advancedSegmentDialog": {
     "test": {
