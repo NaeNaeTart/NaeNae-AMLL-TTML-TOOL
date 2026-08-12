@@ -26,7 +26,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { platform, version } from "@tauri-apps/plugin-os";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAtomValue, useSetAtom, useStore } from "jotai";
+import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { lazy } from "$/utils/lazy.ts";
 import { ErrorBoundary } from "react-error-boundary";
@@ -39,6 +39,7 @@ import {
 	accentColorAtom,
 	backgroundModeAtom,
 	boykisserModeAtom,
+	boykisserUnlockedAtom,
 	customAccentColorAtom,
 	customGradientAngleAtom,
 	customGradientCenterAtom,
@@ -320,6 +321,52 @@ function App() {
 	const vRibbonPosition = useAtomValue(vRibbonPositionAtom);
 
 	const boykisserMode = useAtomValue(boykisserModeAtom);
+	const [boykisserUnlocked, setBoykisserUnlocked] = useAtom(boykisserUnlockedAtom);
+	const [typedSequence, setTypedSequence] = useState("");
+
+	useEffect(() => {
+		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		const isApp = isTauri || isPwa;
+		
+		if (!isApp) return;
+
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Don't trigger if typing in text inputs or textareas
+			const activeElement = document.activeElement;
+			if (
+				activeElement &&
+				(activeElement.tagName === "INPUT" ||
+					activeElement.tagName === "TEXTAREA" ||
+					activeElement.getAttribute("contenteditable") === "true")
+			) {
+				return;
+			}
+
+			if (e.key.length === 1) {
+				setTypedSequence((prev) => {
+					const next = (prev + e.key.toLowerCase()).slice(-9);
+					if (next === "boykisser") {
+						setBoykisserUnlocked(true);
+					}
+					return next;
+				});
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [setBoykisserUnlocked]);
+
+	const isApp = useMemo(() => {
+		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		return isTauri || isPwa;
+	}, []);
+
+	const isUnlocked = !isApp || boykisserUnlocked;
+
 	const [isRaining, setIsRaining] = useState(false);
 
 	const startRain = useCallback(() => {
@@ -843,7 +890,7 @@ function App() {
 						<Dialogs />
 					</Suspense>
 					<ToastContainer theme={effectiveTheme} />
-					{boykisserMode && (
+					{boykisserMode && isUnlocked && !window.location.href.includes("spicylyrics.org") && (
 						<img
 							src="https://images.weserv.nl/?url=https://files.catbox.moe/5n0ofa.gif&n=-1"
 							alt=""
