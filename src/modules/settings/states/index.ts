@@ -251,6 +251,8 @@ export const boykisserModeAtom = atomWithStorage<boolean>(
 	false,
 );
 
+export const boykisserUnlockedAtom = atom<boolean>(false);
+
 export const glassmorphismBlurAtom = atomWithStorage<number>(
 	"glassmorphismBlur",
 	24,
