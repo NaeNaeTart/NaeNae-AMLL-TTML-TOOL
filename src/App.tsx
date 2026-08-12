@@ -843,7 +843,7 @@ function App() {
 						<Dialogs />
 					</Suspense>
 					<ToastContainer theme={effectiveTheme} />
-					{boykisserMode && (
+					{boykisserMode && !window.location.href.includes("spicylyrics.org") && (
 						<img
 							src="https://images.weserv.nl/?url=https://files.catbox.moe/5n0ofa.gif&n=-1"
 							alt=""

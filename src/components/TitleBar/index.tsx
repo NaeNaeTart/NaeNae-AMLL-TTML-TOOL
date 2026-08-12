@@ -66,23 +66,25 @@ export const TitleBar: FC = () => {
 			endChildren={
 				!import.meta.env.TAURI_ENV_PLATFORM && (
 					<Flex align="center" gap="2" mr="2">
-						<button
-							type="button"
-							style={{
-								width: "6px",
-								height: "6px",
-								borderRadius: "50%",
-								background: "var(--accent-9)",
-								border: "none",
-								cursor: "pointer",
-								opacity: 0.2,
-								transition: "opacity 0.2s",
-								outline: "none",
-								marginRight: "4px",
-							}}
-							onClick={() => setBoykisserMode(!boykisserMode)}
-							title={t("topBar.boykisser", "boykisser")}
-						/>
+						{!window.location.href.includes("spicylyrics.org") && (
+							<button
+								type="button"
+								style={{
+									width: "6px",
+									height: "6px",
+									borderRadius: "50%",
+									background: "var(--accent-9)",
+									border: "none",
+									cursor: "pointer",
+									opacity: 0.2,
+									transition: "opacity 0.2s",
+									outline: "none",
+									marginRight: "4px",
+								}}
+								onClick={() => setBoykisserMode(!boykisserMode)}
+								title={t("topBar.boykisser", "boykisser")}
+							/>
+						)}
 						<IconButton
 							variant="ghost"
 							color="gray"
