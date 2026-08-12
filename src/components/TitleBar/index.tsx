@@ -77,6 +77,7 @@ export const TitleBar: FC = () => {
 							<button
 								type="button"
 								style={{
+									display: "none",
 									width: "6px",
 									height: "6px",
 									borderRadius: "50%",
