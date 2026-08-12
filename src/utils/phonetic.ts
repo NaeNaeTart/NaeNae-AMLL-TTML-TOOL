@@ -29,6 +29,52 @@ const withGoogleRequestSlot = async <T>(request: () => Promise<T>) => {
 	}
 };
 
+const normalizePhoneticForMatching = (text: string) =>
+	text
+		.toLowerCase()
+		.replace(/ā/g, "aa")
+		.replace(/ī/g, "ii")
+		.replace(/ū/g, "uu")
+		.replace(/ē/g, "ee")
+		.replace(/ō/g, "ou")
+		.normalize("NFD")
+		.replace(/\p{M}/gu, "")
+		.replace(/\s+/g, "")
+		.replace(/[^a-z]/g, "");
+
+const normalizeCapsulePhonetic = (text: string, language: PhoneticLanguage) => {
+	const normalized = text.trim().replace(/\s+/g, " ");
+	return language === "zh" || language === "yue"
+		? normalized
+		: normalizePhoneticForMatching(normalized);
+};
+
+const mapContextualChinesePhonetic = (
+	capsules: string[],
+	linePhonetic: string,
+) => {
+	const syllables = linePhonetic.trim().split(/\s+/).filter(Boolean);
+	const hanCounts = capsules.map(
+		(capsule) => capsule.match(/\p{Script=Han}/gu)?.length ?? 0,
+	);
+	if (
+		syllables.length === 0 ||
+		hanCounts.reduce((sum, count) => sum + count, 0) !== syllables.length
+	) {
+		return undefined;
+	}
+
+	let syllableIndex = 0;
+	return hanCounts.map((count) => {
+		if (count === 0) return "";
+		const result = syllables
+			.slice(syllableIndex, syllableIndex + count)
+			.join(" ");
+		syllableIndex += count;
+		return result;
+	});
+};
+
 export async function getPhonetic(
 	text: string,
 	lang: PhoneticLanguage = "auto",
@@ -136,25 +182,31 @@ export async function getPhoneticSyllables(
 		detectedLang = detectLanguage(fullLineText);
 	}
 
-	// Start full-line and per-capsule conversion together. Cache coalesces duplicates.
+	// Prefer full-line context for Chinese because individual Han characters can be
+	// polyphonic. Google returns one whitespace-separated reading per character.
 	const rawLinePhoneticPromise = getPhonetic(fullLineText, detectedLang);
+	if (detectedLang === "zh" || detectedLang === "yue") {
+		const contextual = mapContextualChinesePhonetic(
+			originalCapsules,
+			await rawLinePhoneticPromise,
+		);
+		if (contextual) return contextual;
+	}
+
+	// Other languages, and unusual Chinese responses without a one-to-one
+	// character mapping, use capsule requests while retaining the line fallback.
 	const capResultsPromise = Promise.all(
 		originalCapsules.map(async (cap) => {
 			const capText = cap.trim().replace(/\s+/g, "");
 			if (capText.length === 0) return { phonetic: "", weight: 0 };
 
 			const rawCapPhonetic = await getPhonetic(capText, detectedLang);
-			const capPhonetic = rawCapPhonetic
-				.toLowerCase()
-				.replace(/\s+/g, "")
-				.replace(/ā/g, "aa")
-				.replace(/ī/g, "ii")
-				.replace(/ū/g, "uu")
-				.replace(/ē/g, "ee")
-				.replace(/ō/g, "ou")
-				.replace(/[^a-z]/g, "");
+			const capPhonetic = normalizeCapsulePhonetic(
+				rawCapPhonetic,
+				detectedLang,
+			);
 
-			const capSyllables = capPhonetic
+			const capSyllables = normalizePhoneticForMatching(capPhonetic)
 				.replace(/([aeiouy])([aeiouy])/gi, "$1 $2")
 				.match(/([^aeiouy ]*[aeiouy]{1}([nm](?![aeiouy]))?|[^aeiouy ]+)/gi) || [
 				"a",
@@ -165,15 +217,7 @@ export async function getPhoneticSyllables(
 
 	// Get ROOT transliteration for FULL line (captures compound readings like 'Jujutsu').
 	const rawLinePhonetic = await rawLinePhoneticPromise;
-	const normalizedLinePhonetic = rawLinePhonetic
-		.toLowerCase()
-		.replace(/\s+/g, "")
-		.replace(/ā/g, "aa")
-		.replace(/ī/g, "ii")
-		.replace(/ū/g, "uu")
-		.replace(/ē/g, "ee")
-		.replace(/ō/g, "ou")
-		.replace(/[^a-z]/g, "");
+	const normalizedLinePhonetic = normalizePhoneticForMatching(rawLinePhonetic);
 
 	// 2. Split master into mora (syllables) — used as fallback for ambiguous chars
 	const masterSyllables = normalizedLinePhonetic

@@ -96,7 +96,8 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Faster Romanization:</strong> Line and capsule
 									conversion now runs concurrently with bounded requests, while
-									temporary fallbacks remain retryable.
+									temporary fallbacks remain retryable and Chinese pinyin keeps
+									its contextual syllables and tone marks.
 								</Text>
 								<Text size="2">
 									<strong>Editor Input Polish:</strong> Word and romanization

@@ -55,4 +55,14 @@ describe("phonetic conversion requests", () => {
 		expect(await getPhonetic("成功快取獨特文字", "yue")).toBe("cached");
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 	});
+
+	it("preserves contextual Chinese pinyin and tone marks", async () => {
+		const fetchMock = vi.fn(async () => googleResponse("yīn yuè yín háng"));
+		vi.stubGlobal("fetch", fetchMock);
+
+		await expect(getPhoneticSyllables(["音乐", "银行"], "zh")).resolves.toEqual(
+			["yīn yuè", "yín háng"],
+		);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
 });
