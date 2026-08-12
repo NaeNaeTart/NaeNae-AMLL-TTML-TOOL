@@ -19,6 +19,7 @@ export const SUPPORTED_LANGUAGES = [
 	{ label: "Italiano (Italian)", value: "it" },
 	{ label: "Português (Portuguese)", value: "pt" },
 	{ label: "Pусский (Russian)", value: "ru" },
+	{ label: "Polski (Polish)", value: "pl" },
 ];
 
 /**
@@ -67,6 +68,9 @@ export async function loadHyphenator(
 				break;
 			case "ru":
 				module = await import("hyphen/ru");
+				break;
+			case "pl":
+				module = await import("hyphen/pl");
 				break;
 			default:
 				throw new Error(`不支持的语言: ${lang}`);
