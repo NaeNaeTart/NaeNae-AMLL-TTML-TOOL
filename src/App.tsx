@@ -85,6 +85,7 @@ import {
 	appLayoutOrderAtom,
 	vRibbonPositionAtom,
 	aiSidebarEnabledAtom,
+	lyricTextNormalizationOptionsAtom,
 } from "$/modules/settings/states/index.ts";
 import styles from "./App.module.css";
 import DarkThemeDetector from "./components/DarkThemeDetector";
@@ -151,7 +152,7 @@ const AppErrorPage = ({
 					<Button
 						onClick={() => {
 							try {
-								const ttmlText = exportTTMLText(store.get(lyricLinesAtom));
+								const ttmlText = exportTTMLText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom));
 								const b = new Blob([ttmlText], { type: "text/plain" });
 								saveFile(b, "lyric.ttml").catch(logError);
 							} catch (e) {

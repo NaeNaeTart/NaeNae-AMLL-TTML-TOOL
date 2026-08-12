@@ -25,10 +25,25 @@ const normalizeOptionalText = (
 	normalize: (text: string) => string,
 ): string | undefined => (text === undefined ? undefined : normalize(text));
 
-const normalizeImportedLyricText = (
+export interface LyricTextNormalizationOptions {
+	normalizeApostrophes: boolean;
+	normalizeCyrillicEs: boolean;
+}
+
+export const normalizeLyricText = (
 	lyrics: TTMLLyric,
-	normalize: (text: string) => string,
-): TTMLLyric => ({
+	options: LyricTextNormalizationOptions,
+): TTMLLyric => {
+	if (!options.normalizeApostrophes && !options.normalizeCyrillicEs) return lyrics;
+
+	const normalize = (text: string) => {
+		let normalized = text;
+		if (options.normalizeApostrophes) normalized = normalizeApostrophes(normalized);
+		if (options.normalizeCyrillicEs) normalized = normalizeCyrillicEs(normalized);
+		return normalized;
+	};
+
+	return {
 	...lyrics,
 	metadata: lyrics.metadata.map((entry) => ({
 		...entry,
@@ -60,7 +75,8 @@ const normalizeImportedLyricText = (
 			})),
 		})),
 	})),
-});
+	};
+};
 
 /**
  * Returns imported user-visible text with apostrophe-like characters normalized.
@@ -71,7 +87,10 @@ export const normalizeImportedLyricApostrophes = (
 ): TTMLLyric => {
 	if (!enabled) return lyrics;
 
-	return normalizeImportedLyricText(lyrics, normalizeApostrophes);
+	return normalizeLyricText(lyrics, {
+		normalizeApostrophes: enabled,
+		normalizeCyrillicEs: false,
+	});
 };
 
 /**
@@ -83,5 +102,8 @@ export const normalizeImportedLyricCyrillicEs = (
 ): TTMLLyric => {
 	if (!enabled) return lyrics;
 
-	return normalizeImportedLyricText(lyrics, normalizeCyrillicEs);
+	return normalizeLyricText(lyrics, {
+		normalizeApostrophes: false,
+		normalizeCyrillicEs: enabled,
+	});
 };

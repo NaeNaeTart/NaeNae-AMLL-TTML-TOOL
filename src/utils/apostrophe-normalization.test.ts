@@ -5,6 +5,7 @@ import {
 	normalizeCyrillicEs,
 	normalizeImportedLyricApostrophes,
 	normalizeImportedLyricCyrillicEs,
+	normalizeLyricText,
 } from "./apostrophe-normalization";
 
 describe("normalizeApostrophes", () => {
@@ -122,6 +123,16 @@ describe("normalizeImportedLyricApostrophes", () => {
 
 	it("preserves source text when disabled", () => {
 		expect(normalizeImportedLyricApostrophes(lyrics, false)).toBe(lyrics);
+	});
+
+	it("applies both active normalizers in one pass", () => {
+		const normalized = normalizeLyricText(lyrics, {
+			normalizeApostrophes: true,
+			normalizeCyrillicEs: true,
+		});
+
+		expect(normalized.metadata[0].value).toEqual(["Don't skip metadata"]);
+		expect(normalized.lyricLines[0].words[0].word).toBe("It's fine");
 	});
 
 	it("normalizes all lyric text when enabled", () => {
