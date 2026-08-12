@@ -56,20 +56,21 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="red">
-								v0.8.1 Updates
+								v0.9.0 Updates
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Combine Words Bulk Controls:</strong> Preview a word
-									combination before confirming it, apply the same combination to
-									matching sequences throughout the lyrics, and optionally ignore
-									case and surrounding punctuation.
+									combination before confirming it, apply the same combination
+									to matching sequences throughout the lyrics, and optionally
+									ignore case and surrounding punctuation.
 								</Text>
 								<Text size="2">
-									<strong>Global Import Normalization:</strong> The apostrophe and
-									Cyrillic E import options now clean all user-visible imported
-									fields, including metadata, sections, marks, ruby text, and legacy
-									headers, while preserving internal identifiers.
+									<strong>Global Text Normalization:</strong> The apostrophe and
+									Cyrillic E options now clean all user-visible fields during
+									import and every export, including metadata, sections, marks,
+									ruby text, and legacy headers, while preserving internal
+									identifiers.
 								</Text>
 								<Text size="2">
 									<strong>Header-Free Timing Tools:</strong> Copy selected line
