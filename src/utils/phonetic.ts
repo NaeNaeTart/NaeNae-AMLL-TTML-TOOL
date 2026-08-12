@@ -5,10 +5,34 @@ import * as wanakana from "wanakana";
 export type PhoneticLanguage = "ja" | "zh" | "ko" | "yue" | "auto";
 
 const GOOGLE_TIMEOUT_MS = 3000;
+const MAX_CONCURRENT_GOOGLE_REQUESTS = 4;
 const MAX_PHONETIC_CACHE_SIZE = 2048;
-const phoneticCache = new Map<string, Promise<string>>();
+interface PhoneticConversion {
+	value: string;
+	cacheable: boolean;
+}
 
-export async function getPhonetic(text: string, lang: PhoneticLanguage = "auto"): Promise<string> {
+const phoneticCache = new Map<string, Promise<PhoneticConversion>>();
+const googleRequestQueue: Array<() => void> = [];
+let activeGoogleRequests = 0;
+
+const withGoogleRequestSlot = async <T>(request: () => Promise<T>) => {
+	if (activeGoogleRequests >= MAX_CONCURRENT_GOOGLE_REQUESTS) {
+		await new Promise<void>((resolve) => googleRequestQueue.push(resolve));
+	}
+	activeGoogleRequests++;
+	try {
+		return await request();
+	} finally {
+		activeGoogleRequests--;
+		googleRequestQueue.shift()?.();
+	}
+};
+
+export async function getPhonetic(
+	text: string,
+	lang: PhoneticLanguage = "auto",
+): Promise<string> {
 	if (!text.trim()) return "";
 
 	let detectedLang = lang;
@@ -23,7 +47,7 @@ export async function getPhonetic(text: string, lang: PhoneticLanguage = "auto")
 	if (cached) {
 		phoneticCache.delete(cacheKey);
 		phoneticCache.set(cacheKey, cached);
-		return cached;
+		return (await cached).value;
 	}
 
 	const request = convertPhonetic(text, detectedLang);
@@ -35,7 +59,9 @@ export async function getPhonetic(text: string, lang: PhoneticLanguage = "auto")
 	}
 
 	try {
-		return await request;
+		const result = await request;
+		if (!result.cacheable) phoneticCache.delete(cacheKey);
+		return result.value;
 	} catch (e) {
 		phoneticCache.delete(cacheKey);
 		console.error("Phonetic conversion failed", e);
@@ -46,47 +72,64 @@ export async function getPhonetic(text: string, lang: PhoneticLanguage = "auto")
 async function convertPhonetic(
 	text: string,
 	detectedLang: Exclude<PhoneticLanguage, "auto">,
-): Promise<string> {
+): Promise<PhoneticConversion> {
 	try {
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), GOOGLE_TIMEOUT_MS);
-		try {
-			const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${detectedLang}&tl=en&dt=rm&q=${encodeURIComponent(text)}`;
-			const response = await fetch(url, { signal: controller.signal });
-			if (!response.ok) {
-				throw new Error(`Google transliteration request failed: ${response.status}`);
+		const romanized = await withGoogleRequestSlot(async () => {
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), GOOGLE_TIMEOUT_MS);
+			try {
+				const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${detectedLang}&tl=en&dt=rm&q=${encodeURIComponent(text)}`;
+				const response = await fetch(url, { signal: controller.signal });
+				if (!response.ok) {
+					throw new Error(
+						`Google transliteration request failed: ${response.status}`,
+					);
+				}
+
+				const data: unknown = await response.json();
+				const segments =
+					Array.isArray(data) && Array.isArray(data[0]) ? data[0] : null;
+				if (!segments) {
+					throw new Error("Invalid Google transliteration response");
+				}
+
+				const result = segments
+					.map((segment: unknown) => {
+						if (!Array.isArray(segment)) return "";
+						const value = segment[3];
+						return typeof value === "string" ? value : "";
+					})
+					.join("");
+				if (!result.trim()) {
+					throw new Error("Google transliteration response was empty");
+				}
+				return result;
+			} finally {
+				clearTimeout(timeoutId);
 			}
-
-			const data: unknown = await response.json();
-			const segments = Array.isArray(data) && Array.isArray(data[0]) ? data[0] : null;
-			if (!segments) throw new Error("Invalid Google transliteration response");
-
-			const romanized = segments
-				.map((segment: unknown) => {
-					if (!Array.isArray(segment)) return "";
-					const value = segment[3];
-					return typeof value === "string" ? value : "";
-				})
-				.join("");
-			if (romanized.trim()) return romanized;
-			throw new Error("Google transliteration response was empty");
-		} finally {
-			clearTimeout(timeoutId);
-		}
+		});
+		return { value: romanized, cacheable: true };
 	} catch (e) {
 		console.warn(`${detectedLang} API failed, falling back to local libs`, e);
 	}
 
-	if (detectedLang === "ja") return wanakana.toRomaji(text);
-	if (detectedLang === "zh") return getPinyin(text, { toneType: "none" });
-	if (detectedLang === "ko") return Romanize.from(text);
-	return "";
+	let fallback = "";
+	if (detectedLang === "ja") fallback = wanakana.toRomaji(text);
+	if (detectedLang === "zh") fallback = getPinyin(text, { toneType: "none" });
+	if (detectedLang === "ko") fallback = Romanize.from(text);
+	return { value: fallback, cacheable: false };
 }
 
-export async function getPhoneticSyllables(textOrArray: string | string[], lang: PhoneticLanguage = "auto"): Promise<string[]> {
-	const originalCapsules = typeof textOrArray === "string" ? textOrArray.split("").filter(c => !/^\s*$/.test(c)) : textOrArray;
+export async function getPhoneticSyllables(
+	textOrArray: string | string[],
+	lang: PhoneticLanguage = "auto",
+): Promise<string[]> {
+	const originalCapsules =
+		typeof textOrArray === "string"
+			? textOrArray.split("").filter((c) => !/^\s*$/.test(c))
+			: textOrArray;
 	if (originalCapsules.length === 0) return [];
-	
+
 	const fullLineText = originalCapsules.join("").replace(/\s+/g, "");
 	let detectedLang = lang;
 	if (lang === "auto") {
@@ -113,22 +156,31 @@ export async function getPhoneticSyllables(textOrArray: string | string[], lang:
 
 			const capSyllables = capPhonetic
 				.replace(/([aeiouy])([aeiouy])/gi, "$1 $2")
-				.match(/([^aeiouy ]*[aeiouy]{1}([nm](?![aeiouy]))?|[^aeiouy ]+)/gi) || ["a"];
+				.match(/([^aeiouy ]*[aeiouy]{1}([nm](?![aeiouy]))?|[^aeiouy ]+)/gi) || [
+				"a",
+			];
 			return { phonetic: capPhonetic, weight: capSyllables.length };
 		}),
 	);
 
 	// Get ROOT transliteration for FULL line (captures compound readings like 'Jujutsu').
 	const rawLinePhonetic = await rawLinePhoneticPromise;
-	const normalizedLinePhonetic = rawLinePhonetic.toLowerCase().replace(/\s+/g, "")
-		.replace(/ā/g, "aa").replace(/ī/g, "ii").replace(/ū/g, "uu")
-		.replace(/ē/g, "ee").replace(/ō/g, "ou")
+	const normalizedLinePhonetic = rawLinePhonetic
+		.toLowerCase()
+		.replace(/\s+/g, "")
+		.replace(/ā/g, "aa")
+		.replace(/ī/g, "ii")
+		.replace(/ū/g, "uu")
+		.replace(/ē/g, "ee")
+		.replace(/ō/g, "ou")
 		.replace(/[^a-z]/g, "");
-	
+
 	// 2. Split master into mora (syllables) — used as fallback for ambiguous chars
 	const masterSyllables = normalizedLinePhonetic
 		.replace(/([aeiouy])([aeiouy])/gi, "$1 $2")
-		.match(/([^aeiouy ]*[aeiouy]{1}([nm](?![aeiouy]))?|[^aeiouy ]+)/gi) || [normalizedLinePhonetic];
+		.match(/([^aeiouy ]*[aeiouy]{1}([nm](?![aeiouy]))?|[^aeiouy ]+)/gi) || [
+		normalizedLinePhonetic,
+	];
 
 	// 3. Fetch individual phonetics per capsule; store them directly for use as results.
 	//    Also compute syllable-count weights for the master-distribution fallback.
@@ -152,15 +204,22 @@ export async function getPhoneticSyllables(textOrArray: string | string[], lang:
 		if (capPhonetics[i]) {
 			// Still advance syllableIndex so the master pointer stays in sync for any
 			// subsequent capsules that do need the fallback path.
-			let charSyllableCount = Math.round((charWeights[i] / totalWeight) * masterSyllables.length);
+			let charSyllableCount = Math.round(
+				(charWeights[i] / totalWeight) * masterSyllables.length,
+			);
 			if (i === originalCapsules.length - 1 || totalWeight === 0) {
 				charSyllableCount = masterSyllables.length - syllableIndex;
 			}
 			charSyllableCount = Math.max(1, charSyllableCount);
 			if (i < originalCapsules.length - 1) {
-				const remainingWeight = charWeights.slice(i + 1).reduce((a, b) => a + b, 0);
+				const remainingWeight = charWeights
+					.slice(i + 1)
+					.reduce((a, b) => a + b, 0);
 				if (remainingWeight > 0) {
-					charSyllableCount = Math.min(charSyllableCount, masterSyllables.length - syllableIndex - 1);
+					charSyllableCount = Math.min(
+						charSyllableCount,
+						masterSyllables.length - syllableIndex - 1,
+					);
 				}
 			}
 			syllableIndex += charSyllableCount;
@@ -169,20 +228,30 @@ export async function getPhoneticSyllables(textOrArray: string | string[], lang:
 		}
 
 		// Fallback: distribute from the master line phonetic
-		let charSyllableCount = Math.round((charWeights[i] / totalWeight) * masterSyllables.length);
+		let charSyllableCount = Math.round(
+			(charWeights[i] / totalWeight) * masterSyllables.length,
+		);
 		if (i === originalCapsules.length - 1 || totalWeight === 0) {
 			charSyllableCount = masterSyllables.length - syllableIndex;
 		}
-		
+
 		charSyllableCount = Math.max(1, charSyllableCount);
 		if (i < originalCapsules.length - 1) {
-			const remainingWeight = charWeights.slice(i + 1).reduce((a, b) => a + b, 0);
+			const remainingWeight = charWeights
+				.slice(i + 1)
+				.reduce((a, b) => a + b, 0);
 			if (remainingWeight > 0) {
-				charSyllableCount = Math.min(charSyllableCount, masterSyllables.length - syllableIndex - 1);
+				charSyllableCount = Math.min(
+					charSyllableCount,
+					masterSyllables.length - syllableIndex - 1,
+				);
 			}
 		}
 
-		const charSyllables = masterSyllables.slice(syllableIndex, syllableIndex + charSyllableCount);
+		const charSyllables = masterSyllables.slice(
+			syllableIndex,
+			syllableIndex + charSyllableCount,
+		);
 		syllableIndex += charSyllableCount;
 		results.push(charSyllables.join("").trim());
 	}
@@ -193,12 +262,12 @@ export async function getPhoneticSyllables(textOrArray: string | string[], lang:
 function detectLanguage(text: string): PhoneticLanguage {
 	// Japanese: Contains Hiragana or Katakana
 	if (/[\u3040-\u309F\u30A0-\u30FF]/.test(text)) return "ja";
-	
+
 	// Korean: Contains Hangul
 	if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
-	
+
 	// Chinese: Contains Hanzi (and we assume it's Chinese if no Japanese indicators found)
 	if (/[\u4E00-\u9FA5]/.test(text)) return "zh";
-	
+
 	return "auto";
 }

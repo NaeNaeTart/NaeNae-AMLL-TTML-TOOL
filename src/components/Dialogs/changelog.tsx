@@ -88,6 +88,21 @@ export function ChangelogDialog() {
 									use dedicated hyphenation patterns and automatically suggest
 									the matching segmentation engine.
 								</Text>
+								<Text size="2">
+									<strong>Remembered Desktop Window:</strong> Desktop builds now
+									restore the previous window size, maximized state, and
+									fullscreen state when reopened.
+								</Text>
+								<Text size="2">
+									<strong>Faster Romanization:</strong> Line and capsule
+									conversion now runs concurrently with bounded requests, while
+									temporary fallbacks remain retryable.
+								</Text>
+								<Text size="2">
+									<strong>Editor Input Polish:</strong> Word and romanization
+									inputs now size and center their contents more naturally, with
+									improved lyric-line editing hit areas.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
