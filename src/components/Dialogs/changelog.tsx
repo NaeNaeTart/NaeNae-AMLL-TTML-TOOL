@@ -78,6 +78,11 @@ export function ChangelogDialog() {
 									selected timing block to the playhead in Edit and Time modes
 									without Genius headers.
 								</Text>
+								<Text size="2">
+									<strong>Persistent Discord Project Time:</strong> Discord Rich
+									Presence now remembers time spent on each project across line
+									changes, pauses, project switches, and app restarts.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

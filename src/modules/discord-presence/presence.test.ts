@@ -60,6 +60,24 @@ describe("Discord presence", () => {
 		});
 	});
 
+	it("shows accumulated project time while playback is paused", () => {
+		const snapshot = createPresenceSnapshot({
+			lyrics,
+			fileName: "fallback.ttml",
+			mode: ToolMode.Sync,
+			selectedLineIds: new Set(["first"]),
+			playing: false,
+			positionSeconds: 3,
+			durationSeconds: 9,
+			playbackRate: 1,
+			projectElapsedSeconds: 125,
+		});
+
+		expect(formatDiscordActivity(snapshot, 1_000)).toMatchObject({
+			startTimestamp: 875,
+		});
+	});
+
 	it("falls back safely for an empty untitled project", () => {
 		const snapshot = createPresenceSnapshot({
 			lyrics: { metadata: [], lyricLines: [] },
