@@ -45,6 +45,22 @@ const normalizePhoneticForMatching = (text: string) =>
 export const formatPhoneticForDisplay = (text: string) =>
 	text.toLocaleLowerCase().replace(/\s+/g, "");
 
+const hasSourceScript = (text: string, language: PhoneticLanguage) => {
+	switch (language) {
+		case "ja":
+			return /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(
+				text,
+			);
+		case "zh":
+		case "yue":
+			return /\p{Script=Han}/u.test(text);
+		case "ko":
+			return /\p{Script=Hangul}/u.test(text);
+		default:
+			return false;
+	}
+};
+
 const normalizeCapsulePhonetic = (text: string, language: PhoneticLanguage) => {
 	const normalized = text.trim().replace(/\s+/g, " ");
 	return language === "zh" || language === "yue"
@@ -91,6 +107,7 @@ export async function getPhonetic(
 	}
 
 	if (detectedLang === "auto") return "";
+	if (!hasSourceScript(text, detectedLang)) return "";
 
 	const cacheKey = `${detectedLang}\u0000${text}`;
 	const cached = phoneticCache.get(cacheKey);
@@ -208,6 +225,7 @@ export async function getPhoneticSyllables(
 			if (capText.length === 0) return { phonetic: "", weight: 0 };
 
 			const rawCapPhonetic = await getPhonetic(capText, detectedLang);
+			if (!rawCapPhonetic) return { phonetic: "", weight: 0 };
 			const capPhonetic = normalizeCapsulePhonetic(
 				rawCapPhonetic,
 				detectedLang,
@@ -245,7 +263,7 @@ export async function getPhoneticSyllables(
 
 	for (let i = 0; i < originalCapsules.length; i++) {
 		if (charWeights[i] === 0) {
-			results.push(originalCapsules[i]);
+			results.push("");
 			continue;
 		}
 

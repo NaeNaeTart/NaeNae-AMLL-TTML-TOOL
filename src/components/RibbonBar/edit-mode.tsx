@@ -62,7 +62,7 @@ import {
 import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { type LyricLine, type LyricWord, newLyricLine } from "$/types/ttml";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
-import { getPhonetic, getPhoneticSyllables } from "$/utils/phonetic";
+import { getPhoneticSyllables } from "$/utils/phonetic";
 import { RibbonFrame, RibbonSection } from "./common";
 
 const GrammarCheckButton = () => {
@@ -759,15 +759,6 @@ const PhoneticSection = () => {
 				return;
 			}
 
-			// Detect project-level language priority for context
-			const fullProjectText = originalLines.map(l => l.words.map(w => w.word).join("")).join("");
-			let projectLangPriority = lang;
-			if (lang === "auto") {
-				if (/[\u3040-\u309F\u30A0-\u30FF]/.test(fullProjectText)) projectLangPriority = "ja";
-				else if (/[\uAC00-\uD7AF]/.test(fullProjectText)) projectLangPriority = "ko";
-				else if (/[\u4E00-\u9FA5]/.test(fullProjectText)) projectLangPriority = "zh";
-			}
-
 			const lineUpdates: Record<string, string> = {};
 			const wordUpdates: Record<string, string> = {};
 
@@ -781,12 +772,12 @@ const PhoneticSection = () => {
 					if (capsuleTexts.join("").trim().length === 0) continue;
 					
 					// Get line-level phonetic data
-					const lineSyllables = await getPhoneticSyllables(capsuleTexts, projectLangPriority as "auto" | "ja" | "zh" | "ko" | "yue");
+					const lineSyllables = await getPhoneticSyllables(capsuleTexts, lang);
 
 					for (let i = 0; i < line.words.length; i++) {
 						const word = line.words[i];
-						if (selectedWords.has(word.id) && lineSyllables[i]) {
-							wordUpdates[word.id] = lineSyllables[i];
+						if (selectedWords.has(word.id)) {
+							wordUpdates[word.id] = lineSyllables[i] ?? "";
 						}
 					}
 				}
@@ -795,17 +786,12 @@ const PhoneticSection = () => {
 				for (const line of targetLines) {
 					// Join for the line summary, but process capsules for word updates
 					const capsuleTexts = line.words.map(w => w.word);
-					const joinedText = capsuleTexts.join("");
-					const linePhonetic = await getPhonetic(joinedText, projectLangPriority as "auto" | "ja" | "zh" | "ko" | "yue");
-					lineUpdates[line.id] = linePhonetic;
-
 					if (line.words.length > 0) {
 						// Distribute using capsule-aware mapping
-						const syllables = await getPhoneticSyllables(capsuleTexts, projectLangPriority as "auto" | "ja" | "zh" | "ko" | "yue");
+						const syllables = await getPhoneticSyllables(capsuleTexts, lang);
+						lineUpdates[line.id] = syllables.join("");
 						for (let i = 0; i < line.words.length; i++) {
-							if (syllables[i]) {
-								wordUpdates[line.words[i].id] = syllables[i];
-							}
+							wordUpdates[line.words[i].id] = syllables[i] ?? "";
 						}
 					}
 				}

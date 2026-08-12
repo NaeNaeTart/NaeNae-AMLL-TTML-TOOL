@@ -75,4 +75,18 @@ describe("phonetic conversion requests", () => {
 			"wǒnénggòufēixiáng",
 		);
 	});
+
+	it("leaves Latin capsules blank in mixed Chinese lines", async () => {
+		const fetchMock = vi.fn(async (input: string | URL | Request) => {
+			const query = new URL(String(input)).searchParams.get("q");
+			return googleResponse(query === "中国" ? "Zhōng guó" : "I zhōng guó");
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		await expect(getPhoneticSyllables(["I", "中国"], "zh")).resolves.toEqual([
+			"",
+			"zhōngguó",
+		]);
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+	});
 });
