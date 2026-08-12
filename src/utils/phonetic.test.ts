@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getPhonetic, getPhoneticSyllables } from "./phonetic";
+import {
+	formatPhoneticForDisplay,
+	getPhonetic,
+	getPhoneticSyllables,
+} from "./phonetic";
 
 const googleResponse = (romanized: string) =>
 	new Response(JSON.stringify([[["", "", "", romanized]]]), {
@@ -48,21 +52,27 @@ describe("phonetic conversion requests", () => {
 	});
 
 	it("reuses successful Google results", async () => {
-		const fetchMock = vi.fn(async () => googleResponse("cached"));
+		const fetchMock = vi.fn(async () => googleResponse("Cached Value"));
 		vi.stubGlobal("fetch", fetchMock);
 
-		expect(await getPhonetic("成功快取獨特文字", "yue")).toBe("cached");
-		expect(await getPhonetic("成功快取獨特文字", "yue")).toBe("cached");
+		expect(await getPhonetic("成功快取獨特文字", "yue")).toBe("cachedvalue");
+		expect(await getPhonetic("成功快取獨特文字", "yue")).toBe("cachedvalue");
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 	});
 
 	it("preserves contextual Chinese pinyin and tone marks", async () => {
-		const fetchMock = vi.fn(async () => googleResponse("yīn yuè yín háng"));
+		const fetchMock = vi.fn(async () => googleResponse("YĪN YUÈ YÍN HÁNG"));
 		vi.stubGlobal("fetch", fetchMock);
 
 		await expect(getPhoneticSyllables(["音乐", "银行"], "zh")).resolves.toEqual(
-			["yīn yuè", "yín háng"],
+			["yīnyuè", "yínháng"],
 		);
 		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("formats displayed romanization as lowercase compact text", () => {
+		expect(formatPhoneticForDisplay("Wǒ néng gòu fēi xiáng")).toBe(
+			"wǒnénggòufēixiáng",
+		);
 	});
 });

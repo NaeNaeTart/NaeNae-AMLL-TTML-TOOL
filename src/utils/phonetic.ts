@@ -42,10 +42,13 @@ const normalizePhoneticForMatching = (text: string) =>
 		.replace(/\s+/g, "")
 		.replace(/[^a-z]/g, "");
 
+export const formatPhoneticForDisplay = (text: string) =>
+	text.toLocaleLowerCase().replace(/\s+/g, "");
+
 const normalizeCapsulePhonetic = (text: string, language: PhoneticLanguage) => {
 	const normalized = text.trim().replace(/\s+/g, " ");
 	return language === "zh" || language === "yue"
-		? normalized
+		? formatPhoneticForDisplay(normalized)
 		: normalizePhoneticForMatching(normalized);
 };
 
@@ -71,13 +74,14 @@ const mapContextualChinesePhonetic = (
 			.slice(syllableIndex, syllableIndex + count)
 			.join(" ");
 		syllableIndex += count;
-		return result;
+		return formatPhoneticForDisplay(result);
 	});
 };
 
 export async function getPhonetic(
 	text: string,
 	lang: PhoneticLanguage = "auto",
+	preserveFormatting = false,
 ): Promise<string> {
 	if (!text.trim()) return "";
 
@@ -93,7 +97,8 @@ export async function getPhonetic(
 	if (cached) {
 		phoneticCache.delete(cacheKey);
 		phoneticCache.set(cacheKey, cached);
-		return (await cached).value;
+		const value = (await cached).value;
+		return preserveFormatting ? value : formatPhoneticForDisplay(value);
 	}
 
 	const request = convertPhonetic(text, detectedLang);
@@ -107,7 +112,9 @@ export async function getPhonetic(
 	try {
 		const result = await request;
 		if (!result.cacheable) phoneticCache.delete(cacheKey);
-		return result.value;
+		return preserveFormatting
+			? result.value
+			: formatPhoneticForDisplay(result.value);
 	} catch (e) {
 		phoneticCache.delete(cacheKey);
 		console.error("Phonetic conversion failed", e);
@@ -184,7 +191,7 @@ export async function getPhoneticSyllables(
 
 	// Prefer full-line context for Chinese because individual Han characters can be
 	// polyphonic. Google returns one whitespace-separated reading per character.
-	const rawLinePhoneticPromise = getPhonetic(fullLineText, detectedLang);
+	const rawLinePhoneticPromise = getPhonetic(fullLineText, detectedLang, true);
 	if (detectedLang === "zh" || detectedLang === "yue") {
 		const contextual = mapContextualChinesePhonetic(
 			originalCapsules,
