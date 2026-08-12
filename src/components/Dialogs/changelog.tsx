@@ -60,6 +60,13 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Interactive Beginner Guide:</strong> A first-run,
+									in-app workflow now teaches audio import, lyric review,
+									timing, credits, export, and local testing using either your
+									your own song with focused, state-aware steps. Contextual ribbon
+									controls keep advanced options out of the way until needed.
+								</Text>
+								<Text size="2">
 									<strong>Combine Words Bulk Controls:</strong> Preview a word
 									combination before confirming it, apply the same combination
 									to matching sequences throughout the lyrics, and optionally

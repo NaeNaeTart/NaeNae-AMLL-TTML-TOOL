@@ -10,6 +10,7 @@ import {
 	whatsNewDialogAtom,
 } from "$/states/dialogs.ts";
 import { useTopMenuActions } from "../useTopMenuActions";
+import { guideWelcomeOpenAtom } from "$/modules/onboarding/states";
 
 type HelpMenuProps = {
 	variant: "toolbar" | "submenu";
@@ -23,6 +24,7 @@ const HelpMenuItems = () => {
 	const setSettingsOpen = useSetAtom(settingsDialogAtom);
 	const setSettingsTab = useSetAtom(settingsTabAtom);
 	const setWhatsNewOpen = useSetAtom(whatsNewDialogAtom);
+	const setGuideWelcomeOpen = useSetAtom(guideWelcomeOpenAtom);
 	const openAbout = () => {
 		setSettingsTab("about");
 		setSettingsOpen(true);
@@ -30,6 +32,9 @@ const HelpMenuItems = () => {
 
 	return (
 		<>
+			<DropdownMenu.Item onSelect={() => setGuideWelcomeOpen(true)}>
+				{t("beginnerGuide.menu", "Start Guide")}
+			</DropdownMenu.Item>
 			<DropdownMenu.Item onSelect={menu.onOpenGitHub}>GitHub</DropdownMenu.Item>
 			<DropdownMenu.Item onSelect={menu.onOpenWiki}>
 				{t("topBar.menu.helpDoc", "使用说明")}

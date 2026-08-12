@@ -65,7 +65,7 @@ export const discordRichPresenceEnabledAtom = atomWithStorage(
 export const showTimestampsAtom = atomWithStorage("showTimestamps", true);
 export const enableManualTimestampEditAtom = atomWithStorage(
 	"enableManualTimestampEdit",
-	true,
+	false,
 );
 
 export const highlightActiveWordAtom = atomWithStorage(
@@ -78,7 +78,7 @@ export const enableSyncGlowAnimationAtom = atomWithStorage(
 	false,
 );
 
-export const highlightErrorsAtom = atomWithStorage("highlightErrors", false);
+export const highlightErrorsAtom = atomWithStorage("highlightErrors", true);
 
 export const smartFirstWordAtom = atomWithStorage("smartFirstWord", false);
 export const smartLastWordAtom = atomWithStorage("smartLastWord", false);

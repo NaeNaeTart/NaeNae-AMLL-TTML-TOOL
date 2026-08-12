@@ -22,6 +22,8 @@ import { uid } from "uid";
 import { GeniusApi } from "$/modules/genius/api/client";
 import { getBetterGeniusCoverArt } from "$/modules/genius/utils/image";
 import { LrcLibApi } from "$/modules/lrclib/api/client";
+import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
+import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import { LyricallyApi } from "$/modules/lyrically/api/client";
 import {
 	geniusApiKeyAtom,
@@ -43,13 +45,12 @@ import {
 	selectedWordsAtom,
 } from "$/states/main.ts";
 import type { LyricLine, LyricWord } from "$/types/ttml.ts";
-import { prepareLyricLine } from "$/utils/lyric-prep";
 import {
 	normalizeImportedLyricApostrophes,
 	normalizeImportedLyricCyrillicEs,
 } from "$/utils/apostrophe-normalization";
-import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
-import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
+import { getGeniusKeyGuideUrl } from "$/utils/genius-guide";
+import { prepareLyricLine } from "$/utils/lyric-prep";
 import {
 	hasReviewableSections,
 	type ReviewedSection,
@@ -78,7 +79,7 @@ export const ImportLyricsDialog = ({
 }: {
 	source?: ImportSource;
 }) => {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const store = useStore();
 
 	const dialogAtom =
@@ -597,6 +598,18 @@ export const ImportLyricsDialog = ({
 								"genius.setupDesc",
 								"To import lyrics from Genius you need a CLIENT ACCESS TOKEN.",
 							)}
+						</Text>
+						<Text size="2">
+							<a
+								href={getGeniusKeyGuideUrl(i18n.resolvedLanguage)}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{t(
+									"genius.howToGetKey",
+									"How to create a Genius Client Access Token",
+								)}
+							</a>
 						</Text>
 						<TextField.Root
 							value={tempApiKey}
