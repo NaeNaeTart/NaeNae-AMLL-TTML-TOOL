@@ -772,7 +772,10 @@ const PhoneticSection = () => {
 			const wordUpdates: Record<string, string> = {};
 
 			if (selectedWords.size > 0) {
-				for (const line of originalLines) {
+				const targetLines = originalLines.filter((line) =>
+					line.words.some((word) => selectedWords.has(word.id)),
+				);
+				for (const line of targetLines) {
 					// Pass word arrays directly to ensure capsule-aware mapping
 					const capsuleTexts = line.words.map(w => w.word);
 					if (capsuleTexts.join("").trim().length === 0) continue;

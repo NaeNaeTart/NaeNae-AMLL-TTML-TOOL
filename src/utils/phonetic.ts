@@ -4,6 +4,10 @@ import * as wanakana from "wanakana";
 
 export type PhoneticLanguage = "ja" | "zh" | "ko" | "yue" | "auto";
 
+const GOOGLE_TIMEOUT_MS = 3000;
+const MAX_PHONETIC_CACHE_SIZE = 2048;
+const phoneticCache = new Map<string, Promise<string>>();
+
 export async function getPhonetic(text: string, lang: PhoneticLanguage = "auto"): Promise<string> {
 	if (!text.trim()) return "";
 
@@ -12,39 +16,71 @@ export async function getPhonetic(text: string, lang: PhoneticLanguage = "auto")
 		detectedLang = detectLanguage(text);
 	}
 
+	if (detectedLang === "auto") return "";
+
+	const cacheKey = `${detectedLang}\u0000${text}`;
+	const cached = phoneticCache.get(cacheKey);
+	if (cached) {
+		phoneticCache.delete(cacheKey);
+		phoneticCache.set(cacheKey, cached);
+		return cached;
+	}
+
+	const request = convertPhonetic(text, detectedLang);
+	phoneticCache.set(cacheKey, request);
+	while (phoneticCache.size > MAX_PHONETIC_CACHE_SIZE) {
+		const oldestKey = phoneticCache.keys().next().value;
+		if (oldestKey === undefined) break;
+		phoneticCache.delete(oldestKey);
+	}
+
 	try {
-		switch (detectedLang) {
-			case "ja":
-			case "zh":
-			case "ko":
-			case "yue": {
-				try {
-					// 1. Try Google Transliteration API (Dedicated transliteration endpoint)
-					const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${detectedLang}&tl=en&dt=rm&q=${encodeURIComponent(text)}`;
-					const response = await fetch(url);
-					const data = await response.json();
-					
-					// Transliteration is at data[0][x][3]
-					if (data?.[0]) {
-						return data[0].map((s: unknown[]) => (s as string[])?.[3] || "").join("");
-					}
-				} catch (e) {
-					console.warn(`${detectedLang} API failed, falling back to local libs`, e);
-				}
-				
-				// 2. Local Fallback
-				if (detectedLang === "ja") return wanakana.toRomaji(text);
-				if (detectedLang === "zh") return getPinyin(text, { toneType: "none" });
-				if (detectedLang === "ko") return Romanize.from(text);
-				return "";
-			}
-			default:
-				return "";
-		}
+		return await request;
 	} catch (e) {
+		phoneticCache.delete(cacheKey);
 		console.error("Phonetic conversion failed", e);
 		return "";
 	}
+}
+
+async function convertPhonetic(
+	text: string,
+	detectedLang: Exclude<PhoneticLanguage, "auto">,
+): Promise<string> {
+	try {
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), GOOGLE_TIMEOUT_MS);
+		try {
+			const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${detectedLang}&tl=en&dt=rm&q=${encodeURIComponent(text)}`;
+			const response = await fetch(url, { signal: controller.signal });
+			if (!response.ok) {
+				throw new Error(`Google transliteration request failed: ${response.status}`);
+			}
+
+			const data: unknown = await response.json();
+			const segments = Array.isArray(data) && Array.isArray(data[0]) ? data[0] : null;
+			if (!segments) throw new Error("Invalid Google transliteration response");
+
+			const romanized = segments
+				.map((segment: unknown) => {
+					if (!Array.isArray(segment)) return "";
+					const value = segment[3];
+					return typeof value === "string" ? value : "";
+				})
+				.join("");
+			if (romanized.trim()) return romanized;
+			throw new Error("Google transliteration response was empty");
+		} finally {
+			clearTimeout(timeoutId);
+		}
+	} catch (e) {
+		console.warn(`${detectedLang} API failed, falling back to local libs`, e);
+	}
+
+	if (detectedLang === "ja") return wanakana.toRomaji(text);
+	if (detectedLang === "zh") return getPinyin(text, { toneType: "none" });
+	if (detectedLang === "ko") return Romanize.from(text);
+	return "";
 }
 
 export async function getPhoneticSyllables(textOrArray: string | string[], lang: PhoneticLanguage = "auto"): Promise<string[]> {
@@ -57,8 +93,33 @@ export async function getPhoneticSyllables(textOrArray: string | string[], lang:
 		detectedLang = detectLanguage(fullLineText);
 	}
 
-	// 1. Get the ROOT transliteration for the FULL line (captures compound readings like 'Jujutsu')
-	const rawLinePhonetic = await getPhonetic(fullLineText, detectedLang);
+	// Start full-line and per-capsule conversion together. Cache coalesces duplicates.
+	const rawLinePhoneticPromise = getPhonetic(fullLineText, detectedLang);
+	const capResultsPromise = Promise.all(
+		originalCapsules.map(async (cap) => {
+			const capText = cap.trim().replace(/\s+/g, "");
+			if (capText.length === 0) return { phonetic: "", weight: 0 };
+
+			const rawCapPhonetic = await getPhonetic(capText, detectedLang);
+			const capPhonetic = rawCapPhonetic
+				.toLowerCase()
+				.replace(/\s+/g, "")
+				.replace(/ā/g, "aa")
+				.replace(/ī/g, "ii")
+				.replace(/ū/g, "uu")
+				.replace(/ē/g, "ee")
+				.replace(/ō/g, "ou")
+				.replace(/[^a-z]/g, "");
+
+			const capSyllables = capPhonetic
+				.replace(/([aeiouy])([aeiouy])/gi, "$1 $2")
+				.match(/([^aeiouy ]*[aeiouy]{1}([nm](?![aeiouy]))?|[^aeiouy ]+)/gi) || ["a"];
+			return { phonetic: capPhonetic, weight: capSyllables.length };
+		}),
+	);
+
+	// Get ROOT transliteration for FULL line (captures compound readings like 'Jujutsu').
+	const rawLinePhonetic = await rawLinePhoneticPromise;
 	const normalizedLinePhonetic = rawLinePhonetic.toLowerCase().replace(/\s+/g, "")
 		.replace(/ā/g, "aa").replace(/ī/g, "ii").replace(/ū/g, "uu")
 		.replace(/ē/g, "ee").replace(/ō/g, "ou")
@@ -71,27 +132,9 @@ export async function getPhoneticSyllables(textOrArray: string | string[], lang:
 
 	// 3. Fetch individual phonetics per capsule; store them directly for use as results.
 	//    Also compute syllable-count weights for the master-distribution fallback.
-	const charWeights: number[] = [];
-	const capPhonetics: string[] = [];
-	for (const cap of originalCapsules) {
-		const capText = cap.trim().replace(/\s+/g, "");
-		if (capText.length === 0) {
-			charWeights.push(0);
-			capPhonetics.push("");
-			continue;
-		}
-		const rawCapPhonetic = await getPhonetic(capText, detectedLang);
-		const capPhonetic = rawCapPhonetic.toLowerCase().replace(/\s+/g, "")
-			.replace(/ā/g, "aa").replace(/ī/g, "ii").replace(/ū/g, "uu")
-			.replace(/ē/g, "ee").replace(/ō/g, "ou")
-			.replace(/[^a-z]/g, "");
-		capPhonetics.push(capPhonetic);
-			
-		const capSyllables = capPhonetic
-			.replace(/([aeiouy])([aeiouy])/gi, "$1 $2")
-			.match(/([^aeiouy ]*[aeiouy]{1}([nm](?![aeiouy]))?|[^aeiouy ]+)/gi) || ["a"];
-		charWeights.push(capSyllables.length);
-	}
+	const capResults = await capResultsPromise;
+	const charWeights = capResults.map((result) => result.weight);
+	const capPhonetics = capResults.map((result) => result.phonetic);
 
 	const totalWeight = charWeights.reduce((a, b) => a + b, 0);
 	const results: string[] = [];

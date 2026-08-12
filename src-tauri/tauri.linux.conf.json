@@ -11,7 +11,7 @@
 				"devtools": true,
 				"fullscreen": false,
 				"dragDropEnabled": false,
-				"visible": true
+				"visible": false
 			}
 		]
 	}

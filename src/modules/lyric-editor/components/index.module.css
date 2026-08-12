@@ -121,6 +121,8 @@
 .wordMainText {
 	font-weight: 500;
 	font-size: 1.1em;
+	text-align: center;
+	width: 100%;
 }
 
 .rubyEditorCompact {
@@ -137,7 +139,7 @@
 .autoSizeInput {
 	position: relative;
 	display: inline-block;
-	min-width: 6ch;
+	min-width: 2ch;
 }
 
 .autoSizeInputText {
@@ -153,6 +155,17 @@
 	inset: 0;
 	width: 100%;
 	height: 100%;
+	text-align: center;
+
+	& :global(.rt-TextFieldInput) {
+		text-align: center;
+		text-indent: -4px;
+	}
+
+	&[data-empty] :global(.rt-TextFieldInput) {
+		text-align: left;
+		text-indent: 0;
+	}
 }
 
 .advanceBar {
