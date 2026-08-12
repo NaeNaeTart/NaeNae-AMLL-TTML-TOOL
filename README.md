@@ -25,10 +25,13 @@ You can also use the Tauri desktop version built via GitHub Actions; see [GitHub
 
 ## New Editor Features over the Original AMLL TTML Tool
 
-- **Discord Rich Presence & PreMiD Bridge** — The opt-in Tauri integration shares the current file or track, editor mode, line progress, playback state, and speed-aware timeline with Discord; the website exposes the same live state to PreMiD while preserving a compatibility fallback for the original editor.
+- **Discord Rich Presence & PreMiD Bridge** — The opt-in Tauri integration shares the current file or track, editor mode, line progress, playback state, and speed-aware timeline with Discord, preserves per-project elapsed time across app restarts, and exposes the same live state to PreMiD on the website while retaining a compatibility fallback for the original editor.
+- **Combine Words Across Lyrics** — Preview a word combination, apply it to matching sequences throughout the project, and optionally ignore case and surrounding punctuation.
+- **Header-Free Timing Tools** — Copy line and word timings onto existing lyrics or snap any selected timing block to the playhead without relying on imported Genius headers.
+- **Remembered Desktop Window** — Restore the previous window size, maximized state, and fullscreen state across desktop app launches without persisting its position or visibility.
 - **Inline Time-Tab Editing** — Double-click a synced word to edit it directly in Time mode, or edit per-word romanizations inline when displayed.
 - **TTML Checklist** — Maintain a persistent local queue of songs to sync with notes, progress tracking, and completed history.
-- **Smarter Lyrics Splitting** — Choose dedicated syllabification engines for English, Spanish, French, Russian, Japanese, and CJK lyrics; Auto Segment suggests an engine from the lyric language, while legacy fallbacks remain available.
+- **Smarter Lyrics Splitting** — Choose dedicated syllabification engines for English, Polish, Spanish, French, German, Indonesian, Italian, Portuguese, Russian, Japanese, and CJK lyrics; Auto Segment suggests an engine from the lyric language, while legacy fallbacks remain available.
 - **Learned Word Splits** — Remember manual split boundaries and automatically reuse them for future occurrences of the same word.
 - **Persistent Split Options** — The Split Word dialog remembers its last-used options, reducing repeated setup while correcting multiple words.
 - **Spicy Lyrics Preview** — A high-fidelity Spicy Lyrics renderer with animated, custom, and cover-art backgrounds; karaoke, Simple Lyrics, and line-synced layouts; automatic scrolling; and an optional FPS counter.
@@ -43,7 +46,7 @@ You can also use the Tauri desktop version built via GitHub Actions; see [GitHub
 - **Cinematic Backgrounds** — Hardware-accelerated Mesh Gradient backgrounds running at 60 FPS.
 - **Snap to Playhead** — One-click synchronization that snaps lyric start times directly to the audio playhead position.
 - **Auto-Lyric Sanitizer** — Automatically strips Genius tags and cleans empty lines on import.
-- **Advanced Phonetics** — Professional mora-aware Japanese romanization and capsule distribution.
+- **Automatic Multilingual Phonetics** — Generate contextual Japanese, Mandarin, and Korean romanization with per-word readings, tone-aware Mandarin mapping, and mixed-language line support.
 - **Pre-Export Validator** — Checks for untimed or overlapping lyrics before saving.
 - **Integrated Audio Bridge** — Built-in FFmpeg.wasm MP3-to-FLAC conversion to reduce decoding drift.
 - **Appearance Editor** — More than 40 visual parameters and theme presets for customizing the editor.
