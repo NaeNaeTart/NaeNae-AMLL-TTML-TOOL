@@ -83,6 +83,11 @@ export function ChangelogDialog() {
 									Presence now remembers time spent on each project across line
 									changes, pauses, project switches, and app restarts.
 								</Text>
+								<Text size="2">
+									<strong>Polish Syllabification:</strong> Polish lyrics can now
+									use dedicated hyphenation patterns and automatically suggest
+									the matching segmentation engine.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

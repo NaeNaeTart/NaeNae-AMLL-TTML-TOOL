@@ -9,6 +9,7 @@ const engineForLanguage: Record<string, SegmentationEngineId> = {
 	deu: "hyphenation-de",
 	ind: "hyphenation-id",
 	ita: "hyphenation-it",
+	pol: "hyphenation-pl",
 	por: "hyphenation-pt",
 	rus: "syllabify",
 };
