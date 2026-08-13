@@ -22,7 +22,8 @@
 	&.edit.compactSpace {
 		align-self: center;
 		box-sizing: border-box;
-		width: calc(0.75em * var(--space-count, 1));
+		width: 100%;
+		min-width: calc(0.75em * var(--space-count, 1));
 		height: 1.85em;
 		padding: var(--chip-padding-v, 0.25em) 0;
 		opacity: 0.55;
