@@ -19,6 +19,26 @@
 		box-shadow: var(--base-card-surface-box-shadow);
 	}
 
+	&.edit.compactSpace {
+		align-self: center;
+		box-sizing: border-box;
+		width: calc(0.75em * var(--space-count, 1));
+		height: 1.85em;
+		padding: var(--chip-padding-v, 0.25em) 0;
+		opacity: 0.55;
+
+		.wordMainContainer {
+			min-width: 0.6em;
+		}
+
+		.wordMainText {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 1.2em;
+		}
+	}
+
 	&.sync {
 		padding: var(--space-2);
 		display: flex;
@@ -77,18 +97,39 @@
 	flex-grow: 0;
 	flex-shrink: 0;
 	text-align: left;
+
+	&.spaceGroup {
+		align-self: center;
+	}
+
+	&.connectedPrevious {
+		margin-left: calc(var(--chip-gap, var(--space-2)) * -1);
+
+		.lyricWord.edit,
+		[data-word-romanization-editor] {
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
+		}
+	}
+
+	&.connectedNext {
+		.lyricWord.edit,
+		[data-word-romanization-editor] {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+	}
 }
 
 .withRomanization {
 	.lyricWord.edit {
-		padding-bottom: 0.15em;
-		border-bottom-right-radius: var(--radius-2);
-		border-bottom-left-radius: var(--radius-2);
+		border-bottom-right-radius: 0;
+		border-bottom-left-radius: 0;
 	}
 
 	[data-word-romanization-editor] {
-		border-top-right-radius: var(--radius-2);
-		border-top-left-radius: var(--radius-2);
+		border-top-right-radius: 0;
+		border-top-left-radius: 0;
 	}
 }
 
@@ -115,7 +156,7 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	min-width: 2em;
+	min-width: 1em;
 }
 
 .wordMainText {

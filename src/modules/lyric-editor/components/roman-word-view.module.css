@@ -1,7 +1,7 @@
 .romanWordView {
 	display: inline-block;
-	padding: 0.25em 0.5em;
-	border-radius: var(--radius-4);
+	padding: var(--chip-padding-v, 0.25em) var(--chip-padding-h, 0.5em);
+	border-radius: var(--chip-radius, var(--radius-4));
 	text-align: center;
 
 	background-color: var(--color-panel);

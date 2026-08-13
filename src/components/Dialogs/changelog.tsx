@@ -55,10 +55,18 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
-							<Heading size="4" mb="2" color="red">
-								v0.9.0 Updates (Workflow & Romanization)
+							<Heading size="4" mb="2" color="purple">
+								v0.9.1 Updates (Compact Spaces)
 							</Heading>
 							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Edge-to-Edge Audio Bar:</strong> The playback controls
+									now span the full workspace width without an outer inset.
+								</Text>
+								<Text size="2">
+									<strong>Edge-to-Edge Lyric Lines:</strong> Lyric line cards now
+									extend to both sides of the editor without outer margins.
+								</Text>
 								<Text size="2">
 									<strong>Interactive Beginner Guide:</strong> A first-run,
 									in-app workflow now teaches audio import, lyric review,
@@ -66,6 +74,25 @@ export function ChangelogDialog() {
 									your own song with focused, state-aware steps. Contextual ribbon
 									controls keep advanced options out of the way until needed.
 								</Text>
+								<Text size="2">
+									<strong>Connected Word Groups:</strong> Split words and other
+									adjacent words without a space now join edge-to-edge, with
+									rounded corners only at the outside of each group. Per-word
+									romanization follows the same grouping and appearance controls.
+								</Text>
+								<Text size="2">
+									<strong>Compact Space Chips:</strong> Blank words in Edit mode
+									now use empty chips whose width reflects the number of spaces,
+									while keeping the count on hover and offering a legacy Space xN
+									display option in Appearance settings.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="red">
+								v0.9.0 Updates (Workflow & Romanization)
+							</Heading>
+							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Combine Words Bulk Controls:</strong> Preview a word
 									combination before confirming it, apply the same combination

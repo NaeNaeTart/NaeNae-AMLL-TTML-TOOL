@@ -198,7 +198,16 @@ export const AudioControls: FC = memo(() => {
 	}, [preservesPitch]);
 
 	return (
-		<Card data-guide-target="audio" m="2" mt="0" style={{ backgroundColor: "var(--audio-bar-bg, var(--rt-color-panel-solid))", height: "100%", minHeight: 0 }}>
+		<Card
+			data-guide-target="audio"
+			m="0"
+			style={{
+				backgroundColor: "var(--audio-bar-bg, var(--rt-color-panel-solid))",
+				height: "100%",
+				minHeight: 0,
+				borderRadius: 0,
+			}}
+		>
 			<Inset>
 				<AudioPlaybackKeyBinding />
 				<AuditionKeyBinding />
