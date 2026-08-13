@@ -185,8 +185,10 @@ export const BeginnerGuide = () => {
 	);
 
 	useEffect(() => {
-		if (completion === "new") setWelcomeOpen(true);
-	}, [completion, setWelcomeOpen]);
+		if (completion !== "new") return;
+		setCompletion("dismissed");
+		setWelcomeOpen(true);
+	}, [completion, setCompletion, setWelcomeOpen]);
 
 	const start = useCallback(() => {
 		setExported(false);

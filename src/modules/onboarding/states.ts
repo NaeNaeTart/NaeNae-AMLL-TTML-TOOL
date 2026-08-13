@@ -7,7 +7,7 @@ export const guideStepAtom = atom(0);
 export const guideExportedAtom = atom(false);
 export const guideCompletionAtom = atomWithStorage<
 	"new" | "dismissed" | "completed"
->("beginnerGuideStatus", "new");
+>("beginnerGuideStatus", "new", undefined, { getOnInit: true });
 export const advancedRibbonControlsAtom = atomWithStorage(
 	"advancedRibbonControls",
 	false,
