@@ -70,9 +70,10 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Interactive Beginner Guide:</strong> A first-run,
 									in-app workflow now teaches audio import, lyric review,
-									timing, credits, export, and local testing using either your
-									your own song with focused, state-aware steps. Contextual ribbon
-									controls keep advanced options out of the way until needed.
+									timing, credits, export, and local testing using your own song
+									with focused, state-aware steps. The guide window can be moved or
+									tucked into a compact edge tab. Contextual ribbon controls keep
+									advanced options out of the way until needed.
 								</Text>
 								<Text size="2">
 									<strong>Connected Word Groups:</strong> Split words and other

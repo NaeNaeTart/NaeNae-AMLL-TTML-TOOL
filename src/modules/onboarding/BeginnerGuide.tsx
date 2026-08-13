@@ -10,7 +10,14 @@ import {
 	Text,
 } from "@radix-ui/themes";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+	type PointerEvent as ReactPointerEvent,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useFileOpener } from "$/hooks/useFileOpener";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -112,6 +119,9 @@ export const BeginnerGuide = () => {
 	const [step, setStep] = useAtom(guideStepAtom);
 	const [exported, setExported] = useAtom(guideExportedAtom);
 	const [completion, setCompletion] = useAtom(guideCompletionAtom);
+	const [tucked, setTucked] = useState(false);
+	const [position, setPosition] = useState({ x: 16, y: 88 });
+	const dragOffset = useRef({ x: 0, y: 0 });
 	const setImportText = useSetAtom(importFromTextDialogAtom);
 	const setImportGenius = useSetAtom(geniusImportLyricsDialogAtom);
 	const setImportLrclib = useSetAtom(importFromLRCLIBDialogAtom);
@@ -120,6 +130,59 @@ export const BeginnerGuide = () => {
 	const setChecklist = useSetAtom(ttmlChecklistDialogAtom);
 	const setToolMode = useSetAtom(toolModeAtom);
 	const { openFile } = useFileOpener();
+
+	useEffect(() => {
+		setPosition((current) => ({
+			x: current.x === 16 ? Math.max(8, window.innerWidth - 336) : current.x,
+			y: current.y,
+		}));
+	}, []);
+
+	useEffect(() => {
+		const keepOnScreen = () =>
+			setPosition((current) => ({
+				x: Math.min(
+					Math.max(8, current.x),
+					Math.max(8, window.innerWidth - 328),
+				),
+				y: Math.min(
+					Math.max(8, current.y),
+					Math.max(8, window.innerHeight - 80),
+				),
+			}));
+		window.addEventListener("resize", keepOnScreen);
+		return () => window.removeEventListener("resize", keepOnScreen);
+	}, []);
+
+	const startDragging = useCallback(
+		(event: ReactPointerEvent<HTMLElement>) => {
+			if ((event.target as HTMLElement).closest("button, a")) return;
+			event.preventDefault();
+			dragOffset.current = {
+				x: event.clientX - position.x,
+				y: event.clientY - position.y,
+			};
+			const move = (moveEvent: PointerEvent) => {
+				setPosition({
+					x: Math.min(
+						Math.max(8, moveEvent.clientX - dragOffset.current.x),
+						Math.max(8, window.innerWidth - 328),
+					),
+					y: Math.min(
+						Math.max(8, moveEvent.clientY - dragOffset.current.y),
+						Math.max(8, window.innerHeight - 80),
+					),
+				});
+			};
+			const stop = () => {
+				window.removeEventListener("pointermove", move);
+				window.removeEventListener("pointerup", stop);
+			};
+			window.addEventListener("pointermove", move);
+			window.addEventListener("pointerup", stop, { once: true });
+		},
+		[position.x, position.y],
+	);
 
 	useEffect(() => {
 		if (completion === "new") setWelcomeOpen(true);
@@ -297,13 +360,28 @@ export const BeginnerGuide = () => {
 					</Flex>
 				</Dialog.Content>
 			</Dialog.Root>
-			{panelOpen && (
+			{panelOpen && tucked && (
+				<Button
+					style={{
+						position: "fixed",
+						right: 0,
+						top: "45%",
+						zIndex: 10000,
+						borderRadius: "var(--radius-3) 0 0 var(--radius-3)",
+						boxShadow: "var(--shadow-4)",
+					}}
+					onClick={() => setTucked(false)}
+				>
+					{t("beginnerGuide.restore", "Show guide")}
+				</Button>
+			)}
+			{panelOpen && !tucked && (
 				<Card
 					data-beginner-guide
 					style={{
 						position: "fixed",
-						right: 16,
-						top: 88,
+						left: position.x,
+						top: position.y,
 						width: 320,
 						zIndex: 10000,
 						boxShadow: "var(--shadow-5)",
@@ -312,24 +390,43 @@ export const BeginnerGuide = () => {
 					}}
 				>
 					<Flex direction="column" gap="3">
-						<Flex justify="between" align="center">
+						<Flex
+							justify="between"
+							align="center"
+							onPointerDown={startDragging}
+							style={{
+								cursor: "grab",
+								userSelect: "none",
+								touchAction: "none",
+							}}
+						>
 							<Text size="1" color="gray">
 								{t("beginnerGuide.progress", "Step {current} of {total}", {
 									current: step + 1,
 									total: GUIDE_STEP_IDS.length,
 								})}
 							</Text>
-							<Button
-								size="1"
-								variant="ghost"
-								color="gray"
-								onClick={() => {
-									setCompletion("dismissed");
-									setPanelOpen(false);
-								}}
-							>
-								<DismissRegular /> {t("beginnerGuide.exit", "Exit guide")}
-							</Button>
+							<Flex gap="1">
+								<Button
+									size="1"
+									variant="ghost"
+									color="gray"
+									onClick={() => setTucked(true)}
+								>
+									{t("beginnerGuide.tuck", "Tuck")}
+								</Button>
+								<Button
+									size="1"
+									variant="ghost"
+									color="gray"
+									onClick={() => {
+										setCompletion("dismissed");
+										setPanelOpen(false);
+									}}
+								>
+									<DismissRegular /> {t("beginnerGuide.exit", "Exit guide")}
+								</Button>
+							</Flex>
 						</Flex>
 						<Progress value={((step + 1) / GUIDE_STEP_IDS.length) * 100} />
 						<Box>
