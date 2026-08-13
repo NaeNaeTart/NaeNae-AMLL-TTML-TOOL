@@ -56,9 +56,17 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="purple">
-								v0.9.1 Updates (Compact Spaces)
+								v0.9.1 Updates (Guide & Cleaner Editing)
 							</Heading>
 							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Interactive Beginner Guide:</strong> A first-run,
+									in-app workflow now teaches audio import, lyric review,
+									timing, credits, export, and local testing using your own song
+									with focused, state-aware steps. The guide window can be moved
+									or tucked into a compact edge tab. Contextual ribbon controls
+									keep advanced options out of the way until needed.
+								</Text>
 								<Text size="2">
 									<strong>Edge-to-Edge Audio Bar:</strong> The playback controls
 									now span the full workspace width without an outer inset.
@@ -66,14 +74,6 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Edge-to-Edge Lyric Lines:</strong> Lyric line cards now
 									extend to both sides of the editor without outer margins.
-								</Text>
-								<Text size="2">
-									<strong>Interactive Beginner Guide:</strong> A first-run,
-									in-app workflow now teaches audio import, lyric review,
-									timing, credits, export, and local testing using your own song
-									with focused, state-aware steps. The guide window can be moved or
-									tucked into a compact edge tab. Contextual ribbon controls keep
-									advanced options out of the way until needed.
 								</Text>
 								<Text size="2">
 									<strong>Connected Word Groups:</strong> Split words and other
