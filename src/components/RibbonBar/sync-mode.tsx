@@ -57,6 +57,7 @@ import {
 import { KeyBinding } from "../KeyBinding/index.tsx";
 
 import { RibbonFrame, RibbonSection } from "./common";
+import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
 
 
 const EmptyBeatField = () => {
@@ -122,10 +123,11 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const [syncLevelMode, setSyncLevelMode] = useAtom(syncLevelModeAtom);
 		const [instantFade, setInstantFade] = useAtom(instantHighlightFadeAtom);
 		const { t } = useTranslation();
+		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
 
 		return (
 			<RibbonFrame ref={ref} isSidebar={isSidebar}>
-					<RibbonSection
+					{showAdvanced && <RibbonSection
 						isSidebar={isSidebar}
 						label={t("ribbonBar.syncMode.currentEmptyBeat", "当前空拍")}
 					>
@@ -138,7 +140,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 						>
 							<EmptyBeatField />
 						</Grid>
-					</RibbonSection>
+					</RibbonSection>}
 					<RibbonSection
 						isSidebar={isSidebar}
 						label={t("ribbonBar.syncMode.syncAdjustment", "打轴调整")}
@@ -223,7 +225,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							</SegmentedControl.Root>
 						</Flex>
 					</RibbonSection>
-					<RibbonSection
+					{showAdvanced && <RibbonSection
 						isSidebar={isSidebar}
 						label={t("ribbonBar.syncMode.assistSettings", "辅助设置")}
 					>
@@ -290,8 +292,8 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								onCheckedChange={(v) => setEnableManualTimestampEdit(!!v)}
 							/>
 						</Grid>
-					</RibbonSection>
-					<RibbonSection
+					</RibbonSection>}
+					{showAdvanced && <RibbonSection
 						isSidebar={isSidebar}
 						label={t("ribbonBar.syncMode.displayOptions", "显示选项")}
 					>
@@ -378,7 +380,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								</>
 							)}
 						</Grid>
-					</RibbonSection>
+					</RibbonSection>}
 					<RibbonSection
 						isSidebar={isSidebar}
 						label={t("ribbonBar.syncMode.keyBindingReference", "打轴键位速查")}
@@ -419,7 +421,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							</Grid>
 						</Flex>
 					</RibbonSection>
-					<RibbonSection
+					{showAdvanced && <RibbonSection
 						isSidebar={isSidebar}
 						label={t("ribbonBar.editMode.previewPanel", "预览面板")}
 					>
@@ -429,6 +431,9 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								onCheckedChange={setShowPreviewPanel}
 							/>
 						</Flex>
+					</RibbonSection>}
+					<RibbonSection label={t("ribbonBar.advanced", "Advanced")} isSidebar={isSidebar}>
+						<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
 					</RibbonSection>
 			</RibbonFrame>
 		);

@@ -25,6 +25,8 @@ You can also use the Tauri desktop version built via GitHub Actions; see [GitHub
 
 ## New Editor Features over the Original AMLL TTML Tool
 
+- **Guided Beginner Workflow** — Learn audio import, lyric review, timing, credits, export, and local testing through focused, state-aware steps using your own song; move the guide around the viewport or tuck it into a compact edge tab while working.
+- **Compact Lyric Workspace** — Use edge-to-edge audio and lyric areas, visually connected word and romanization groups, and compact whitespace chips sized by their space count, with an optional legacy label style.
 - **Discord Rich Presence & PreMiD Bridge** — The opt-in Tauri integration shares the current file or track, editor mode, line progress, playback state, and speed-aware timeline with Discord, preserves per-project elapsed time across app restarts, and exposes the same live state to PreMiD on the website while retaining a compatibility fallback for the original editor.
 - **Combine Words Across Lyrics** — Preview a word combination, apply it to matching sequences throughout the project, and optionally ignore case and surrounding punctuation.
 - **Header-Free Timing Tools** — Copy line and word timings onto existing lyrics or snap any selected timing block to the playhead without relying on imported Genius headers.

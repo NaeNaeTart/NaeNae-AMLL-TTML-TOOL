@@ -48,17 +48,17 @@ import {
 	highlightErrorsAtom,
 	LayoutMode,
 	layoutModeAtom,
+	legacySpaceLabelsAtom,
 	showTimestampsAtom,
 } from "$/modules/settings/states/index.ts";
-
+import { instantHighlightFadeAtom } from "$/modules/settings/states/preview";
 import {
 	enableUpcomingWordHighlightAtom,
+	syncLevelModeAtom,
 	upcomingWordHighlightColorAtom,
 	upcomingWordHighlightThresholdAtom,
 	visualizeTimestampUpdateAtom,
-	syncLevelModeAtom,
 } from "$/modules/settings/states/sync.ts";
-import { instantHighlightFadeAtom } from "$/modules/settings/states/preview";
 import { splitWordDialogAtom } from "$/states/dialogs.ts";
 import {
 	editingWordStateAtom,
@@ -685,8 +685,16 @@ const LyricWorldViewEdit = ({
 	const store = useStore();
 	const toolMode = useAtomValue(toolModeAtom);
 	const isWordBlank = useWordBlank(word.word);
+	const isSpaceWord = isWordBlank && word.word.length > 0;
+	const legacySpaceLabels = useAtomValue(legacySpaceLabelsAtom);
+	const useCompactSpace = isSpaceWord && !legacySpaceLabels;
 	// In Edit Mode, we always want to see the original word in the capsule.
 	const displayWord = getDisplayWordText(t, word.word, isWordBlank, word.romanWord, false);
+	const spaceLabel = isSpaceWord
+		? t("lyricWordView.spaceCount", "空格 x{count}", {
+				count: word.word.length,
+			})
+		: undefined;
 	const showRubyEditor = useMemo(() => word.ruby !== undefined, [word.ruby]);
 
 	const hasError = useMemo(
@@ -705,10 +713,18 @@ const LyricWorldViewEdit = ({
 				styles.edit,
 				isWordSelected && styles.selected,
 				isWordBlank && styles.blank,
+				useCompactSpace && styles.compactSpace,
 				showRubyEditor && styles.rubyEnabled,
 				hasError && toolMode === ToolMode.Edit && styles.error,
 			),
-		[isWordBlank, isWordSelected, showRubyEditor, hasError, toolMode],
+		[
+			isWordBlank,
+			useCompactSpace,
+			isWordSelected,
+			showRubyEditor,
+			hasError,
+			toolMode,
+		],
 	);
 	const onEnter = useCallback(
 		(evt: SyntheticEvent<HTMLInputElement>) => {
@@ -770,6 +786,11 @@ const LyricWorldViewEdit = ({
 					wordIndex={wordIndex}
 					className={className}
 					line={line}
+					style={
+						useCompactSpace
+							? ({ "--space-count": word.word.length } as React.CSSProperties)
+							: undefined
+					}
 					onDoubleClick={(evt) => {
 						if (evt.ctrlKey || evt.metaKey) {
 							setSplitState({
@@ -785,7 +806,13 @@ const LyricWorldViewEdit = ({
 				>
 					<span className={styles.wordEditRow}>
 						<div className={styles.wordMainContainer}>
-							<div className={styles.wordMainText}>{displayWord}</div>
+							<div
+								className={styles.wordMainText}
+								title={spaceLabel}
+								aria-label={spaceLabel}
+							>
+								{useCompactSpace ? null : displayWord}
+							</div>
 						</div>
 						{showRubyEditor && <RubyEditor wordAtom={wordAtom} />}
 					</span>

@@ -348,6 +348,8 @@
         "chipSpacing": "Chip Spacing (Gap)",
         "chipPaddingVertical": "Chip Padding (V)",
         "chipPaddingHorizontal": "Chip Padding (H)",
+        "legacySpaceLabels": "Legacy Space Labels",
+        "legacySpaceLabelsDesc": "Show Space xN instead of compact empty space cells.",
         "audioVisuals": "Playback & Visuals",
         "audioBarColor": "Audio Bar Color",
         "audioBarText": "Audio Bar Text",

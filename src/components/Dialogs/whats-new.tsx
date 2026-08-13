@@ -24,6 +24,22 @@ export function WhatsNewDialog() {
 
 	const features = [
 		{
+			title: "Guided Beginner Workflow",
+			description:
+				"Learn the complete workflow in-app with focused, state-aware steps using your own song, then move the guide or tuck it into a compact edge tab while you work.",
+			icon: <TaskListLtrRegular />,
+			color: "purple",
+			info: "The guide walks through audio import, lyric review, timing, credits, export, and local testing. Contextual ribbon controls reveal advanced options only when they are relevant.",
+		},
+		{
+			title: "Compact Lyric Workspace",
+			description:
+				"Use the full editor width with edge-to-edge audio and lyric areas, connected word groups, and compact count-scaled whitespace chips.",
+			icon: <FlashRegular />,
+			color: "orange",
+			info: "Adjacent words without a space join visually, including their romanization. Appearance settings can restore the legacy Space xN labels.",
+		},
+		{
 			title: "Discord Rich Presence",
 			description: "Optionally share the current file or track, editor mode, line progress, playback status, and live timeline from the desktop app. Per-project elapsed time persists across app restarts, while website presence uses a reliable PreMiD bridge.",
 			icon: <MusicNote1Regular />,
