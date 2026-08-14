@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { currentDurationAtom } from "$/modules/audio/states";
 import { timeStretchDialogAtom } from "$/states/dialogs";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import {
 	formatDurationInput,
 	parseDurationInput,
@@ -158,46 +159,45 @@ export const TimeStretchDialog = () => {
 		if (duration > 0) setValue(formatDurationInput(duration));
 	};
 
-	const chooseTemporaryAudio = (side: "old" | "new") => {
-		const input = document.createElement("input");
-		input.type = "file";
-		input.accept = "audio/*,*/*";
-		input.addEventListener(
-			"change",
-			async () => {
-				const file = input.files?.[0];
-				if (!file) return;
-				const readId = ++durationReadId.current;
-				setReadingTemporaryAudio(true);
-				if (side === "old") setOldTemporaryAudioError("");
-				else setNewTemporaryAudioError("");
-				try {
-					const duration = await readAudioDurationMs(file);
-					if (readId !== durationReadId.current) return;
-					if (side === "old") {
-						setOldDurationInput(formatDurationInput(duration));
-						setOldTemporaryFileName(file.name);
-					} else {
-						setNewDurationInput(formatDurationInput(duration));
-						setNewTemporaryFileName(file.name);
-					}
-				} catch {
-					if (readId !== durationReadId.current) return;
-					const error = t(
-						"timeStretchDialog.audioReadError",
-						"Could not read the selected audio file's duration.",
-					);
-					if (side === "old") setOldTemporaryAudioError(error);
-					else setNewTemporaryAudioError(error);
-				} finally {
-					if (readId === durationReadId.current) {
-						setReadingTemporaryAudio(false);
-					}
-				}
-			},
-			{ once: true },
-		);
-		input.click();
+	const chooseTemporaryAudio = async (side: "old" | "new") => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [
+				{
+					name: "Audio",
+					extensions: ["mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"],
+				},
+			],
+		});
+		if (!file || Array.isArray(file)) return;
+
+		const readId = ++durationReadId.current;
+		setReadingTemporaryAudio(true);
+		if (side === "old") setOldTemporaryAudioError("");
+		else setNewTemporaryAudioError("");
+		try {
+			const duration = await readAudioDurationMs(file);
+			if (readId !== durationReadId.current) return;
+			if (side === "old") {
+				setOldDurationInput(formatDurationInput(duration));
+				setOldTemporaryFileName(file.name);
+			} else {
+				setNewDurationInput(formatDurationInput(duration));
+				setNewTemporaryFileName(file.name);
+			}
+		} catch {
+			if (readId !== durationReadId.current) return;
+			const error = t(
+				"timeStretchDialog.audioReadError",
+				"Could not read the selected audio file's duration.",
+			);
+			if (side === "old") setOldTemporaryAudioError(error);
+			else setNewTemporaryAudioError(error);
+		} finally {
+			if (readId === durationReadId.current) {
+				setReadingTemporaryAudio(false);
+			}
+		}
 	};
 
 	const durationError = (value: string, duration: number | null) => {

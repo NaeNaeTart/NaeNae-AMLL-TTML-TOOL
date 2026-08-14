@@ -11,12 +11,11 @@ import { DropdownMenu } from "@radix-ui/themes";
 import { useSetAtom, useStore } from "jotai";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { saveFile } from "$/utils/fileSystem.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
-import exportTTMLText from "$/modules/project/logic/ttml-writer";
-import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
+import exportTTMLText from "$/modules/project/logic/ttml-writer";
+import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import {
 	geniusImportLyricsDialogAtom,
 	importFromLRCLIBDialogAtom,
@@ -24,8 +23,10 @@ import {
 	lyricallyImportLyricsDialogAtom,
 } from "$/states/dialogs.ts";
 import { lyricLinesAtom, saveFileNameAtom } from "$/states/main.ts";
-import { error } from "$/utils/logging.ts";
 import { normalizeLyricText } from "$/utils/apostrophe-normalization";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
+import { saveFile } from "$/utils/fileSystem.ts";
+import { error } from "$/utils/logging.ts";
 
 export const ImportExportLyric = () => {
 	const store = useStore();
@@ -44,51 +45,51 @@ export const ImportExportLyric = () => {
 		}
 	};
 
-	const onImportLyric = (extension: string) => {
-		const inputEl = document.createElement("input");
-		inputEl.type = "file";
-		inputEl.accept = `.${extension},*/*`;
-		inputEl.addEventListener(
-			"change",
-			() => {
-				const file = inputEl.files?.[0];
-				if (!file) return;
-
-				openFile(file, extension);
-			},
-			{
-				once: true,
-			},
-		);
-		inputEl.click();
+	const onImportLyric = (extension: string) => async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [
+				{ name: `Lyric files (${extension})`, extensions: [extension, "*"] },
+			],
+		});
+		if (!file || Array.isArray(file)) return;
+		openFile(file, extension);
 	};
 
-	const onImportWithPlugin = (pluginId: string, extension: string) => async () => {
-		const inputEl = document.createElement("input");
-		inputEl.type = "file";
-		inputEl.accept = `.${extension}`;
-		inputEl.addEventListener("change", async () => {
-			const file = inputEl.files?.[0];
-			if (!file) return;
+	const onImportWithPlugin =
+		(pluginId: string, extension: string) => async () => {
+			const file = await openFileWithDialog({
+				multiple: false,
+				filters: [
+					{ name: `Plugin file (${extension})`, extensions: [extension] },
+				],
+			});
+			if (!file || Array.isArray(file)) return;
 
 			try {
 				const text = await file.text();
 				const transformed = await pluginManager.runImporter(pluginId, text);
-				const newFile = new File([transformed], file.name, { type: "application/xml" });
+				const newFile = new File([transformed], file.name, {
+					type: "application/xml",
+				});
 				openFile(newFile, extension);
 			} catch (e: any) {
 				error(`Plugin import failed: ${pluginId}`, e);
-				alert(e.message || "Import failed. Please make sure you are using a valid TTML file.");
+				alert(
+					e.message ||
+						"Import failed. Please make sure you are using a valid TTML file.",
+				);
 			}
-		}, { once: true });
-		inputEl.click();
-	};
+		};
 
 	const onExportLyric =
 		(stringifier: (lines: LyricLine[]) => string, extension: string) =>
 		async () => {
 			notifySectionIssues();
-			const lyricState = normalizeLyricText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom));
+			const lyricState = normalizeLyricText(
+				store.get(lyricLinesAtom),
+				store.get(lyricTextNormalizationOptionsAtom),
+			);
 			const lyric = lyricState.lyricLines;
 			const metadata = lyricState.metadata;
 
@@ -135,31 +136,35 @@ export const ImportExportLyric = () => {
 	const exporters = pluginManager.getExporters();
 	const importers = pluginManager.getImporters();
 
-	const onExportWithPlugin = (pluginId: string, extension: string) => async () => {
-		notifySectionIssues();
-		const lyricState = store.get(lyricLinesAtom);
-		
-		// Use TTML as the primary interchange format for plugins
-		const ttmlData = exportTTMLText(lyricState, store.get(lyricTextNormalizationOptionsAtom));
-		
-		try {
-			const result = await pluginManager.runExporter(pluginId, ttmlData);
-			const saveFileName = store.get(saveFileNameAtom);
-			const baseName = saveFileName.replace(/\.[^.]*$/, "");
-			const fileName = `${baseName}.${extension}`;
-			await saveFile(result, {
-				suggestedName: fileName,
-				types: [
-					{
-						description: `${extension.toUpperCase()} Files`,
-						accept: { "text/plain": [`.${extension}`] },
-					},
-				],
-			});
-		} catch (e) {
-			error(`Plugin export failed: ${pluginId}`, e);
-		}
-	};
+	const onExportWithPlugin =
+		(pluginId: string, extension: string) => async () => {
+			notifySectionIssues();
+			const lyricState = store.get(lyricLinesAtom);
+
+			// Use TTML as the primary interchange format for plugins
+			const ttmlData = exportTTMLText(
+				lyricState,
+				store.get(lyricTextNormalizationOptionsAtom),
+			);
+
+			try {
+				const result = await pluginManager.runExporter(pluginId, ttmlData);
+				const saveFileName = store.get(saveFileNameAtom);
+				const baseName = saveFileName.replace(/\.[^.]*$/, "");
+				const fileName = `${baseName}.${extension}`;
+				await saveFile(result, {
+					suggestedName: fileName,
+					types: [
+						{
+							description: `${extension.toUpperCase()} Files`,
+							accept: { "text/plain": [`.${extension}`] },
+						},
+					],
+				});
+			} catch (e) {
+				error(`Plugin export failed: ${pluginId}`, e);
+			}
+		};
 
 	return (
 		<>
@@ -175,7 +180,10 @@ export const ImportExportLyric = () => {
 						{t("topBar.menu.importLyric.fromLRCLIB", "从 LRCLIB 导入...")}
 					</DropdownMenu.Item>
 					<DropdownMenu.Item onClick={() => setLyricallyImportDialog(true)}>
-						{t("topBar.menu.importLyric.fromLyrically", "Import from Lyrically...")}
+						{t(
+							"topBar.menu.importLyric.fromLyrically",
+							"Import from Lyrically...",
+						)}
 					</DropdownMenu.Item>
 
 					<DropdownMenu.Item onClick={() => setGeniusImportLyricsDialog(true)}>
@@ -201,8 +209,11 @@ export const ImportExportLyric = () => {
 						)}
 					</DropdownMenu.Item>
 					{importers.length > 0 && <DropdownMenu.Separator />}
-					{importers.map(plugin => (
-						<DropdownMenu.Item key={plugin.metadata.id} onClick={onImportWithPlugin(plugin.metadata.id, "ttml")}>
+					{importers.map((plugin) => (
+						<DropdownMenu.Item
+							key={plugin.metadata.id}
+							onClick={onImportWithPlugin(plugin.metadata.id, "ttml")}
+						>
 							{plugin.metadata.name}
 						</DropdownMenu.Item>
 					))}
@@ -236,8 +247,11 @@ export const ImportExportLyric = () => {
 					</DropdownMenu.Item>
 
 					{exporters.length > 0 && <DropdownMenu.Separator />}
-					{exporters.map(plugin => (
-						<DropdownMenu.Item key={plugin.metadata.id} onClick={onExportWithPlugin(plugin.metadata.id, "ttml")}>
+					{exporters.map((plugin) => (
+						<DropdownMenu.Item
+							key={plugin.metadata.id}
+							onClick={onExportWithPlugin(plugin.metadata.id, "ttml")}
+						>
 							Export to {plugin.metadata.name}
 						</DropdownMenu.Item>
 					))}

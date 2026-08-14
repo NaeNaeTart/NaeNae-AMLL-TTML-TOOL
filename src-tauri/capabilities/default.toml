@@ -42,3 +42,18 @@ identifier = "updater:default"
 
 [[permissions]]
 identifier = "log:default"
+
+[[permissions]]
+identifier = "dialog:default"
+
+[[permissions]]
+identifier = "fs:default"
+
+[[permissions]]
+identifier = "fs:allow-read"
+
+[[permissions]]
+identifier = "fs:allow-exists"
+
+[[permissions]]
+identifier = "fs:allow-stat"
