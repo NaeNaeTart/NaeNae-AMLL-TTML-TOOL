@@ -63,6 +63,7 @@ import {
 	SectionManagerDialog,
 	SectionMetadataDialog,
 } from "./SectionActions";
+import { shouldAutoCenterSelection } from "./selection-scroll";
 
 const lyricLinesOnlyAtom = splitAtom(
 	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
@@ -373,7 +374,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const scrollToIndexAtom = useMemo(
 		() =>
 			atom((get) => {
-				if (toolMode !== ToolMode.Sync && toolMode !== ToolMode.Edit) return;
+				if (!shouldAutoCenterSelection(toolMode)) return;
 				const selectedLines = get(selectedLinesAtom);
 				if (selectedLines.size === 0) return Number.NaN;
 				const lyrics = get(lyricLinesAtom).lyricLines;

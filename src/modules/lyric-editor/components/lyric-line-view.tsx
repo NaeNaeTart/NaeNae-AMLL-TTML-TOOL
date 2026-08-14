@@ -82,6 +82,7 @@ import {
 	duplicateLinesWithSections,
 	repairSectionIntegrity,
 } from "../utils/section-system.ts";
+import { shouldAutoCenterSelection } from "./selection-scroll";
 import styles from "./index.module.css";
 import { LineTimingMenuItems } from "./line-timing-menu.tsx";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
@@ -154,9 +155,11 @@ const LyricLineScroller = ({
 	wordsContainer: HTMLDivElement | null;
 	editingRomanWordIndex: number | null;
 }) => {
+	const toolMode = useAtomValue(toolModeAtom);
 	const scrollToIndexAtom = useMemo(
 		() =>
 			atom((get) => {
+				if (!shouldAutoCenterSelection(toolMode)) return Number.NaN;
 				const line = get(lineAtom);
 				const selectedWords = get(selectedWordsAtom);
 				if (selectedWords.size === 0) return Number.NaN;
@@ -171,7 +174,7 @@ const LyricLineScroller = ({
 				}
 				return scrollToIndex;
 			}),
-		[lineAtom],
+		[lineAtom, toolMode],
 	);
 	const scrollToIndex = useAtomValue(scrollToIndexAtom);
 
