@@ -30,7 +30,7 @@ import {
 import type { LyricWord } from "$/types/ttml.ts";
 import styles from "../components/index.module.css";
 
-const AutoSizeTextField = ({
+export const AutoSizeTextField = ({
 	value,
 	className,
 	style,
@@ -57,6 +57,7 @@ const AutoSizeTextField = ({
 				placeholder={placeholder}
 				ref={inputRef}
 				{...rest}
+				data-empty={valueString.length === 0 ? "" : undefined}
 			/>
 		</span>
 	);

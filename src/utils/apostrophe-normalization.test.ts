@@ -5,6 +5,7 @@ import {
 	normalizeCyrillicEs,
 	normalizeImportedLyricApostrophes,
 	normalizeImportedLyricCyrillicEs,
+	normalizeLyricText,
 } from "./apostrophe-normalization";
 
 describe("normalizeApostrophes", () => {
@@ -33,11 +34,23 @@ describe("normalizeCyrillicEs", () => {
 
 describe("normalizeImportedLyricApostrophes", () => {
 	const lyrics: TTMLLyric = {
-		metadata: [{ key: "musicName", value: ["Don’t normalize metadata"] }],
-		sections: [{ id: "section", label: "Verse ‘One’", category: "verse" }],
+		metadata: [{ key: "musicName", value: ["Don’t skip metadata"] }],
+		marks: [
+			{ timeMs: 500, label: "Singer’s cue", description: "Don’t miss it" },
+		],
+		sections: [
+			{
+				id: "section-‘one’",
+				label: "Verse ‘One’",
+				category: "verse",
+				notes: "Don’t repeat",
+				vocalist: "Singer’s name",
+				repeatGroupId: "repeat-‘one’",
+			},
+		],
 		lyricLines: [
 			{
-				id: "line",
+				id: "line-‘one’",
 				startTime: 0,
 				endTime: 1,
 				ignoreSync: false,
@@ -45,44 +58,102 @@ describe("normalizeImportedLyricApostrophes", () => {
 				isDuet: false,
 				translatedLyric: "You’re here",
 				romanLyric: "Lʼamour",
+				geniusHeader: "[Singer’s Verse]",
+				language: "x-‘test’",
+				agent: "agent-‘one’",
 				words: [
 					{
-						id: "word",
+						id: "word-‘one’",
 						startTime: 0,
 						endTime: 1,
 						word: "It‘s fine",
 						romanWord: "d’Accord",
 						obscene: false,
 						emptyBeat: 0,
+						ruby: [{ startTime: 0, endTime: 1, word: "Ruby’s text" }],
 					},
 				],
 			},
 		],
 	};
 
-	it("normalizes all lyric text while preserving metadata and section labels", () => {
+	it("normalizes all user-visible imported text", () => {
 		const normalized = normalizeImportedLyricApostrophes(lyrics, true);
 
 		expect(normalized.lyricLines[0]).toMatchObject({
 			translatedLyric: "You're here",
 			romanLyric: "L'amour",
-			words: [{ word: "It's fine", romanWord: "d'Accord" }],
+			geniusHeader: "[Singer's Verse]",
+			words: [
+				{
+					word: "It's fine",
+					romanWord: "d'Accord",
+					ruby: [{ word: "Ruby's text" }],
+				},
+			],
 		});
-		expect(normalized.metadata).toEqual(lyrics.metadata);
-		expect(normalized.sections).toEqual(lyrics.sections);
+		expect(normalized.metadata[0].value).toEqual(["Don't skip metadata"]);
+		expect(normalized.marks?.[0]).toMatchObject({
+			label: "Singer's cue",
+			description: "Don't miss it",
+		});
+		expect(normalized.sections?.[0]).toMatchObject({
+			label: "Verse 'One'",
+			notes: "Don't repeat",
+			vocalist: "Singer's name",
+		});
+	});
+
+	it("preserves machine-facing strings", () => {
+		const normalized = normalizeImportedLyricApostrophes(lyrics, true);
+
+		expect(normalized.metadata[0].key).toBe("musicName");
+		expect(normalized.sections?.[0]).toMatchObject({
+			id: "section-‘one’",
+			category: "verse",
+			repeatGroupId: "repeat-‘one’",
+		});
+		expect(normalized.lyricLines[0]).toMatchObject({
+			id: "line-‘one’",
+			language: "x-‘test’",
+			agent: "agent-‘one’",
+			words: [{ id: "word-‘one’" }],
+		});
 	});
 
 	it("preserves source text when disabled", () => {
 		expect(normalizeImportedLyricApostrophes(lyrics, false)).toBe(lyrics);
 	});
 
+	it("applies both active normalizers in one pass", () => {
+		const normalized = normalizeLyricText(lyrics, {
+			normalizeApostrophes: true,
+			normalizeCyrillicEs: true,
+		});
+
+		expect(normalized.metadata[0].value).toEqual(["Don't skip metadata"]);
+		expect(normalized.lyricLines[0].words[0].word).toBe("It's fine");
+	});
+
 	it("normalizes all lyric text when enabled", () => {
 		const normalized = normalizeImportedLyricCyrillicEs(
 			{
 				...lyrics,
+				metadata: [{ key: "musicName", value: ["Thе Song"] }],
+				marks: [{ timeMs: 500, label: "Thе cue", description: "Еcho now" }],
+				sections: [
+					{
+						id: "thе-section",
+						label: "Thе Verse",
+						category: "verse",
+						notes: "Еcho",
+						vocalist: "Thе Singer",
+					},
+				],
 				lyricLines: [
 					{
 						...lyrics.lyricLines[0],
+						geniusHeader: "[Thе Verse]",
 						translatedLyric: "Теst",
 						romanLyric: "Еcho",
 						words: [
@@ -90,6 +161,7 @@ describe("normalizeImportedLyricApostrophes", () => {
 								...lyrics.lyricLines[0].words[0],
 								word: "Неy",
 								romanWord: "Еcho",
+								ruby: [{ startTime: 0, endTime: 1, word: "Thе ruby" }],
 							},
 						],
 					},
@@ -101,7 +173,19 @@ describe("normalizeImportedLyricApostrophes", () => {
 		expect(normalized.lyricLines[0]).toMatchObject({
 			translatedLyric: "Тest",
 			romanLyric: "Echo",
-			words: [{ word: "Нey", romanWord: "Echo" }],
+			geniusHeader: "[The Verse]",
+			words: [{ word: "Нey", romanWord: "Echo", ruby: [{ word: "The ruby" }] }],
+		});
+		expect(normalized.metadata[0].value).toEqual(["The Song"]);
+		expect(normalized.marks?.[0]).toMatchObject({
+			label: "The cue",
+			description: "Echo now",
+		});
+		expect(normalized.sections?.[0]).toMatchObject({
+			id: "thе-section",
+			label: "The Verse",
+			notes: "Echo",
+			vocalist: "The Singer",
 		});
 	});
 });

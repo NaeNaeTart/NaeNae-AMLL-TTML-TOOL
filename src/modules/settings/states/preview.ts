@@ -27,7 +27,7 @@ export const vsyncAtom = atomWithStorage("vsync", false);
 export const showFpsCounterAtom = atomWithStorage("showFpsCounter", false);
 export const instantHighlightFadeAtom = atomWithStorage(
 	"instantHighlightFade",
-	false,
+	true,
 );
 export const spicySimpleLyricsModeAtom = atomWithStorage(
 	"spicySimpleLyricsMode",

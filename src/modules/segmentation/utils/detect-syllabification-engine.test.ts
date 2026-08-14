@@ -33,6 +33,13 @@ describe("detectSyllabificationEngine", () => {
 				),
 			),
 		).toBe("prosodic");
+		expect(
+			detectSyllabificationEngine(
+				lyrics(
+					"To jest prosty polski tekst piosenki zawierający wystarczająco dużo słów do rozpoznania języka.",
+				),
+			),
+		).toBe("hyphenation-pl");
 	});
 
 	it("does not guess when there are no lyrics", () => {

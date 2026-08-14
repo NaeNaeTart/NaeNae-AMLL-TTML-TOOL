@@ -13,6 +13,7 @@ import {
 	Checkbox,
 	Grid,
 	SegmentedControl,
+	Switch,
 	Text,
 	TextField,
 } from "@radix-ui/themes";
@@ -35,6 +36,7 @@ import {
 	vsyncAtom,
 } from "$/modules/settings/states/preview";
 import { RibbonFrame, RibbonSection } from "./common";
+import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
 
 export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 	HTMLDivElement,
@@ -62,6 +64,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 		spicyBackgroundModeAtom,
 	);
 	const { t } = useTranslation();
+	const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
 
 	return (
 		<RibbonFrame ref={ref} isSidebar={isSidebar}>
@@ -220,7 +223,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					/>
 				</Grid>
 			</RibbonSection>
-			<RibbonSection
+			{showAdvanced && <RibbonSection
 				isSidebar={isSidebar}
 				label={t("ribbonBar.previewMode.render", "渲染")}
 			>
@@ -236,8 +239,8 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					</Text>
 					<Checkbox checked={vsync} onCheckedChange={(v) => setVsync(!!v)} />
 				</Grid>
-			</RibbonSection>
-			<RibbonSection isSidebar={isSidebar} label={t("ribbonBar.previewMode.dev", "Dev")}>
+			</RibbonSection>}
+			{showAdvanced && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.previewMode.dev", "Dev")}>
 				<Grid
 					columns="max-content auto"
 					gap="2"
@@ -253,6 +256,9 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 						onCheckedChange={(v) => setShowFps(!!v)}
 					/>
 				</Grid>
+			</RibbonSection>}
+			<RibbonSection label={t("ribbonBar.advanced", "Advanced")} isSidebar={isSidebar}>
+				<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
 			</RibbonSection>
 		</RibbonFrame>
 	);

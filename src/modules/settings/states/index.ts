@@ -65,7 +65,7 @@ export const discordRichPresenceEnabledAtom = atomWithStorage(
 export const showTimestampsAtom = atomWithStorage("showTimestamps", true);
 export const enableManualTimestampEditAtom = atomWithStorage(
 	"enableManualTimestampEdit",
-	true,
+	false,
 );
 
 export const highlightActiveWordAtom = atomWithStorage(
@@ -78,7 +78,7 @@ export const enableSyncGlowAnimationAtom = atomWithStorage(
 	false,
 );
 
-export const highlightErrorsAtom = atomWithStorage("highlightErrors", false);
+export const highlightErrorsAtom = atomWithStorage("highlightErrors", true);
 
 export const smartFirstWordAtom = atomWithStorage("smartFirstWord", false);
 export const smartLastWordAtom = atomWithStorage("smartLastWord", false);
@@ -225,6 +225,11 @@ export const normalizeCyrillicEsOnImportAtom = atomWithStorage<boolean>(
 	false,
 );
 
+export const lyricTextNormalizationOptionsAtom = atom((get) => ({
+	normalizeApostrophes: get(normalizeApostrophesOnImportAtom),
+	normalizeCyrillicEs: get(normalizeCyrillicEsOnImportAtom),
+}));
+
 export enum Mp3ConversionMode {
 	Never = "never",
 	Always = "always",
@@ -245,6 +250,8 @@ export const boykisserModeAtom = atomWithStorage<boolean>(
 	"boykisserMode",
 	false,
 );
+
+export const boykisserUnlockedAtom = atom<boolean>(false);
 
 export const glassmorphismBlurAtom = atomWithStorage<number>(
 	"glassmorphismBlur",
@@ -293,8 +300,9 @@ export const advLineHoverBgAtom = atomWithStorage("advLineHoverBg", "");
 
 export const advChipBorderRadiusAtom = atomWithStorage("advChipBorderRadius", 8);
 export const advChipGapAtom = atomWithStorage("advChipGap", 8);
-export const advChipPaddingVerticalAtom = atomWithStorage("advChipPaddingVertical", 4);
-export const advChipPaddingHorizontalAtom = atomWithStorage("advChipPaddingHorizontal", 12);
+export const advChipPaddingVerticalAtom = atomWithStorage("advChipPaddingVertical", 2);
+export const advChipPaddingHorizontalAtom = atomWithStorage("advChipPaddingHorizontal", 8);
+export const legacySpaceLabelsAtom = atomWithStorage("legacySpaceLabels", false);
 
 export const advRomanizationColorAtom = atomWithStorage("advRomanizationColor", "");
 export const advTranslationColorAtom = atomWithStorage("advTranslationColor", "");

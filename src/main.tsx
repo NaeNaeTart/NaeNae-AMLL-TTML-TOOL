@@ -32,10 +32,7 @@ async function startApp() {
 			(AMLLLyric.wasm_start as () => void)();
 		}
 		
-		// Register integrated plugins
-		const { boykisserificationPlugin } = await import("$/modules/plugins/integrated/boykisserification");
-		
-		pluginManager.registerIntegratedPlugin(boykisserificationPlugin);
+
 
 		await pluginManager.loadEnabledPlugins();
 	} catch (e) {

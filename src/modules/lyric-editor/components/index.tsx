@@ -11,7 +11,7 @@
 
 import { MyLocation24Regular } from "@fluentui/react-icons";
 import { Box, Button, Flex, Text } from "@radix-ui/themes";
-import { atom, useAtom, useAtomValue, useStore } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { splitAtom } from "jotai/utils";
 import { useSetImmerAtom } from "jotai-immer";
 import { focusAtom } from "jotai-optics";
@@ -25,6 +25,9 @@ import {
 	useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modules/onboarding/states";
+import { importLyricsChooserDialogAtom } from "$/states/dialogs";
+import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { currentTimeAtom } from "$/modules/audio/states";
 import {
@@ -53,12 +56,14 @@ import {
 	draggingIdAtom,
 	lastLineDragEndAtom,
 	lineDragAtom,
+	timingCopyPlacementAtom,
 } from "./lyric-line-view-states";
 import {
 	CategorizeSelectionDialog,
 	SectionManagerDialog,
 	SectionMetadataDialog,
 } from "./SectionActions";
+import { shouldAutoCenterSelection } from "./selection-scroll";
 
 const lyricLinesOnlyAtom = splitAtom(
 	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
@@ -95,6 +100,27 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const toolMode = useAtomValue(toolModeAtom);
 	const { t } = useTranslation();
+	const setGuideWelcome = useSetAtom(guideWelcomeOpenAtom);
+	const setGuidePanel = useSetAtom(guidePanelOpenAtom);
+	const setGuideStep = useSetAtom(guideStepAtom);
+	const setImportChooser = useSetAtom(importLyricsChooserDialogAtom);
+	const { openFile } = useFileOpener();
+	const openExistingTtml = useCallback(() => {
+		const input = document.createElement("input");
+		input.type = "file";
+		input.accept = ".ttml,*/*";
+		input.addEventListener("change", () => {
+			const file = input.files?.[0];
+			if (file) openFile(file);
+		}, { once: true });
+		input.click();
+	}, [openFile]);
+
+	useEffect(() => {
+		if (toolMode === ToolMode.Preview) {
+			store.set(timingCopyPlacementAtom, null);
+		}
+	}, [store, toolMode]);
 
 	useEffect(() => {
 		const viewEl = viewElRef.current;
@@ -348,7 +374,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const scrollToIndexAtom = useMemo(
 		() =>
 			atom((get) => {
-				if (toolMode !== ToolMode.Sync && toolMode !== ToolMode.Edit) return;
+				if (!shouldAutoCenterSelection(toolMode)) return;
 				const selectedLines = get(selectedLinesAtom);
 				if (selectedLines.size === 0) return Number.NaN;
 				const lyrics = get(lyricLinesAtom).lyricLines;
@@ -446,6 +472,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	if (editLyric.length === 0)
 		return (
 			<Flex
+				data-guide-target="editor"
 				flexGrow="1"
 				gap="2"
 				align="center"
@@ -455,16 +482,27 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				ref={ref}
 			>
 				<Text color="gray">{t("app.empty.title", "没有歌词行")}</Text>
-				<Text color="gray">
+				<Text color="gray" align="center">
 					{t(
 						"app.empty.description",
 						"在顶部面板中添加新歌词行或从菜单栏打开 / 导入已有歌词",
 					)}
 				</Text>
+				<Flex gap="2" wrap="wrap" justify="center" mt="2">
+					<Button onClick={() => { setGuideStep(0); setGuidePanel(false); setGuideWelcome(true); }}>
+						{t("beginnerGuide.empty.start", "Start Guide")}
+					</Button>
+					<Button variant="soft" onClick={() => setImportChooser(true)}>
+						{t("beginnerGuide.empty.import", "Import Lyrics")}
+					</Button>
+					<Button variant="outline" onClick={openExistingTtml}>
+						{t("beginnerGuide.empty.open", "Open TTML")}
+					</Button>
+				</Flex>
 			</Flex>
 		);
 	return (
-		<Flex direction="column" flexGrow="1" className={styles.lyricLinesWrapper}>
+		<Flex data-guide-target="editor" direction="column" flexGrow="1" className={styles.lyricLinesWrapper}>
 			<SectionMetadataDialog />
 			<SectionManagerDialog />
 			<CategorizeSelectionDialog />

@@ -55,8 +55,133 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="green">
+								v0.9.3 Updates (Import & Editing)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Import Source Chooser:</strong> The empty editor now
+									offers clear Plain Text, LRCLIB, Lyrically, and Genius cards so
+									you can choose an import source before opening its workflow.
+								</Text>
+								<Text size="2">
+									<strong>Reliable Word Double-Clicks:</strong> Selecting a word
+									in Edit mode no longer recenters the lyric line or word before
+									the second click lands. The horizontal ribbon also keeps a
+									stable height as selection-specific controls appear, while Time
+									mode tracking and explicit navigation retain their existing
+									centering behavior.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="orange">
+								v0.9.2 Updates (Welcome Fix)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Fixed First-Run Welcome:</strong> The beginner welcome
+									now appears automatically only once instead of reopening on
+									every app startup. It remains available from the Help menu.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="purple">
+								v0.9.1 Updates (Guide & Cleaner Editing)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Interactive Beginner Guide:</strong> A first-run,
+									in-app workflow now teaches audio import, lyric review,
+									timing, credits, export, and local testing using your own song
+									with focused, state-aware steps. The guide window can be moved
+									or tucked into a compact edge tab. Contextual ribbon controls
+									keep advanced options out of the way until needed.
+								</Text>
+								<Text size="2">
+									<strong>Edge-to-Edge Audio Bar:</strong> The playback controls
+									now span the full workspace width without an outer inset.
+								</Text>
+								<Text size="2">
+									<strong>Edge-to-Edge Lyric Lines:</strong> Lyric line cards now
+									extend to both sides of the editor without outer margins.
+								</Text>
+								<Text size="2">
+									<strong>Connected Word Groups:</strong> Split words and other
+									adjacent words without a space now join edge-to-edge, with
+									rounded corners only at the outside of each group. Per-word
+									romanization follows the same grouping and appearance controls.
+								</Text>
+								<Text size="2">
+									<strong>Compact Space Chips:</strong> Blank words in Edit mode
+									now use empty chips whose width reflects the number of spaces,
+									while keeping the count on hover and offering a legacy Space xN
+									display option in Appearance settings.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="red">
-								v0.8.0 Updates
+								v0.9.0 Updates (Workflow & Romanization)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Combine Words Bulk Controls:</strong> Preview a word
+									combination before confirming it, apply the same combination
+									to matching sequences throughout the lyrics, and optionally
+									ignore case and surrounding punctuation.
+								</Text>
+								<Text size="2">
+									<strong>Replace Romanization:</strong> Edit one word's
+									romanization or apply the replacement to every matching lyric
+									word with optional case-sensitive matching. Both replacement
+									tools remember their last-used matching options.
+								</Text>
+								<Text size="2">
+									<strong>Header-Free Timing Tools:</strong> Copy selected line
+									and word timings onto existing lyric lines, or snap any
+									selected timing block to the playhead in Edit and Time modes
+									without Genius headers.
+								</Text>
+								<Text size="2">
+									<strong>Remembered Desktop Window:</strong> Desktop builds now
+									restore the previous window size, maximized state, and
+									fullscreen state when reopened.
+								</Text>
+								<Text size="2">
+									<strong>Polish Syllabification:</strong> Polish lyrics can now
+									use dedicated hyphenation patterns and automatically suggest
+									the matching segmentation engine.
+								</Text>
+								<Text size="2">
+									<strong>Persistent Discord Project Time:</strong> Discord Rich
+									Presence now remembers time spent on each project across line
+									changes, pauses, project switches, and app restarts.
+								</Text>
+								<Text size="2">
+									<strong>Romanization Performance & Accuracy:</strong> Conversion
+									uses bounded remote requests and retryable fallbacks, maps
+									contextual Mandarin readings to individual Han characters, and
+									preserves source spacing in mixed-language line romanization.
+								</Text>
+								<Text size="2">
+									<strong>Global Text Normalization:</strong> The apostrophe and
+									Cyrillic E options now clean all user-visible fields during
+									import and every export, including metadata, sections, marks,
+									ruby text, and legacy headers, while preserving internal
+									identifiers.
+								</Text>
+								<Text size="2">
+									<strong>Editor Input Polish:</strong> Word and romanization
+									inputs now size and center their contents more naturally, with
+									improved lyric-line editing hit areas.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="blue">
+								v0.8.0 Updates (Release & Export)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -73,8 +198,8 @@ export function ChangelogDialog() {
 							</Flex>
 						</Box>
 						<Box>
-							<Heading size="4" mb="2" color="red">
-								v0.7.7 Updates (TTML Export Fix)
+							<Heading size="4" mb="2" color="green">
+								v0.7.7 Updates (TTML Export)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -104,8 +229,8 @@ export function ChangelogDialog() {
 							</Flex>
 						</Box>
 						<Box>
-							<Heading size="4" mb="2" color="indigo">
-								v0.7.5 Updates (Inline Editing & Quality of Life)
+							<Heading size="4" mb="2" color="orange">
+								v0.7.5 Updates (Inline Editing)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -159,8 +284,8 @@ export function ChangelogDialog() {
 							</Flex>
 						</Box>
 						<Box>
-							<Heading size="4" mb="2" color="indigo">
-								v0.7.4 Updates (AI Fun & Import Polish)
+							<Heading size="4" mb="2" color="pink">
+								v0.7.4 Updates (AI & Imports)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -172,12 +297,12 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Cyrillic E Import Preference:</strong> Added an
 									optional workaround that corrects Cyrillic Е/е lookalikes
-									inside otherwise Latin lyric words.
+									inside otherwise Latin text across imported lyric fields.
 								</Text>
 								<Text size="2">
 									<strong>Apostrophe Import Preference:</strong> Added a setting
 									to standardize curly and other apostrophe-like characters when
-									importing lyrics.
+									importing lyric text, metadata, sections, and marks.
 								</Text>
 								<Text size="2">
 									<strong>Genius Import Fix:</strong> Restored the Change API
@@ -272,7 +397,7 @@ export function ChangelogDialog() {
 						</Box>
 						<Box>
 							<Heading size="4" mb="2" color="orange">
-								v0.7.1 Updates (Scoped Time Stretch)
+								v0.7.1 Updates (Time Stretch)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -349,7 +474,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="violet">
-								v0.6.7 Updates (Bouncy Word Indicator)
+								v0.6.7 Updates (Word Indicators)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -373,7 +498,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="ruby">
-								v0.6.6 Updates (Preview Stability & Toxi Fixes)
+								v0.6.6 Updates (Preview Stability)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -393,7 +518,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="teal">
-								v0.6.5 Updates (Instant Transitions & UI Cleanup)
+								v0.6.5 Updates (UI Transitions)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -418,7 +543,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="gold">
-								v0.6.2 Updates (Sync Accuracy & Export Validation)
+								v0.6.2 Updates (Sync & Validation)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -495,7 +620,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="ruby">
-								v0.6.0 Updates (Repository Migration & Snap Sync)
+								v0.6.0 Updates (Migration & Sync)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -563,7 +688,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="gold">
-								v0.5.0 Updates (Community Plugin Store)
+								v0.5.0 Updates (Plugin Store)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -595,7 +720,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="teal">
-								v0.4.2 Updates (High Performance & Toxi Engine)
+								v0.4.2 Updates (Performance & Toxi)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -762,7 +887,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="gold">
-								v0.2.0 Updates (Major)
+								v0.2.0 Updates (Major Update)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -813,7 +938,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="teal">
-								v0.1.8 Updates
+								v0.1.8 Updates (Lyrics Preparation)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -842,7 +967,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="violet">
-								v0.1.7 Updates
+								v0.1.7 Updates (Sync Layout)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -875,7 +1000,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="cyan">
-								v0.1.6 Updates
+								v0.1.6 Updates (Audio Equalizer)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -908,7 +1033,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="jade">
-								v0.1.5 Updates
+								v0.1.5 Updates (Duplication Tools)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -975,7 +1100,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="cyan">
-								v0.1.4 Updates
+								v0.1.4 Updates (Import Engines)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -1010,7 +1135,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="gold">
-								v0.1.3 Updates
+								v0.1.3 Updates (Provider Scaling)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -1023,7 +1148,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="ruby">
-								v0.1.2 Updates
+								v0.1.2 Updates (Custom Typography)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -1055,7 +1180,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="teal">
-								v0.1.1 Updates
+								v0.1.1 Updates (Preview & Genius)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -1081,7 +1206,7 @@ export function ChangelogDialog() {
 
 						<Box>
 							<Heading size="4" mb="2" color="blue">
-								v0.1.0 Updates
+								v0.1.0 Updates (Core Editor)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">

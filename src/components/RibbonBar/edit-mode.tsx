@@ -62,8 +62,12 @@ import {
 import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { type LyricLine, type LyricWord, newLyricLine } from "$/types/ttml";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
-import { getPhonetic, getPhoneticSyllables } from "$/utils/phonetic";
+import {
+	buildLineRomanization,
+	getPhoneticSyllables,
+} from "$/utils/phonetic";
 import { RibbonFrame, RibbonSection } from "./common";
+import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
 
 const GrammarCheckButton = () => {
 	const { t } = useTranslation();
@@ -759,31 +763,25 @@ const PhoneticSection = () => {
 				return;
 			}
 
-			// Detect project-level language priority for context
-			const fullProjectText = originalLines.map(l => l.words.map(w => w.word).join("")).join("");
-			let projectLangPriority = lang;
-			if (lang === "auto") {
-				if (/[\u3040-\u309F\u30A0-\u30FF]/.test(fullProjectText)) projectLangPriority = "ja";
-				else if (/[\uAC00-\uD7AF]/.test(fullProjectText)) projectLangPriority = "ko";
-				else if (/[\u4E00-\u9FA5]/.test(fullProjectText)) projectLangPriority = "zh";
-			}
-
 			const lineUpdates: Record<string, string> = {};
 			const wordUpdates: Record<string, string> = {};
 
 			if (selectedWords.size > 0) {
-				for (const line of originalLines) {
+				const targetLines = originalLines.filter((line) =>
+					line.words.some((word) => selectedWords.has(word.id)),
+				);
+				for (const line of targetLines) {
 					// Pass word arrays directly to ensure capsule-aware mapping
 					const capsuleTexts = line.words.map(w => w.word);
 					if (capsuleTexts.join("").trim().length === 0) continue;
 					
 					// Get line-level phonetic data
-					const lineSyllables = await getPhoneticSyllables(capsuleTexts, projectLangPriority as "auto" | "ja" | "zh" | "ko" | "yue");
+					const lineSyllables = await getPhoneticSyllables(capsuleTexts, lang);
 
 					for (let i = 0; i < line.words.length; i++) {
 						const word = line.words[i];
-						if (selectedWords.has(word.id) && lineSyllables[i]) {
-							wordUpdates[word.id] = lineSyllables[i];
+						if (selectedWords.has(word.id)) {
+							wordUpdates[word.id] = lineSyllables[i] ?? "";
 						}
 					}
 				}
@@ -792,17 +790,15 @@ const PhoneticSection = () => {
 				for (const line of targetLines) {
 					// Join for the line summary, but process capsules for word updates
 					const capsuleTexts = line.words.map(w => w.word);
-					const joinedText = capsuleTexts.join("");
-					const linePhonetic = await getPhonetic(joinedText, projectLangPriority as "auto" | "ja" | "zh" | "ko" | "yue");
-					lineUpdates[line.id] = linePhonetic;
-
 					if (line.words.length > 0) {
 						// Distribute using capsule-aware mapping
-						const syllables = await getPhoneticSyllables(capsuleTexts, projectLangPriority as "auto" | "ja" | "zh" | "ko" | "yue");
+						const syllables = await getPhoneticSyllables(capsuleTexts, lang);
+						lineUpdates[line.id] = buildLineRomanization(
+							capsuleTexts,
+							syllables,
+						);
 						for (let i = 0; i < line.words.length; i++) {
-							if (syllables[i]) {
-								wordUpdates[line.words[i].id] = syllables[i];
-							}
+							wordUpdates[line.words[i].id] = syllables[i] ?? "";
 						}
 					}
 				}
@@ -889,9 +885,16 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const store = useStore();
 		const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 		const { t } = useTranslation();
+		const selectedLines = useAtomValue(selectedLinesAtom);
+		const selectedWords = useAtomValue(selectedWordsAtom);
+		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
 
 		return (
-			<RibbonFrame ref={ref} isSidebar={isSidebar}>
+			<RibbonFrame
+				ref={ref}
+				isSidebar={isSidebar}
+				reserveControlRows={3}
+			>
 				<RibbonSection label={t("ribbonBar.editMode.new", "新建")} isSidebar={isSidebar}>
 					<Grid columns="1" gap="1" gapY="1" flexGrow="1" align="center">
 						<Button
@@ -907,7 +910,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 						</Button>
 					</Grid>
 				</RibbonSection>
-				<RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineTiming", "行时间戳")}>
+				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineTiming", "行时间戳")}>
 					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
 						<EditField
 							label={t("ribbonBar.editMode.startTime", "起始时间")}
@@ -922,8 +925,8 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							formatter={msToTimestamp}
 						/>
 					</Grid>
-				</RibbonSection>
-				<RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineProperties", "行属性")}>
+				</RibbonSection>}
+				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineProperties", "行属性")}>
 					<Grid columns="max-content max-content" gap="4" gapY="1" flexGrow="1" align="center">
 						<CheckboxField
 							label={t("ribbonBar.editMode.bgLyric", "背景歌词")}
@@ -944,9 +947,9 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							defaultValue={false}
 						/>
 					</Grid>
-				</RibbonSection>
-				<PhoneticSection isSidebar={isSidebar} />
-				<RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.wordTiming", "词时间戳")}>
+				</RibbonSection>}
+				{showAdvanced && (selectedLines.size > 0 || selectedWords.size > 0) && <PhoneticSection isSidebar={isSidebar} />}
+				{selectedWords.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.wordTiming", "词时间戳")}>
 					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
 						<EditField
 							label={t("ribbonBar.editMode.startTime", "起始时间")}
@@ -973,8 +976,8 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							formatter={String}
 						/>
 					</Grid>
-				</RibbonSection>
-				<RibbonSection
+				</RibbonSection>}
+				{selectedWords.size > 0 && <RibbonSection
 					isSidebar={isSidebar}
 					label={t("ribbonBar.editMode.wordProperties", "单词属性")}
 				>
@@ -1000,8 +1003,8 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							defaultValue={false}
 						/>
 					</Grid>
-				</RibbonSection>
-				<RibbonSection
+				</RibbonSection>}
+				{showAdvanced && selectedLines.size > 0 && <RibbonSection
 					isSidebar={isSidebar}
 					label={t("ribbonBar.editMode.secondaryContent", "次要内容")}
 				>
@@ -1021,8 +1024,8 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							textFieldStyle={{ width: "15em" }}
 						/>
 					</Grid>
-				</RibbonSection>
-				<RibbonSection label={t("ribbonBar.editMode.layoutMode", "布局模式")} isSidebar={isSidebar}>
+				</RibbonSection>}
+				{showAdvanced && <RibbonSection label={t("ribbonBar.editMode.layoutMode", "布局模式")} isSidebar={isSidebar}>
 					<EditModeField
 						simpleModeLabel={t(
 							"settings.common.layoutModeOptions.simple",
@@ -1033,17 +1036,20 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							"高级模式",
 						)}
 					/>
-				</RibbonSection>
-				<RibbonSection
+				</RibbonSection>}
+				{showAdvanced && <RibbonSection
 					label={t("ribbonBar.editMode.auxiliaryLineDisplay", "辅助行显示")}
 					isSidebar={isSidebar}
 				>
 					<AuxiliaryDisplayField />
-				</RibbonSection>
-				<RibbonSection label={t("ribbonBar.editMode.tools", "工具")} isSidebar={isSidebar}>
+				</RibbonSection>}
+				{showAdvanced && <RibbonSection label={t("ribbonBar.editMode.tools", "工具")} isSidebar={isSidebar}>
 					<Flex gap="2" direction="column">
 						<GrammarCheckButton />
 					</Flex>
+				</RibbonSection>}
+				<RibbonSection label={t("ribbonBar.advanced", "Advanced")} isSidebar={isSidebar}>
+					<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
 				</RibbonSection>
 			</RibbonFrame>
 		);

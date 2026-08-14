@@ -27,6 +27,7 @@ export const RibbonBar = memo(
 
 		return (
 			<Card
+				data-guide-target="ribbon"
 				style={{
 					minHeight: isSidebar ? "100%" : "fit-content",
 					minWidth: isSidebar ? "240px" : undefined,

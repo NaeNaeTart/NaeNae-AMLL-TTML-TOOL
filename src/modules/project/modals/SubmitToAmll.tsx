@@ -22,6 +22,7 @@ import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
 	generateNameFromMetadataAtom,
 	hideSubmitAMLLDBWarningAtom,
+	lyricTextNormalizationOptionsAtom,
 } from "$/modules/settings/states";
 import { submitToAMLLDBDialogAtom } from "$/states/dialogs.ts";
 import { lyricLinesAtom } from "$/states/main";
@@ -156,7 +157,7 @@ export const SubmitToAMLLDBDialog = memo(() => {
 				return;
 			}
 
-			const ttmlText = exportTTMLText(store.get(lyricLinesAtom));
+			const ttmlText = exportTTMLText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom));
 			const ttmlBlob = new Blob([ttmlText], { type: "text/xml" });
 
 			const formData = new FormData();

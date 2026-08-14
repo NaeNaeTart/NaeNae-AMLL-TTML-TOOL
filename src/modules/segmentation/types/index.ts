@@ -27,6 +27,7 @@ export type SegmentationEngineId =
 	| "hyphenation-es"
 	| "hyphenation-id"
 	| "hyphenation-it"
+	| "hyphenation-pl"
 	| "hyphenation-pt"
 	| "hyphenation-ru"
 	| "none";

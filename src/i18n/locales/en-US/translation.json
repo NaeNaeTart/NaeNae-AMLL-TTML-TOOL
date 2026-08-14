@@ -17,6 +17,28 @@
       "description": "Add new lyric lines in the top panel or open/import existing lyrics from the menu"
     }
   },
+  "importChooser": {
+    "title": "Import lyrics",
+    "description": "Choose where you want to import your lyrics from.",
+    "options": {
+      "plainText": {
+        "title": "Plain text",
+        "description": "Paste lyrics and choose how lines, translations, romanization, and word splits are interpreted."
+      },
+      "lrclib": {
+        "title": "LRCLIB",
+        "description": "Search LRCLIB for synced or plain lyrics by song and artist."
+      },
+      "lyrically": {
+        "title": "Lyrically",
+        "description": "Search Lyrically's available lyric sources without setting up a Genius token."
+      },
+      "genius": {
+        "title": "Genius",
+        "description": "Search Genius for lyrics and songwriter information using your access token."
+      }
+    }
+  },
   "amll": {
     "noLyrics": "No lyrics available in store"
   },
@@ -348,6 +370,8 @@
         "chipSpacing": "Chip Spacing (Gap)",
         "chipPaddingVertical": "Chip Padding (V)",
         "chipPaddingHorizontal": "Chip Padding (H)",
+        "legacySpaceLabels": "Legacy Space Labels",
+        "legacySpaceLabelsDesc": "Show Space xN instead of compact empty space cells.",
         "audioVisuals": "Playback & Visuals",
         "audioBarColor": "Audio Bar Color",
         "audioBarText": "Audio Bar Text",
@@ -563,6 +587,9 @@
     "bgLyric": "Background line",
     "duetLyric": "Duet line",
     "moveLineToPlayhead": "Move line to playhead",
+    "copyTimingsTo": "Copy timings to…",
+    "cancelCopyTimings": "Cancel timing copy",
+    "snapSelectedLinesToPlayhead": "Snap selected lines to playhead",
     "insertLineBefore": "Insert new line before",
     "insertLineAfter": "Insert new line after",
     "copyLine": "Duplicate {count} line(s)",
@@ -573,6 +600,7 @@
     "noSyllablesFound": "No multiple syllables found.",
     "splitIntoSyllables": "Split into Syllables (Romanized)",
     "replaceWord": "Replace word…",
+    "replaceRomanization": "Replace romanization…",
     "combineWords": "Combine words",
     "moveFollowingWordToNewLine": "Move followings to new line",
     "moveWordToNewLine": "Move {count} word(s) to new line"
@@ -767,6 +795,11 @@
     "romanLabel": "Romanization:",
     "empty": "None",
     "duplicateLinesHere": "Duplicate {count} selected line(s) here",
+    "applyTimingsHere": "Apply {count} timing(s) starting here",
+    "applyPartialTimingsHere": "Apply {applied} of {total} timings starting here",
+    "timingsApplied": "Applied timing to {count} line(s).",
+    "partialTimingCopy": "Only {applied} of {total} source timings fit before the end of the lyrics.",
+    "wordTimingMismatch": "{count} line(s) had different word counts; copied matching word positions only.",
     "insertLine": "Insert new line here",
     "insertWord": "Insert word here…"
   },
@@ -845,6 +878,13 @@
     "placeholder": "New word",
     "applyToAll": "Apply this replacing to all identical words",
     "caseSensitive": "Match case (Exact match)"
+  },
+  "replaceRomanizationDialog": {
+    "title": "Replace Romanization",
+    "description": "New romanization:",
+    "placeholder": "New romanization",
+    "applyToAll": "Apply to all identical words",
+    "caseSensitive": "Match case (exact match)"
   },
   "timeShiftDialog": {
     "title": "Time Shift",
@@ -1086,6 +1126,14 @@
     "remember": "Remember this split",
     "ignoreCase": "Ignore case",
     "actionButton": "Confirm"
+  },
+  "combineWordsDialog": {
+    "title": "Combine Words",
+    "description": "Confirm how the selected words should be combined.",
+    "preview": "Preview",
+    "applyToAll": "Apply this combination to all identical word sequences",
+    "ignoreCase": "Ignore case",
+    "adjacentOnly": "Apply to all is available only for adjacent selected words."
   },
   "advancedSegmentDialog": {
     "test": {

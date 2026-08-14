@@ -70,6 +70,7 @@ import {
 	advChipGapAtom,
 	advChipPaddingVerticalAtom,
 	advChipPaddingHorizontalAtom,
+	legacySpaceLabelsAtom,
 	advRomanizationColorAtom,
 	advTranslationColorAtom,
 	advGeniusHeaderColorAtom,
@@ -184,6 +185,7 @@ export const SettingsAppearanceTab = () => {
 	const [vChipGap, setVChipGap] = useAtom(advChipGapAtom);
 	const [vChipPaddingV, setVChipPaddingV] = useAtom(advChipPaddingVerticalAtom);
 	const [vChipPaddingH, setVChipPaddingH] = useAtom(advChipPaddingHorizontalAtom);
+	const [legacySpaceLabels, setLegacySpaceLabels] = useAtom(legacySpaceLabelsAtom);
 	const [vRomanColor, setVRomanColor] = useAtom(advRomanizationColorAtom);
 	const [vTransColor, setVTransColor] = useAtom(advTranslationColorAtom);
 	const [vGeniusHeaderColor, setVGeniusHeaderColor] = useAtom(advGeniusHeaderColorAtom);
@@ -934,6 +936,15 @@ export const SettingsAppearanceTab = () => {
 								<AdvancedSliderItem label={t("settings.appearance.advanced.chipSpacing", "Chip Spacing (Gap)")} icon={<Stack24Regular />} value={vChipGap} min={0} max={32} onChange={setVChipGap} unit="px" />
 								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingVertical", "Chip Padding (V)")} icon={<PaddingLeft24Regular />} value={vChipPaddingV} min={0} max={32} onChange={setVChipPaddingV} unit="px" />
 								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingHorizontal", "Chip Padding (H)")} icon={<PaddingLeft24Regular />} value={vChipPaddingH} min={0} max={32} onChange={setVChipPaddingH} unit="px" />
+								<Flex align="center" justify="between" gap="3">
+									<Flex direction="column" gap="1">
+										<Text>{t("settings.appearance.advanced.legacySpaceLabels", "Legacy Space Labels")}</Text>
+										<Text size="1" color="gray">
+											{t("settings.appearance.advanced.legacySpaceLabelsDesc", "Show Space xN instead of compact empty space cells.")}
+										</Text>
+									</Flex>
+									<Switch checked={legacySpaceLabels} onCheckedChange={setLegacySpaceLabels} />
+								</Flex>
 							</Flex>
 						</Card>
 					</Flex>

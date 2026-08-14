@@ -218,6 +218,19 @@ pub fn run() {
         builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
     }
 
+    #[cfg(desktop)]
+    {
+        use tauri_plugin_window_state::StateFlags;
+
+        builder = builder.plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(
+                    StateFlags::SIZE | StateFlags::MAXIMIZED | StateFlags::FULLSCREEN,
+                )
+                .build(),
+        );
+    }
+
     builder
         .manage(DiscordState::default())
         .setup(|app| {

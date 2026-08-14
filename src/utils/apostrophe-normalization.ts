@@ -20,9 +20,66 @@ export const normalizeCyrillicEs = (text: string): string =>
 		);
 	});
 
+const normalizeOptionalText = (
+	text: string | undefined,
+	normalize: (text: string) => string,
+): string | undefined => (text === undefined ? undefined : normalize(text));
+
+export interface LyricTextNormalizationOptions {
+	normalizeApostrophes: boolean;
+	normalizeCyrillicEs: boolean;
+}
+
+export const normalizeLyricText = (
+	lyrics: TTMLLyric,
+	options: LyricTextNormalizationOptions,
+): TTMLLyric => {
+	if (!options.normalizeApostrophes && !options.normalizeCyrillicEs) return lyrics;
+
+	const normalize = (text: string) => {
+		let normalized = text;
+		if (options.normalizeApostrophes) normalized = normalizeApostrophes(normalized);
+		if (options.normalizeCyrillicEs) normalized = normalizeCyrillicEs(normalized);
+		return normalized;
+	};
+
+	return {
+	...lyrics,
+	metadata: lyrics.metadata.map((entry) => ({
+		...entry,
+		value: entry.value.map(normalize),
+	})),
+	marks: lyrics.marks?.map((mark) => ({
+		...mark,
+		label: normalizeOptionalText(mark.label, normalize),
+		description: normalizeOptionalText(mark.description, normalize),
+	})),
+	sections: lyrics.sections?.map((section) => ({
+		...section,
+		label: normalize(section.label),
+		notes: normalizeOptionalText(section.notes, normalize),
+		vocalist: normalizeOptionalText(section.vocalist, normalize),
+	})),
+	lyricLines: lyrics.lyricLines.map((line) => ({
+		...line,
+		translatedLyric: normalize(line.translatedLyric ?? ""),
+		romanLyric: normalize(line.romanLyric ?? ""),
+		geniusHeader: normalizeOptionalText(line.geniusHeader, normalize),
+		words: line.words.map((word) => ({
+			...word,
+			word: normalize(word.word),
+			romanWord: normalize(word.romanWord ?? ""),
+			ruby: word.ruby?.map((rubyWord) => ({
+				...rubyWord,
+				word: normalize(rubyWord.word),
+			})),
+		})),
+	})),
+	};
+};
+
 /**
- * Returns imported lyric content with apostrophe-like characters normalized.
- * Project metadata and section labels are intentionally preserved verbatim.
+ * Returns imported user-visible text with apostrophe-like characters normalized.
  */
 export const normalizeImportedLyricApostrophes = (
 	lyrics: TTMLLyric,
@@ -30,24 +87,14 @@ export const normalizeImportedLyricApostrophes = (
 ): TTMLLyric => {
 	if (!enabled) return lyrics;
 
-	return {
-		...lyrics,
-		lyricLines: lyrics.lyricLines.map((line) => ({
-			...line,
-			translatedLyric: normalizeApostrophes(line.translatedLyric ?? ""),
-			romanLyric: normalizeApostrophes(line.romanLyric ?? ""),
-			words: line.words.map((word) => ({
-				...word,
-				word: normalizeApostrophes(word.word),
-				romanWord: normalizeApostrophes(word.romanWord ?? ""),
-			})),
-		})),
-	};
+	return normalizeLyricText(lyrics, {
+		normalizeApostrophes: enabled,
+		normalizeCyrillicEs: false,
+	});
 };
 
 /**
- * Returns imported lyric content with isolated Cyrillic Е/е lookalikes normalized.
- * Project metadata and section labels are intentionally preserved verbatim.
+ * Returns imported user-visible text with isolated Cyrillic Е/е lookalikes normalized.
  */
 export const normalizeImportedLyricCyrillicEs = (
 	lyrics: TTMLLyric,
@@ -55,17 +102,8 @@ export const normalizeImportedLyricCyrillicEs = (
 ): TTMLLyric => {
 	if (!enabled) return lyrics;
 
-	return {
-		...lyrics,
-		lyricLines: lyrics.lyricLines.map((line) => ({
-			...line,
-			translatedLyric: normalizeCyrillicEs(line.translatedLyric ?? ""),
-			romanLyric: normalizeCyrillicEs(line.romanLyric ?? ""),
-			words: line.words.map((word) => ({
-				...word,
-				word: normalizeCyrillicEs(word.word),
-				romanWord: normalizeCyrillicEs(word.romanWord ?? ""),
-			})),
-		})),
-	};
+	return normalizeLyricText(lyrics, {
+		normalizeApostrophes: false,
+		normalizeCyrillicEs: enabled,
+	});
 };

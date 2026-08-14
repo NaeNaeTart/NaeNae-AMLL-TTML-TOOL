@@ -18,13 +18,14 @@ import { toast } from "react-toastify";
 import { geniusApiKeyAtom } from "$/modules/settings/states/index.ts";
 import { geniusSearchDialogAtom } from "$/states/dialogs.ts";
 import { lyricLinesAtom } from "$/states/main.ts";
+import { getGeniusKeyGuideUrl } from "$/utils/genius-guide";
 import { GeniusApi } from "../api/client";
 import type { GeniusSearchHit } from "../types";
 import { getBetterGeniusCoverArt } from "../utils/image";
 import styles from "./GeniusSearchDialog.module.css";
 
 export const GeniusSearchDialog = () => {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const [isOpen, setIsOpen] = useAtom(geniusSearchDialogAtom);
 	const [lyricLines, setLyricLines] = useImmerAtom(lyricLinesAtom);
 
@@ -278,7 +279,7 @@ export const GeniusSearchDialog = () => {
 	if (!geniusApiKey) {
 		return (
 			<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-				<Dialog.Content className={styles.dialogContent}>
+				<Dialog.Content style={{ maxWidth: 480 }}>
 					<Dialog.Title>
 						{t(
 							"metadataDialog.fetchSongwriters.setupTitle",
@@ -302,6 +303,18 @@ export const GeniusSearchDialog = () => {
 								"metadataDialog.fetchSongwriters.setupDescEnd",
 								" developer portal.",
 							)}
+						</Text>
+						<Text size="2">
+							<a
+								href={getGeniusKeyGuideUrl(i18n.resolvedLanguage)}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{t(
+									"metadataDialog.fetchSongwriters.howToGetKey",
+									"How to create a Genius Client Access Token",
+								)}
+							</a>
 						</Text>
 						<TextField.Root
 							placeholder={t(

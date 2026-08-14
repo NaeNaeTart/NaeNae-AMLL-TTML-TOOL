@@ -15,6 +15,7 @@ import { saveFile } from "$/utils/fileSystem.ts";
 import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
+import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
 import {
@@ -25,6 +26,7 @@ import {
 } from "$/states/dialogs.ts";
 import { lyricLinesAtom, saveFileNameAtom } from "$/states/main.ts";
 import { error } from "$/utils/logging.ts";
+import { normalizeLyricText } from "$/utils/apostrophe-normalization";
 
 export const ImportExportLyric = () => {
 	const store = useStore();
@@ -74,7 +76,7 @@ export const ImportExportLyric = () => {
 		(stringifier: (lines: LyricLine[]) => string, extension: string) =>
 		async () => {
 			notifySectionIssues();
-			const lyricState = store.get(lyricLinesAtom);
+			const lyricState = normalizeLyricText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom));
 			const lyric = lyricState.lyricLines;
 			const metadata = lyricState.metadata;
 
@@ -126,7 +128,7 @@ export const ImportExportLyric = () => {
 		const lyricState = store.get(lyricLinesAtom);
 		
 		// Use TTML as the primary interchange format for plugins
-		const ttmlData = exportTTMLText(lyricState);
+		const ttmlData = exportTTMLText(lyricState, store.get(lyricTextNormalizationOptionsAtom));
 		
 		try {
 			const result = await pluginManager.runExporter(pluginId, ttmlData);

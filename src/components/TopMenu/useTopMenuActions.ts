@@ -9,6 +9,7 @@ import { saveFile } from "$/utils/fileSystem.ts";
 import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
+import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import {
 	segmentWord,
 	segmentLyricLines,
@@ -195,7 +196,7 @@ export const useTopMenuActions = () => {
 						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
 					);
 				}
-				const ttmlText = exportTTMLText(currentLyrics);
+				const ttmlText = exportTTMLText(currentLyrics, store.get(lyricTextNormalizationOptionsAtom));
 				const savedName = await saveFile(ttmlText, {
 					suggestedName: saveFileName,
 					types: [
@@ -260,7 +261,7 @@ export const useTopMenuActions = () => {
 						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
 					);
 				}
-				const ttml = exportTTMLText(lyric);
+				const ttml = exportTTMLText(lyric, store.get(lyricTextNormalizationOptionsAtom));
 				await navigator.clipboard.writeText(ttml);
 			} catch (e) {
 				error("Failed to save TTML file into clipboard", e);

@@ -1,4 +1,4 @@
-import { ContextMenu, Flex } from "@radix-ui/themes";
+import { ContextMenu } from "@radix-ui/themes";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import * as React from "react";
@@ -6,20 +6,21 @@ import { useTranslation } from "react-i18next";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main";
 
 import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml";
-import { globalEnableInsertAtom } from "./lyric-line-view-states";
-import { currentTimeAtom } from "$/modules/audio/states";
-import { audioEngine } from "$/modules/audio/audio-engine";
+import {
+	globalEnableInsertAtom,
+	timingCopyPlacementAtom,
+} from "./lyric-line-view-states";
 
 const selectedLinesSizeAtom = atom((get) => get(selectedLinesAtom).size);
 
 export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 	const { t } = useTranslation();
 	const setGlobalEnableInsert = useSetAtom(globalEnableInsertAtom);
+	const setTimingCopyPlacement = useSetAtom(timingCopyPlacementAtom);
 
 	const selectedLinesSize = useAtomValue(selectedLinesSizeAtom);
 	const selectedLines = useAtomValue(selectedLinesAtom);
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
-	const currentTime = useAtomValue(currentTimeAtom);
 
 	const lineObjs = useAtomValue(lyricLinesAtom);
 	const selectedLineObjs = lineObjs.lyricLines.filter((line) =>
@@ -79,10 +80,6 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 				{t("contextMenu.duetLyric", "对唱歌词")}
 			</ContextMenu.CheckboxItem>
 			<ContextMenu.Separator />
-			<ContextMenu.Item onSelect={setOffsetToHere}>
-				{t("contextMenu.moveLineToPlayhead", "Move line to playhead")}
-			</ContextMenu.Item>
-			<ContextMenu.Separator />
 			<ContextMenu.Item
 				onSelect={() => {
 					editLyricLines((state) => {
@@ -107,7 +104,13 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 					defaultValue: "复制行",
 				})}
 			</ContextMenu.Item>
-			<ContextMenu.Item onSelect={() => setGlobalEnableInsert(true)} disabled={selectedLinesSize === 0}>
+			<ContextMenu.Item
+				onSelect={() => {
+					setTimingCopyPlacement(null);
+					setGlobalEnableInsert(true);
+				}}
+				disabled={selectedLinesSize === 0}
+			>
 				{t("contextMenu.duplicateTo", "Duplicate to...")}
 			</ContextMenu.Item>
 			<ContextMenu.Item onSelect={combineLines} disabled={!combineEnabled}>
@@ -163,40 +166,5 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 				return [line, newLine];
 			});
 		});
-	}
-
-	function setOffsetToHere() {
-		editLyricLines((state) => {
-			let targetLines: LyricLine[] = [];
-			if (selectedLinesSize === 0) {
-				const line = state.lyricLines[lineIndex];
-				if (line) targetLines = [line];
-			} else {
-				targetLines = state.lyricLines.filter((line) =>
-					selectedLines.has(line.id),
-				);
-			}
-
-			if (targetLines.length === 0 || !targetLines[0]) return;
-
-			const baseStartTime = targetLines[0].startTime;
-			const offset = currentTime - baseStartTime;
-
-			for (const line of targetLines) {
-				line.startTime += offset;
-				line.endTime += offset;
-				for (const word of line.words) {
-					word.startTime += offset;
-					word.endTime += offset;
-				}
-			}
-		});
-	}
-
-	function onSeekToHere() {
-		const line = lineObjs.lyricLines[lineIndex];
-		if (line) {
-			audioEngine.seekMusic(line.startTime / 1000);
-		}
 	}
 };

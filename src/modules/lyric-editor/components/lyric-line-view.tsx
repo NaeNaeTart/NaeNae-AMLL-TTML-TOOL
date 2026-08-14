@@ -46,6 +46,7 @@ import {
 	advGeniusHeaderColorAtom,
 	compactBGInSyncAtom,
 	geniusCategorizationEnabledAtom,
+	legacySpaceLabelsAtom,
 	showLineRomanizationAtom,
 	showLineTranslationAtom,
 	showTimestampsAtom,
@@ -71,17 +72,25 @@ import {
 	findPreviousMatchingSection,
 	shiftSectionToTime,
 } from "../utils/genius-sections.ts";
+import {
+	applyLineTimingSnapshots,
+	type ApplyLineTimingsResult,
+} from "../utils/line-timing.ts";
 import { getSynchronizableUnits } from "../utils/lyric-states.ts";
+import { getWordConnections } from "../utils/word-connections.ts";
 import {
 	duplicateLinesWithSections,
 	repairSectionIntegrity,
 } from "../utils/section-system.ts";
+import { shouldAutoCenterSelection } from "./selection-scroll";
 import styles from "./index.module.css";
+import { LineTimingMenuItems } from "./line-timing-menu.tsx";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import {
 	globalEnableInsertAtom,
 	lastLineDragEndAtom,
 	lineDragAtom,
+	timingCopyPlacementAtom,
 } from "./lyric-line-view-states.ts";
 import LyricWordView from "./lyric-word-view.tsx";
 import { RomanWordView } from "./roman-word-view.tsx";
@@ -146,9 +155,11 @@ const LyricLineScroller = ({
 	wordsContainer: HTMLDivElement | null;
 	editingRomanWordIndex: number | null;
 }) => {
+	const toolMode = useAtomValue(toolModeAtom);
 	const scrollToIndexAtom = useMemo(
 		() =>
 			atom((get) => {
+				if (!shouldAutoCenterSelection(toolMode)) return Number.NaN;
 				const line = get(lineAtom);
 				const selectedWords = get(selectedWordsAtom);
 				if (selectedWords.size === 0) return Number.NaN;
@@ -163,7 +174,7 @@ const LyricLineScroller = ({
 				}
 				return scrollToIndex;
 			}),
-		[lineAtom],
+		[lineAtom, toolMode],
 	);
 	const scrollToIndex = useAtomValue(scrollToIndexAtom);
 
@@ -257,7 +268,6 @@ const SubLineEdit = memo(
 		return (
 			<Flex
 				align="baseline"
-				data-lyric-line-interactive=""
 				style={{
 					color:
 						type === "translatedLyric"
@@ -272,6 +282,7 @@ const SubLineEdit = memo(
 					<TextField.Root
 						autoFocus
 						size="1"
+						data-lyric-line-interactive=""
 						value={inputValue}
 						style={{ width: inputWidth }}
 						onChange={(evt) => setInputValue(evt.currentTarget.value)}
@@ -284,6 +295,7 @@ const SubLineEdit = memo(
 					<Button
 						size="2"
 						variant="ghost"
+						data-lyric-line-interactive=""
 						style={{ color: "inherit" }}
 						onClick={(evt) => {
 							evt.stopPropagation();
@@ -316,7 +328,7 @@ const InsertLineButton = ({
 
 	return (
 		<Button
-			mx="2"
+			mx="1"
 			my="1"
 			variant="soft"
 			size="1"
@@ -341,9 +353,9 @@ const InsertLineButton = ({
 		>
 			{selectedLinesCount > 0
 				? t("lyricLineView.duplicateLinesHere", {
-						count: selectedLinesCount,
-						defaultValue: "Duplicate {count} selected line(s) here",
-					})
+					count: selectedLinesCount,
+					defaultValue: "Duplicate {count} selected line(s) here",
+				})
 				: t("lyricLineView.insertLine", "在此插入新行")}
 		</Button>
 	);
@@ -486,18 +498,26 @@ export const LyricLineView: FC<{
 	const showWordRomanizationInput = useAtomValue(showWordRomanizationInputAtom);
 	const showTranslation = useAtomValue(showLineTranslationAtom);
 	const showRomanization = useAtomValue(showLineRomanizationAtom);
+	const wordTexts = useMemo(
+		() => line.words.map((lineWord) => lineWord.word),
+		[line.words],
+	);
 	const editingRomanWordIndexAtom = useMemo(
 		() => atom<number | null>(null),
 		[],
 	);
 	const editingRomanWordIndex = useAtomValue(editingRomanWordIndexAtom);
 	const compactBGInSync = useAtomValue(compactBGInSyncAtom);
+	const legacySpaceLabels = useAtomValue(legacySpaceLabelsAtom);
 
 	const startTimeRef = useRef<HTMLDivElement>(null);
 	const endTimeRef = useRef<HTMLButtonElement>(null);
 	const [enableInsertLocal, setEnableInsertLocal] = useState(false);
 	const [globalEnableInsert, setGlobalEnableInsert] = useAtom(
 		globalEnableInsertAtom,
+	);
+	const [timingCopyPlacement, setTimingCopyPlacement] = useAtom(
+		timingCopyPlacementAtom,
 	);
 	const enableInsert = enableInsertLocal || globalEnableInsert;
 
@@ -661,6 +681,75 @@ export const LyricLineView: FC<{
 					editingRomanWordIndex={editingRomanWordIndex}
 				/>
 			)}
+			{timingCopyPlacement && (
+				<Button
+					mx="1"
+					my="1"
+					variant="soft"
+					size="1"
+					style={{ width: "calc(100% - var(--space-4))" }}
+					onClick={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						let result: ApplyLineTimingsResult | undefined;
+						editLyricLines((state) => {
+							result = applyLineTimingSnapshots(
+								state.lyricLines,
+								lineIndex,
+								timingCopyPlacement.snapshots,
+							);
+						});
+						setTimingCopyPlacement(null);
+
+						if (!result || result.appliedLineCount === 0) return;
+						toast.success(
+							t("lyricLineView.timingsApplied", {
+								count: result.appliedLineCount,
+								defaultValue: "Applied timing to {count} line(s).",
+							}),
+						);
+						const warnings: string[] = [];
+						if (result.partial) {
+							warnings.push(
+								t("lyricLineView.partialTimingCopy", {
+									applied: result.appliedLineCount,
+									total: timingCopyPlacement.snapshots.length,
+									defaultValue:
+										"Only {applied} of {total} source timings fit before the end of the lyrics.",
+								}),
+							);
+						}
+						if (result.wordCountMismatchCount > 0) {
+							warnings.push(
+								t("lyricLineView.wordTimingMismatch", {
+									count: result.wordCountMismatchCount,
+									defaultValue:
+										"{count} line(s) had different word counts; copied matching word positions only.",
+								}),
+							);
+						}
+						if (warnings.length > 0) toast.info(warnings.join(" "));
+					}}
+				>
+					{Math.min(
+						timingCopyPlacement.snapshots.length,
+						store.get(lyricLinesAtom).lyricLines.length - lineIndex,
+					) < timingCopyPlacement.snapshots.length
+						? t("lyricLineView.applyPartialTimingsHere", {
+							applied: Math.min(
+								timingCopyPlacement.snapshots.length,
+								store.get(lyricLinesAtom).lyricLines.length - lineIndex,
+							),
+							total: timingCopyPlacement.snapshots.length,
+							defaultValue:
+								"Apply {applied} of {total} timings starting here",
+						})
+						: t("lyricLineView.applyTimingsHere", {
+							count: timingCopyPlacement.snapshots.length,
+							defaultValue: "Apply {count} timing(s) starting here",
+						})}
+				</Button>
+			)}
 			{enableInsert && (
 				<InsertLineButton
 					lineIndex={lineIndex}
@@ -678,12 +767,7 @@ export const LyricLineView: FC<{
 				}}
 			>
 				<ContextMenu.Trigger
-					disabled={
-						toolMode === ToolMode.Preview ||
-						(toolMode !== ToolMode.Edit &&
-							!sectionActionsEnabled &&
-							!manualCategorizationEnabled)
-					}
+					disabled={toolMode === ToolMode.Preview}
 					onContextMenu={(evt) => {
 						if (
 							(evt.target as HTMLElement | null)?.closest(
@@ -696,7 +780,7 @@ export const LyricLineView: FC<{
 					}}
 				>
 					<Flex
-						mx="2"
+						mx="1"
 						my={
 							line.isBG && toolMode === ToolMode.Sync && compactBGInSync
 								? "0"
@@ -706,9 +790,9 @@ export const LyricLineView: FC<{
 						className={classNames(
 							styles.lyricLine,
 							line.isBG &&
-								toolMode === ToolMode.Sync &&
-								compactBGInSync &&
-								styles.bg,
+							toolMode === ToolMode.Sync &&
+							compactBGInSync &&
+							styles.bg,
 							lineSelected && styles.selected,
 							toolMode === ToolMode.Sync && styles.sync,
 							toolMode === ToolMode.Edit && styles.edit,
@@ -970,6 +1054,10 @@ export const LyricLineView: FC<{
 								>
 									{words.map((wordAtom, wi) => {
 										const word = store.get(wordAtom);
+										const connections = getWordConnections(
+											wordTexts,
+											wi,
+										);
 										return (
 											<Fragment key={`word-${word.id}`}>
 												{enableInsert && (
@@ -994,11 +1082,23 @@ export const LyricLineView: FC<{
 												<Flex
 													direction="column"
 													align="stretch"
-													gap={showWordRomanizationInput ? "1" : "3"}
+													gap={showWordRomanizationInput ? "0" : "3"}
 													data-word-index={wi}
 													className={classNames(
 														styles.wordGroup,
+														!legacySpaceLabels &&
+														word.word.length > 0 &&
+														word.word.trim().length === 0 &&
+														styles.spaceGroup,
 														showWordRomanizationInput && styles.withRomanization,
+														toolMode === ToolMode.Edit &&
+														!enableInsert &&
+														connections.previous &&
+														styles.connectedPrevious,
+														toolMode === ToolMode.Edit &&
+														!enableInsert &&
+														connections.next &&
+														styles.connectedNext,
 													)}
 												>
 													<LyricWordView
@@ -1061,12 +1161,12 @@ export const LyricLineView: FC<{
 															word,
 															ruby: enableRuby
 																? [
-																		{
-																			word: "",
-																			startTime: newWord.startTime,
-																			endTime: newWord.endTime,
-																		},
-																	]
+																	{
+																		word: "",
+																		startTime: newWord.startTime,
+																		endTime: newWord.endTime,
+																	},
+																]
 																: undefined,
 														});
 													});
@@ -1143,6 +1243,10 @@ export const LyricLineView: FC<{
 					</Flex>
 				</ContextMenu.Trigger>
 				<ContextMenu.Content>
+					<LineTimingMenuItems />
+					{(toolMode === ToolMode.Edit ||
+						sectionActionsEnabled ||
+						manualCategorizationEnabled) && <ContextMenu.Separator />}
 					{manualCategorizationEnabled &&
 						(toolMode === ToolMode.Edit || toolMode === ToolMode.Sync) && (
 							<CategorizeSelectionContextMenuItem />
@@ -1179,7 +1283,7 @@ export const LyricLineView: FC<{
 			</ContextMenu.Root>
 			{(enableInsertLocal || (globalEnableInsert && isLastLine)) && (
 				<Button
-					mx="2"
+					mx="1"
 					my="1"
 					variant="soft"
 					size="1"
@@ -1208,9 +1312,9 @@ export const LyricLineView: FC<{
 				>
 					{selectedLinesCount > 0
 						? t("lyricLineView.duplicateLinesHere", {
-								count: selectedLinesCount,
-								defaultValue: "Duplicate {count} selected line(s) here",
-							})
+							count: selectedLinesCount,
+							defaultValue: "Duplicate {count} selected line(s) here",
+						})
 						: t("lyricLineView.insertLine", "在此插入新行")}
 				</Button>
 			)}

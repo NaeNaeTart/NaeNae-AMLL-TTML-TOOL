@@ -624,7 +624,7 @@ export const SettingsCommonTab = () => {
 			)}
 
 			<Flex direction="column" gap="2">
-				<Heading size="4">{t("settings.group.import", "Import")}</Heading>
+				<Heading size="4">{t("settings.group.import", "Import & export")}</Heading>
 
 				<Card>
 					<Text as="label">
@@ -636,7 +636,7 @@ export const SettingsCommonTab = () => {
 										<Text>
 											{t(
 												"settings.common.normalizeApostrophesOnImport",
-												"Normalize apostrophes on import",
+												"Normalize apostrophes",
 											)}
 										</Text>
 										<Switch
@@ -647,7 +647,7 @@ export const SettingsCommonTab = () => {
 									<Text size="1" color="gray">
 										{t(
 											"settings.common.normalizeApostrophesOnImportDesc",
-											"Convert curly and other apostrophe-like characters to '.",
+											"Convert curly and other apostrophe-like characters during import and export.",
 										)}
 									</Text>
 								</Flex>
@@ -677,7 +677,7 @@ export const SettingsCommonTab = () => {
 									<Text size="1" color="gray">
 										{t(
 											"settings.common.normalizeCyrillicEsOnImportDesc",
-											"Corrects hidden Cyrillic lookalikes only when the same word contains Latin letters.",
+											"Correct hidden Cyrillic lookalikes in Latin words during import and export.",
 										)}
 									</Text>
 								</Flex>

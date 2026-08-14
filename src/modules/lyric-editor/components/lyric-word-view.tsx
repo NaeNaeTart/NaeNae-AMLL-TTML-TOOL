@@ -48,17 +48,17 @@ import {
 	highlightErrorsAtom,
 	LayoutMode,
 	layoutModeAtom,
+	legacySpaceLabelsAtom,
 	showTimestampsAtom,
 } from "$/modules/settings/states/index.ts";
-
+import { instantHighlightFadeAtom } from "$/modules/settings/states/preview";
 import {
 	enableUpcomingWordHighlightAtom,
+	syncLevelModeAtom,
 	upcomingWordHighlightColorAtom,
 	upcomingWordHighlightThresholdAtom,
 	visualizeTimestampUpdateAtom,
-	syncLevelModeAtom,
 } from "$/modules/settings/states/sync.ts";
-import { instantHighlightFadeAtom } from "$/modules/settings/states/preview";
 import { splitWordDialogAtom } from "$/states/dialogs.ts";
 import {
 	editingWordStateAtom,
@@ -71,7 +71,7 @@ import {
 } from "$/states/main.ts";
 import { type LyricLine, type LyricWord, newLyricWord } from "$/types/ttml.ts";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
-import { RubyEditor } from "../tools/RubyEditor.tsx";
+import { AutoSizeTextField, RubyEditor } from "../tools/RubyEditor.tsx";
 import {
 	buildRubySelectionId,
 	getSynchronizableUnits,
@@ -681,17 +681,30 @@ const LyricWorldViewEdit = ({
 	const setOpenSplitWordDialog = useSetAtom(splitWordDialogAtom);
 	const setSplitState = useSetAtom(editingWordStateAtom);
 	const [editing, setEditing] = useState(false);
+	const [editingValue, setEditingValue] = useState(word.word);
 	const store = useStore();
 	const toolMode = useAtomValue(toolModeAtom);
 	const isWordBlank = useWordBlank(word.word);
+	const isSpaceWord = isWordBlank && word.word.length > 0;
+	const legacySpaceLabels = useAtomValue(legacySpaceLabelsAtom);
+	const useCompactSpace = isSpaceWord && !legacySpaceLabels;
 	// In Edit Mode, we always want to see the original word in the capsule.
 	const displayWord = getDisplayWordText(t, word.word, isWordBlank, word.romanWord, false);
+	const spaceLabel = isSpaceWord
+		? t("lyricWordView.spaceCount", "空格 x{count}", {
+				count: word.word.length,
+			})
+		: undefined;
 	const showRubyEditor = useMemo(() => word.ruby !== undefined, [word.ruby]);
 
 	const hasError = useMemo(
 		() => word.startTime > word.endTime,
 		[word.startTime, word.endTime],
 	);
+
+	useEffect(() => {
+		if (editing) setEditingValue(word.word);
+	}, [editing, word.word]);
 
 	const className = useMemo(
 		() =>
@@ -700,10 +713,18 @@ const LyricWorldViewEdit = ({
 				styles.edit,
 				isWordSelected && styles.selected,
 				isWordBlank && styles.blank,
+				useCompactSpace && styles.compactSpace,
 				showRubyEditor && styles.rubyEnabled,
 				hasError && toolMode === ToolMode.Edit && styles.error,
 			),
-		[isWordBlank, isWordSelected, showRubyEditor, hasError, toolMode],
+		[
+			isWordBlank,
+			useCompactSpace,
+			isWordSelected,
+			showRubyEditor,
+			hasError,
+			toolMode,
+		],
 	);
 	const onEnter = useCallback(
 		(evt: SyntheticEvent<HTMLInputElement>) => {
@@ -728,9 +749,11 @@ const LyricWorldViewEdit = ({
 	return editing ? (
 		<div className={className}>
 			<span className={styles.wordEditRow}>
-				<TextField.Root
+				<AutoSizeTextField
 					autoFocus
-					defaultValue={word.word}
+					value={editingValue}
+					style={{ minWidth: "2ch" }}
+					onChange={(evt) => setEditingValue(evt.currentTarget.value)}
 					onBlur={onEnter}
 					onKeyDown={(evt) => {
 						if (evt.key === "Enter") onEnter(evt);
@@ -763,6 +786,11 @@ const LyricWorldViewEdit = ({
 					wordIndex={wordIndex}
 					className={className}
 					line={line}
+					style={
+						useCompactSpace
+							? ({ "--space-count": word.word.length } as React.CSSProperties)
+							: undefined
+					}
 					onDoubleClick={(evt) => {
 						if (evt.ctrlKey || evt.metaKey) {
 							setSplitState({
@@ -778,7 +806,13 @@ const LyricWorldViewEdit = ({
 				>
 					<span className={styles.wordEditRow}>
 						<div className={styles.wordMainContainer}>
-							<div className={styles.wordMainText}>{displayWord}</div>
+							<div
+								className={styles.wordMainText}
+								title={spaceLabel}
+								aria-label={spaceLabel}
+							>
+								{useCompactSpace ? null : displayWord}
+							</div>
 						</div>
 						{showRubyEditor && <RubyEditor wordAtom={wordAtom} />}
 					</span>
