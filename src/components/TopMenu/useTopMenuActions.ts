@@ -3,41 +3,39 @@ import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom, withImmer } from "jotai-immer";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { uid } from "uid";
 import { toast } from "react-toastify";
-import { saveFile } from "$/utils/fileSystem.ts";
-import { openFileWithDialog } from "$/utils/fileDialog.ts";
+import { uid } from "uid";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
+import { audioEngine } from "$/modules/audio/audio-engine";
+import { currentTimeAtom } from "$/modules/audio/states/index.ts";
+import { getSynchronizableUnits } from "$/modules/lyric-editor/utils/lyric-states.ts";
+import { validateSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
-import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
-import {
-	segmentWord,
-	segmentLyricLines,
-} from "$/modules/segmentation/utils/segmentation";
-import { matchesSavedSyllabificationEngine } from "$/modules/segmentation/utils/detect-syllabification-engine";
-import { SYLLABIFICATION_ENGINES } from "$/modules/segmentation/utils/syllabification-engines";
 import {
 	segmentationEngineAtom,
 	segmentationSplitEnglishAtom,
 } from "$/modules/segmentation/states";
-import { audioEngine } from "$/modules/audio/audio-engine";
-import { getSynchronizableUnits } from "$/modules/lyric-editor/utils/lyric-states.ts";
-import { validateSections } from "$/modules/lyric-editor/utils/section-system.ts";
-import { currentTimeAtom } from "$/modules/audio/states/index.ts";
+import { matchesSavedSyllabificationEngine } from "$/modules/segmentation/utils/detect-syllabification-engine";
+import {
+	segmentLyricLines,
+	segmentWord,
+} from "$/modules/segmentation/utils/segmentation";
+import { SYLLABIFICATION_ENGINES } from "$/modules/segmentation/utils/syllabification-engines";
 import { useSegmentationConfig } from "$/modules/segmentation/utils/useSegmentationConfig";
+import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import {
 	advancedSegmentationDialogAtom,
 	autoSegmentDialogAtom,
-	learnedSplitsDialogAtom,
 	confirmDialogAtom,
 	historyRestoreDialogAtom,
 	latencyTestDialogAtom,
+	learnedSplitsDialogAtom,
 	metadataEditorDialogAtom,
 	settingsDialogAtom,
-	ttmlChecklistDialogAtom,
 	submitToAMLLDBDialogAtom,
 	timeShiftDialogAtom,
 	timeStretchDialogAtom,
+	ttmlChecklistDialogAtom,
 } from "$/states/dialogs.ts";
 import {
 	keyDeleteSelectionAtom,
@@ -63,6 +61,8 @@ import {
 	undoLyricLinesAtom,
 } from "$/states/main.ts";
 import { type LyricWord, type LyricWordBase, newLyricWord } from "$/types/ttml";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
+import { saveFile } from "$/utils/fileSystem.ts";
 import { error, log } from "$/utils/logging.ts";
 
 export const useTopMenuActions = () => {
@@ -166,8 +166,22 @@ export const useTopMenuActions = () => {
 			filters: [
 				{
 					name: "Lyric/Audio files",
-					extensions: ["ttml", "lrc", "qrc", "eslrc", "lys", "yrc", "mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"]
-				}
+					extensions: [
+						"ttml",
+						"lrc",
+						"qrc",
+						"eslrc",
+						"lys",
+						"yrc",
+						"mp3",
+						"flac",
+						"wav",
+						"ogg",
+						"m4a",
+						"opus",
+						"webm",
+					],
+				},
 			],
 		});
 		if (!file || Array.isArray(file)) return;
@@ -196,7 +210,10 @@ export const useTopMenuActions = () => {
 						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
 					);
 				}
-				const ttmlText = exportTTMLText(currentLyrics, store.get(lyricTextNormalizationOptionsAtom));
+				const ttmlText = exportTTMLText(
+					currentLyrics,
+					store.get(lyricTextNormalizationOptionsAtom),
+				);
 				const savedName = await saveFile(ttmlText, {
 					suggestedName: saveFileName,
 					types: [
@@ -213,7 +230,9 @@ export const useTopMenuActions = () => {
 		};
 
 		const lyrics = store.get(lyricLinesAtom);
-		const firstUntimedLine = lyrics.lyricLines.find((line) => line.endTime === 0 && getSynchronizableUnits(line).length > 0);
+		const firstUntimedLine = lyrics.lyricLines.find(
+			(line) => line.endTime === 0 && getSynchronizableUnits(line).length > 0,
+		);
 		let untimedWord: LyricWord | undefined;
 		let untimedLine: import("$/types/ttml").LyricLine | undefined;
 
@@ -221,18 +240,31 @@ export const useTopMenuActions = () => {
 			untimedLine = firstUntimedLine;
 			untimedWord = getSynchronizableUnits(firstUntimedLine)[0].word;
 		} else {
-			untimedLine = lyrics.lyricLines.find((line) => getSynchronizableUnits(line).some((u) => u.word.endTime === 0));
+			untimedLine = lyrics.lyricLines.find((line) =>
+				getSynchronizableUnits(line).some((u) => u.word.endTime === 0),
+			);
 			if (untimedLine) {
-				untimedWord = getSynchronizableUnits(untimedLine).find((u) => u.word.endTime === 0)?.word;
+				untimedWord = getSynchronizableUnits(untimedLine).find(
+					(u) => u.word.endTime === 0,
+				)?.word;
 			}
 		}
 
 		if (untimedLine && untimedWord) {
 			setConfirmDialog({
 				open: true,
-				title: t("confirmDialog.untimedLyrics.title", "Untimed Lyrics Detected"),
-				description: t("confirmDialog.untimedLyrics.description", "There is an untimed line or word in your lyrics. Would you like to fix it or export anyway?"),
-				confirmText: t("confirmDialog.untimedLyrics.exportAnyway", "Export Anyway"),
+				title: t(
+					"confirmDialog.untimedLyrics.title",
+					"Untimed Lyrics Detected",
+				),
+				description: t(
+					"confirmDialog.untimedLyrics.description",
+					"There is an untimed line or word in your lyrics. Would you like to fix it or export anyway?",
+				),
+				confirmText: t(
+					"confirmDialog.untimedLyrics.exportAnyway",
+					"Export Anyway",
+				),
 				cancelText: t("confirmDialog.untimedLyrics.fixIt", "Fix It"),
 				onConfirm: action,
 				onCancel: () => {
@@ -240,7 +272,7 @@ export const useTopMenuActions = () => {
 					store.set(selectedWordsAtom, new Set([untimedWord!.id]));
 					audioEngine.seekMusic(untimedLine!.startTime / 1000);
 					store.set(currentTimeAtom, untimedLine!.startTime);
-				}
+				},
 			});
 		} else {
 			action();
@@ -261,7 +293,10 @@ export const useTopMenuActions = () => {
 						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
 					);
 				}
-				const ttml = exportTTMLText(lyric, store.get(lyricTextNormalizationOptionsAtom));
+				const ttml = exportTTMLText(
+					lyric,
+					store.get(lyricTextNormalizationOptionsAtom),
+				);
 				await navigator.clipboard.writeText(ttml);
 			} catch (e) {
 				error("Failed to save TTML file into clipboard", e);
@@ -269,7 +304,9 @@ export const useTopMenuActions = () => {
 		};
 
 		const lyrics = store.get(lyricLinesAtom);
-		const firstUntimedLine = lyrics.lyricLines.find((line) => line.endTime === 0 && getSynchronizableUnits(line).length > 0);
+		const firstUntimedLine = lyrics.lyricLines.find(
+			(line) => line.endTime === 0 && getSynchronizableUnits(line).length > 0,
+		);
 		let untimedWord: LyricWord | undefined;
 		let untimedLine: import("$/types/ttml").LyricLine | undefined;
 
@@ -277,18 +314,31 @@ export const useTopMenuActions = () => {
 			untimedLine = firstUntimedLine;
 			untimedWord = getSynchronizableUnits(firstUntimedLine)[0].word;
 		} else {
-			untimedLine = lyrics.lyricLines.find((line) => getSynchronizableUnits(line).some((u) => u.word.endTime === 0));
+			untimedLine = lyrics.lyricLines.find((line) =>
+				getSynchronizableUnits(line).some((u) => u.word.endTime === 0),
+			);
 			if (untimedLine) {
-				untimedWord = getSynchronizableUnits(untimedLine).find((u) => u.word.endTime === 0)?.word;
+				untimedWord = getSynchronizableUnits(untimedLine).find(
+					(u) => u.word.endTime === 0,
+				)?.word;
 			}
 		}
 
 		if (untimedLine && untimedWord) {
 			setConfirmDialog({
 				open: true,
-				title: t("confirmDialog.untimedLyrics.title", "Untimed Lyrics Detected"),
-				description: t("confirmDialog.untimedLyrics.description", "There is an untimed line or word in your lyrics. Would you like to fix it or export anyway?"),
-				confirmText: t("confirmDialog.untimedLyrics.exportAnyway", "Export Anyway"),
+				title: t(
+					"confirmDialog.untimedLyrics.title",
+					"Untimed Lyrics Detected",
+				),
+				description: t(
+					"confirmDialog.untimedLyrics.description",
+					"There is an untimed line or word in your lyrics. Would you like to fix it or export anyway?",
+				),
+				confirmText: t(
+					"confirmDialog.untimedLyrics.exportAnyway",
+					"Export Anyway",
+				),
 				cancelText: t("confirmDialog.untimedLyrics.fixIt", "Fix It"),
 				onConfirm: action,
 				onCancel: () => {
@@ -296,7 +346,7 @@ export const useTopMenuActions = () => {
 					store.set(selectedWordsAtom, new Set([untimedWord!.id]));
 					audioEngine.seekMusic(untimedLine!.startTime / 1000);
 					store.set(currentTimeAtom, untimedLine!.startTime);
-				}
+				},
 			});
 		} else {
 			action();
@@ -537,15 +587,12 @@ export const useTopMenuActions = () => {
 		});
 	}, [editLyricLines, setConfirmDialog, t]);
 
-
-
 	const onOpenAdvancedSegmentation = useCallback(() => {
 		setAdvancedSegmentationDialog(true);
 	}, [setAdvancedSegmentationDialog]);
 	const onOpenLearnedSplits = useCallback(() => {
 		setLearnedSplitsDialog(true);
 	}, [setLearnedSplitsDialog]);
-
 
 	return {
 		newFileKey,

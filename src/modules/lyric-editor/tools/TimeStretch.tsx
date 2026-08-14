@@ -14,13 +14,13 @@ import { useTranslation } from "react-i18next";
 import { currentDurationAtom } from "$/modules/audio/states";
 import { timeStretchDialogAtom } from "$/states/dialogs";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import {
 	formatDurationInput,
 	parseDurationInput,
 	readAudioDurationMs,
 	scaleTTMLTimings,
 } from "./time-stretch";
-import { openFileWithDialog } from "$/utils/fileDialog.ts";
 
 type StretchScope = "all" | "selected" | "selected-following" | "custom";
 
@@ -162,10 +162,15 @@ export const TimeStretchDialog = () => {
 	const chooseTemporaryAudio = async (side: "old" | "new") => {
 		const file = await openFileWithDialog({
 			multiple: false,
-			filters: [{ name: "Audio", extensions: ["mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"] }],
+			filters: [
+				{
+					name: "Audio",
+					extensions: ["mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"],
+				},
+			],
 		});
 		if (!file || Array.isArray(file)) return;
-		
+
 		const readId = ++durationReadId.current;
 		setReadingTemporaryAudio(true);
 		if (side === "old") setOldTemporaryAudioError("");

@@ -1,3 +1,4 @@
+import { convertFileSrc } from "@tauri-apps/api/core";
 import {
 	type AudioTaskType,
 	audioBufferAtom,
@@ -13,7 +14,6 @@ import {
 import { AudioWorkerClient } from "$/modules/audio/workers/audio-worker-client";
 import { globalStore } from "$/states/store.ts";
 import { log } from "$/utils/logging";
-import { convertFileSrc } from "@tauri-apps/api/core";
 
 // Magic, pending original dev's explanation
 // Even don't know where should I put this after refactoring
@@ -143,6 +143,9 @@ class AudioEngine extends EventTarget {
 		if (this._audioEl) return this._audioEl;
 		this._audioEl = document.createElement("audio");
 		this._audioEl.crossOrigin = "anonymous";
+		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
+			this._audioEl.volume = this._volume;
+		}
 		this._audioEl.preload = "metadata";
 		return this._audioEl;
 	}
@@ -152,11 +155,13 @@ class AudioEngine extends EventTarget {
 	private connectAudioToContext() {
 		if (!this._audioEl || !this.ctx || this._audioEl.src === "") return;
 		if (this._mediaSourceNode) return; // already connected!
-		
+
 		// Bypass on Linux due to WebKitGTK / GStreamer bugs with MediaElementAudioSourceNode
 		// which causes audio to be silent and seeking to fail/jump back.
 		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
-			console.warn("[AudioEngine] Bypassing createMediaElementSource on Linux to prevent playback bugs.");
+			console.warn(
+				"[AudioEngine] Bypassing createMediaElementSource on Linux to prevent playback bugs.",
+			);
 			return;
 		}
 		try {
@@ -259,7 +264,11 @@ class AudioEngine extends EventTarget {
 	set volume(v: number) {
 		if (this._volume === v) return;
 		this._volume = v;
-		this.gain.gain.value = v;
+		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
+			if (this._audioEl) this._audioEl.volume = v;
+		} else {
+			this.gain.gain.value = v;
+		}
 		this.dispatchEvent(new Event("volume-change"));
 	}
 

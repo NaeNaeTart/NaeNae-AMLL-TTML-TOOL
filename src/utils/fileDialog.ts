@@ -1,5 +1,4 @@
 import { open } from "@tauri-apps/plugin-dialog";
-import { convertFileSrc } from "@tauri-apps/api/core";
 
 export interface OpenFileOptions {
 	filters?: { name: string; extensions: string[] }[];
@@ -23,15 +22,15 @@ export async function openFileWithDialog(
 						const { readFile } = await import("@tauri-apps/plugin-fs");
 						const data = await readFile(path);
 						const fileName = path.split(/[/\\]/).pop() || "unknown";
-						const ext = fileName.split('.').pop()?.toLowerCase();
-						
+						const ext = fileName.split(".").pop()?.toLowerCase();
+
 						let mime = "application/octet-stream";
 						if (ext === "ttml") mime = "application/ttml+xml";
 						else if (ext === "mp3") mime = "audio/mpeg";
 						else if (ext === "wav") mime = "audio/wav";
 						else if (ext === "flac") mime = "audio/flac";
 						else if (ext === "ogg") mime = "audio/ogg";
-						
+
 						const blob = new Blob([data], { type: mime });
 						const file = new File([blob], fileName, { type: mime });
 						(file as any).path = path;
@@ -49,15 +48,15 @@ export async function openFileWithDialog(
 				const path = selected;
 				const data = await readFile(path);
 				const fileName = path.split(/[/\\]/).pop() || "unknown";
-				const ext = fileName.split('.').pop()?.toLowerCase();
-				
+				const ext = fileName.split(".").pop()?.toLowerCase();
+
 				let mime = "application/octet-stream";
 				if (ext === "ttml") mime = "application/ttml+xml";
 				else if (ext === "mp3") mime = "audio/mpeg";
 				else if (ext === "wav") mime = "audio/wav";
 				else if (ext === "flac") mime = "audio/flac";
 				else if (ext === "ogg") mime = "audio/ogg";
-				
+
 				const blob = new Blob([data], { type: mime });
 				const file = new File([blob], fileName, { type: mime });
 				(file as any).path = path;

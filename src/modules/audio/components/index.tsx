@@ -54,9 +54,9 @@ import {
 	keyVolumeDownAtom,
 	keyVolumeUpAtom,
 } from "$/states/keybindings.ts";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import { useKeyBindingAtom } from "$/utils/keybindings.ts";
 import { msToTimestamp } from "$/utils/timestamp.ts";
-import { openFileWithDialog } from "$/utils/fileDialog.ts";
 
 const AudioPlaybackKeyBinding = memo(() => {
 	const store = useStore();
@@ -129,7 +129,12 @@ export const AudioControls: FC = memo(() => {
 	const onLoadMusic = useCallback(async () => {
 		const file = await openFileWithDialog({
 			multiple: false,
-			filters: [{ name: "Audio", extensions: ["mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"] }],
+			filters: [
+				{
+					name: "Audio",
+					extensions: ["mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"],
+				},
+			],
 		});
 		if (!file || Array.isArray(file)) return;
 		openFile(file);
@@ -209,7 +214,11 @@ export const AudioControls: FC = memo(() => {
 					</div>
 					<Flex align="center" px="2" gapX="2">
 						<HoverCard.Root>
-							<HoverCard.Trigger><IconButton my="2" variant="soft" onClick={onLoadMusic}><MusicNote2Filled /></IconButton></HoverCard.Trigger>
+							<HoverCard.Trigger>
+								<IconButton my="2" variant="soft" onClick={onLoadMusic}>
+									<MusicNote2Filled />
+								</IconButton>
+							</HoverCard.Trigger>
 							<HoverCard.Content>
 								<Flex direction="column" align="center">
 									<Grid columns="0fr 7em 2em" gap="2" align="baseline">
@@ -269,7 +278,9 @@ export const AudioControls: FC = memo(() => {
 								variant="soft"
 								disabled={!audioLoaded}
 								onClick={onTogglePlay}
-							>{audioPlaying ? <PauseFilled /> : <PlayFilled />}</IconButton>
+							>
+								{audioPlaying ? <PauseFilled /> : <PlayFilled />}
+							</IconButton>
 						</Tooltip>
 						<CurrentTimeLabel />
 						<AudioSlider />
@@ -290,11 +301,13 @@ export const AudioControls: FC = memo(() => {
 								ml="0"
 								variant="soft"
 								onClick={() => setSpectrogramVisible(!spectrogramVisible)}
-							>{spectrogramVisible ? (
+							>
+								{spectrogramVisible ? (
 									<ChevronDownFilled />
 								) : (
 									<ChevronUpFilled />
-								)}</IconButton>
+								)}
+							</IconButton>
 						</Tooltip>
 					</Flex>
 				</Flex>
