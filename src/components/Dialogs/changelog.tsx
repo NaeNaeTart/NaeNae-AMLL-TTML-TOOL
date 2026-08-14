@@ -56,9 +56,14 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="green">
-								v0.9.2 Updates (Reliable Word Editing)
+								v0.9.3 Updates (Import & Editing)
 							</Heading>
 							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Import Source Chooser:</strong> The empty editor now
+									offers clear Plain Text, LRCLIB, Lyrically, and Genius cards so
+									you can choose an import source before opening its workflow.
+								</Text>
 								<Text size="2">
 									<strong>Reliable Word Double-Clicks:</strong> Selecting a word
 									in Edit mode no longer recenters the lyric line or word before
@@ -67,10 +72,17 @@ export function ChangelogDialog() {
 									mode tracking and explicit navigation retain their existing
 									centering behavior.
 								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="orange">
+								v0.9.2 Updates (Welcome Fix)
+							</Heading>
+							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Import Source Chooser:</strong> The empty editor now
-									offers clear Plain Text, LRCLIB, Lyrically, and Genius cards so
-									you can choose an import source before opening its workflow.
+									<strong>Fixed First-Run Welcome:</strong> The beginner welcome
+									now appears automatically only once instead of reopening on
+									every app startup. It remains available from the Help menu.
 								</Text>
 							</Flex>
 						</Box>
