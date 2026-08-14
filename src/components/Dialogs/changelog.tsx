@@ -67,6 +67,11 @@ export function ChangelogDialog() {
 									mode tracking and explicit navigation retain their existing
 									centering behavior.
 								</Text>
+								<Text size="2">
+									<strong>Import Source Chooser:</strong> The empty editor now
+									offers clear Plain Text, LRCLIB, Lyrically, and Genius cards so
+									you can choose an import source before opening its workflow.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

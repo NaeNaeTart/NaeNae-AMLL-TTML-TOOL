@@ -29,11 +29,13 @@ import {
 	GeniusHeaderDetectionDialog,
 } from "./experimental-features.tsx";
 import { Mp3ConversionDialog } from "./mp3-conversion.tsx";
+import { ImportLyricsChooserDialog } from "./import-lyrics-chooser.tsx";
 import { WhatsNewDialog } from "./whats-new.tsx";
 
 export const Dialogs = () => {
 	return (
 		<>
+			<ImportLyricsChooserDialog />
 			<ImportFromText />
 			<ImportFromLRCLIB />
 			<ImportLyricsDialog />
