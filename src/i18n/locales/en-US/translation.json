@@ -17,6 +17,28 @@
       "description": "Add new lyric lines in the top panel or open/import existing lyrics from the menu"
     }
   },
+  "importChooser": {
+    "title": "Import lyrics",
+    "description": "Choose where you want to import your lyrics from.",
+    "options": {
+      "plainText": {
+        "title": "Plain text",
+        "description": "Paste lyrics and choose how lines, translations, romanization, and word splits are interpreted."
+      },
+      "lrclib": {
+        "title": "LRCLIB",
+        "description": "Search LRCLIB for synced or plain lyrics by song and artist."
+      },
+      "lyrically": {
+        "title": "Lyrically",
+        "description": "Search Lyrically's available lyric sources without setting up a Genius token."
+      },
+      "genius": {
+        "title": "Genius",
+        "description": "Search Genius for lyrics and songwriter information using your access token."
+      }
+    }
+  },
   "amll": {
     "noLyrics": "No lyrics available in store"
   },

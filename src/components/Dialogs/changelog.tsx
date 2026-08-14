@@ -56,6 +56,36 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="green">
+								v0.9.3 Updates (Import & Editing)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Native Desktop File Dialogs:</strong> Desktop builds
+									now use native system pickers for lyrics and audio while the
+									web app keeps its browser file picker.
+								</Text>
+								<Text size="2">
+									<strong>Import Source Chooser:</strong> The empty editor now
+									offers clear Plain Text, LRCLIB, Lyrically, and Genius cards so
+									you can choose an import source before opening its workflow.
+								</Text>
+								<Text size="2">
+									<strong>Linux Audio Playback:</strong> Desktop audio now loads
+									reliably through Tauri's selected-file protocol on Linux,
+									without breaking playback volume or seeking.
+								</Text>
+								<Text size="2">
+									<strong>Reliable Word Double-Clicks:</strong> Selecting a word
+									in Edit mode no longer recenters the lyric line or word before
+									the second click lands. The horizontal ribbon also keeps a
+									stable height as selection-specific controls appear, while Time
+									mode tracking and explicit navigation retain their existing
+									centering behavior.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="orange">
 								v0.9.2 Updates (Welcome Fix)
 							</Heading>
 							<Flex direction="column" gap="3">

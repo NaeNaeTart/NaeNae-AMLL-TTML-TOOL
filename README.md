@@ -38,7 +38,7 @@ You can also use the Tauri desktop version built via GitHub Actions; see [GitHub
 - **Persistent Split Options** — The Split Word dialog remembers its last-used options, reducing repeated setup while correcting multiple words.
 - **Spicy Lyrics Preview** — A high-fidelity Spicy Lyrics renderer with animated, custom, and cover-art backgrounds; karaoke, Simple Lyrics, and line-synced layouts; automatic scrolling; and an optional FPS counter.
 - **Time Stretch** — Scale every TTML timestamp to fit a new song duration, with support for reading durations from audio files.
-- **Unified Lyrics Import** — Text, LRCLIB, Lyrically, and Genius imports share one consistent preparation, replacement-confirmation, and formatting workflow.
+- **Unified Lyrics Import** — Choose Plain Text, LRCLIB, Lyrically, or Genius from clear cards in the empty editor, then use one consistent preparation, replacement-confirmation, and formatting workflow.
 - **Genius Header Categorization & Section Tools** — Preserve headers such as `[Chorus]` and `[Verse]` as color-coded section metadata, with whole-section timing controls.
 - **Backup & Restore** — Export and restore selected settings, keybindings, appearance assets, projects and history, and plugins in a portable backup file.
 - **Bouncy Word Indicator** — Long-duration syllables in Sync mode get a subtle bouncing dot, making held words easier to spot while timing.

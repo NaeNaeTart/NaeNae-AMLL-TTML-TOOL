@@ -890,7 +890,11 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
 
 		return (
-			<RibbonFrame ref={ref} isSidebar={isSidebar}>
+			<RibbonFrame
+				ref={ref}
+				isSidebar={isSidebar}
+				reserveControlRows={3}
+			>
 				<RibbonSection label={t("ribbonBar.editMode.new", "新建")} isSidebar={isSidebar}>
 					<Grid columns="1" gap="1" gapY="1" flexGrow="1" align="center">
 						<Button

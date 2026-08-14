@@ -118,7 +118,7 @@ export function WhatsNewDialog() {
 		},
 		{
 			title: "Unified Lyrics Import",
-			description: "Text, LRCLIB, Lyrically, and Genius imports now share one consistent preparation, replacement-confirmation, and formatting workflow.",
+			description: "Choose Plain Text, LRCLIB, Lyrically, or Genius from clear cards in the empty editor, then use one consistent preparation, replacement-confirmation, and formatting workflow.",
 			icon: <CheckmarkCircleRegular />,
 			color: "grass",
 			info: "Use the import screen as usual. Punctuation, CJK/Latin boundaries, word separators, and background vocals are handled consistently across supported sources."

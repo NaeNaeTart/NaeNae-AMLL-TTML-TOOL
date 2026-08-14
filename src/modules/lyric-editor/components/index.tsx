@@ -26,7 +26,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modules/onboarding/states";
-import { importFromTextDialogAtom } from "$/states/dialogs";
+import { importLyricsChooserDialogAtom } from "$/states/dialogs";
 import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { currentTimeAtom } from "$/modules/audio/states";
@@ -63,6 +63,7 @@ import {
 	SectionManagerDialog,
 	SectionMetadataDialog,
 } from "./SectionActions";
+import { shouldAutoCenterSelection } from "./selection-scroll";
 
 const lyricLinesOnlyAtom = splitAtom(
 	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
@@ -102,7 +103,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const setGuideWelcome = useSetAtom(guideWelcomeOpenAtom);
 	const setGuidePanel = useSetAtom(guidePanelOpenAtom);
 	const setGuideStep = useSetAtom(guideStepAtom);
-	const setImportText = useSetAtom(importFromTextDialogAtom);
+	const setImportChooser = useSetAtom(importLyricsChooserDialogAtom);
 	const { openFile } = useFileOpener();
 	const openExistingTtml = useCallback(() => {
 		const input = document.createElement("input");
@@ -373,7 +374,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const scrollToIndexAtom = useMemo(
 		() =>
 			atom((get) => {
-				if (toolMode !== ToolMode.Sync && toolMode !== ToolMode.Edit) return;
+				if (!shouldAutoCenterSelection(toolMode)) return;
 				const selectedLines = get(selectedLinesAtom);
 				if (selectedLines.size === 0) return Number.NaN;
 				const lyrics = get(lyricLinesAtom).lyricLines;
@@ -491,7 +492,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					<Button onClick={() => { setGuideStep(0); setGuidePanel(false); setGuideWelcome(true); }}>
 						{t("beginnerGuide.empty.start", "Start Guide")}
 					</Button>
-					<Button variant="soft" onClick={() => setImportText(true)}>
+					<Button variant="soft" onClick={() => setImportChooser(true)}>
 						{t("beginnerGuide.empty.import", "Import Lyrics")}
 					</Button>
 					<Button variant="outline" onClick={openExistingTtml}>

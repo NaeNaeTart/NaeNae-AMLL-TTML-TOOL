@@ -1,9 +1,9 @@
 import {
+	ClockRegular,
 	EyeFilled,
 	EyeOffFilled,
 	MusicNote2Filled,
 	SettingsFilled,
-	ClockRegular,
 } from "@fluentui/react-icons";
 import {
 	Button,
@@ -16,8 +16,8 @@ import {
 	Theme,
 	Tooltip,
 } from "@radix-ui/themes";
-import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { produce } from "immer";
+import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import {
 	type FC,
 	memo,
@@ -36,12 +36,18 @@ import {
 	auditionTimeAtom,
 	currentTimeAtom,
 } from "$/modules/audio/states/index.ts";
+import { cmdDuplicatePaste } from "$/modules/keyboard/commands.ts";
+import { useCommand } from "$/modules/keyboard/hooks.ts";
+import {
+	draggingIdAtom,
+	globalEnableInsertAtom,
+} from "$/modules/lyric-editor/components/lyric-line-view-states.ts";
 import { useScrubbing } from "$/modules/spectrogram/hooks/useScrubbing";
 import { useSpectrogramInteraction } from "$/modules/spectrogram/hooks/useSpectrogramInteraction.ts";
 import { useSpectrogramResize } from "$/modules/spectrogram/hooks/useSpectrogramResize.ts";
+import { useSpectrogramSelection } from "$/modules/spectrogram/hooks/useSpectrogramSelection.ts";
 import { useSpectrogramWorker } from "$/modules/spectrogram/hooks/useSpectrogramWorker.ts";
 import { useTimelineEditing } from "$/modules/spectrogram/hooks/useTimelineEditing.ts";
-import { useSpectrogramSelection } from "$/modules/spectrogram/hooks/useSpectrogramSelection.ts";
 import {
 	currentPaletteAtom,
 	spectrogramContainerWidthAtom,
@@ -54,22 +60,22 @@ import {
 	spectrogramHoverTimeMsAtom,
 	spectrogramSelectionAtom,
 } from "$/modules/spectrogram/states";
+import { isDraggingAtom } from "$/modules/spectrogram/states/dnd.ts";
+import {
+	timeShiftDialogAtom,
+	timeShiftPreviewActiveAtom,
+} from "$/states/dialogs.ts";
 import {
 	lyricLinesAtom,
 	selectedLinesAtom,
 	showUnselectedLinesAtom,
 } from "$/states/main.ts";
-import { msToTimestamp } from "$/utils/timestamp.ts";
-import { useCommand } from "$/modules/keyboard/hooks.ts";
-import { cmdDuplicatePaste } from "$/modules/keyboard/commands.ts";
-import { isDraggingAtom } from "$/modules/spectrogram/states/dnd.ts";
-import { timeShiftDialogAtom, timeShiftPreviewActiveAtom } from "$/states/dialogs.ts";
-import { draggingIdAtom, globalEnableInsertAtom } from "$/modules/lyric-editor/components/lyric-line-view-states.ts";
 import { newLyricLine, newLyricWord } from "$/types/ttml.ts";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
+import { msToTimestamp } from "$/utils/timestamp.ts";
 import styles from "./AudioSpectrogram.module.css";
-import { LyricTimelineOverlay } from "./LyricTimelineOverlay.tsx";
-import { TimeShiftToolbar } from "./TimeShiftToolbar.tsx";
 import { FrequencyRuler } from "./FrequencyRuler.tsx";
+import { LyricTimelineOverlay } from "./LyricTimelineOverlay.tsx";
 import {
 	type ISpectrogramContext,
 	SpectrogramContext,
@@ -80,24 +86,12 @@ import {
 	TimelineRuler,
 	type TimelineRulerHandle,
 } from "./TimelineRuler.tsx";
+import { TimeShiftToolbar } from "./TimeShiftToolbar.tsx";
 
 const TILE_DURATION_S = 5;
 const LOD_WIDTHS = [512, 1024, 2048, 4096, 8192];
 
-const NOTES = [
-	"C",
-	"C#",
-	"D",
-	"D#",
-	"E",
-	"F",
-	"F#",
-	"G",
-	"G#",
-	"A",
-	"A#",
-	"B",
-];
+const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const getNoteFromFreq = (freq: number) => {
 	if (freq <= 20) return ""; // Human hearing floor
 	const n = Math.round(69 + 12 * Math.log2(freq / 440));
@@ -125,12 +119,14 @@ export const AudioSpectrogram: FC = memo(() => {
 
 	useCommand(cmdDuplicatePaste, () => {
 		if (!globalEnableInsert) return;
-		
+
 		const currentSelectedLines = store.get(selectedLinesAtom);
 		if (currentSelectedLines.size === 0) return;
 
 		const state = store.get(lyricLinesAtom);
-		const linesToCopy = state.lyricLines.filter(l => currentSelectedLines.has(l.id));
+		const linesToCopy = state.lyricLines.filter((l) =>
+			currentSelectedLines.has(l.id),
+		);
 		if (linesToCopy.length === 0) return;
 
 		const selection = store.get(spectrogramSelectionAtom);
@@ -153,16 +149,16 @@ export const AudioSpectrogram: FC = memo(() => {
 					id: newLyricLine().id,
 					startTime: lineStart,
 					endTime: lineEnd,
-					words: l.words.map(w => ({
+					words: l.words.map((w) => ({
 						...w,
 						id: newLyricWord().id,
 						startTime: 0,
 						endTime: 0,
-					}))
+					})),
 				};
 
 				// Distribute words
-				const nonEmptyWords = nl.words.filter(w => w.word.trim() !== "");
+				const nonEmptyWords = nl.words.filter((w) => w.word.trim() !== "");
 				if (nonEmptyWords.length > 0) {
 					const perWordDur = duration / nonEmptyWords.length;
 					let wordIdx = 0;
@@ -177,7 +173,10 @@ export const AudioSpectrogram: FC = memo(() => {
 						}
 					}
 					// Fix rounding issues for the last word
-					const lastNonEmpty = nl.words.slice().reverse().find(w => w.word.trim() !== "");
+					const lastNonEmpty = nl.words
+						.slice()
+						.reverse()
+						.find((w) => w.word.trim() !== "");
 					if (lastNonEmpty) lastNonEmpty.endTime = lineEnd;
 				} else {
 					// No words, just set line timing
@@ -189,36 +188,41 @@ export const AudioSpectrogram: FC = memo(() => {
 			});
 		} else {
 			// Fallback to playhead offset
-			const minStart = Math.min(...linesToCopy.map(l => l.startTime));
+			const minStart = Math.min(...linesToCopy.map((l) => l.startTime));
 			const offset = currentTimeMs - minStart;
 
-			newLines = linesToCopy.map(l => ({
+			newLines = linesToCopy.map((l) => ({
 				...l,
 				id: newLyricLine().id,
 				startTime: l.startTime + offset,
 				endTime: l.endTime + offset,
-				words: l.words.map(w => ({
+				words: l.words.map((w) => ({
 					...w,
 					id: newLyricWord().id,
 					startTime: w.startTime + offset,
 					endTime: w.endTime + offset,
-					ruby: w.ruby?.map(r => ({
+					ruby: w.ruby?.map((r) => ({
 						...r,
 						startTime: r.startTime + offset,
 						endTime: r.endTime + offset,
-					}))
-				}))
+					})),
+				})),
 			}));
 		}
 
-		store.set(lyricLinesAtom, produce((draft) => {
-			const anchorTime = selection ? selection.start : currentTimeMs;
-			// Find insertion point to keep sorted
-			let insertIndex = draft.lyricLines.findIndex((l: any) => l.startTime > anchorTime);
-			if (insertIndex === -1) insertIndex = draft.lyricLines.length;
-			
-			draft.lyricLines.splice(insertIndex, 0, ...newLines);
-		}));
+		store.set(
+			lyricLinesAtom,
+			produce((draft) => {
+				const anchorTime = selection ? selection.start : currentTimeMs;
+				// Find insertion point to keep sorted
+				let insertIndex = draft.lyricLines.findIndex(
+					(l: any) => l.startTime > anchorTime,
+				);
+				if (insertIndex === -1) insertIndex = draft.lyricLines.length;
+
+				draft.lyricLines.splice(insertIndex, 0, ...newLines);
+			}),
+		);
 
 		// Clear selection after applying timestamps to make it "apply" and finish
 		if (selection) {
@@ -254,20 +258,18 @@ export const AudioSpectrogram: FC = memo(() => {
 	const rulerRef = useRef<TimelineRulerHandle>(null);
 
 	const { openFile } = useFileOpener();
-	const handleLoadMusic = useCallback(() => {
-		const inputEl = document.createElement("input");
-		inputEl.type = "file";
-		inputEl.accept = "audio/*,*/*";
-		inputEl.addEventListener(
-			"change",
-			() => {
-				const file = inputEl.files?.[0];
-				if (!file) return;
-				openFile(file);
-			},
-			{ once: true },
-		);
-		inputEl.click();
+	const handleLoadMusic = useCallback(async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [
+				{
+					name: "Audio",
+					extensions: ["mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"],
+				},
+			],
+		});
+		if (!file || Array.isArray(file)) return;
+		openFile(file);
 	}, [openFile]);
 
 	const { t } = useTranslation();
@@ -284,13 +286,19 @@ export const AudioSpectrogram: FC = memo(() => {
 		editingTimeField,
 	} = useTimelineEditing(scrollLeft, zoom);
 
-	const { handleSelectionMouseDown, selectionStyle } = useSpectrogramSelection(scrollLeft, zoom);
+	const { handleSelectionMouseDown, selectionStyle } = useSpectrogramSelection(
+		scrollLeft,
+		zoom,
+	);
 
-	const handleCompositeMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-		if (e.button !== 0) return;
-		handleTimelineMouseDown(e);
-		handleSelectionMouseDown(e);
-	}, [handleTimelineMouseDown, handleSelectionMouseDown]);
+	const handleCompositeMouseDown = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (e.button !== 0) return;
+			handleTimelineMouseDown(e);
+			handleSelectionMouseDown(e);
+		},
+		[handleTimelineMouseDown, handleSelectionMouseDown],
+	);
 
 	const { handleScrubStart } = useScrubbing(
 		scrollContainerRef,
@@ -608,44 +616,59 @@ export const AudioSpectrogram: FC = memo(() => {
 									const selection = store.get(spectrogramSelectionAtom);
 									if (draggingId && selection) {
 										e.preventDefault();
-										store.set(lyricLinesAtom, produce((draft) => {
-											const line = draft.lyricLines.find((l: any) => l.id === draggingId);
-											if (!line) return;
-											line.startTime = Math.round(selection.start);
-											line.endTime = Math.round(selection.end);
-											let totalChars = 0;
-											for (const word of line.words) {
-												totalChars += word.word.length;
-											}
-											if (totalChars > 0) {
-												const durationMs = line.endTime - line.startTime;
-												let currentWordTime = line.startTime;
+										store.set(
+											lyricLinesAtom,
+											produce((draft) => {
+												const line = draft.lyricLines.find(
+													(l: any) => l.id === draggingId,
+												);
+												if (!line) return;
+												line.startTime = Math.round(selection.start);
+												line.endTime = Math.round(selection.end);
+												let totalChars = 0;
 												for (const word of line.words) {
-													const wordDuration = Math.round((word.word.length / totalChars) * durationMs);
-													word.startTime = currentWordTime;
-													word.endTime = currentWordTime + wordDuration;
-													currentWordTime += wordDuration;
-													if (word.ruby && word.ruby.length > 0) {
-														let totalRubyChars = 0;
-														for (const ruby of word.ruby) totalRubyChars += ruby.word.length;
-														let currentRubyTime = word.startTime;
-														for (const ruby of word.ruby) {
-															const rubyDur = totalRubyChars > 0 ? Math.round((ruby.word.length / totalRubyChars) * wordDuration) : 0;
-															ruby.startTime = currentRubyTime;
-															ruby.endTime = currentRubyTime + rubyDur;
-															currentRubyTime += rubyDur;
+													totalChars += word.word.length;
+												}
+												if (totalChars > 0) {
+													const durationMs = line.endTime - line.startTime;
+													let currentWordTime = line.startTime;
+													for (const word of line.words) {
+														const wordDuration = Math.round(
+															(word.word.length / totalChars) * durationMs,
+														);
+														word.startTime = currentWordTime;
+														word.endTime = currentWordTime + wordDuration;
+														currentWordTime += wordDuration;
+														if (word.ruby && word.ruby.length > 0) {
+															let totalRubyChars = 0;
+															for (const ruby of word.ruby)
+																totalRubyChars += ruby.word.length;
+															let currentRubyTime = word.startTime;
+															for (const ruby of word.ruby) {
+																const rubyDur =
+																	totalRubyChars > 0
+																		? Math.round(
+																				(ruby.word.length / totalRubyChars) *
+																					wordDuration,
+																			)
+																		: 0;
+																ruby.startTime = currentRubyTime;
+																ruby.endTime = currentRubyTime + rubyDur;
+																currentRubyTime += rubyDur;
+															}
+														}
+													}
+													if (line.words.length > 0) {
+														const lastWord = line.words[line.words.length - 1];
+														lastWord.endTime = line.endTime;
+														if (lastWord.ruby && lastWord.ruby.length > 0) {
+															lastWord.ruby[lastWord.ruby.length - 1].endTime =
+																line.endTime;
 														}
 													}
 												}
-												if (line.words.length > 0) {
-													const lastWord = line.words[line.words.length - 1];
-													lastWord.endTime = line.endTime;
-													if (lastWord.ruby && lastWord.ruby.length > 0) {
-														lastWord.ruby[lastWord.ruby.length - 1].endTime = line.endTime;
-													}
-												}
-											}
-										}));
+											}),
+										);
 										store.set(spectrogramSelectionAtom, null);
 									}
 								}}
@@ -686,7 +709,10 @@ export const AudioSpectrogram: FC = memo(() => {
 										/>
 									)}
 									{selectionStyle && (
-										<div className={styles.rangePreviewRegion} style={selectionStyle} />
+										<div
+											className={styles.rangePreviewRegion}
+											style={selectionStyle}
+										/>
 									)}
 									<SpectrogramContext.Provider value={contextValue}>
 										<Theme appearance="dark">
@@ -730,7 +756,10 @@ export const AudioSpectrogram: FC = memo(() => {
 						</IconButton>
 					</Tooltip>
 
-					<Tooltip content={t("timeShiftDialog.title", "Time Shift")} side="left">
+					<Tooltip
+						content={t("timeShiftDialog.title", "Time Shift")}
+						side="left"
+					>
 						<IconButton
 							variant="ghost"
 							color="gray"
@@ -743,7 +772,10 @@ export const AudioSpectrogram: FC = memo(() => {
 					</Tooltip>
 
 					<Popover.Root>
-						<Tooltip content={t("spectrogram.settings", "频谱图设置")} side="left">
+						<Tooltip
+							content={t("spectrogram.settings", "频谱图设置")}
+							side="left"
+						>
 							<Popover.Trigger>
 								<IconButton variant="ghost" color="gray">
 									<SettingsFilled />
@@ -758,7 +790,8 @@ export const AudioSpectrogram: FC = memo(() => {
 
 								<Flex direction="column" gap="2">
 									<Text size="1" color="gray">
-										{t("spectrogram.fftSize", "FFT Size")} ({t("spectrogram.resolution", "解析度")})
+										{t("spectrogram.fftSize", "FFT Size")} (
+										{t("spectrogram.resolution", "解析度")})
 									</Text>
 									<Select.Root
 										value={fftSize.toString()}
@@ -766,10 +799,21 @@ export const AudioSpectrogram: FC = memo(() => {
 									>
 										<Select.Trigger />
 										<Select.Content>
-											<Select.Item value="512">{t("spectrogram.fftSizeOption.512", "512 (Fast)")}</Select.Item>
-											<Select.Item value="1024">{t("spectrogram.fftSizeOption.1024", "1024 (Normal)")}</Select.Item>
-											<Select.Item value="2048">{t("spectrogram.fftSizeOption.2048", "2048 (Better Freq)")}</Select.Item>
-											<Select.Item value="4096">{t("spectrogram.fftSizeOption.4096", "4096 (High Res)")}</Select.Item>
+											<Select.Item value="512">
+												{t("spectrogram.fftSizeOption.512", "512 (Fast)")}
+											</Select.Item>
+											<Select.Item value="1024">
+												{t("spectrogram.fftSizeOption.1024", "1024 (Normal)")}
+											</Select.Item>
+											<Select.Item value="2048">
+												{t(
+													"spectrogram.fftSizeOption.2048",
+													"2048 (Better Freq)",
+												)}
+											</Select.Item>
+											<Select.Item value="4096">
+												{t("spectrogram.fftSizeOption.4096", "4096 (High Res)")}
+											</Select.Item>
 										</Select.Content>
 									</Select.Root>
 								</Flex>

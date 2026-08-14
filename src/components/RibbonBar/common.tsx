@@ -9,9 +9,9 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-import { Flex, Separator, Text } from "@radix-ui/themes";
+import { Flex, Grid, Separator } from "@radix-ui/themes";
 import { motion } from "framer-motion";
-import { type FC, forwardRef, type PropsWithChildren, type ReactNode, useImperativeHandle, useRef, useCallback, useEffect } from "react";
+import { type FC, forwardRef, type PropsWithChildren, type ReactNode, useImperativeHandle, useRef, useEffect } from "react";
 
 export const RibbonSection: FC<PropsWithChildren<{ label: ReactNode; isSidebar?: boolean }>> = ({
 	children,
@@ -54,8 +54,38 @@ export const RibbonSection: FC<PropsWithChildren<{ label: ReactNode; isSidebar?:
 	</>
 );
 
-export const RibbonFrame = forwardRef<HTMLDivElement, PropsWithChildren<{ isSidebar?: boolean }>>(
-	({ children, isSidebar }, ref) => {
+const RibbonHeightReserve: FC<{ rows: number }> = ({ rows }) => (
+	<Flex
+		aria-hidden="true"
+		direction="column"
+		gap="1"
+		flexShrink="0"
+		style={{
+			width: 0,
+			minWidth: 0,
+			overflow: "hidden",
+			visibility: "hidden",
+			pointerEvents: "none",
+			marginInlineEnd: "calc(-1 * var(--space-3))",
+		}}
+	>
+		<Grid rows={`repeat(${rows}, var(--space-5))`} gapY="1" />
+		<Flex
+			align="center"
+			justify="center"
+			px="2"
+			style={{ fontSize: "var(--font-size-1)", whiteSpace: "nowrap" }}
+		>
+			Reserve
+		</Flex>
+	</Flex>
+);
+
+export const RibbonFrame = forwardRef<
+	HTMLDivElement,
+	PropsWithChildren<{ isSidebar?: boolean; reserveControlRows?: number }>
+>(
+	({ children, isSidebar, reserveControlRows }, ref) => {
 		const frameRef = useRef<HTMLDivElement>(null);
 		useImperativeHandle(ref, () => frameRef.current as HTMLDivElement, []);
 
@@ -132,6 +162,9 @@ export const RibbonFrame = forwardRef<HTMLDivElement, PropsWithChildren<{ isSide
 					layout
 					ref={frameRef}
 				>
+					{!isSidebar && reserveControlRows && (
+						<RibbonHeightReserve rows={reserveControlRows} />
+					)}
 					{children}
 				</motion.div></Flex>
 		);
