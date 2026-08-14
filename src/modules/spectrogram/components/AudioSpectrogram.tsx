@@ -29,6 +29,7 @@ import {
 	useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import { audioEngine } from "$/modules/audio/audio-engine.ts";
 import {
@@ -254,20 +255,13 @@ export const AudioSpectrogram: FC = memo(() => {
 	const rulerRef = useRef<TimelineRulerHandle>(null);
 
 	const { openFile } = useFileOpener();
-	const handleLoadMusic = useCallback(() => {
-		const inputEl = document.createElement("input");
-		inputEl.type = "file";
-		inputEl.accept = "audio/*,*/*";
-		inputEl.addEventListener(
-			"change",
-			() => {
-				const file = inputEl.files?.[0];
-				if (!file) return;
-				openFile(file);
-			},
-			{ once: true },
-		);
-		inputEl.click();
+	const handleLoadMusic = useCallback(async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [{ name: "Audio", extensions: ["mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"] }],
+		});
+		if (!file || Array.isArray(file)) return;
+		openFile(file);
 	}, [openFile]);
 
 	const { t } = useTranslation();

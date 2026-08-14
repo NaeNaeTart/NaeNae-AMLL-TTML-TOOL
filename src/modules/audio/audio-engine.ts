@@ -13,6 +13,7 @@ import {
 import { AudioWorkerClient } from "$/modules/audio/workers/audio-worker-client";
 import { globalStore } from "$/states/store.ts";
 import { log } from "$/utils/logging";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 // Magic, pending original dev's explanation
 // Even don't know where should I put this after refactoring
@@ -470,7 +471,11 @@ class AudioEngine extends EventTarget {
 				}
 			};
 
-			audioEl.src = URL.createObjectURL(src);
+			if ((src as any).path && import.meta.env.TAURI_ENV_PLATFORM) {
+				audioEl.src = convertFileSrc((src as any).path);
+			} else {
+				audioEl.src = URL.createObjectURL(src);
+			}
 		});
 	}
 

@@ -56,6 +56,7 @@ import {
 } from "$/states/keybindings.ts";
 import { useKeyBindingAtom } from "$/utils/keybindings.ts";
 import { msToTimestamp } from "$/utils/timestamp.ts";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
 
 const AudioPlaybackKeyBinding = memo(() => {
 	const store = useStore();
@@ -125,22 +126,13 @@ export const AudioControls: FC = memo(() => {
 	const { openFile } = useFileOpener();
 	const { t } = useTranslation();
 
-	const onLoadMusic = useCallback(() => {
-		const inputEl = document.createElement("input");
-		inputEl.type = "file";
-		inputEl.accept = "audio/*,*/*";
-		inputEl.addEventListener(
-			"change",
-			() => {
-				const file = inputEl.files?.[0];
-				if (!file) return;
-				openFile(file);
-			},
-			{
-				once: true,
-			},
-		);
-		inputEl.click();
+	const onLoadMusic = useCallback(async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [{ name: "Audio", extensions: ["mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"] }],
+		});
+		if (!file || Array.isArray(file)) return;
+		openFile(file);
 	}, [openFile]);
 
 	const onTogglePlay = useCallback(() => {

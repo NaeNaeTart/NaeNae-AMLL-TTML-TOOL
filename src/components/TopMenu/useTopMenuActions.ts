@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { uid } from "uid";
 import { toast } from "react-toastify";
 import { saveFile } from "$/utils/fileSystem.ts";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
@@ -158,22 +159,18 @@ export const useTopMenuActions = () => {
 		setSaveFileName,
 	]);
 
-	const onOpenFile = useCallback(() => {
-		const inputEl = document.createElement("input");
-		inputEl.type = "file";
-		inputEl.accept = ".ttml,.lrc,.qrc,.eslrc,.lys,.yrc,*/*";
-		inputEl.addEventListener(
-			"change",
-			() => {
-				const file = inputEl.files?.[0];
-				if (!file) return;
-				openFile(file);
-			},
-			{
-				once: true,
-			},
-		);
-		inputEl.click();
+	const onOpenFile = useCallback(async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [
+				{
+					name: "Lyric/Audio files",
+					extensions: ["ttml", "lrc", "qrc", "eslrc", "lys", "yrc", "mp3", "flac", "wav", "ogg", "m4a", "opus", "webm"]
+				}
+			],
+		});
+		if (!file || Array.isArray(file)) return;
+		openFile(file);
 	}, [openFile]);
 
 	const onOpenFileFromClipboard = useCallback(async () => {

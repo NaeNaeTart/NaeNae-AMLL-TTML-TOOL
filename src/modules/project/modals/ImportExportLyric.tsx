@@ -12,6 +12,7 @@ import { useSetAtom, useStore } from "jotai";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { saveFile } from "$/utils/fileSystem.ts";
+import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system";
@@ -42,44 +43,31 @@ export const ImportExportLyric = () => {
 		}
 	};
 
-	const onImportLyric = (extension: string) => {
-		const inputEl = document.createElement("input");
-		inputEl.type = "file";
-		inputEl.accept = `.${extension},*/*`;
-		inputEl.addEventListener(
-			"change",
-			() => {
-				const file = inputEl.files?.[0];
-				if (!file) return;
-
-				openFile(file, extension);
-			},
-			{
-				once: true,
-			},
-		);
-		inputEl.click();
+	const onImportLyric = (extension: string) => async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [{ name: `Lyric files (${extension})`, extensions: [extension, "*"] }],
+		});
+		if (!file || Array.isArray(file)) return;
+		openFile(file, extension);
 	};
 
 	const onImportWithPlugin = (pluginId: string, extension: string) => async () => {
-		const inputEl = document.createElement("input");
-		inputEl.type = "file";
-		inputEl.accept = `.${extension}`;
-		inputEl.addEventListener("change", async () => {
-			const file = inputEl.files?.[0];
-			if (!file) return;
-
-			try {
-				const text = await file.text();
-				const transformed = await pluginManager.runImporter(pluginId, text);
-				const newFile = new File([transformed], file.name, { type: "application/xml" });
-				openFile(newFile, extension);
-			} catch (e: any) {
-				error(`Plugin import failed: ${pluginId}`, e);
-				alert(e.message || "Import failed. Please make sure you are using a valid TTML file.");
-			}
-		}, { once: true });
-		inputEl.click();
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [{ name: `Plugin file (${extension})`, extensions: [extension] }],
+		});
+		if (!file || Array.isArray(file)) return;
+		
+		try {
+			const text = await file.text();
+			const transformed = await pluginManager.runImporter(pluginId, text);
+			const newFile = new File([transformed], file.name, { type: "application/xml" });
+			openFile(newFile, extension);
+		} catch (e: any) {
+			error(`Plugin import failed: ${pluginId}`, e);
+			alert(e.message || "Import failed. Please make sure you are using a valid TTML file.");
+		}
 	};
 
 	const onExportLyric =

@@ -42,3 +42,9 @@ identifier = "updater:default"
 
 [[permissions]]
 identifier = "log:default"
+
+[[permissions]]
+identifier = "dialog:default"
+
+[[permissions]]
+identifier = "fs:default"
