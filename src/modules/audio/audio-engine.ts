@@ -142,16 +142,23 @@ class AudioEngine extends EventTarget {
 	get audioEl() {
 		if (this._audioEl) return this._audioEl;
 		this._audioEl = document.createElement("audio");
+		this._audioEl.crossOrigin = "anonymous";
 		this._audioEl.preload = "metadata";
 		return this._audioEl;
 	}
 
 	private _mediaSourceNode: MediaElementAudioSourceNode | null = null;
 
-	/** Connect AudioElement to AudioContext, called after load finished */
 	private connectAudioToContext() {
 		if (!this._audioEl || !this.ctx || this._audioEl.src === "") return;
 		if (this._mediaSourceNode) return; // already connected!
+		
+		// Bypass on Linux due to WebKitGTK / GStreamer bugs with MediaElementAudioSourceNode
+		// which causes audio to be silent and seeking to fail/jump back.
+		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
+			console.warn("[AudioEngine] Bypassing createMediaElementSource on Linux to prevent playback bugs.");
+			return;
+		}
 		try {
 			this._mediaSourceNode = this.ctx.createMediaElementSource(this._audioEl);
 			this._mediaSourceNode.connect(this.eqEntryPoint);

@@ -17,45 +17,55 @@ export async function openFileWithDialog(
 		if (!selected) return null;
 
 		if (Array.isArray(selected)) {
-			const { readFile } = await import("@tauri-apps/plugin-fs");
-			const files = await Promise.all(
-				selected.map(async (path) => {
-					const data = await readFile(path);
-					const fileName = path.split(/[/\\]/).pop() || "unknown";
-					const ext = fileName.split('.').pop()?.toLowerCase();
-					
-					let mime = "application/octet-stream";
-					if (ext === "ttml") mime = "application/ttml+xml";
-					else if (ext === "mp3") mime = "audio/mpeg";
-					else if (ext === "wav") mime = "audio/wav";
-					else if (ext === "flac") mime = "audio/flac";
-					else if (ext === "ogg") mime = "audio/ogg";
-					
-					const blob = new Blob([data], { type: mime });
-					const file = new File([blob], fileName, { type: mime });
-					(file as any).path = path;
-					return file;
-				}),
-			);
-			return files;
+			try {
+				const files = await Promise.all(
+					selected.map(async (path) => {
+						const { readFile } = await import("@tauri-apps/plugin-fs");
+						const data = await readFile(path);
+						const fileName = path.split(/[/\\]/).pop() || "unknown";
+						const ext = fileName.split('.').pop()?.toLowerCase();
+						
+						let mime = "application/octet-stream";
+						if (ext === "ttml") mime = "application/ttml+xml";
+						else if (ext === "mp3") mime = "audio/mpeg";
+						else if (ext === "wav") mime = "audio/wav";
+						else if (ext === "flac") mime = "audio/flac";
+						else if (ext === "ogg") mime = "audio/ogg";
+						
+						const blob = new Blob([data], { type: mime });
+						const file = new File([blob], fileName, { type: mime });
+						(file as any).path = path;
+						return file;
+					}),
+				);
+				return files;
+			} catch (e: any) {
+				alert("Files read error: " + String(e));
+				throw e;
+			}
 		} else {
-			const { readFile } = await import("@tauri-apps/plugin-fs");
-			const path = selected;
-			const data = await readFile(path);
-			const fileName = path.split(/[/\\]/).pop() || "unknown";
-			const ext = fileName.split('.').pop()?.toLowerCase();
-			
-			let mime = "application/octet-stream";
-			if (ext === "ttml") mime = "application/ttml+xml";
-			else if (ext === "mp3") mime = "audio/mpeg";
-			else if (ext === "wav") mime = "audio/wav";
-			else if (ext === "flac") mime = "audio/flac";
-			else if (ext === "ogg") mime = "audio/ogg";
-			
-			const blob = new Blob([data], { type: mime });
-			const file = new File([blob], fileName, { type: mime });
-			(file as any).path = path;
-			return file;
+			try {
+				const { readFile } = await import("@tauri-apps/plugin-fs");
+				const path = selected;
+				const data = await readFile(path);
+				const fileName = path.split(/[/\\]/).pop() || "unknown";
+				const ext = fileName.split('.').pop()?.toLowerCase();
+				
+				let mime = "application/octet-stream";
+				if (ext === "ttml") mime = "application/ttml+xml";
+				else if (ext === "mp3") mime = "audio/mpeg";
+				else if (ext === "wav") mime = "audio/wav";
+				else if (ext === "flac") mime = "audio/flac";
+				else if (ext === "ogg") mime = "audio/ogg";
+				
+				const blob = new Blob([data], { type: mime });
+				const file = new File([blob], fileName, { type: mime });
+				(file as any).path = path;
+				return file;
+			} catch (e: any) {
+				alert("File read error: " + String(e));
+				throw e;
+			}
 		}
 	} else {
 		return new Promise((resolve) => {
