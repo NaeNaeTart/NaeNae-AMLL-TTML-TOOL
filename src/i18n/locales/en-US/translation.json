@@ -378,6 +378,8 @@
         "waveformInactive": "Waveform Inactive",
         "waveformProgress": "Waveform Progress",
         "global": "Global Design System",
+        "legacyDarkTheme": "Classic Dark Theme",
+        "legacyDarkThemeDesc": "Use the lighter dark palette from before the Intonated Black redesign.",
         "masterResetNote": "This will reset all 20+ granular overrides.",
         "resetMaster": "Master Reset Advanced Config"
       },

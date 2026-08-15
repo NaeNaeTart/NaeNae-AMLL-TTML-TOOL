@@ -268,6 +268,11 @@ export const appearanceEditorModeAtom = atomWithStorage<AppearanceEditorMode>(
 	AppearanceEditorMode.Basic,
 );
 
+export const legacyDarkThemeAtom = atomWithStorage<boolean>(
+	"legacyDarkTheme",
+	false,
+);
+
 export const advancedWaveformColorAtom = atomWithStorage<string>(
 	"advancedWaveformColor",
 	"",
