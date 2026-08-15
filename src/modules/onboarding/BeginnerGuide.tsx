@@ -9,6 +9,7 @@ import {
 	Progress,
 	Text,
 } from "@radix-ui/themes";
+import { AnimatePresence, motion } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import {
 	type PointerEvent as ReactPointerEvent,
@@ -33,6 +34,8 @@ import {
 	importFromTextDialogAtom,
 	lyricallyImportLyricsDialogAtom,
 	metadataEditorDialogAtom,
+	settingsDialogAtom,
+	settingsTabAtom,
 	ttmlChecklistDialogAtom,
 } from "$/states/dialogs";
 import {
@@ -129,6 +132,8 @@ export const BeginnerGuide = () => {
 	const setMetadata = useSetAtom(metadataEditorDialogAtom);
 	const setChecklist = useSetAtom(ttmlChecklistDialogAtom);
 	const setToolMode = useSetAtom(toolModeAtom);
+	const setSettingsOpen = useSetAtom(settingsDialogAtom);
+	const setSettingsTab = useSetAtom(settingsTabAtom);
 	const { openFile } = useFileOpener();
 
 	useEffect(() => {
@@ -362,35 +367,73 @@ export const BeginnerGuide = () => {
 					</Flex>
 				</Dialog.Content>
 			</Dialog.Root>
-			{panelOpen && tucked && (
-				<Button
-					style={{
-						position: "fixed",
-						right: 0,
-						top: "45%",
-						zIndex: 10000,
-						borderRadius: "var(--radius-3) 0 0 var(--radius-3)",
-						boxShadow: "var(--shadow-4)",
-					}}
-					onClick={() => setTucked(false)}
-				>
-					{t("beginnerGuide.restore", "Show guide")}
-				</Button>
-			)}
-			{panelOpen && !tucked && (
-				<Card
-					data-beginner-guide
-					style={{
-						position: "fixed",
-						left: position.x,
-						top: position.y,
-						width: 320,
-						zIndex: 10000,
-						boxShadow: "var(--shadow-5)",
-						backgroundColor: "var(--color-panel-solid)",
-						backdropFilter: "none",
-					}}
-				>
+			<AnimatePresence>
+				{panelOpen && tucked && (
+					<motion.div
+						key="tucked-button"
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						transition={{ duration: 0.2 }}
+						style={{
+							position: "fixed",
+							right: 0,
+							top: "45%",
+							zIndex: 10000,
+							paddingLeft: "40px",
+							paddingTop: "10px",
+							paddingBottom: "10px",
+							transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s",
+							transform: "translateX(60%)",
+							opacity: 0.7,
+							cursor: "pointer",
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.transform = "translateX(0)";
+							e.currentTarget.style.opacity = "1";
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.transform = "translateX(60%)";
+							e.currentTarget.style.opacity = "0.7";
+						}}
+					>
+						<Button
+							style={{
+								borderRadius: "var(--radius-3) 0 0 var(--radius-3)",
+								boxShadow: "var(--shadow-4)",
+								cursor: "pointer",
+							}}
+							onClick={() => setTucked(false)}
+						>
+							<BookOpen24Regular style={{ marginRight: "4px" }} />
+							{t("beginnerGuide.restore", "Show guide")}
+						</Button>
+					</motion.div>
+				)}
+				{panelOpen && !tucked && (
+					<motion.div
+						key="guide-card"
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						exit={{ opacity: 0, scale: 0.95 }}
+						transition={{ duration: 0.2 }}
+						style={{
+							position: "fixed",
+							left: position.x,
+							top: position.y,
+							width: 320,
+							zIndex: 10000,
+						}}
+					>
+						<Card
+							data-beginner-guide
+							style={{
+								width: "100%",
+								boxShadow: "var(--shadow-5)",
+								backgroundColor: "var(--color-panel-solid)",
+								backdropFilter: "none",
+							}}
+						>
 					<Flex direction="column" gap="3">
 						<Flex
 							justify="between"
@@ -438,6 +481,42 @@ export const BeginnerGuide = () => {
 							<Text size="2" color="gray">
 								{t(`beginnerGuide.steps.${currentId}.description`, copy.text)}
 							</Text>
+							{currentId === "audio" && (
+								<Box
+									mt="2"
+									p="2"
+									style={{
+										borderLeft: "2px solid var(--accent-8)",
+										background: "var(--gray-a3)",
+										borderRadius: "var(--radius-1)",
+									}}
+								>
+									<Text size="1" weight="bold" color="accent" style={{ display: "block", marginBottom: "2px" }}>
+										{t("beginnerGuide.beforeStart.title", "Before you start:")}
+									</Text>
+									<Text size="1" color="gray">
+										{t(
+											"beginnerGuide.beforeStart.text",
+											"You can change the appearance of the editor to suit your preference. Click below to open settings. Feel free to try the Basic Editor, or check out the Advanced Editor for complete detail control.",
+										)}{" "}
+										<a
+											href="#"
+											onClick={(e) => {
+												e.preventDefault();
+												setSettingsTab("appearance");
+												setSettingsOpen(true);
+											}}
+											style={{
+												color: "var(--accent-11)",
+												textDecoration: "underline",
+												fontWeight: "bold",
+											}}
+										>
+											{t("beginnerGuide.beforeStart.link", "Customize Editor Appearance")}
+										</a>
+									</Text>
+								</Box>
+							)}
 						</Box>
 						<Card
 							variant="surface"
@@ -616,7 +695,9 @@ export const BeginnerGuide = () => {
 						)}
 					</Flex>
 				</Card>
+					</motion.div>
 			)}
+			</AnimatePresence>
 		</>
 	);
 };
