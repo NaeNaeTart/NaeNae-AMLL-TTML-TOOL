@@ -17,7 +17,7 @@
 		"MiSans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-.radix-themes:is(.dark, .dark-theme) {
+.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"]) {
 	--gray-1: #080809 !important;
 	--gray-2: #0d0d0f !important;
 	--gray-3: #131316 !important;

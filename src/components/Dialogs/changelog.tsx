@@ -55,6 +55,16 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="green">
+								v0.9.6 Updates (Classic Dark Theme)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Classic Dark Theme:</strong> Added an Advanced Customization toggle for restoring the lighter dark palette used before the Intonated Black redesign.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="red">
 								v0.9.5 Updates (Linux Window Fixes)
 							</Heading>

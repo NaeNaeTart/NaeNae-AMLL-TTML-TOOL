@@ -87,6 +87,7 @@ import {
 	vRibbonPositionAtom,
 	aiSidebarEnabledAtom,
 	lyricTextNormalizationOptionsAtom,
+	legacyDarkThemeAtom,
 } from "$/modules/settings/states/index.ts";
 import styles from "./App.module.css";
 import DarkThemeDetector from "./components/DarkThemeDetector";
@@ -257,6 +258,7 @@ const RainEffect: FC<{ isRaining: boolean }> = memo(({ isRaining }) => {
 
 function App() {
 	const isDarkTheme = useAtomValue(isDarkThemeAtom);
+	const legacyDarkTheme = useAtomValue(legacyDarkThemeAtom);
 	const toolMode = useAtomValue(toolModeAtom);
 	const showTouchSyncPanel = useAtomValue(showTouchSyncPanelAtom);
 	const aiSidebarEnabled = useAtomValue(aiSidebarEnabledAtom);
@@ -701,6 +703,7 @@ function App() {
 	return (
 		<Theme
 			appearance={effectiveTheme}
+			data-legacy-dark-theme={legacyDarkTheme || undefined}
 			panelBackground="translucent"
 			hasBackground={hasBackground}
 			accentColor={accentColor}

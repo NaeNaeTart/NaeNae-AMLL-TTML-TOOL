@@ -88,6 +88,7 @@ import {
 	type AppearancePreset,
 	appLayoutOrderAtom,
 	vRibbonPositionAtom,
+	legacyDarkThemeAtom,
 } from "$/modules/settings/states/index.ts";
 import { fontSelectionDialogAtom } from "$/states/dialogs.ts";
 import { isDarkThemeAtom } from "$/states/main.ts";
@@ -169,6 +170,7 @@ export const SettingsAppearanceTab = () => {
 		customGradientSizeAtom,
 	);
 	const [editorMode, setEditorMode] = useAtom(appearanceEditorModeAtom);
+	const [legacyDarkTheme, setLegacyDarkTheme] = useAtom(legacyDarkThemeAtom);
 	const [advWaveformColor, setAdvWaveformColor] = useAtom(advancedWaveformColorAtom);
 	const [advWaveformProgress, setAdvWaveformProgress] = useAtom(advancedWaveformProgressColorAtom);
 	const [advPrimaryText, setAdvPrimaryText] = useAtom(advancedPrimaryTextColorAtom);
@@ -227,7 +229,7 @@ export const SettingsAppearanceTab = () => {
 				vChipRadius, vChipGap, vChipPaddingV, vChipPaddingH, vRomanColor, vTransColor, vGeniusHeaderColor,
 				vAudioBarBg, vAudioBarText, vScrollbar, vDialogBg, vDialogBorder,
 				vGlobalRadius, vGlobalBorderWidth, vShadow, vBackdrop,
-				layoutOrder, vRibbonPos
+				layoutOrder, vRibbonPos, legacyDarkTheme
 			}
 		};
 		setPresets([...presets, newPreset]);
@@ -256,6 +258,7 @@ export const SettingsAppearanceTab = () => {
 		if (s.customGradientCenter !== undefined) setCustomGradientCenter(s.customGradientCenter);
 		if (s.customGradientAngle !== undefined) setCustomGradientAngle(Number(s.customGradientAngle));
 		if (s.customGradientSize !== undefined) setCustomGradientSize(Number(s.customGradientSize));
+		if (s.legacyDarkTheme !== undefined) setLegacyDarkTheme(!!s.legacyDarkTheme);
 
 		// Advanced
 		if (s.advWaveformColor !== undefined) setAdvWaveformColor(s.advWaveformColor);
@@ -906,6 +909,7 @@ export const SettingsAppearanceTab = () => {
 								setCustomGradientAngle(45);
 								setCustomGradientSize(1);
 								setGlassBlur(24);
+								setLegacyDarkTheme(false);
 								
 								setAdvWaveformColor(""); setAdvWaveformProgress("");
 								setAdvPrimaryText(""); setAdvSecondaryText("");
@@ -1019,6 +1023,13 @@ export const SettingsAppearanceTab = () => {
 						<Heading size="4"><Sparkle24Regular /> {t("settings.appearance.advanced.global", "Global Design System")}</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
+								<Flex align="center" justify="between" gap="3">
+									<Flex direction="column" gap="1">
+										<Text>{t("settings.appearance.advanced.legacyDarkTheme", "Classic Dark Theme")}</Text>
+										<Text size="1" color="gray">{t("settings.appearance.advanced.legacyDarkThemeDesc", "Use the lighter dark palette from before the Intonated Black redesign.")}</Text>
+									</Flex>
+									<Switch checked={legacyDarkTheme} onCheckedChange={setLegacyDarkTheme} />
+								</Flex>
 								<Grid columns="2" gap="3">
 									<AdvancedColorItem label="Scrollbar Thumb" value={vScrollbar} onChange={setVScrollbar} />
 									<AdvancedColorItem label="Dialog Background" value={vDialogBg} onChange={setVDialogBg} />
@@ -1095,6 +1106,7 @@ export const SettingsAppearanceTab = () => {
 								setVAudioBarBg(""); setVAudioBarText("");
 								setVScrollbar(""); setVDialogBg(""); setVDialogBorder("");
 								setVGlobalRadius(12); setVGlobalBorderWidth(1); setVShadow(1); setVBackdrop(16);
+								setLegacyDarkTheme(false);
 								setLayoutOrder(["titlebar", "ribbonbar", "editor", "audio-controls"]); setVRibbonPos("top");
 							}}>
 								<History24Regular />
