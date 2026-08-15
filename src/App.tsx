@@ -633,7 +633,7 @@ function App() {
 				}
 			}
 
-			await new Promise((r) => requestAnimationFrame(r));
+			await new Promise((r) => setTimeout(r, 50));
 
 			await win.show();
 		})();
