@@ -55,6 +55,23 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="red">
+								v0.9.5 Updates (Linux Window Fixes)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Reliable Linux Startup:</strong> Fixed the desktop app
+									remaining hidden at launch when WebKitGTK pauses animation
+									frames for hidden windows.
+								</Text>
+								<Text size="2">
+									<strong>Single Linux Title Bar:</strong> Disabled the native
+									window decoration so Linux shows only the app's custom title
+									bar.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="blue">
 								v0.9.4 Updates (Themes & Guide Polish)
 							</Heading>
