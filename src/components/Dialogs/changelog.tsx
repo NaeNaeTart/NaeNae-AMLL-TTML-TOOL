@@ -55,6 +55,22 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="blue">
+								v0.9.4 Updates (Themes & Guide Polish)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Intonated Black Theme:</strong> Revamped the default dark theme with a premium, deep-black aesthetic, eliminating washed-out gray hues and introducing elegant translucent panel overlays.
+								</Text>
+								<Text size="2">
+									<strong>Master Theme Reset:</strong> Added a single-click button in the basic appearance settings to completely reset all colors, backgrounds, custom gradients, and advanced granular overrides back to their defaults.
+								</Text>
+								<Text size="2">
+									<strong>Onboarding Enhancements:</strong> Added a "Before you start" tip box to step one of the beginner guide, direct links to appearance settings, a sleek hover-based edge restore button, and smooth fade transitions when tucking the guide.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.9.3 Updates (Import & Editing)
 							</Heading>

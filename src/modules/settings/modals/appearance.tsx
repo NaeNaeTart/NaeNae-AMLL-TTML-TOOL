@@ -876,6 +876,55 @@ export const SettingsAppearanceTab = () => {
 					</Flex>
 				</Card>
 			</Flex>
+
+			<Flex direction="column" gap="3">
+				<Heading size="4">
+					{t("settings.appearance.resetTitle", "Reset Theme")}
+				</Heading>
+				<Card>
+					<Flex direction="column" gap="2">
+						<Flex align="center" gap="2" color="gray">
+							<History24Regular />
+							<Text size="2">
+								{t("settings.appearance.resetDesc", "Reset all colors, backgrounds, gradients, and custom overrides back to the default theme.")}
+							</Text>
+						</Flex>
+						<Button
+							variant="soft"
+							color="red"
+							onClick={() => {
+								setAccentColor("red");
+								setUseCustomAccent(false);
+								setCustomAccentColor("#e5484d");
+								setBackgroundMode("none");
+								setSelectedGradient("sunset");
+								setUseCustomGradient(false);
+								setCustomGradientColors(["#7028e4"]);
+								setCustomGradientType("linear");
+								setCustomGradientOpacity(1);
+								setCustomGradientCenter([50, 50]);
+								setCustomGradientAngle(45);
+								setCustomGradientSize(1);
+								setGlassBlur(24);
+								
+								setAdvWaveformColor(""); setAdvWaveformProgress("");
+								setAdvPrimaryText(""); setAdvSecondaryText("");
+								setVTitlebarBg(""); setVSidebarBg(""); setVSidebarActive(""); setVMenuHover("");
+								setVEditorBg(""); setVActiveLine(""); setVLineHover(""); setVSelection("");
+								setVChipRadius(8); setVChipGap(8); setVChipPaddingV(4); setVChipPaddingH(12);
+								setVRomanColor(""); setVTransColor("");
+								setVAudioBarBg(""); setVAudioBarText("");
+								setVScrollbar(""); setVDialogBg(""); setVDialogBorder("");
+								setVGlobalRadius(12); setVGlobalBorderWidth(1); setVShadow(1); setVBackdrop(16);
+								setLayoutOrder(["titlebar", "ribbonbar", "editor", "audio-controls"]); setVRibbonPos("top");
+							}}
+						>
+							<History24Regular />
+							{t("settings.appearance.resetTheme", "Reset Theme to Default")}
+						</Button>
+					</Flex>
+				</Card>
+			</Flex>
 				</>
 			) : (
 				<Flex direction="column" gap="4">

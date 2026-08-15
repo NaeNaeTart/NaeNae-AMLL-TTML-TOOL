@@ -17,6 +17,39 @@
 		"MiSans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
+.radix-themes:is(.dark, .dark-theme) {
+	--gray-1: #080809 !important;
+	--gray-2: #0d0d0f !important;
+	--gray-3: #131316 !important;
+	--gray-4: #18181c !important;
+	--gray-5: #1d1d22 !important;
+	--gray-6: #252529 !important;
+	--gray-7: #303038 !important;
+	--gray-8: #424249 !important;
+	--gray-9: #585866 !important;
+	--gray-10: #717180 !important;
+	--gray-11: #b2b2ba !important;
+	--gray-12: #ededef !important;
+
+	--gray-a1: rgba(8, 8, 9, 0.05) !important;
+	--gray-a2: rgba(13, 13, 15, 0.1) !important;
+	--gray-a3: rgba(19, 19, 22, 0.15) !important;
+	--gray-a4: rgba(24, 24, 28, 0.2) !important;
+	--gray-a5: rgba(13, 13, 15, 0.82) !important;
+	--gray-a6: rgba(37, 37, 41, 0.45) !important;
+	--gray-a7: rgba(48, 48, 56, 0.6) !important;
+	--gray-a8: rgba(66, 66, 73, 0.8) !important;
+	--gray-a9: rgba(88, 88, 102, 1.0) !important;
+	--gray-a10: rgba(113, 113, 128, 1.0) !important;
+	--gray-a11: rgba(178, 178, 186, 1.0) !important;
+	--gray-a12: rgba(237, 237, 239, 1.0) !important;
+
+	--color-background: #060607 !important;
+	--editor-bg: #0b0b0d !important;
+	--color-panel-solid: var(--gray-2) !important;
+	--color-panel-translucent: var(--gray-a5) !important;
+}
+
 ::selection {
 	background-color: var(--selection-color, var(--accent-a5));
 	color: var(--accent-contrast);
