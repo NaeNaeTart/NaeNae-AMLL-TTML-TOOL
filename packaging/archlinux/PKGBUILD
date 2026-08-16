@@ -1,0 +1,51 @@
+pkgname=amll-ttml-tool-git
+pkgver=0.9.6.r0.g9d3bdd2
+pkgrel=1
+pkgdesc="A brand-new syllable lyric editor for Apple Music-like lyrics"
+arch=('x86_64')
+options=(!lto)
+url="https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL"
+license=('AGPL3')
+depends=('webkit2gtk-4.1' 'gstreamer' 'gst-plugins-base' 'gst-plugins-good' 'gst-plugins-bad' 'gst-plugins-ugly' 'cairo' 'pango' 'gdk-pixbuf2' 'glib2' 'gtk3')
+makedepends=('cargo' 'nodejs' 'pnpm' 'git')
+provides=("amll-ttml-tool")
+conflicts=("amll-ttml-tool")
+source=("git+https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL.git"
+        "amll-ttml-tool.desktop")
+sha256sums=('SKIP'
+            'SKIP')
+
+pkgver() {
+  cd NaeNae-AMLL-TTML-TOOL
+  # Ucinamy 'v' z przodu taga (jeśli jest) i formatujemy dla Archa
+  git describe --long --tags --abbrev=7 | sed 's/\([^-]*-g\)/r\1/;s/-/./g' | sed 's/^v//'
+}
+
+prepare() {
+  cd NaeNae-AMLL-TTML-TOOL
+  pnpm install
+}
+
+build() {
+  cd NaeNae-AMLL-TTML-TOOL
+  # Zabezpieczenie przed błędami linkera (rust-lld) dla biblioteki 'ring'
+  unset CFLAGS CXXFLAGS LDFLAGS
+  # Używamy -b appimage, ponieważ Tauri v2 nie wspiera już opcji 'none'
+  # Ignorujemy błędy linuxdeploy pod koniec (zwraca błąd przy pakowaniu na Archu), jeśli binarka już powstała
+  pnpm tauri build -b appimage || [ -f "src-tauri/target/release/amll-ttml-tool" ]
+}
+
+package() {
+  cd NaeNae-AMLL-TTML-TOOL
+  
+  # Instalacja binarki do /usr/bin/
+  install -Dm755 "src-tauri/target/release/amll-ttml-tool" "$pkgdir/usr/bin/amll-ttml-tool"
+  
+  # Instalacja ikon wygenerowanych w repo
+  install -Dm644 "src-tauri/icons/32x32.png" "$pkgdir/usr/share/icons/hicolor/32x32/apps/amll-ttml-tool.png"
+  install -Dm644 "src-tauri/icons/128x128.png" "$pkgdir/usr/share/icons/hicolor/128x128/apps/amll-ttml-tool.png"
+  install -Dm644 "src-tauri/icons/128x128@2x.png" "$pkgdir/usr/share/icons/hicolor/256x256/apps/amll-ttml-tool.png"
+  
+  # Instalacja pliku .desktop (aby aplikacja widniała w menu aplikacji)
+  install -Dm644 "$srcdir/amll-ttml-tool.desktop" "$pkgdir/usr/share/applications/amll-ttml-tool.desktop"
+}
