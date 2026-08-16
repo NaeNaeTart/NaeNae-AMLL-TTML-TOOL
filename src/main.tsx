@@ -25,8 +25,25 @@ import "./index.css";
 import "./utils/pwa.tsx";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
 import { globalStore } from "./states/store.ts";
+import { isMigrationPath } from "$/modules/domain-migration/config";
+import { MigrationRouteApp } from "$/modules/domain-migration/MigrationRouteApp";
 
 async function startApp() {
+	const rootEl = document.getElementById("root");
+
+	if (!rootEl) {
+		throw new Error("Could not find root element");
+	}
+
+	if (isMigrationPath(window.location.pathname)) {
+		createRoot(rootEl).render(
+			<StrictMode>
+				<MigrationRouteApp />
+			</StrictMode>,
+		);
+		return;
+	}
+
 	try {
 		if ("wasm_start" in AMLLLyric && typeof AMLLLyric.wasm_start === "function") {
 			(AMLLLyric.wasm_start as () => void)();
@@ -45,12 +62,6 @@ async function startApp() {
 		dsn: import.meta.env.SENTRY_DSN,
 		integrations: [],
 	});
-
-	const rootEl = document.getElementById("root");
-
-	if (!rootEl) {
-		throw new Error("Could not find root element");
-	}
 
 	createRoot(rootEl).render(
 		<StrictMode>

@@ -55,6 +55,42 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="purple">
+								v0.9.7 Updates (Native Arch Packaging)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Native Arch Linux Package:</strong> Added a PKGBUILD
+									and desktop entry for native installation on Arch Linux and
+									Arch-based distributions, avoiding AppImage system-library
+									compatibility problems.
+								</Text>
+								<Text size="2">
+									<strong>Reliable Native Builds:</strong> Arch packages now use
+									locked dependencies, preserve distribution build flags,
+									declare the AppIndicator dependency, and fail when compilation
+									fails.
+								</Text>
+								<Text size="2">
+									<strong>Modern Linux AppImage Audio:</strong> AppImages now
+									use the host's matching GStreamer runtime and plugins,
+									restoring audio loading on current Arch Linux and CachyOS
+									systems.
+								</Text>
+								<Text size="2">
+									<strong>Optional Time Mode Double-Click Editing:</strong> Added
+									an Assistant setting to disable inline word and romanization
+									editing on double-click while keeping the Split Word shortcut.
+								</Text>
+								<Text size="2">
+									<strong>Official Domain Migration:</strong> Old web domains now
+									offer a private browser-to-browser transfer for settings,
+									projects, history, backgrounds, keybindings, and plugins before
+									moving to tool.community.spicylyrics.org.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.9.6 Updates (Classic Dark Theme)
 							</Heading>

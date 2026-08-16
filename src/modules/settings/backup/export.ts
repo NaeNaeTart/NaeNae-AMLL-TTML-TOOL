@@ -146,8 +146,12 @@ export async function exportBackup(
 	selected: Set<BackupCategoryId>,
 ): Promise<string | null> {
 	const backup = await buildBackup(selected);
+	return saveBackupFile(backup);
+}
+
+export async function saveBackupFile(backup: BackupFile): Promise<string | null> {
 	const json = JSON.stringify(backup);
-	const date = new Date().toISOString().slice(0, 10);
+	const date = backup.exportedAt.slice(0, 10);
 	const saved = await saveFile(new Blob([json], { type: "application/json" }), {
 		suggestedName: `amll-ttml-tool-backup-${date}.json`,
 		types: [

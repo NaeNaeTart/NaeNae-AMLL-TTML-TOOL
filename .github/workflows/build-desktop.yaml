@@ -136,7 +136,7 @@ jobs:
             --output /usr/local/bin/appimagetool \
             https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x /usr/local/bin/appimagetool
-      - name: Remove host-incompatible Wayland libraries from AppImage
+      - name: Remove host-incompatible libraries from AppImage
         if: matrix.platform == 'ubuntu-latest'
         shell: bash
         run: |
