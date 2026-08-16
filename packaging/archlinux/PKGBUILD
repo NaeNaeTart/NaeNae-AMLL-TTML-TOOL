@@ -5,15 +5,15 @@ pkgdesc="A brand-new syllable lyric editor for Apple Music-like lyrics"
 arch=('x86_64')
 options=(!lto)
 url="https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL"
-license=('AGPL3')
-depends=('webkit2gtk-4.1' 'gstreamer' 'gst-plugins-base' 'gst-plugins-good' 'gst-plugins-bad' 'gst-plugins-ugly' 'cairo' 'pango' 'gdk-pixbuf2' 'glib2' 'gtk3')
+license=('AGPL-3.0-only')
+depends=('webkit2gtk-4.1' 'gstreamer' 'gst-plugins-base' 'gst-plugins-good' 'gst-plugins-bad' 'gst-plugins-ugly' 'cairo' 'pango' 'gdk-pixbuf2' 'glib2' 'gtk3' 'libappindicator')
 makedepends=('cargo' 'nodejs' 'pnpm' 'git')
 provides=("amll-ttml-tool")
 conflicts=("amll-ttml-tool")
 source=("git+https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL.git"
         "amll-ttml-tool.desktop")
 sha256sums=('SKIP'
-            'SKIP')
+            '9dc37daf4b25cc6c156d309c9b12a3d84886ba8f1b2256f1cac25c6708278eee')
 
 pkgver() {
   cd NaeNae-AMLL-TTML-TOOL
@@ -23,16 +23,12 @@ pkgver() {
 
 prepare() {
   cd NaeNae-AMLL-TTML-TOOL
-  pnpm install
+  pnpm install --frozen-lockfile
 }
 
 build() {
   cd NaeNae-AMLL-TTML-TOOL
-  # Zabezpieczenie przed błędami linkera (rust-lld) dla biblioteki 'ring'
-  unset CFLAGS CXXFLAGS LDFLAGS
-  # Używamy -b appimage, ponieważ Tauri v2 nie wspiera już opcji 'none'
-  # Ignorujemy błędy linuxdeploy pod koniec (zwraca błąd przy pakowaniu na Archu), jeśli binarka już powstała
-  pnpm tauri build -b appimage || [ -f "src-tauri/target/release/amll-ttml-tool" ]
+  pnpm tauri build --no-bundle
 }
 
 package() {

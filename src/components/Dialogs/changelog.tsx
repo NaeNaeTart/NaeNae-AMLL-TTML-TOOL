@@ -55,6 +55,25 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="purple">
+								v0.9.7 Updates (Native Arch Packaging)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Native Arch Linux Package:</strong> Added a PKGBUILD
+									and desktop entry for native installation on Arch Linux and
+									Arch-based distributions, avoiding AppImage system-library
+									compatibility problems.
+								</Text>
+								<Text size="2">
+									<strong>Reliable Native Builds:</strong> Arch packages now use
+									locked dependencies, preserve distribution build flags,
+									declare the AppIndicator dependency, and fail when compilation
+									fails.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.9.6 Updates (Classic Dark Theme)
 							</Heading>
