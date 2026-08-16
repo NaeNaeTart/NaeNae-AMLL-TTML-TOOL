@@ -71,6 +71,12 @@ export function ChangelogDialog() {
 									declare the AppIndicator dependency, and fail when compilation
 									fails.
 								</Text>
+								<Text size="2">
+									<strong>Modern Linux AppImage Audio:</strong> AppImages now
+									use the host's matching GStreamer runtime and plugins,
+									restoring audio loading on current Arch Linux and CachyOS
+									systems.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
