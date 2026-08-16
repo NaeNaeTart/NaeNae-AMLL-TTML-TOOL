@@ -35,6 +35,7 @@ import {
 } from "$/modules/settings/states/index.ts";
 import {
 	currentEmptyBeatAtom,
+	enableTimeModeDoubleClickEditAtom,
 	showTouchSyncPanelAtom,
 	syncLevelModeAtom,
 	syncTimeOffsetAtom,
@@ -107,6 +108,8 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const [enableManualTimestampEdit, setEnableManualTimestampEdit] = useAtom(
 			enableManualTimestampEditAtom,
 		);
+		const [enableTimeModeDoubleClickEdit, setEnableTimeModeDoubleClickEdit] =
+			useAtom(enableTimeModeDoubleClickEditAtom);
 
 		const [displayRomanizationInSync, setdisplayRomanizationInSync] = useAtom(
 			displayRomanizationInSyncAtom,
@@ -290,6 +293,20 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Checkbox
 								checked={enableManualTimestampEdit}
 								onCheckedChange={(v) => setEnableManualTimestampEdit(!!v)}
+							/>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--accent-11)" }}
+							>
+								{t(
+									"ribbonBar.syncMode.doubleClickEdit",
+									"Double-Click Word Editing",
+								)}
+							</Text>
+							<Checkbox
+								checked={enableTimeModeDoubleClickEdit}
+								onCheckedChange={(v) => setEnableTimeModeDoubleClickEdit(!!v)}
 							/>
 						</Grid>
 					</RibbonSection>}

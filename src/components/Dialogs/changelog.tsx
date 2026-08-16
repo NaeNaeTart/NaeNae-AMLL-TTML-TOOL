@@ -77,6 +77,11 @@ export function ChangelogDialog() {
 									restoring audio loading on current Arch Linux and CachyOS
 									systems.
 								</Text>
+								<Text size="2">
+									<strong>Optional Time Mode Double-Click Editing:</strong> Added
+									an Assistant setting to disable inline word and romanization
+									editing on double-click while keeping the Split Word shortcut.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
