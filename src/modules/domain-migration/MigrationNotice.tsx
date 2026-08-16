@@ -54,7 +54,7 @@ export function MigrationNotice() {
 						<Text size="2" color="gray">
 							{t("domainMigration.notice.counts", {
 								defaultValue:
-									"Found {{settings}} settings, {{projects}} projects, and {{plugins}} plugins on this domain.",
+									"Found {settings} settings, {projects} projects, and {plugins} plugins on this domain.",
 								settings: counts.settings,
 								projects: counts.projects,
 								plugins: counts.plugins,
