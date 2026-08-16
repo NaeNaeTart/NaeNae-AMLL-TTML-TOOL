@@ -53,6 +53,7 @@ import {
 } from "$/modules/settings/states/index.ts";
 import { instantHighlightFadeAtom } from "$/modules/settings/states/preview";
 import {
+	enableTimeModeDoubleClickEditAtom,
 	enableUpcomingWordHighlightAtom,
 	syncLevelModeAtom,
 	upcomingWordHighlightColorAtom,
@@ -876,6 +877,9 @@ const LyricSyncWordView: FC<{
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const enableSyncGlowAnimation = useAtomValue(enableSyncGlowAnimationAtom);
 	const enableManualTimestampEdit = useAtomValue(enableManualTimestampEditAtom);
+	const enableTimeModeDoubleClickEdit = useAtomValue(
+		enableTimeModeDoubleClickEditAtom,
+	);
 
 	const store = useStore();
 	const enableUpcomingWordHighlight = useAtomValue(
@@ -1184,6 +1188,7 @@ const LyricSyncWordView: FC<{
 					setOpenSplitWordDialog(true);
 					return;
 				}
+				if (!enableTimeModeDoubleClickEdit) return;
 
 				const value = word[editableField] || "";
 				editingTextValueRef.current = value;

@@ -16,6 +16,10 @@ export const visualizeTimestampUpdateAtom = atomWithStorage(
 	"visualizeTimestampUpdate",
 	false,
 );
+export const enableTimeModeDoubleClickEditAtom = atomWithStorage(
+	"enableTimeModeDoubleClickEdit",
+	true,
+);
 export const syncTimeOffsetAtom = atomWithStorage("syncTimeOffset", 0);
 export const syncCommitOffsetAtom = atomWithStorage("syncCommitOffset", 0);
 

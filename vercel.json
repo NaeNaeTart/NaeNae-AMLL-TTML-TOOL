@@ -2,6 +2,10 @@
 	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"rewrites": [
 		{
+			"source": "/migration/(.*)",
+			"destination": "/index.html"
+		},
+		{
 			"source": "/boykisser/(.*)",
 			"destination": "https://files.catbox.moe/$1"
 		}
@@ -17,6 +21,23 @@
 				{
 					"key": "Cross-Origin-Embedder-Policy",
 					"value": "require-corp"
+				}
+			]
+		},
+		{
+			"source": "/migration/(.*)",
+			"headers": [
+				{
+					"key": "Cross-Origin-Opener-Policy",
+					"value": "unsafe-none"
+				},
+				{
+					"key": "Cross-Origin-Embedder-Policy",
+					"value": "unsafe-none"
+				},
+				{
+					"key": "Cache-Control",
+					"value": "no-store"
 				}
 			]
 		}

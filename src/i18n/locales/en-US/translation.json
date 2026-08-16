@@ -215,6 +215,7 @@
       "bgLyricIgnoreSync": "Ignore Background Vocals",
       "quickFixes": "Quick Fixes",
       "manualTimestampEdit": "Manual Timestamp Editing",
+      "doubleClickEdit": "Double-Click Word Editing",
       "displayOptions": "Display Options",
       "showTimestamps": "Show Timestamps",
       "highlightActiveWord": "Highlight Active Word",

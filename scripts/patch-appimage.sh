@@ -30,6 +30,18 @@ trap 'rm -rf "$work_dir"' EXIT
 		squashfs-root/usr/lib/libwayland-egl.so* \
 		squashfs-root/usr/lib/libwayland-server.so*
 
+	# WebKitGTK loads GStreamer plugins from the host, so its GStreamer core
+	# libraries must come from the same host installation. Mixing the bundled
+	# Ubuntu core with newer Arch/CachyOS plugins makes even basic elements such
+	# as appsrc and autoaudiosink unavailable.
+	find squashfs-root/usr/lib -maxdepth 1 \( \
+		-name 'libgstreamer-1.0.so*' -o \
+		-name 'libgst*.so*' \
+	\) -delete
+	rm -rf \
+		squashfs-root/usr/lib/gstreamer-1.0 \
+		squashfs-root/usr/libexec/gstreamer-1.0
+
 	ARCH=x86_64 appimagetool squashfs-root patched.AppImage >/dev/null
 )
 
