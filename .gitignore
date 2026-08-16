@@ -46,3 +46,5 @@ ffmpeg-core.js
 .env*.local
 
 AGENTS.md
+/zyz
+/lyricsfile
