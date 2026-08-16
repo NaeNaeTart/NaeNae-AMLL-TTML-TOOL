@@ -82,6 +82,12 @@ export function ChangelogDialog() {
 									an Assistant setting to disable inline word and romanization
 									editing on double-click while keeping the Split Word shortcut.
 								</Text>
+								<Text size="2">
+									<strong>Official Domain Migration:</strong> Old web domains now
+									offer a private browser-to-browser transfer for settings,
+									projects, history, backgrounds, keybindings, and plugins before
+									moving to tool.community.spicylyrics.org.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
