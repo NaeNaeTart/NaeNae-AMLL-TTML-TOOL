@@ -1,7 +1,9 @@
 import { ContextMenu } from "@radix-ui/themes";
 import { type Atom, atom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import {
 	combineWordsDialogAtom,
 	replaceRomanizationDialogAtom,
@@ -20,9 +22,17 @@ import {
 	newLyricLine,
 	newLyricWord,
 } from "$/types/ttml";
-import { normalizeLineTime } from "../utils/normalize-line-time";
 import { getPhoneticSyllables } from "$/utils/phonetic";
-import { toast } from "react-toastify";
+import {
+	combineWordsApplyToAllAtom,
+	combineWordsIgnoreCaseAtom,
+} from "../tools/combine-words-options";
+import {
+	combineMatchingWordSequences,
+	combineSelectedWords,
+	getCombineWordSelection,
+} from "../utils/combine-words";
+import { normalizeLineTime } from "../utils/normalize-line-time";
 
 const selectedLinesSizeAtom = atom((get) => get(selectedLinesAtom).size);
 const selectedWordsSizeAtom = atom((get) => get(selectedWordsAtom).size);
@@ -50,6 +60,9 @@ export const LyricWordMenu = ({
 	const setCombineWordsDialog = useSetAtom(combineWordsDialogAtom);
 	const setEditingWordState = useSetAtom(editingWordStateAtom);
 	const word = useAtomValue(wordAtom);
+	const combineApplyToAll = useAtomValue(combineWordsApplyToAllAtom);
+	const combineIgnoreCase = useAtomValue(combineWordsIgnoreCaseAtom);
+	const combineShiftClickRef = useRef(false);
 
 	return (
 		<>
@@ -146,11 +159,51 @@ export const LyricWordMenu = ({
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={!(selectedWordsSize > 1 && selectedLinesSize === 1)}
+				onPointerDown={(event) => {
+					combineShiftClickRef.current = event.shiftKey;
+				}}
+				onPointerCancel={() => {
+					combineShiftClickRef.current = false;
+				}}
 				onSelect={() => {
+					const combineImmediately = combineShiftClickRef.current;
+					combineShiftClickRef.current = false;
+					if (combineImmediately) {
+						editLyricLines((state) => {
+							const sourceLine = state.lyricLines[lineIndex];
+							if (!sourceLine) return;
+
+							const selectedWordIds = store.get(selectedWordsAtom);
+							const selection = getCombineWordSelection(
+								sourceLine.words,
+								selectedWordIds,
+							);
+							if (!selection) return;
+
+							if (combineApplyToAll && selection.isContiguous) {
+								for (const line of state.lyricLines) {
+									line.words = combineMatchingWordSequences(
+										line.words,
+										selection.words,
+										combineIgnoreCase,
+									);
+								}
+							} else {
+								sourceLine.words = combineSelectedWords(
+									sourceLine.words,
+									selectedWordIds,
+								);
+							}
+						});
+						return;
+					}
 					setCombineWordsDialog({ open: true, lineIndex });
 				}}
 			>
 				{t("contextMenu.combineWords", "合并单词")}
+				<span style={{ marginLeft: "auto", color: "var(--gray-9)" }}>
+					Shift+click
+				</span>
 			</ContextMenu.Item>
 
 			<ContextMenu.Item

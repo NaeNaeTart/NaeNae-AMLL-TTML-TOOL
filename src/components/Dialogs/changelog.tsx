@@ -55,6 +55,18 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="teal">
+								v0.9.8 Updates (Quick Combine)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Quick Combine Words:</strong> Shift-click Combine Words
+									to skip the confirmation dialog and immediately use the
+									last-used combination options.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="purple">
 								v0.9.7 Updates (Native Arch Packaging)
 							</Heading>
