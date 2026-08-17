@@ -64,6 +64,11 @@ export function ChangelogDialog() {
 									to skip the confirmation dialog and immediately use the
 									last-used combination options.
 								</Text>
+								<Text size="2">
+									<strong>Reliable Rapid Undo:</strong> Undo and redo now wait for
+									the editor to paint between full-project history updates,
+									preventing repeated shortcuts from freezing the app window.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

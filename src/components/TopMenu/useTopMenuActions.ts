@@ -1,7 +1,7 @@
 import { open } from "@tauri-apps/plugin-shell";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom, withImmer } from "jotai-immer";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { uid } from "uid";
@@ -64,6 +64,7 @@ import { type LyricWord, type LyricWordBase, newLyricWord } from "$/types/ttml";
 import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import { saveFile } from "$/utils/fileSystem.ts";
 import { error, log } from "$/utils/logging.ts";
+import { createHistoryActionGate } from "./history-action-gate";
 
 export const useTopMenuActions = () => {
 	const { t } = useTranslation();
@@ -102,6 +103,10 @@ export const useTopMenuActions = () => {
 		keySelectWordsOfMatchedSelectionAtom,
 	);
 	const deleteSelectionKey = useAtomValue(keyDeleteSelectionAtom);
+	const runHistoryAction = useMemo(
+		() => createHistoryActionGate(requestAnimationFrame),
+		[],
+	);
 
 	const buildRubySegments = useCallback(
 		(text: string, baseWord: LyricWordBase) => {
@@ -390,12 +395,14 @@ export const useTopMenuActions = () => {
 	}, []);
 
 	const onUndo = useCallback(() => {
-		store.set(undoLyricLinesAtom);
-	}, [store]);
+		if (!store.get(undoableLyricLinesAtom).canUndo) return;
+		runHistoryAction(() => store.set(undoLyricLinesAtom));
+	}, [runHistoryAction, store]);
 
 	const onRedo = useCallback(() => {
-		store.set(redoLyricLinesAtom);
-	}, [store]);
+		if (!store.get(undoableLyricLinesAtom).canRedo) return;
+		runHistoryAction(() => store.set(redoLyricLinesAtom));
+	}, [runHistoryAction, store]);
 
 	const onUnselectAll = useCallback(() => {
 		const immerSelectedLinesAtom = withImmer(selectedLinesAtom);
