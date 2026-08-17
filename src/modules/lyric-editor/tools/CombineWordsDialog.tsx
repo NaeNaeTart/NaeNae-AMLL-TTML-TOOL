@@ -1,6 +1,5 @@
 import { Button, Checkbox, Dialog, Flex, Text } from "@radix-ui/themes";
 import { useAtom, useAtomValue } from "jotai";
-import { atomWithStorage } from "jotai/utils";
 import { useSetImmerAtom } from "jotai-immer";
 import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,15 +10,10 @@ import {
 	combineSelectedWords,
 	getCombineWordSelection,
 } from "../utils/combine-words";
-
-const combineWordsApplyToAllAtom = atomWithStorage(
-	"lyricEditor.combineWords.applyToAll",
-	false,
-);
-const combineWordsIgnoreCaseAtom = atomWithStorage(
-	"lyricEditor.combineWords.ignoreCase",
-	true,
-);
+import {
+	combineWordsApplyToAllAtom,
+	combineWordsIgnoreCaseAtom,
+} from "./combine-words-options";
 
 export const CombineWordsDialog = memo(() => {
 	const { t } = useTranslation();

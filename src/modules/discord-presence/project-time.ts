@@ -32,6 +32,7 @@ export class ProjectTimeTracker {
 	private readonly times: ProjectTimes;
 	private projectId: string | null = null;
 	private startedAt = 0;
+	private paused = false;
 
 	constructor(
 		private readonly storage: StorageLike,
@@ -51,8 +52,16 @@ export class ProjectTimeTracker {
 		if (!projectId || projectId !== this.projectId) return 0;
 		return (
 			(this.times[projectId] ?? 0) +
-			Math.max(0, this.now() - this.startedAt) / 1000
+			(this.paused ? 0 : Math.max(0, this.now() - this.startedAt) / 1000)
 		);
+	}
+
+	setPaused(paused: boolean) {
+		if (paused === this.paused) return;
+		const now = this.now();
+		if (paused) this.recordCurrent(now);
+		this.paused = paused;
+		this.startedAt = now;
 	}
 
 	flush() {
@@ -68,7 +77,7 @@ export class ProjectTimeTracker {
 	}
 
 	private recordCurrent(now: number) {
-		if (!this.projectId) return;
+		if (!this.projectId || this.paused) return;
 		this.times[this.projectId] =
 			(this.times[this.projectId] ?? 0) +
 			Math.max(0, now - this.startedAt) / 1000;

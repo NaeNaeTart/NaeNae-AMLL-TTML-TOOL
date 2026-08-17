@@ -6,14 +6,18 @@ use discord_rich_presence::{DiscordIpc, DiscordIpcClient, activity};
 
 const DISCORD_CLIENT_ID: &str = "1250551199862624349";
 const DISCORD_LOGO_URL: &str = "https://i.imgur.com/78zp1Xo.png";
+const DISCORD_PLAY_URL: &str = "https://cdn.rcd.gg/PreMiD/resources/play.png";
+const DISCORD_PAUSE_URL: &str = "https://cdn.rcd.gg/PreMiD/resources/pause.png";
 const REPOSITORY_URL: &str = "https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL";
 
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct DiscordActivityPayload {
-    details: String,
-    state: String,
+    details: Option<String>,
+    state: Option<String>,
     playing: bool,
+    show_repository_button: bool,
+    show_status_badge: bool,
     start_timestamp: Option<i64>,
     end_timestamp: Option<i64>,
 }
@@ -67,21 +71,35 @@ fn set_discord_activity(
         }
     }
 
-    let small_image = if payload.playing { "play" } else { "pause" };
-    let small_text = if payload.playing { "Playing" } else { "Paused" };
-    let assets = activity::Assets::new()
+    let mut assets = activity::Assets::new()
         .large_image(DISCORD_LOGO_URL)
-        .large_text("AMLL TTML Tool")
-        .small_image(small_image)
-        .small_text(small_text);
-    let buttons = vec![activity::Button::new("View repository", REPOSITORY_URL)];
+        .large_text("AMLL TTML Tool");
+    if payload.show_status_badge {
+        let small_image = if payload.playing {
+            DISCORD_PLAY_URL
+        } else {
+            DISCORD_PAUSE_URL
+        };
+        let small_text = if payload.playing { "Playing" } else { "Paused" };
+        assets = assets.small_image(small_image).small_text(small_text);
+    }
     let mut rich_presence = activity::Activity::new()
         .activity_type(activity::ActivityType::Listening)
         .status_display_type(activity::StatusDisplayType::Details)
-        .details(&payload.details)
-        .state(&payload.state)
-        .assets(assets)
-        .buttons(buttons);
+        .assets(assets);
+
+    if let Some(details) = payload.details.as_deref() {
+        rich_presence = rich_presence.details(details);
+    }
+    if let Some(state) = payload.state.as_deref() {
+        rich_presence = rich_presence.state(state);
+    }
+    if payload.show_repository_button {
+        rich_presence = rich_presence.buttons(vec![activity::Button::new(
+            "View repository",
+            REPOSITORY_URL,
+        )]);
+    }
 
     if let Some(start) = payload.start_timestamp {
         let mut timestamps = activity::Timestamps::new().start(start);

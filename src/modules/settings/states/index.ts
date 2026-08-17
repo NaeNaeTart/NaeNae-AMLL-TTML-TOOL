@@ -61,6 +61,34 @@ export const discordRichPresenceEnabledAtom = atomWithStorage(
 	"discordRichPresenceEnabled",
 	false,
 );
+export const discordDetailsTemplateAtom = atomWithStorage(
+	"discordDetailsTemplate",
+	"{{mode}} {{title}}",
+);
+export const discordStateTemplateAtom = atomWithStorage(
+	"discordStateTemplate",
+	"[[{{artist}} • ]]{{lineProgress}} • {{playbackStatus}}",
+);
+export const discordPlaybackTimelineAtom = atomWithStorage(
+	"discordPlaybackTimeline",
+	true,
+);
+export const discordProjectElapsedAtom = atomWithStorage(
+	"discordProjectElapsed",
+	true,
+);
+export const discordRepositoryButtonAtom = atomWithStorage(
+	"discordRepositoryButton",
+	true,
+);
+export const discordStatusBadgeAtom = atomWithStorage(
+	"discordStatusBadge",
+	true,
+);
+export const discordIdleTimeoutMinutesAtom = atomWithStorage(
+	"discordIdleTimeoutMinutes",
+	5,
+);
 
 export const showTimestampsAtom = atomWithStorage("showTimestamps", true);
 export const enableManualTimestampEditAtom = atomWithStorage(

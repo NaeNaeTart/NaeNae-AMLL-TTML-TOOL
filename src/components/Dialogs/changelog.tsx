@@ -55,6 +55,40 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="teal">
+								v0.9.8 Updates (Discord & Shortcuts)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Organized Settings:</strong> Replaced the crowded tab
+									strip with sidebar navigation, grouped editor, file, audio, and
+									appearance controls by purpose, consolidated AI setup, and
+									collapsed advanced configuration until it is needed.
+								</Text>
+								<Text size="2">
+									<strong>Customizable Discord Presence:</strong> Build native
+									Discord status lines from project, editor, playback, and
+									session variables; control timers, badges, and the repository
+									button; and automatically hide project details after a
+									configurable period of inactivity.
+								</Text>
+								<Text size="2">
+									<strong>Quick Combine Words:</strong> Shift-click Combine Words
+									to skip the confirmation dialog and immediately use the
+									last-used combination options.
+								</Text>
+								<Text size="2">
+									<strong>Reliable Rapid Undo:</strong> Undo and redo now wait for
+									the editor to paint between full-project history updates,
+									preventing repeated shortcuts from freezing the app window.
+								</Text>
+								<Text size="2">
+									<strong>Discord Status Badge:</strong> Play and pause badges now use
+									valid image assets so the selected status icon appears in Discord.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="purple">
 								v0.9.7 Updates (Native Arch Packaging)
 							</Heading>

@@ -1,4 +1,8 @@
-import { Key24Regular, Server24Regular } from "@fluentui/react-icons";
+import {
+	Bot24Regular,
+	Key24Regular,
+	Server24Regular,
+} from "@fluentui/react-icons";
 import {
 	Box,
 	Card,
@@ -16,11 +20,13 @@ import {
 } from "$/modules/ai-sidebar/states";
 import {
 	aiSidebarBaseUrlAtom,
+	aiSidebarEnabledAtom,
 	aiSidebarModelAtom,
 	aiSidebarPersistKeyAtom,
 } from "$/modules/settings/states";
 
 export function SettingsAiTab() {
+	const [enabled, setEnabled] = useAtom(aiSidebarEnabledAtom);
 	const [baseUrl, setBaseUrl] = useAtom(aiSidebarBaseUrlAtom);
 	const [model, setModel] = useAtom(aiSidebarModelAtom);
 	const [apiKey, setApiKey] = useAtom(aiSidebarApiKeyAtom);
@@ -46,6 +52,23 @@ export function SettingsAiTab() {
 					"Bring your own OpenAI-compatible provider. Reviews only happen when you press the button in the sidebar.",
 				)}
 			</Text>
+			<Card>
+				<Text as="label">
+					<Flex gap="3" align="center">
+						<Bot24Regular />
+						<Flex direction="column" gap="1" flexGrow="1">
+							<Text>{t("settings.assistant.aiSidebar", "AI Fun Sidebar")}</Text>
+							<Text size="1" color="gray">
+								{t(
+									"settings.assistant.aiSidebarDesc",
+									"Enable the optional manual AI review sidebar.",
+								)}
+							</Text>
+						</Flex>
+						<Switch checked={enabled} onCheckedChange={setEnabled} />
+					</Flex>
+				</Text>
+			</Card>
 			<Card>
 				<Flex direction="column" gap="3">
 					<Flex gap="3" align="center">
