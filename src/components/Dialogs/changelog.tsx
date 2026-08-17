@@ -56,9 +56,16 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="teal">
-								v0.9.8 Updates (Quick Combine)
+								v0.9.8 Updates (Discord & Shortcuts)
 							</Heading>
 							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Customizable Discord Presence:</strong> Build native
+									Discord status lines from project, editor, playback, and
+									session variables; control timers, badges, and the repository
+									button; and automatically hide project details after a
+									configurable period of inactivity.
+								</Text>
 								<Text size="2">
 									<strong>Quick Combine Words:</strong> Shift-click Combine Words
 									to skip the confirmation dialog and immediately use the

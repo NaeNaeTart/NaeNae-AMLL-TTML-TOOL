@@ -74,4 +74,18 @@ describe("ProjectTimeTracker", () => {
 		expect(() => tracker.flush()).not.toThrow();
 		expect(tracker.getElapsedSeconds()).toBe(2);
 	});
+
+	it("freezes while inactive and resumes without resetting", () => {
+		const storage = new MemoryStorage();
+		let now = 0;
+		const tracker = new ProjectTimeTracker(storage, () => now);
+		tracker.switchProject("one");
+		now = 5_000;
+		tracker.setPaused(true);
+		now = 20_000;
+		expect(tracker.getElapsedSeconds()).toBe(5);
+		tracker.setPaused(false);
+		now = 23_000;
+		expect(tracker.getElapsedSeconds()).toBe(8);
+	});
 });
