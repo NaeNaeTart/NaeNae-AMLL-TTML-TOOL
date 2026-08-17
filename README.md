@@ -19,9 +19,9 @@ A fork of the word-by-word lyrics editor designed specifically for the [Spicy Ly
 > [!WARNING]
 > This tool is not recommended for mobile phones or small screens, as the operation can be very cumbersome.
 
-You can use the online version of this tool by visiting [`https://verycool-ttml-tool-trust.vercel.app/`](https://verycool-ttml-tool-trust.vercel.app/).
+You can use the online version of this tool by visiting [https://tool.community.spicylyrics.org/](https://tool.community.spicylyrics.org/).
 
-You can also use the Tauri desktop version built via GitHub Actions; see [GitHub Action Build Tauri Desktop Version](https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/actions/workflows/build-desktop.yaml) for details.
+You can also use the Tauri desktop version built via GitHub Actions; see the [Latest Release](https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/releases/latest) for details.
 
 ## New Editor Features over the Original AMLL TTML Tool
 
