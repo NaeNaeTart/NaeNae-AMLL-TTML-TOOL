@@ -195,155 +195,173 @@ export function DiscordPresenceSettings() {
 					)}
 				</Text>
 
-				<Flex
-					direction="column"
-					gap="2"
-					style={{ opacity: enabled ? 1 : 0.55 }}
-				>
-					<Flex align="center" justify="between">
-						<Text weight="medium" size="2">
-							{t("settings.common.discordTemplates", "Presence templates")}
-						</Text>
-						<Button
-							size="1"
-							variant="soft"
-							onClick={resetTemplates}
-							disabled={!enabled}
+				{enabled && (
+					<details>
+						<summary
+							style={{
+								cursor: "pointer",
+								fontSize: "var(--font-size-2)",
+								fontWeight: 500,
+							}}
 						>
-							{t("common.reset", "Reset")}
-						</Button>
-					</Flex>
-					<Text size="1" color="gray">
-						{t(
-							"settings.common.discordTemplateHelp",
-							"Use {{variables}} and wrap optional text in [[double brackets]].",
-						)}
-					</Text>
-					<Text size="2">{t("settings.common.discordDetails", "Details")}</Text>
-					<TextArea
-						ref={detailsRef}
-						disabled={!enabled}
-						value={detailsDraft}
-						onFocus={() => setTemplateTarget("details")}
-						onChange={(event) => updateTemplate("details", event.target.value)}
-					/>
-					{detailsError && (
-						<Text size="1" color="red">
-							{detailsError}
-						</Text>
-					)}
-					<Text size="2">{t("settings.common.discordState", "State")}</Text>
-					<TextArea
-						ref={stateRef}
-						disabled={!enabled}
-						value={stateDraft}
-						onFocus={() => setTemplateTarget("state")}
-						onChange={(event) => updateTemplate("state", event.target.value)}
-					/>
-					{stateError && (
-						<Text size="1" color="red">
-							{stateError}
-						</Text>
-					)}
-
-					<TextField.Root
-						disabled={!enabled}
-						placeholder={t(
-							"settings.common.discordSearchVariables",
-							"Search variables…",
-						)}
-						value={variableSearch}
-						onChange={(event) => setVariableSearch(event.target.value)}
-					/>
-					<Flex gap="1" wrap="wrap">
-						{filteredVariables.map((variable) => (
-							<Button
-								key={variable}
-								size="1"
-								variant="soft"
+							{t(
+								"settings.common.discordCustomize",
+								"Customize presence and inactivity",
+							)}
+						</summary>
+						<Flex direction="column" gap="2" mt="3">
+							<Flex align="center" justify="between">
+								<Text weight="medium" size="2">
+									{t("settings.common.discordTemplates", "Presence templates")}
+								</Text>
+								<Button
+									size="1"
+									variant="soft"
+									onClick={resetTemplates}
+									disabled={!enabled}
+								>
+									{t("common.reset", "Reset")}
+								</Button>
+							</Flex>
+							<Text size="1" color="gray">
+								{t(
+									"settings.common.discordTemplateHelp",
+									"Use {{variables}} and wrap optional text in [[double brackets]].",
+								)}
+							</Text>
+							<Text size="2">
+								{t("settings.common.discordDetails", "Details")}
+							</Text>
+							<TextArea
+								ref={detailsRef}
 								disabled={!enabled}
-								onClick={() => insertVariable(variable)}
+								value={detailsDraft}
+								onFocus={() => setTemplateTarget("details")}
+								onChange={(event) =>
+									updateTemplate("details", event.target.value)
+								}
+							/>
+							{detailsError && (
+								<Text size="1" color="red">
+									{detailsError}
+								</Text>
+							)}
+							<Text size="2">{t("settings.common.discordState", "State")}</Text>
+							<TextArea
+								ref={stateRef}
+								disabled={!enabled}
+								value={stateDraft}
+								onFocus={() => setTemplateTarget("state")}
+								onChange={(event) =>
+									updateTemplate("state", event.target.value)
+								}
+							/>
+							{stateError && (
+								<Text size="1" color="red">
+									{stateError}
+								</Text>
+							)}
+
+							<TextField.Root
+								disabled={!enabled}
+								placeholder={t(
+									"settings.common.discordSearchVariables",
+									"Search variables…",
+								)}
+								value={variableSearch}
+								onChange={(event) => setVariableSearch(event.target.value)}
+							/>
+							<Flex gap="1" wrap="wrap">
+								{filteredVariables.map((variable) => (
+									<Button
+										key={variable}
+										size="1"
+										variant="soft"
+										disabled={!enabled}
+										onClick={() => insertVariable(variable)}
+									>
+										{`{{${variable}}}`}
+									</Button>
+								))}
+							</Flex>
+
+							<Flex
+								direction="column"
+								gap="1"
+								p="3"
+								style={{
+									background: "var(--gray-a3)",
+									borderRadius: "var(--radius-3)",
+								}}
 							>
-								{`{{${variable}}}`}
-							</Button>
-						))}
-					</Flex>
+								<Text size="1" color="gray">
+									{t("common.preview", "Preview")}
+								</Text>
+								<Text size="2" weight="medium">
+									{detailsPreview || "—"}
+								</Text>
+								<Text size="2" color="gray">
+									{statePreview || "—"}
+								</Text>
+							</Flex>
 
-					<Flex
-						direction="column"
-						gap="1"
-						p="3"
-						style={{
-							background: "var(--gray-a3)",
-							borderRadius: "var(--radius-3)",
-						}}
-					>
-						<Text size="1" color="gray">
-							{t("common.preview", "Preview")}
-						</Text>
-						<Text size="2" weight="medium">
-							{detailsPreview || "—"}
-						</Text>
-						<Text size="2" color="gray">
-							{statePreview || "—"}
-						</Text>
-					</Flex>
+							<SettingToggle
+								label={t(
+									"settings.common.discordPlaybackTimeline",
+									"Playback timeline",
+								)}
+								checked={showPlaybackTimeline}
+								onCheckedChange={setShowPlaybackTimeline}
+							/>
+							<SettingToggle
+								label={t(
+									"settings.common.discordProjectElapsed",
+									"Project elapsed timer",
+								)}
+								checked={showProjectElapsed}
+								onCheckedChange={setShowProjectElapsed}
+							/>
+							<SettingToggle
+								label={t(
+									"settings.common.discordRepositoryButton",
+									"Repository button",
+								)}
+								checked={showRepositoryButton}
+								onCheckedChange={setShowRepositoryButton}
+							/>
+							<SettingToggle
+								label={t(
+									"settings.common.discordStatusBadge",
+									"Play/pause status badge",
+								)}
+								checked={showStatusBadge}
+								onCheckedChange={setShowStatusBadge}
+							/>
 
-					<SettingToggle
-						label={t(
-							"settings.common.discordPlaybackTimeline",
-							"Playback timeline",
-						)}
-						checked={showPlaybackTimeline}
-						onCheckedChange={setShowPlaybackTimeline}
-					/>
-					<SettingToggle
-						label={t(
-							"settings.common.discordProjectElapsed",
-							"Project elapsed timer",
-						)}
-						checked={showProjectElapsed}
-						onCheckedChange={setShowProjectElapsed}
-					/>
-					<SettingToggle
-						label={t(
-							"settings.common.discordRepositoryButton",
-							"Repository button",
-						)}
-						checked={showRepositoryButton}
-						onCheckedChange={setShowRepositoryButton}
-					/>
-					<SettingToggle
-						label={t(
-							"settings.common.discordStatusBadge",
-							"Play/pause status badge",
-						)}
-						checked={showStatusBadge}
-						onCheckedChange={setShowStatusBadge}
-					/>
-
-					<Flex align="center" justify="between">
-						<Text size="2">
-							{t("settings.common.discordIdleTimeout", "Inactive after")}
-						</Text>
-						<Text size="2" color="gray">
-							{idleTimeoutMinutes} min
-						</Text>
-					</Flex>
-					<Slider
-						disabled={!enabled}
-						min={1}
-						max={60}
-						value={[Math.min(60, Math.max(1, idleTimeoutMinutes))]}
-						onValueChange={([value]) => setIdleTimeoutMinutes(value)}
-					/>
-					<Text size="1" color="gray">
-						{t(
-							"settings.common.discordIdlePrivacy",
-							"Inactive presence hides project details, buttons, badges, and timers.",
-						)}
-					</Text>
-				</Flex>
+							<Flex align="center" justify="between">
+								<Text size="2">
+									{t("settings.common.discordIdleTimeout", "Inactive after")}
+								</Text>
+								<Text size="2" color="gray">
+									{idleTimeoutMinutes} min
+								</Text>
+							</Flex>
+							<Slider
+								disabled={!enabled}
+								min={1}
+								max={60}
+								value={[Math.min(60, Math.max(1, idleTimeoutMinutes))]}
+								onValueChange={([value]) => setIdleTimeoutMinutes(value)}
+							/>
+							<Text size="1" color="gray">
+								{t(
+									"settings.common.discordIdlePrivacy",
+									"Inactive presence hides project details, buttons, badges, and timers.",
+								)}
+							</Text>
+						</Flex>
+					</details>
+				)}
 			</Flex>
 		</Card>
 	);

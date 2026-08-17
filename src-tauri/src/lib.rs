@@ -6,6 +6,8 @@ use discord_rich_presence::{DiscordIpc, DiscordIpcClient, activity};
 
 const DISCORD_CLIENT_ID: &str = "1250551199862624349";
 const DISCORD_LOGO_URL: &str = "https://i.imgur.com/78zp1Xo.png";
+const DISCORD_PLAY_URL: &str = "https://cdn.rcd.gg/PreMiD/resources/play.png";
+const DISCORD_PAUSE_URL: &str = "https://cdn.rcd.gg/PreMiD/resources/pause.png";
 const REPOSITORY_URL: &str = "https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL";
 
 #[derive(serde::Deserialize)]
@@ -73,7 +75,11 @@ fn set_discord_activity(
         .large_image(DISCORD_LOGO_URL)
         .large_text("AMLL TTML Tool");
     if payload.show_status_badge {
-        let small_image = if payload.playing { "play" } else { "pause" };
+        let small_image = if payload.playing {
+            DISCORD_PLAY_URL
+        } else {
+            DISCORD_PAUSE_URL
+        };
         let small_text = if payload.playing { "Playing" } else { "Paused" };
         assets = assets.small_image(small_image).small_text(small_text);
     }

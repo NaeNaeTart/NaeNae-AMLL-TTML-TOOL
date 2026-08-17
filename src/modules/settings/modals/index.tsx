@@ -1,125 +1,199 @@
-import { Box, Dialog, Tabs } from "@radix-ui/themes";
-import { useAtom, useAtomValue } from "jotai";
-import { memo, useCallback } from "react";
+import {
+	Code24Regular,
+	Edit24Regular,
+	Folder24Regular,
+	Info24Regular,
+	Keyboard12324Regular,
+	PaintBrush24Regular,
+	Settings24Regular,
+	Sparkle24Regular,
+	Speaker224Regular,
+} from "@fluentui/react-icons";
+import { Box, Dialog, Flex, Heading, Tabs, Text } from "@radix-ui/themes";
+import { useAtom } from "jotai";
+import { memo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { settingsDialogAtom, settingsTabAtom } from "$/states/dialogs.ts";
 import { SettingsAboutTab } from "./about";
+import { SettingsAiTab } from "./ai";
 import { SettingsAppearanceTab } from "./appearance";
-import { SettingsAssistantTab } from "./assistant";
-import { SettingsCommonTab } from "./common";
-import { SettingsKeyBindingsDialog } from "./keybindings";
-import { SettingsSpectrogramTab } from "./spectrogram";
 import { AudioSettingsTab } from "./audio";
 import { SettingsBackupTab } from "./backup";
+import { SettingsCommonTab } from "./common";
 import { SettingsDevTab } from "./dev";
-import { SettingsAiTab } from "./ai";
-import { aiSidebarEnabledAtom } from "../states";
+import { SettingsKeyBindingsDialog } from "./keybindings";
+import styles from "./settings.module.css";
+import { SettingsSpectrogramTab } from "./spectrogram";
+
+const SettingsPage = ({
+	title,
+	description,
+	children,
+}: {
+	title: string;
+	description?: string;
+	children: ReactNode;
+}) => (
+	<Flex direction="column" gap="4" className={styles.page}>
+		<Box>
+			<Heading size="7">{title}</Heading>
+			{description && (
+				<Text size="2" color="gray">
+					{description}
+				</Text>
+			)}
+		</Box>
+		{children}
+	</Flex>
+);
+
+const NavigationItem = ({
+	value,
+	icon,
+	children,
+}: {
+	value: string;
+	icon: ReactNode;
+	children: ReactNode;
+}) => (
+	<Tabs.Trigger value={value} className={styles.navigationItem}>
+		{icon}
+		<span>{children}</span>
+	</Tabs.Trigger>
+);
 
 export const SettingsDialog = memo(() => {
 	const [settingsDialogOpen, setSettingsDialogOpen] =
 		useAtom(settingsDialogAtom);
 	const [activeTab, setActiveTab] = useAtom(settingsTabAtom);
 	const { t } = useTranslation();
-	const aiSidebarEnabled = useAtomValue(aiSidebarEnabledAtom);
-
-	const handleWheel = useCallback((e: React.WheelEvent) => {
-		if (e.deltaY !== 0) {
-			e.currentTarget.scrollLeft += e.deltaY;
-		}
-	}, []);
+	const displayedTab = activeTab === "assistant" ? "ai" : activeTab;
 
 	return (
 		<Dialog.Root open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
-			<Dialog.Content maxWidth="800px">
-				<Dialog.Title>{t("settingsDialog.title", "Preferences")}</Dialog.Title>
-				<Tabs.Root value={activeTab} onValueChange={setActiveTab}>
-					<Tabs.List 
-						onWheel={handleWheel}
-						className="hide-scrollbar"
-						style={{ 
-							overflowX: "auto",
-							whiteSpace: "nowrap", 
-							flexShrink: 0, 
-							display: "flex",
-							flexWrap: "nowrap",
-							width: "100%",
-							WebkitOverflowScrolling: "touch",
-							msOverflowStyle: "none",
-							scrollbarWidth: "none"
-						}}
-					>
-						<Tabs.Trigger value="common" style={{ flexShrink: 0 }}>
-							{t("settingsDialog.tab.common", "General")}
-						</Tabs.Trigger>
-						<Tabs.Trigger value="assistant" style={{ flexShrink: 0 }}>
-							{t("settingsDialog.tab.assistant", "Assistant")}
-						</Tabs.Trigger>
-						{aiSidebarEnabled && (
-							<Tabs.Trigger value="ai" style={{ flexShrink: 0 }}>
+			<Dialog.Content maxWidth="980px" className={styles.dialogContent}>
+				<Tabs.Root
+					value={displayedTab}
+					onValueChange={setActiveTab}
+					orientation="vertical"
+					className={styles.settingsLayout}
+				>
+					<aside className={styles.sidebar}>
+						<Dialog.Title className={styles.sidebarTitle}>
+							{t("settingsDialog.title", "Preferences")}
+						</Dialog.Title>
+						<Tabs.List className={styles.navigation}>
+							<NavigationItem value="common" icon={<Settings24Regular />}>
+								{t("settingsDialog.tab.common", "General")}
+							</NavigationItem>
+							<NavigationItem value="editor" icon={<Edit24Regular />}>
+								{t("settingsDialog.tab.editor", "Editor & Sync")}
+							</NavigationItem>
+							<NavigationItem value="files" icon={<Folder24Regular />}>
+								{t("settingsDialog.tab.files", "Files & Storage")}
+							</NavigationItem>
+							<NavigationItem value="audio" icon={<Speaker224Regular />}>
+								{t("settingsDialog.tab.audio", "Audio")}
+							</NavigationItem>
+							<NavigationItem
+								value="keybinding"
+								icon={<Keyboard12324Regular />}
+							>
+								{t("settingsDialog.tab.keybindings", "Keybindings")}
+							</NavigationItem>
+							<NavigationItem value="appearance" icon={<PaintBrush24Regular />}>
+								{t("settingsDialog.tab.appearance", "Appearance")}
+							</NavigationItem>
+							<NavigationItem value="ai" icon={<Sparkle24Regular />}>
 								{t("settingsDialog.tab.ai", "AI")}
-							</Tabs.Trigger>
-						)}
-						<Tabs.Trigger value="appearance" style={{ flexShrink: 0 }}>
-							{t("settingsDialog.tab.appearance", "Appearance")}
-						</Tabs.Trigger>
-						<Tabs.Trigger value="audio" style={{ flexShrink: 0 }}>
-							{t("settingsDialog.tab.audio", "Audio")}
-						</Tabs.Trigger>
-						<Tabs.Trigger value="keybinding" style={{ flexShrink: 0 }}>
-							{t("settingsDialog.tab.keybindings", "Keybindings")}
-						</Tabs.Trigger>
-						<Tabs.Trigger value="spectrogram" style={{ flexShrink: 0 }}>
-							{t("settingsDialog.tab.spectrogram", "Spectrogram")}
-						</Tabs.Trigger>
-						<Tabs.Trigger value="backup" style={{ flexShrink: 0 }}>
-							{t("settingsDialog.tab.backup", "Backup")}
-						</Tabs.Trigger>
-						<Tabs.Trigger value="about" style={{ flexShrink: 0 }}>
-							{t("common.about", "About")}
-						</Tabs.Trigger>
-						<Tabs.Trigger value="dev" style={{ flexShrink: 0 }}>
-							{t("settingsDialog.tab.dev", "Dev")}
-						</Tabs.Trigger>
-					</Tabs.List>
-					<Box
-						style={{
-							height: "630px",
-							overflowY: "auto",
-							padding: "var(--space-3)",
-							paddingBottom: "var(--space-4)",
-						}}
-					>
-						<Tabs.Content value="common">
-							{/* @ts-ignore */}
-							<SettingsCommonTab />
+							</NavigationItem>
+							<NavigationItem value="about" icon={<Info24Regular />}>
+								{t("common.about", "About")}
+							</NavigationItem>
+							<NavigationItem value="dev" icon={<Code24Regular />}>
+								{t("settingsDialog.tab.dev", "Developer")}
+							</NavigationItem>
+						</Tabs.List>
+					</aside>
+
+					<main className={styles.contentPane}>
+						<Tabs.Content value="common" className={styles.tabContent}>
+							<SettingsPage
+								title={t("settingsDialog.tab.common", "General")}
+								description={t(
+									"settingsDialog.page.generalDesc",
+									"Language, layout, privacy, and app-wide behavior.",
+								)}
+							>
+								<SettingsCommonTab section="general" />
+							</SettingsPage>
 						</Tabs.Content>
-						<Tabs.Content value="assistant">
-							<SettingsAssistantTab />
+						<Tabs.Content value="editor" className={styles.tabContent}>
+							<SettingsPage
+								title={t("settingsDialog.tab.editor", "Editor & Sync")}
+								description={t(
+									"settingsDialog.page.editorDesc",
+									"Timing input, synchronization behavior, and visual cues.",
+								)}
+							>
+								<SettingsCommonTab section="editor" />
+							</SettingsPage>
 						</Tabs.Content>
-						{aiSidebarEnabled && <Tabs.Content value="ai"><SettingsAiTab /></Tabs.Content>}
-						<Tabs.Content value="appearance">
-							<SettingsAppearanceTab />
+						<Tabs.Content value="files" className={styles.tabContent}>
+							<SettingsPage
+								title={t("settingsDialog.tab.files", "Files & Storage")}
+								description={t(
+									"settingsDialog.page.filesDesc",
+									"Import cleanup, autosave history, and portable backups.",
+								)}
+							>
+								<SettingsCommonTab section="files" />
+								<SettingsBackupTab />
+							</SettingsPage>
 						</Tabs.Content>
-						<Tabs.Content value="keybinding">
-							<SettingsKeyBindingsDialog />
+						<Tabs.Content value="audio" className={styles.tabContent}>
+							<SettingsPage
+								title={t("settingsDialog.tab.audio", "Audio")}
+								description={t(
+									"settingsDialog.page.audioDesc",
+									"Playback, conversion, equalizer, and spectrogram display.",
+								)}
+							>
+								<SettingsCommonTab section="audio" />
+								<AudioSettingsTab />
+								<SettingsSpectrogramTab />
+							</SettingsPage>
 						</Tabs.Content>
-						<Tabs.Content value="spectrogram">
-							<SettingsSpectrogramTab />
+						<Tabs.Content value="keybinding" className={styles.tabContent}>
+							<SettingsPage
+								title={t("settingsDialog.tab.keybindings", "Keybindings")}
+							>
+								<SettingsKeyBindingsDialog />
+							</SettingsPage>
 						</Tabs.Content>
-						<Tabs.Content value="audio">
-							<AudioSettingsTab />
+						<Tabs.Content value="appearance" className={styles.tabContent}>
+							<SettingsPage
+								title={t("settingsDialog.tab.appearance", "Appearance")}
+							>
+								<SettingsAppearanceTab />
+							</SettingsPage>
 						</Tabs.Content>
-						<Tabs.Content value="backup">
-							<SettingsBackupTab />
+						<Tabs.Content value="ai" className={styles.tabContent}>
+							<SettingsPage title={t("settingsDialog.tab.ai", "AI")}>
+								<SettingsAiTab />
+							</SettingsPage>
 						</Tabs.Content>
-						<Tabs.Content value="about">
-							{/* @ts-ignore */}
-							<SettingsAboutTab />
+						<Tabs.Content value="about" className={styles.tabContent}>
+							<SettingsPage title={t("common.about", "About")}>
+								<SettingsAboutTab />
+							</SettingsPage>
 						</Tabs.Content>
-						<Tabs.Content value="dev">
-							<SettingsDevTab />
+						<Tabs.Content value="dev" className={styles.tabContent}>
+							<SettingsPage title={t("settingsDialog.tab.dev", "Developer")}>
+								<SettingsDevTab />
+							</SettingsPage>
 						</Tabs.Content>
-					</Box>
+					</main>
 				</Tabs.Root>
 			</Dialog.Content>
 		</Dialog.Root>

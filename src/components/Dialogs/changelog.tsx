@@ -60,6 +60,12 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Organized Settings:</strong> Replaced the crowded tab
+									strip with sidebar navigation, grouped editor, file, audio, and
+									appearance controls by purpose, consolidated AI setup, and
+									collapsed advanced configuration until it is needed.
+								</Text>
+								<Text size="2">
 									<strong>Customizable Discord Presence:</strong> Build native
 									Discord status lines from project, editor, playback, and
 									session variables; control timers, badges, and the repository
@@ -75,6 +81,10 @@ export function ChangelogDialog() {
 									<strong>Reliable Rapid Undo:</strong> Undo and redo now wait for
 									the editor to paint between full-project history updates,
 									preventing repeated shortcuts from freezing the app window.
+								</Text>
+								<Text size="2">
+									<strong>Discord Status Badge:</strong> Play and pause badges now use
+									valid image assets so the selected status icon appears in Discord.
 								</Text>
 							</Flex>
 						</Box>

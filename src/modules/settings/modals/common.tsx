@@ -55,7 +55,13 @@ import {
 	keyBindingTriggerModeAtom,
 } from "$/utils/keybindings";
 
-export const SettingsCommonTab = () => {
+export type CommonSettingsSection = "general" | "editor" | "files" | "audio";
+
+export const SettingsCommonTab = ({
+	section = "general",
+}: {
+	section?: CommonSettingsSection;
+}) => {
 	const languageOptions: readonly string[] = Object.keys(resources);
 	const [layoutMode, setLayoutMode] = useAtom(layoutModeAtom);
 	const [syncJudgeMode, setSyncJudgeMode] = useAtom(syncJudgeModeAtom);
@@ -158,6 +164,7 @@ export const SettingsCommonTab = () => {
 
 	return (
 		<Flex direction="column" gap="4">
+			{section === "general" && (
 			<Flex direction="column" gap="2">
 				<Heading size="4">{t("settings.group.display", "Display")}</Heading>
 
@@ -289,8 +296,9 @@ export const SettingsCommonTab = () => {
 					</Text>
 				</Card>
 			</Flex>
+			)}
 
-
+			{section === "editor" && (
 			<Flex direction="column" gap="3">
 				<Heading size="4">{t("settings.group.timing", "Syncing")}</Heading>
 
@@ -500,7 +508,9 @@ export const SettingsCommonTab = () => {
 					</Text>
 				</Card>
 			</Flex>
+			)}
 
+			{section === "editor" && (
 			<Flex direction="column" gap="3">
 				<Heading size="4">
 					{t("settings.group.timingHighlight", "Visual Timing Cue (Sync)")}
@@ -582,8 +592,9 @@ export const SettingsCommonTab = () => {
 					</Flex>
 				</Card>
 			</Flex>
+			)}
 
-			{import.meta.env.TAURI_ENV_PLATFORM && (
+			{section === "general" && import.meta.env.TAURI_ENV_PLATFORM && (
 				<Flex direction="column" gap="2">
 					<Heading size="4">
 						{t("settings.group.privacy", "Privacy")}
@@ -592,6 +603,7 @@ export const SettingsCommonTab = () => {
 				</Flex>
 			)}
 
+			{section === "files" && (
 			<Flex direction="column" gap="2">
 				<Heading size="4">{t("settings.group.import", "Import & export")}</Heading>
 
@@ -655,7 +667,9 @@ export const SettingsCommonTab = () => {
 					</Text>
 				</Card>
 			</Flex>
+			)}
 
+			{section === "audio" && (
 			<Flex direction="column" gap="2">
 				<Heading size="4">{t("settings.group.playback", "Playback")}</Heading>
 
@@ -713,7 +727,9 @@ export const SettingsCommonTab = () => {
 					</Flex>
 				</Card>
 			</Flex>
+			)}
 
+			{section === "files" && (
 			<Flex direction="column" gap="2">
 				<Heading size="4">{t("settings.group.autosave", "Auto Save")}</Heading>
 
@@ -791,6 +807,7 @@ export const SettingsCommonTab = () => {
 					</Flex>
 				</Card>
 			</Flex>
+			)}
 		</Flex>
 	);
 };
