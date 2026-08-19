@@ -1,0 +1,49 @@
+.floatingWidget {
+	position: fixed;
+	bottom: 84px;
+	right: 24px;
+	z-index: 900;
+	background: var(--color-panel-solid);
+	border: 1px solid var(--accent-6);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+	border-radius: var(--radius-4);
+	padding: var(--space-2) var(--space-3);
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	cursor: pointer;
+	transition:
+		transform 0.15s ease,
+		box-shadow 0.15s ease,
+		border-color 0.15s ease;
+	backdrop-filter: blur(12px);
+}
+
+.floatingWidget:hover {
+	transform: translateY(-2px);
+	border-color: var(--accent-8);
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+}
+
+.pulsingDot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: #1db954;
+	animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(29, 185, 84, 0.7);
+	}
+	70% {
+		transform: scale(1.1);
+		box-shadow: 0 0 0 8px rgba(29, 185, 84, 0);
+	}
+	100% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(29, 185, 84, 0);
+	}
+}

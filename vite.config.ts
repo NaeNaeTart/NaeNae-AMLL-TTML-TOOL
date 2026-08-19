@@ -135,6 +135,35 @@ export default defineConfig({
 			"Cross-Origin-Opener-Policy": "same-origin",
 		},
 		strictPort: true,
+		proxy: {
+			"/api/spotify-embed": {
+				target: "https://open.spotify.com",
+				changeOrigin: true,
+				secure: true,
+				rewrite: (path) => path.replace(/^\/api\/spotify-embed/, "/embed"),
+				headers: {
+					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+				},
+			},
+			"/api/spotify-pathfinder": {
+				target: "https://api-partner.spotify.com",
+				changeOrigin: true,
+				secure: true,
+				rewrite: (path) => path.replace(/^\/api\/spotify-pathfinder/, "/pathfinder"),
+				headers: {
+					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+					Referer: "https://open.spotify.com/",
+					Origin: "https://open.spotify.com",
+					"App-Platform": "WebPlayer",
+				},
+			},
+			"/api/spotify-api": {
+				target: "https://api.spotify.com",
+				changeOrigin: true,
+				secure: true,
+				rewrite: (path) => path.replace(/^\/api\/spotify-api/, ""),
+			},
+		},
 	},
 	envPrefix: ["VITE_", "TAURI_", "AMLL_", "SENTRY_"],
 	build: {

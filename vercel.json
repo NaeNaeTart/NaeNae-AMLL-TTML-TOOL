@@ -12,6 +12,18 @@
 		{
 			"source": "/boykisser/(.*)",
 			"destination": "https://files.catbox.moe/$1"
+		},
+		{
+			"source": "/api/spotify-embed/(.*)",
+			"destination": "https://open.spotify.com/embed/$1"
+		},
+		{
+			"source": "/api/spotify-pathfinder/(.*)",
+			"destination": "https://api-partner.spotify.com/pathfinder/$1"
+		},
+		{
+			"source": "/api/spotify-api/(.*)",
+			"destination": "https://api.spotify.com/$1"
 		}
 	],
 	"headers": [
