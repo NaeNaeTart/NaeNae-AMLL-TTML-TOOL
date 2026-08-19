@@ -22,10 +22,13 @@ const ToolMenuItems = () => {
 
 	const onRunPluginTool = (pluginId: string) => async () => {
 		try {
-			const nextLines = await pluginManager.runTool(pluginId, lyricLines.lyricLines);
+			const nextLines = await pluginManager.runTool(
+				pluginId,
+				lyricLines.lyricLines,
+			);
 			setLyricLines((prev) => ({
 				...prev,
-				lyricLines: nextLines
+				lyricLines: nextLines,
 			}));
 		} catch (e) {
 			console.error(`Failed to run tool ${pluginId}:`, e);
@@ -62,10 +65,16 @@ const ToolMenuItems = () => {
 			<DropdownMenu.Item onSelect={menu.onOpenTTMLChecklist}>
 				{t("topBar.menu.ttmlChecklist", "TTML Checklist")}
 			</DropdownMenu.Item>
+			<DropdownMenu.Item onSelect={menu.onOpenSpotMatch}>
+				{t("topBar.menu.spotmatch", "SpotMatch (Find Spotify IDs)...")}
+			</DropdownMenu.Item>
 
 			{tools.length > 0 && <DropdownMenu.Separator />}
-			{tools.map(tool => (
-				<DropdownMenu.Item key={tool.metadata.id} onSelect={onRunPluginTool(tool.metadata.id)}>
+			{tools.map((tool) => (
+				<DropdownMenu.Item
+					key={tool.metadata.id}
+					onSelect={onRunPluginTool(tool.metadata.id)}
+				>
 					{tool.metadata.name}
 				</DropdownMenu.Item>
 			))}

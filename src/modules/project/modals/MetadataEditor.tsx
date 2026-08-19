@@ -36,6 +36,7 @@ import { getBetterGeniusCoverArt } from "$/modules/genius/utils/image";
 import {
 	geniusSearchDialogAtom,
 	metadataEditorDialogAtom,
+	spotMatchDialogAtom,
 } from "$/states/dialogs.ts";
 import { lyricLinesAtom } from "$/states/main.ts";
 import type { TTMLLyric } from "$/types/ttml";
@@ -47,7 +48,6 @@ import {
 	QQMusicIcon,
 	SpotifyIcon,
 } from "./PlatformIcons";
-
 
 interface MetadataEntryProps {
 	entry: { key: string; value: string[] };
@@ -78,6 +78,7 @@ const MetadataEntry = memo(
 		}, [entry.value]);
 
 		const { t } = useTranslation();
+		const setSpotMatchDialogOpen = useSetAtom(spotMatchDialogAtom);
 
 		const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -318,6 +319,23 @@ const MetadataEntry = memo(
 											/>
 										</Box>
 									)}
+									{entry.key === "spotifyId" && (
+										<IconButton
+											variant="soft"
+											title={t(
+												"spotmatch.button",
+												"SpotMatch (Find Spotify IDs)",
+											)}
+											onClick={() => {
+												setSpotMatchDialogOpen({
+													open: true,
+													initialTrackId: vv,
+												});
+											}}
+										>
+											<Search16Regular />
+										</IconButton>
+									)}
 									{isLinkable && (
 										<IconButton
 											disabled={!isButtonEnabled}
@@ -417,6 +435,7 @@ export const MetadataEditor = () => {
 	const [lyricLines, setLyricLines] = useImmerAtom(lyricLinesAtom);
 	const addKeyButtonRef = useRef<HTMLButtonElement | null>(null);
 	const setGeniusSearchDialogOpen = useSetAtom(geniusSearchDialogAtom);
+	const setSpotMatchDialogOpen = useSetAtom(spotMatchDialogAtom);
 
 	const { t } = useTranslation();
 
@@ -760,6 +779,19 @@ export const MetadataEditor = () => {
 							))}
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
+					<Button
+						style={{
+							flex: "1 0 auto",
+						}}
+						variant="soft"
+						onClick={() => setSpotMatchDialogOpen(true)}
+					>
+						<SpotifyIcon />
+						{t(
+							"metadataDialog.spotmatch.button",
+							"SpotMatch (Find Spotify IDs)",
+						)}
+					</Button>
 					<Button
 						style={{
 							flex: "1 0 auto",

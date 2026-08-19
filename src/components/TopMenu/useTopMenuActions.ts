@@ -33,6 +33,7 @@ import {
 	metadataEditorDialogAtom,
 	settingsDialogAtom,
 	submitToAMLLDBDialogAtom,
+	spotMatchDialogAtom,
 	timeShiftDialogAtom,
 	timeStretchDialogAtom,
 	ttmlChecklistDialogAtom,
@@ -599,9 +600,15 @@ export const useTopMenuActions = () => {
 	const onOpenAdvancedSegmentation = useCallback(() => {
 		setAdvancedSegmentationDialog(true);
 	}, [setAdvancedSegmentationDialog]);
+	const setSpotMatchDialog = useSetAtom(spotMatchDialogAtom);
+
 	const onOpenLearnedSplits = useCallback(() => {
 		setLearnedSplitsDialog(true);
 	}, [setLearnedSplitsDialog]);
+
+	const onOpenSpotMatch = useCallback(() => {
+		setSpotMatchDialog(true);
+	}, [setSpotMatchDialog]);
 
 	return {
 		newFileKey,
@@ -642,6 +649,7 @@ export const useTopMenuActions = () => {
 		onSyncLineTimestamps,
 		onOpenLatencyTest,
 		onOpenTTMLChecklist,
+		onOpenSpotMatch,
 		onOpenGitHub,
 		onOpenWiki,
 	};

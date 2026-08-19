@@ -22,6 +22,8 @@ import { SplitWordDialog } from "$/modules/segmentation/components/split-word.ts
 import { FontSelectionDialog } from "$/modules/settings/modals/FontSelectionDialog.tsx";
 import { SettingsDialog } from "$/modules/settings/modals/index.tsx";
 import { TTMLChecklistDialog } from "$/modules/ttml-checklist/TTMLChecklistDialog.tsx";
+import { SpotMatchDialog } from "$/modules/spotmatch/modals/SpotMatchDialog.tsx";
+import { SpotMatchFloatingWidget } from "$/modules/spotmatch/components/SpotMatchFloatingWidget.tsx";
 import { ChangelogDialog } from "./changelog.tsx";
 import { ConfirmationDialog } from "./confirmation.tsx";
 import {
@@ -58,6 +60,8 @@ export const Dialogs = () => {
 			<TimeStretchDialog />
 			<GrammarCheckDialog />
 
+			<SpotMatchDialog />
+			<SpotMatchFloatingWidget />
 			<GeniusSearchDialog />
 			<GeniusImportLyricsDialog />
 			<ChangelogDialog />

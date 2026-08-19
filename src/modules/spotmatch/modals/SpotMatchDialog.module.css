@@ -1,0 +1,123 @@
+.dialogContent {
+	max-width: 960px;
+	width: 90vw;
+	height: 740px;
+	max-height: 90vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.searchBar {
+	flex: 1;
+}
+
+.sourceBanner {
+	background: var(--accent-3);
+	border: 1px solid var(--accent-6);
+	border-radius: var(--radius-3);
+	padding: var(--space-2) var(--space-3);
+}
+
+.advancedBox {
+	background-color: var(--gray-2);
+	border: 1px solid var(--gray-5);
+	border-radius: var(--radius-3);
+	padding: var(--space-3);
+}
+
+.limitsGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+	gap: var(--space-2);
+}
+
+.tableContainer {
+	flex: 1;
+	border: 1px solid var(--gray-6);
+	border-radius: var(--radius-3);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--color-background);
+}
+
+.tableScroll {
+	flex: 1;
+	overflow-y: auto;
+}
+
+.matchTable {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	text-align: left;
+}
+
+.matchTable th {
+	position: sticky;
+	top: 0;
+	background: var(--gray-3);
+	padding: var(--space-2) var(--space-2);
+	font-weight: 600;
+	color: var(--gray-11);
+	border-bottom: 1px solid var(--gray-6);
+	z-index: 1;
+	user-select: none;
+	white-space: nowrap;
+}
+
+.matchTable td {
+	padding: var(--space-2) var(--space-2);
+	border-bottom: 1px solid var(--gray-4);
+	vertical-align: middle;
+}
+
+.tableRow {
+	cursor: pointer;
+	transition: background-color 0.12s ease;
+}
+
+.tableRow:hover {
+	background-color: var(--gray-a3);
+}
+
+.tableRowSelected {
+	background-color: var(--accent-a3) !important;
+}
+
+.scoreBadgeHigh {
+	color: var(--green-11);
+	background-color: var(--green-3);
+	border: 1px solid var(--green-6);
+	font-weight: 600;
+}
+
+.scoreBadgeMedium {
+	color: var(--blue-11);
+	background-color: var(--blue-3);
+	border: 1px solid var(--blue-6);
+	font-weight: 600;
+}
+
+.scoreBadgeLow {
+	color: var(--amber-11);
+	background-color: var(--amber-3);
+	border: 1px solid var(--amber-6);
+	font-weight: 600;
+}
+
+.emptyState {
+	height: 240px;
+	color: var(--gray-8);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+.emptyStateIcon {
+	width: 48px;
+	height: 48px;
+	margin-bottom: var(--space-3);
+	opacity: 0.5;
+}
