@@ -9,15 +9,15 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-import { atom, type Atom } from "jotai";
+import { type Atom, atom } from "jotai";
 import { atomWithStorage, selectAtom } from "jotai/utils";
-import { REDO, UNDO, withHistory } from "jotai-history";
+import { REDO, UNDO, RESET, withHistory } from "jotai-history";
 import { uid } from "uid";
-import { identifyProject } from "$/modules/project/logic/project-info";
 import {
 	migrateLegacySections,
 	repairSectionIntegrity,
 } from "$/modules/lyric-editor/utils/section-system";
+import { identifyProject } from "$/modules/project/logic/project-info";
 import type { TTMLLyric } from "../types/ttml";
 
 export enum DarkMode {
@@ -77,51 +77,42 @@ export const allLyricsWordsAtom: Atom<Set<string>> = selectAtom(
 	setsEqual,
 );
 
-/**
- * @description 当前项目的唯一标识符
- *
- * - 打开应用和新建文件时会生成一个随机的 UUID
- * - 打开文件时会尝试与数据库中的历史项目进行匹配，如果匹配成功，则复用旧项目的 ID，否则生成新 ID
- */
 export const projectIdAtom = atom(uid());
+
+const DEFAULT_VOCALIST_NAMES: Record<string, string> = {
+	v1: "Lead",
+	v2: "Duet",
+	v3: "Middle",
+	v4: "Harmony",
+};
+
+// Derived from the active project's real vocalist names (lyricsfile.yaml only,
+// edited in Metadata -> Vocalist names). Falls back to the generic
+// Lead/Duet/Middle/Harmony placeholders for any id the user hasn't renamed,
+// so every preview surface (standard, toxi, Spicy) shows the same names.
+export const vocalistNamesAtom = atom<Record<string, string>>((get) => ({
+	...DEFAULT_VOCALIST_NAMES,
+	...get(lyricLinesAtom).vocalistNames,
+}));
 
 export const rubyWarningShownProjectIdsAtom = atom(new Set<string>());
 
-/**
- * @description 当前项目的显示身份信息，主要用于在 UI 上显示项目名称
- * @readonly
- */
 export const projectIdentityAtom = atom((get) => {
 	const lyrics = get(lyricLinesAtom);
 	return identifyProject(lyrics);
 });
 
-/**
- * @description 自动保存的状态
- */
 export enum SaveStatus {
-	/**
-	 * @description 已保存，当前编辑器的内容和数据库的一致
-	 */
+	
 	Saved = "saved",
-	/**
-	 * @description 等待保存
-	 */
+	
 	Pending = "pending",
-	/**
-	 * @description 正在保存
-	 */
+	
 	Saving = "saving",
 }
 
-/**
- * @description 当前自动保存的状态
- */
 export const saveStatusAtom = atom<SaveStatus>(SaveStatus.Saved);
 
-/**
- * @description 上次自动保存的时间戳
- */
 export const lastSavedTimeAtom = atom<number | null>(null);
 
 export const undoableLyricLinesAtom = withHistory(lyricLinesAtom, 10);
@@ -153,6 +144,7 @@ export const newLyricLinesAtom = atom(
 		migrateLegacySections(newState);
 		repairSectionIntegrity(newState);
 		set(lyricLinesAtom, newState);
+		set(undoableLyricLinesAtom, RESET);
 		set(selectedLinesAtom, new Set());
 		set(selectedWordsAtom, new Set());
 	},
@@ -162,6 +154,35 @@ export const selectedWordsAtom = atom(new Set<string>());
 export const collapsedSectionIdsAtom = atom(new Set<string>());
 
 export const saveFileNameAtom = atom("lyric.ttml");
+
+export enum ActiveFileKind {
+	TTML = "ttml",
+	Lyricsfile = "lyricsfile",
+}
+
+export const activeFileKindAtom = atom<ActiveFileKind>(ActiveFileKind.TTML);
+
+export const FILE_KIND_EXTENSIONS: Record<ActiveFileKind, string> = {
+	[ActiveFileKind.TTML]: ".ttml",
+	[ActiveFileKind.Lyricsfile]: ".yaml",
+};
+
+const KNOWN_FILE_EXTENSIONS = [
+	...Object.values(FILE_KIND_EXTENSIONS),
+	".lyricsfile.yaml",
+].sort((a, b) => b.length - a.length);
+
+export function stripKnownFileExtension(fileName: string): string {
+	const lower = fileName.toLowerCase();
+	for (const ext of KNOWN_FILE_EXTENSIONS) {
+		if (lower.endsWith(ext)) {
+			return fileName.slice(0, fileName.length - ext.length);
+		}
+	}
+	return fileName.replace(/\.[^.]*$/, "");
+}
+
+export const saveFileHandlerAtom = atom<(() => Promise<boolean>) | null>(null);
 
 export const showUnselectedLinesAtom = atomWithStorage(
 	"showUnselectedLines",

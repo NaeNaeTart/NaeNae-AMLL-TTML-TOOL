@@ -1,4 +1,4 @@
-import { BUILD_TIME, GIT_COMMIT } from "virtual:buildmeta";
+import { BUILD_TIME, GIT_COMMIT, GIT_REPO_URL } from "virtual:buildmeta";
 import {
 	BoxRegular,
 	CheckmarkCircle24Regular,
@@ -294,13 +294,13 @@ export const SettingsAboutTab = () => {
 										t("aboutModal.unknown", "Unknown")
 									) : (
 										<Link
-											href={`https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/commit/${GIT_COMMIT}`}
+											href={`${GIT_REPO_URL}/commit/${GIT_COMMIT}`}
 											target="_blank"
 											rel="noreferrer"
 											onClick={(event) => {
 												if (import.meta.env.TAURI_ENV_PLATFORM) {
 													event.preventDefault();
-													openExternal(`https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/commit/${GIT_COMMIT}`);
+													openExternal(`${GIT_REPO_URL}/commit/${GIT_COMMIT}`);
 												}
 											}}
 										>

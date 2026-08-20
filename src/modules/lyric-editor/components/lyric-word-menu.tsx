@@ -77,14 +77,13 @@ export const LyricWordMenu = ({
 					setOpenSplitWordDialog(true);
 				}}
 			>
-				{t("contextMenu.splitWord", "拆分单词…")}
+				{t("contextMenu.splitWord", "Split word…")}
 			</ContextMenu.Item>
 			{/[\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF\u4E00-\u9FA5]/.test(word.word) && (
 				<ContextMenu.Item
 					disabled={selectedWordsSize !== 1 || word.word.length <= 1}
 					onSelect={async () => {
 					try {
-						// Detect project-level language priority for context
 						const allLines = store.get(lyricLinesAtom).lyricLines;
 						const fullProjectText = allLines.map(l => l.words.map(w => w.word).join("")).join("");
 						let projectLangPriority: "ja" | "zh" | "ko" | "auto" = "auto";
@@ -106,20 +105,21 @@ export const LyricWordMenu = ({
 							const targetWordIndex = line.words.findIndex(w => w.id === word.id);
 							if (targetWordIndex === -1) return;
 
-							const originalWord = line.words[targetWordIndex];
-							const duration = originalWord.endTime - originalWord.startTime;
-							const syllDuration = Math.floor(duration / syllables.length);
+const originalWord = line.words[targetWordIndex];
+						const duration = originalWord.endTime - originalWord.startTime;
+						const syllDuration = Math.floor(duration / syllables.length);
 
-							const newWords: LyricWord[] = syllables.map((syll, i) => {
-								const nw = newLyricWord();
-								nw.word = word.word[i];
-								nw.romanWord = syll;
-								nw.startTime = originalWord.startTime + i * syllDuration;
-								nw.endTime = (i === syllables.length - 1) 
-									? originalWord.endTime 
-									: originalWord.startTime + (i + 1) * syllDuration;
-								return nw;
-							});
+						const wordChars = Array.from(originalWord.word);
+						const newWords: LyricWord[] = wordChars.map((char, i) => {
+							const nw = newLyricWord();
+							nw.word = char;
+							nw.romanWord = syllables[i] ?? "";
+							nw.startTime = originalWord.startTime + i * syllDuration;
+							nw.endTime = (i === wordChars.length - 1) 
+								? originalWord.endTime 
+								: originalWord.startTime + (i + 1) * syllDuration;
+							return nw;
+						});
 
 							line.words.splice(targetWordIndex, 1, ...newWords);
 						});
@@ -143,7 +143,7 @@ export const LyricWordMenu = ({
 					setOpenReplaceWordDialog(true);
 				}}
 			>
-				{t("contextMenu.replaceWord", "替换单词…")}
+				{t("contextMenu.replaceWord", "Replace word…")}
 			</ContextMenu.Item>
 			<ContextMenu.Item
 				disabled={selectedWordsSize !== 1}
@@ -200,7 +200,7 @@ export const LyricWordMenu = ({
 					setCombineWordsDialog({ open: true, lineIndex });
 				}}
 			>
-				{t("contextMenu.combineWords", "合并单词")}
+				{t("contextMenu.combineWords", "Combine words")}
 				<span style={{ marginLeft: "auto", color: "var(--gray-9)" }}>
 					Shift+click
 				</span>
@@ -225,7 +225,7 @@ export const LyricWordMenu = ({
 			>
 				{t("contextMenu.deleteWords", {
 					count: selectedWordsSize,
-					defaultValue: "删除选定单词",
+					defaultValue: "Delete {count} word(s)",
 				})}
 			</ContextMenu.Item>
 
@@ -235,7 +235,7 @@ export const LyricWordMenu = ({
 				disabled={selectedWordsSize !== 1}
 				onSelect={() => afterToNewLine()}
 			>
-				{t("contextMenu.moveFollowingWordToNewLine", "此后单词拆至新行")}
+				{t("contextMenu.moveFollowingWordToNewLine", "Move followings to new line")}
 			</ContextMenu.Item>
 
 			<ContextMenu.Item
@@ -244,7 +244,7 @@ export const LyricWordMenu = ({
 			>
 				{t("contextMenu.moveWordToNewLine", {
 					count: selectedWordsSize,
-					defaultValue: "所选单词拆至新行",
+					defaultValue: "Move {count} word(s) to new line",
 				})}
 			</ContextMenu.Item>
 

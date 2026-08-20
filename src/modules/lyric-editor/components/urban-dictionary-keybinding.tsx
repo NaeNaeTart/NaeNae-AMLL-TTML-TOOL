@@ -23,7 +23,6 @@ export const UrbanDictionaryKeybinding: FC = () => {
 		const selectedWords = store.get(selectedWordsAtom);
 		if (selectedWords.size === 0) return;
 
-		// Collect all selected words in document order
 		const lines = store.get(lyricLinesAtom);
 		const selectedWordsList: string[] = [];
 		const remainingIds = new Set(selectedWords);
@@ -34,14 +33,6 @@ export const UrbanDictionaryKeybinding: FC = () => {
 				if (remainingIds.has(word.id)) {
 					selectedWordsList.push(word.word.trim());
 					remainingIds.delete(word.id);
-				}
-				if (word.ruby) {
-					for (const r of word.ruby) {
-						if (remainingIds.has(r.id)) {
-							selectedWordsList.push(r.word.trim());
-							remainingIds.delete(r.id);
-						}
-					}
 				}
 			}
 		}

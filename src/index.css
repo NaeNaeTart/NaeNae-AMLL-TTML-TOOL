@@ -18,34 +18,34 @@
 }
 
 .radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"]) {
-	--gray-1: #080809 !important;
-	--gray-2: #0d0d0f !important;
-	--gray-3: #131316 !important;
-	--gray-4: #18181c !important;
-	--gray-5: #1d1d22 !important;
-	--gray-6: #252529 !important;
-	--gray-7: #303038 !important;
-	--gray-8: #424249 !important;
-	--gray-9: #585866 !important;
-	--gray-10: #717180 !important;
-	--gray-11: #b2b2ba !important;
-	--gray-12: #ededef !important;
+	--gray-1: #111111 !important;
+	--gray-2: #191919 !important;
+	--gray-3: #222222 !important;
+	--gray-4: #2a2a2a !important;
+	--gray-5: #313131 !important;
+	--gray-6: #3a3a3a !important;
+	--gray-7: #484848 !important;
+	--gray-8: #606060 !important;
+	--gray-9: #6e6e6e !important;
+	--gray-10: #7b7b7b !important;
+	--gray-11: #b4b4b4 !important;
+	--gray-12: #eeeeee !important;
 
-	--gray-a1: rgba(8, 8, 9, 0.05) !important;
-	--gray-a2: rgba(13, 13, 15, 0.1) !important;
-	--gray-a3: rgba(19, 19, 22, 0.15) !important;
-	--gray-a4: rgba(24, 24, 28, 0.2) !important;
-	--gray-a5: rgba(13, 13, 15, 0.82) !important;
-	--gray-a6: rgba(37, 37, 41, 0.45) !important;
-	--gray-a7: rgba(48, 48, 56, 0.6) !important;
-	--gray-a8: rgba(66, 66, 73, 0.8) !important;
-	--gray-a9: rgba(88, 88, 102, 1.0) !important;
-	--gray-a10: rgba(113, 113, 128, 1.0) !important;
-	--gray-a11: rgba(178, 178, 186, 1.0) !important;
-	--gray-a12: rgba(237, 237, 239, 1.0) !important;
+	--gray-a1: rgba(17, 17, 17, 0.05) !important;
+	--gray-a2: rgba(25, 25, 25, 0.12) !important;
+	--gray-a3: rgba(34, 34, 34, 0.2) !important;
+	--gray-a4: rgba(42, 42, 42, 0.28) !important;
+	--gray-a5: rgba(49, 49, 49, 0.36) !important;
+	--gray-a6: rgba(58, 58, 58, 0.45) !important;
+	--gray-a7: rgba(72, 72, 72, 0.58) !important;
+	--gray-a8: rgba(96, 96, 96, 0.75) !important;
+	--gray-a9: rgba(110, 110, 110, 1) !important;
+	--gray-a10: rgba(123, 123, 123, 1) !important;
+	--gray-a11: rgba(180, 180, 180, 1) !important;
+	--gray-a12: rgba(238, 238, 238, 1) !important;
 
-	--color-background: #060607 !important;
-	--editor-bg: #0b0b0d !important;
+	--color-background: #111111 !important;
+	--editor-bg: #161616 !important;
 	--color-panel-solid: var(--gray-2) !important;
 	--color-panel-translucent: var(--gray-a5) !important;
 }
@@ -119,3 +119,46 @@
 	background-color: var(--gray-a9);
 }
 
+.Toastify {
+	--toastify-color-light: var(--color-panel-solid);
+	--toastify-color-dark: var(--color-panel-solid);
+	--toastify-color-success: var(--accent-9);
+	--toastify-color-error: var(--red-9);
+	--toastify-color-warning: var(--accent-9);
+	--toastify-color-info: var(--accent-9);
+	--toastify-text-color-light: var(--gray-12);
+	--toastify-text-color-dark: var(--gray-12);
+	--toastify-icon-color-success: var(--accent-9);
+	--toastify-icon-color-error: var(--red-9);
+	--toastify-icon-color-warning: var(--accent-9);
+	--toastify-icon-color-info: var(--accent-9);
+	--toastify-toast-background: var(--color-panel-solid);
+	--toastify-toast-bd-radius: var(--radius-4);
+	--toastify-font-family: var(--default-font-family);
+	--toastify-color-progress-success: var(--accent-9);
+	--toastify-color-progress-error: var(--red-9);
+	--toastify-color-progress-warning: var(--accent-9);
+	--toastify-color-progress-info: var(--accent-9);
+	--toastify-color-progress-light: var(--accent-9);
+	--toastify-color-progress-dark: var(--accent-9);
+}
+
+.Toastify__toast {
+	border: 1px solid var(--gray-a6);
+	backdrop-filter: blur(var(--backdrop-blur, 24px)) saturate(1.4);
+	background: color-mix(
+		in srgb,
+		var(--color-panel-translucent) 90%,
+		transparent
+	);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+}
+
+.Toastify__close-button {
+	color: var(--gray-11);
+	opacity: 1;
+}
+
+.Toastify__close-button:hover {
+	color: var(--gray-12);
+}

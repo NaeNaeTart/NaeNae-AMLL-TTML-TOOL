@@ -8,9 +8,10 @@ import { currentTimeAtom } from "$/modules/audio/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
 import { msToTimestamp } from "$/utils/timestamp";
+import type { LyricLine, LyricWord } from "$/types/ttml";
 import styles from "./index.module.css";
 
-const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTime: number, isGrouped?: boolean }) => {
+const WordPill = memo(({ word, currentTime, isGrouped }: { word: LyricWord, currentTime: number, isGrouped?: boolean }) => {
 	const { t } = useTranslation();
 	const isWordActive = currentTime >= word.startTime && currentTime <= word.endTime;
 	const wordDur = word.endTime - word.startTime;
@@ -58,13 +59,13 @@ const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTim
 	return prev.word === next.word;
 });
 
-const WordGroup = memo(({ words, currentTime }: { words: any[], currentTime: number }) => {
+const WordGroup = memo(({ words, currentTime }: { words: LyricWord[], currentTime: number }) => {
 	const isActive = words.some(w => currentTime >= w.startTime && currentTime <= w.endTime);
 
 	return (
 		<div className={classNames(styles.wordGroup, isActive && styles.wordGroupActive)}>
 			{words.map((word, idx) => (
-				<div key={word.id || idx} style={{ display: "flex", alignItems: "center" }}>
+				<div key={word.id} style={{ display: "flex", alignItems: "center" }}>
 					<WordPill word={word} currentTime={currentTime} isGrouped={true} />
 					{idx < words.length - 1 && <div className={styles.wordDivider} />}
 				</div>
@@ -84,11 +85,11 @@ const WordGroup = memo(({ words, currentTime }: { words: any[], currentTime: num
 });
 
 const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: { 
-	line: any, 
+	line: LyricLine, 
 	index: number, 
 	currentTime: number, 
 	totalDuration: number,
-	onRowClick: (line: any) => void
+	onRowClick: (line: LyricLine) => void
 }) => {
 	const { t } = useTranslation();
 	const isActive = currentTime >= line.startTime && currentTime <= line.endTime;
@@ -96,8 +97,8 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 	const durationPercent = totalDuration ? (duration / totalDuration) * 100 : 0;
 
 	const wordGroups = useMemo(() => {
-		const groups: { type: 'words' | 'whitespace', items?: any[], word?: any }[] = [];
-		let currentGroup: any[] = [];
+		const groups: { type: 'words' | 'whitespace', items?: LyricWord[], word?: LyricWord }[] = [];
+		let currentGroup: LyricWord[] = [];
 		
 		for (const word of line.words) {
 			const isWhitespace = !word.word || word.word.trim() === "";
@@ -135,17 +136,19 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 			<div className={styles.cell} style={{ flexGrow: 1, padding: "8px 12px", minWidth: 0 }}>
 				<Box>
 					<Flex align="center" gap="2" mb="1">
-						<Text className={styles.lineText}>{line.words.map((w: any) => w.word).join("")}</Text>
+						<Text className={styles.lineText}>{line.words.map((w: LyricWord) => w.word).join("")}</Text>
 						{line.isBG && <Text size="1" style={{ background: "var(--accent-9)", color: "white", padding: "0 4px", borderRadius: "2px", fontSize: "9px" }}>{t("timingOverview.backgroundVocal", "BG")}</Text>}
 					</Flex>
 					<div className={styles.wordPills}>
-						{wordGroups.map((group, gIdx) => (
-							group.type === 'words' ? (
-								<WordGroup key={`g-${gIdx}`} words={group.items!} currentTime={currentTime} />
-							) : (
-								<WordPill key={`w-${gIdx}`} word={group.word} currentTime={currentTime} />
-							)
-						))}
+						{wordGroups.map((group) => {
+							if (group.type === 'words' && group.items) {
+								return <WordGroup key={group.items.map(w => w.id).join("-")} words={group.items} currentTime={currentTime} />;
+							}
+							if (group.word) {
+								return <WordPill key={group.word.id} word={group.word} currentTime={currentTime} />;
+							}
+							return null;
+						})}
 					</div>
 				</Box>
 			</div>
@@ -182,7 +185,7 @@ export const TimingOverview = memo(() => {
 		return { lineCount, wordCount, totalMs };
 	}, [sortedLines]);
 
-	const handleRowClick = useMemo(() => (line: any) => {
+	const handleRowClick = useMemo(() => (line: LyricLine) => {
 		setCurrentTime(line.startTime);
 		setSelectedLines(new Set([line.id]));
 		audioEngine.seekMusic(line.startTime / 1000);

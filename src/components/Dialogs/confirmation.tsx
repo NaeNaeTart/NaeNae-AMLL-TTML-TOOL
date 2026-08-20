@@ -12,6 +12,11 @@ export const ConfirmationDialog = () => {
 		setDialogState({ ...dialogState, open: false });
 	};
 
+	const handleSecondaryConfirm = () => {
+		dialogState.onSecondaryConfirm?.();
+		setDialogState({ ...dialogState, open: false });
+	};
+
 	const handleCancel = () => {
 		dialogState.onCancel?.();
 		setDialogState({ ...dialogState, open: false });
@@ -26,7 +31,12 @@ export const ConfirmationDialog = () => {
 					<Button variant="soft" color="gray" onClick={handleCancel}>
 						{dialogState.cancelText || t("confirmDialog.cancel", "取消")}
 					</Button>
-					<Button onClick={handleConfirm}>
+					{dialogState.secondaryConfirmText && (
+						<Button color={dialogState.secondaryConfirmColor} onClick={handleSecondaryConfirm}>
+							{dialogState.secondaryConfirmText}
+						</Button>
+					)}
+					<Button color={dialogState.confirmColor} onClick={handleConfirm}>
 						{dialogState.confirmText || t("confirmDialog.confirm", "确认")}
 					</Button>
 				</Flex>

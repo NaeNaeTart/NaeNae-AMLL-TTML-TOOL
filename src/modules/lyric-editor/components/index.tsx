@@ -25,20 +25,24 @@ import {
 	useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { uid } from "uid";
 import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modules/onboarding/states";
 import { importLyricsChooserDialogAtom } from "$/states/dialogs";
 import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { currentTimeAtom } from "$/modules/audio/states";
+import { audioEngine } from "$/modules/audio/audio-engine";
 import {
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
 	geniusHeaderDetectionDialogShownAtom,
+	previewFollowsPlaybackAtom,
 } from "$/modules/settings/states/index.ts";
 import {
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
 	selectedLinesAtom,
+	selectedWordsAtom,
 	ToolMode,
 	toolModeAtom,
 } from "$/states/main.ts";
@@ -68,6 +72,8 @@ import { shouldAutoCenterSelection } from "./selection-scroll";
 const lyricLinesOnlyAtom = splitAtom(
 	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
 );
+
+let editorAnchorLineIndex = -1;
 
 const findCurrentLineIndex = (lines: LyricLine[], currentTime: number) => {
 	const scan = (predicate?: (line: LyricLine) => boolean) => {
@@ -143,7 +149,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			dragPreview = null;
 		};
 
-		const showDragPreview = (dragId: string) => {
+		const showDragPreview = (dragId: string, isCopy = false) => {
 			const lines = store.get(lyricLinesAtom).lyricLines;
 			const lineIndex = lines.findIndex((candidate) => candidate.id === dragId);
 			const line = lines[lineIndex];
@@ -151,6 +157,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			dragPreview = document.createElement("div");
 			dragPreview.className = styles.dragPreview;
 			dragPreview.setAttribute("aria-hidden", "true");
+			if (isCopy) dragPreview.dataset.copy = "true";
 			const lineNumber = document.createElement("span");
 			lineNumber.className = styles.dragPreviewNumber;
 			lineNumber.textContent = String(
@@ -270,6 +277,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				startX: event.clientX,
 				startY: event.clientY,
 				isDragging: false,
+				isCopy: event.ctrlKey || event.metaKey,
 			});
 		};
 		const updatePointer = (event: PointerEvent) => {
@@ -283,7 +291,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					return;
 				store.set(lineDragAtom, { ...drag, isDragging: true });
 				store.set(draggingIdAtom, drag.id);
-				showDragPreview(drag.id);
+				showDragPreview(drag.id, drag.isCopy);
 			}
 			event.preventDefault();
 			pointer = { x: event.clientX, y: event.clientY };
@@ -302,25 +310,56 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				const selectedLineIds = selectedLines.has(drag.id)
 					? selectedLines
 					: new Set([drag.id]);
-				editLyricLines((state) => {
-					const filteredLines = state.lyricLines.filter(
-						(line) => !selectedLineIds.has(line.id),
+				if (drag.isCopy) {
+					const clonedLines = store
+						.get(lyricLinesAtom)
+						.lyricLines.filter((line) => selectedLineIds.has(line.id))
+						.map((line) => ({
+							...line,
+							id: uid(),
+							words: line.words.map((word) => ({
+								...word,
+								id: uid(),
+								ruby: word.ruby
+									? word.ruby.map((ruby) => ({ ...ruby }))
+									: undefined,
+							})),
+						}));
+					editLyricLines((state) => {
+						const targetIndex = state.lyricLines.findIndex(
+							(line) => line.id === targetId,
+						);
+						if (targetIndex < 0) return;
+						const insertionIndex = targetIndex + Number(insertAfter) + 1;
+						state.lyricLines.splice(insertionIndex, 0, ...clonedLines);
+						repairSectionIntegrity(state);
+					});
+					store.set(
+						selectedLinesAtom,
+						new Set(clonedLines.map((line) => line.id)),
 					);
-					const targetLines = state.lyricLines.filter((line) =>
-						selectedLineIds.has(line.id),
-					);
-					const targetIndex = filteredLines.findIndex(
-						(line) => line.id === targetId,
-					);
-					if (targetIndex < 0) return;
-					const insertionIndex = targetIndex + Number(insertAfter);
-					state.lyricLines = [
-						...filteredLines.slice(0, insertionIndex),
-						...targetLines,
-						...filteredLines.slice(insertionIndex),
-					];
-					repairSectionIntegrity(state);
-				});
+					store.set(selectedWordsAtom, new Set());
+				} else {
+					editLyricLines((state) => {
+						const filteredLines = state.lyricLines.filter(
+							(line) => !selectedLineIds.has(line.id),
+						);
+						const targetLines = state.lyricLines.filter((line) =>
+							selectedLineIds.has(line.id),
+						);
+						const targetIndex = filteredLines.findIndex(
+							(line) => line.id === targetId,
+						);
+						if (targetIndex < 0) return;
+						const insertionIndex = targetIndex + Number(insertAfter);
+						state.lyricLines = [
+							...filteredLines.slice(0, insertionIndex),
+							...targetLines,
+							...filteredLines.slice(insertionIndex),
+						];
+						repairSectionIntegrity(state);
+					});
+				}
 			}
 			clearDropTarget();
 			clearDragPreview();
@@ -348,6 +387,21 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			viewEl.scrollTop = clampScrollTop(viewEl.scrollTop, delta, maxScrollTop);
 			event.preventDefault();
 		};
+		const updateCopyMode = (isCopy: boolean) => {
+			const drag = store.get(lineDragAtom);
+			if (!drag?.isDragging || drag.isCopy === isCopy) return;
+			store.set(lineDragAtom, { ...drag, isCopy });
+			if (dragPreview) {
+				if (isCopy) dragPreview.dataset.copy = "true";
+				else delete dragPreview.dataset.copy;
+			}
+		};
+		const handleDragKeyDown = (event: KeyboardEvent) => {
+			if (event.ctrlKey || event.metaKey) updateCopyMode(true);
+		};
+		const handleDragKeyUp = (event: KeyboardEvent) => {
+			if (!event.ctrlKey && !event.metaKey) updateCopyMode(false);
+		};
 		const handleWindowBlur = () => finishDragging();
 
 		window.addEventListener("pointerdown", startPointerDrag, true);
@@ -358,6 +412,8 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			capture: true,
 			passive: false,
 		});
+		window.addEventListener("keydown", handleDragKeyDown);
+		window.addEventListener("keyup", handleDragKeyUp);
 		window.addEventListener("blur", handleWindowBlur);
 
 		return () => {
@@ -367,6 +423,8 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			window.removeEventListener("pointerup", finishDragging, true);
 			window.removeEventListener("pointercancel", finishDragging, true);
 			window.removeEventListener("wheel", scrollWithWheel, true);
+			window.removeEventListener("keydown", handleDragKeyDown);
+			window.removeEventListener("keyup", handleDragKeyUp);
 			window.removeEventListener("blur", handleWindowBlur);
 		};
 	}, [editLyric.length, editLyricLines, store, toolMode]);
@@ -459,13 +517,127 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		scrollToLineIndex(scrollToIndex);
 	}, [scrollToIndex, scrollToLineIndex]);
 
+	const updateEditorAnchor = useCallback(() => {
+		const viewEl = viewElRef.current;
+		if (!viewEl) return;
+		const viewRect = viewEl.getBoundingClientRect();
+		const centerY = viewRect.top + viewRect.height / 2;
+		let closest = -1;
+		let closestDistance = Number.POSITIVE_INFINITY;
+		for (const element of viewEl.querySelectorAll<HTMLElement>(
+			"[data-lyric-line-index]",
+		)) {
+			const index = Number(element.dataset.lyricLineIndex);
+			if (!Number.isFinite(index)) continue;
+			const rect = element.getBoundingClientRect();
+			const distance = Math.abs(rect.top + rect.height / 2 - centerY);
+			if (distance < closestDistance) {
+				closestDistance = distance;
+				closest = index;
+			}
+		}
+		if (closest >= 0) editorAnchorLineIndex = closest;
+	}, []);
+
+	useEffect(() => {
+		const viewEl = viewElRef.current;
+		if (!viewEl) return;
+		updateEditorAnchor();
+		viewEl.addEventListener("scroll", updateEditorAnchor, { passive: true });
+		return () => viewEl.removeEventListener("scroll", updateEditorAnchor);
+	}, [updateEditorAnchor]);
+
+	const restoredAnchorRef = useRef(false);
+	useEffect(() => {
+		if (restoredAnchorRef.current) return;
+		restoredAnchorRef.current = true;
+		const index = editorAnchorLineIndex;
+		if (index === -1) return;
+		const raf = requestAnimationFrame(() => scrollToLineIndex(index));
+		return () => cancelAnimationFrame(raf);
+	}, [scrollToLineIndex]);
+
+	const previewFollowsPlayback = useAtomValue(previewFollowsPlaybackAtom);
+	const prevToolModeRef = useRef(toolMode);
+	const lastActiveLineIndexRef = useRef<number>(-1);
+
+	useEffect(() => {
+		if (prevToolModeRef.current === toolMode) return;
+		const fromMode = prevToolModeRef.current;
+		prevToolModeRef.current = toolMode;
+
+		// Don't restore anchor when switching TO Preview - Preview manages
+		// its own scroll position via activeLineIds.
+		if (toolMode === ToolMode.Preview) return;
+		if (toolMode === ToolMode.Sync && store.get(selectedLinesAtom).size > 0)
+			return;
+
+		// If coming from Preview to Edit or Time and previewFollowsPlayback is on,
+		// sync directly to current audio playback position.
+		if (fromMode === ToolMode.Preview && previewFollowsPlayback) {
+			const effectiveTime = audioEngine.musicPlaying
+				? audioEngine.musicCurrentTime * 1000
+				: store.get(currentTimeAtom);
+			const lines = store.get(lyricLinesAtom).lyricLines;
+			const index = findCurrentLineIndex(lines, effectiveTime);
+			if (index !== -1) {
+				const raf = requestAnimationFrame(() => scrollToLineIndex(index));
+				return () => cancelAnimationFrame(raf);
+			}
+		}
+
+		const index = editorAnchorLineIndex;
+		if (index === -1) return;
+		const raf = requestAnimationFrame(() => scrollToLineIndex(index));
+		return () => cancelAnimationFrame(raf);
+	}, [toolMode, previewFollowsPlayback, scrollToLineIndex, store]);
+
 	const handleLocate = useCallback(() => {
-		const currentTime = store.get(currentTimeAtom);
+		const currentTime = audioEngine.musicPlaying
+			? audioEngine.musicCurrentTime * 1000
+			: store.get(currentTimeAtom);
 		const lyricLines = store.get(lyricLinesAtom).lyricLines;
 		const index = findCurrentLineIndex(lyricLines, currentTime);
 		if (index === -1) return;
 		scrollToLineIndex(index);
 	}, [store, scrollToLineIndex]);
+
+	// Auto-scroll to active line in Edit/Time modes during playback or time changes
+	useEffect(() => {
+		if (toolMode !== ToolMode.Edit && toolMode !== ToolMode.Time) return;
+
+		const syncPosition = () => {
+			if (!previewFollowsPlayback && audioEngine.musicPlaying) return;
+			const effectiveTime = audioEngine.musicPlaying
+				? audioEngine.musicCurrentTime * 1000
+				: store.get(currentTimeAtom);
+			const lyricLines = store.get(lyricLinesAtom).lyricLines;
+			const index = findCurrentLineIndex(lyricLines, effectiveTime);
+			if (index !== -1 && index !== lastActiveLineIndexRef.current) {
+				lastActiveLineIndexRef.current = index;
+				scrollToLineIndex(index);
+			}
+		};
+
+		// Initial sync
+		syncPosition();
+
+		const onTimeUpdate = () => {
+			if (audioEngine.musicPlaying && previewFollowsPlayback) {
+				syncPosition();
+			}
+		};
+
+		audioEngine.addEventListener("music-timeupdate", onTimeUpdate);
+		audioEngine.addEventListener("music-seeked", syncPosition);
+		audioEngine.addEventListener("music-resume", syncPosition);
+
+		return () => {
+			audioEngine.removeEventListener("music-timeupdate", onTimeUpdate);
+			audioEngine.removeEventListener("music-seeked", syncPosition);
+			audioEngine.removeEventListener("music-resume", syncPosition);
+		};
+	}, [toolMode, previewFollowsPlayback, scrollToLineIndex, store]);
 
 	useImperativeHandle(ref, () => viewElRef.current as HTMLDivElement, []);
 
@@ -481,11 +653,11 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				height="100%"
 				ref={ref}
 			>
-				<Text color="gray">{t("app.empty.title", "没有歌词行")}</Text>
+				<Text color="gray">{t("app.empty.title", "No lyric lines")}</Text>
 				<Text color="gray" align="center">
 					{t(
 						"app.empty.description",
-						"在顶部面板中添加新歌词行或从菜单栏打开 / 导入已有歌词",
+						"Add new lyric lines in the top panel or open/import existing lyrics from the menu",
 					)}
 				</Text>
 				<Flex gap="2" wrap="wrap" justify="center" mt="2">
@@ -536,7 +708,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				className={styles.locateButton}
 				variant="soft"
 				onClick={handleLocate}
-				title={t("lyricEditor.locate", "定位")}
+				title={t("lyricEditor.locate", "Locate")}
 			>
 				<MyLocation24Regular />
 			</Button>

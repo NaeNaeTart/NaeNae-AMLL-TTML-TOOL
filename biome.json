@@ -8,7 +8,8 @@
 			"!**/build",
 			"!**/target",
 			"!**/vendor",
-			"!!**/decode-audio.js"
+			"!!**/decode-audio.js",
+			"!**/ttml-processor/wasm/**"
 		]
 	},
 	"formatter": {
@@ -30,7 +31,10 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
-			"a11y": "off"
+			"a11y": "off",
+			"complexity": {
+				"noImportantStyles": "off"
+			}
 		}
 	},
 	"assist": {

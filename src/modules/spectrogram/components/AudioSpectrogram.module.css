@@ -249,6 +249,55 @@
 	pointer-events: auto;
 }
 
+.reversePlaybackZone {
+	position: absolute;
+	top: 0;
+	overflow: hidden;
+	z-index: 2;
+	cursor: pointer;
+	border-left: 1px dashed var(--accent-8);
+	border-right: 1px dashed var(--accent-8);
+	border-top: 1px solid var(--accent-6);
+	border-bottom: 1px solid var(--accent-6);
+	background-color: var(--accent-a2);
+	box-sizing: border-box;
+}
+
+.reversePlaybackTiles {
+	position: absolute;
+	inset: 0;
+	transform: scaleX(-1);
+	opacity: 0.85;
+}
+
+.reversePlaybackLabel {
+	position: absolute;
+	top: 4px;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 1px 6px;
+	border-radius: var(--radius-2);
+	background: var(--accent-a5);
+	border: 1px solid var(--accent-7);
+	color: var(--accent-11);
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	pointer-events: none;
+	white-space: nowrap;
+	backdrop-filter: blur(4px);
+}
+
+.reversePlaybackStartCursor {
+	position: absolute;
+	top: 0;
+	width: 0;
+	height: 100%;
+	border-left: 2px dashed var(--amber-9);
+	z-index: 10;
+	pointer-events: none;
+}
+
 .emptyState {
 	flex: 1;
 	display: flex;

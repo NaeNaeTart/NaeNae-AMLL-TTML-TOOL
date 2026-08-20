@@ -85,6 +85,32 @@ export function applyLineTimingSnapshots(
 	};
 }
 
+export function restoreLineTimingSnapshots(
+	lines: LyricLine[],
+	snapshots: LineTimingSnapshot[],
+): number {
+	let restoredLineCount = 0;
+	for (const snapshot of snapshots) {
+		const line = lines.find(
+			(candidate) => candidate.id === snapshot.sourceLineId,
+		);
+		if (!line) continue;
+		line.startTime = snapshot.startTime;
+		line.endTime = snapshot.endTime;
+		const copiedWordCount = Math.min(
+			line.words.length,
+			snapshot.words.length,
+		);
+		for (let wordIndex = 0; wordIndex < copiedWordCount; wordIndex++) {
+			line.words[wordIndex].startTime =
+				snapshot.words[wordIndex].startTime;
+			line.words[wordIndex].endTime = snapshot.words[wordIndex].endTime;
+		}
+		restoredLineCount++;
+	}
+	return restoredLineCount;
+}
+
 export function snapSelectedLineTimingsToTime(
 	lines: LyricLine[],
 	selectedLineIds: ReadonlySet<string>,

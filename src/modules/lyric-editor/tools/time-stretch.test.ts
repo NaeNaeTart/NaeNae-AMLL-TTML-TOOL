@@ -109,7 +109,7 @@ describe("scaleTTMLTimings", () => {
 				{ startTime: 100, endTime: 200, words: [] },
 				{ startTime: 300, endTime: 400, words: [] },
 			],
-		} as TTMLLyric;
+		} as unknown as TTMLLyric;
 
 		scaleTTMLTimings(lyrics, 2, new Set([1]));
 

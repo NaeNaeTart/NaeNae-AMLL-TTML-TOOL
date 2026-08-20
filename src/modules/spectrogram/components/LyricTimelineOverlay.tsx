@@ -11,18 +11,19 @@ import {
 	type TimelineDragOperation,
 	timelineDragAtom,
 } from "$/modules/spectrogram/states/dnd.ts";
-import {
-	timeShiftPreviewOffsetAtom,
-	timeShiftPreviewActiveAtom,
-	timeShiftPreviewScopeAtom,
-	timeShiftPreviewCustomRangeAtom,
-} from "$/states/dialogs.ts";
+import type { ReversePlaybackZone } from "$/modules/spectrogram/states/reverse-playback";
 import {
 	commitUpdatedLine,
 	getUpdatedLineForDivider,
 	getUpdatedLineForLinePan,
 	getUpdatedLineForWordPan,
 } from "$/modules/spectrogram/utils/timeline-mutations.ts";
+import {
+	timeShiftPreviewActiveAtom,
+	timeShiftPreviewCustomRangeAtom,
+	timeShiftPreviewOffsetAtom,
+	timeShiftPreviewScopeAtom,
+} from "$/states/dialogs.ts";
 import { selectedLinesAtom, showUnselectedLinesAtom } from "$/states/main.ts";
 import { globalStore } from "$/states/store.ts";
 import { LyricLineSegment } from "./LyricLineSegment";
@@ -32,6 +33,7 @@ import { SpectrogramContext } from "./SpectrogramContext.ts";
 interface LyricTimelineOverlayProps {
 	clientWidth: number;
 	hiddenLineIds?: Set<string> | null;
+	reverseZone?: ReversePlaybackZone | null;
 }
 
 const SNAP_THRESHOLD_PX = 7;
@@ -39,6 +41,7 @@ const SNAP_THRESHOLD_PX = 7;
 export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 	clientWidth,
 	hiddenLineIds,
+	reverseZone,
 }) => {
 	const processedLines = useAtomValue(processedLyricLinesAtom);
 	const [timelineDrag, setTimelineDrag] = useAtom(timelineDragAtom);
@@ -254,6 +257,13 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 		linesToRender = linesToRender.filter((line) => selectedLines.has(line.id));
 	}
 
+	if (reverseZone) {
+		linesToRender = linesToRender.filter((line) => {
+			if (line.startTime == null || line.endTime == null) return true;
+			return line.endTime <= reverseZone.start || line.startTime >= reverseZone.end;
+		});
+	}
+
 	return (
 		<div className={styles.overlay}>
 			{linesToRender.map((line) => (
@@ -264,7 +274,6 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 				processedLines.map((line) => {
 					if (line.startTime == null || line.endTime == null) return null;
 
-					// Calculate visibility based on SHIFTED position
 					const shiftedStartMs = line.startTime + previewOffset;
 					const shiftedEndMs = line.endTime + previewOffset;
 

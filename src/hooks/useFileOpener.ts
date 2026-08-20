@@ -1,7 +1,3 @@
-/**
- * @description 处理打开文件的逻辑
- */
-
 import {
 	type LyricLine,
 	parseEslrc,
@@ -21,6 +17,7 @@ import { getProjectList } from "$/modules/project/autosave/autosave";
 import { getSuggestedTtmlFileName } from "$/modules/project/logic/metadata-filename";
 import { isProjectMatch } from "$/modules/project/logic/project-match";
 import { parseLyric as parseTTML } from "$/modules/project/logic/ttml-parser";
+import { parseLyricsfile } from "$/modules/lyricsfile-processor/parser";
 import {
 	Mp3ConversionMode,
 	mp3ConversionModeAtom,
@@ -32,6 +29,8 @@ import {
 	mp3ConversionDialogAtom,
 } from "$/states/dialogs";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
 	isDirtyAtom,
 	newLyricLinesAtom,
 	projectIdAtom,
@@ -73,6 +72,7 @@ export const useFileOpener = () => {
 	const setNewLyricLines = useSetAtom(newLyricLinesAtom);
 	const setProjectId = useSetAtom(projectIdAtom);
 	const setSaveFileName = useSetAtom(saveFileNameAtom);
+	const setActiveFileKind = useSetAtom(activeFileKindAtom);
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 	const setMp3ConversionDialog = useSetAtom(mp3ConversionDialogAtom);
 	const isDirty = useAtomValue(isDirtyAtom);
@@ -109,7 +109,15 @@ export const useFileOpener = () => {
 	const performOpenFile = useCallback(
 		async (file: File, forceExt?: string) => {
 			const rawExt = file.name.split(".").pop()?.toLowerCase() || "";
-			const ext = forceExt ? forceExt.toLowerCase() : rawExt;
+			const isLyricsfile =
+				file.name.toLowerCase().endsWith(".lyricsfile.yaml") ||
+				rawExt === "lyricsfile" ||
+				rawExt === "yaml";
+			const ext = forceExt
+				? forceExt.toLowerCase()
+				: isLyricsfile
+					? "lyricsfile"
+					: rawExt;
 
 			try {
 				if (AUDIO_EXTENSIONS.has(ext)) {
@@ -122,7 +130,7 @@ export const useFileOpener = () => {
 								toast.info(
 									t(
 										"dialog.mp3Conversion.converting",
-										"正在转换 MP3 到 FLAC...",
+										"Converting MP3 to FLAC...",
 									),
 								);
 								const flacData = await convertMp3ToFlac(uint8Array, file.name);
@@ -138,11 +146,11 @@ export const useFileOpener = () => {
 									},
 								);
 								await audioEngine.loadMusic(flacFile);
-								toast.success(t("dialog.mp3Conversion.success", "转换成功"));
+								toast.success(t("dialog.mp3Conversion.success", "Conversion successful"));
 								return;
 							} catch (e) {
 								toast.error(
-									t("dialog.mp3Conversion.failed", "转换失败: {error}", {
+									t("dialog.mp3Conversion.failed", "Conversion failed: {error}", {
 										error: e instanceof Error ? e.message : String(e),
 									}),
 								);
@@ -173,7 +181,7 @@ export const useFileOpener = () => {
 								toast.info(
 									t(
 										"dialog.mp3Conversion.converting",
-										"正在转换 MP3 到 FLAC...",
+										"Converting MP3 to FLAC...",
 									),
 								);
 								const flacData = await convertMp3ToFlac(uint8Array, file.name);
@@ -189,11 +197,11 @@ export const useFileOpener = () => {
 									},
 								);
 								await audioEngine.loadMusic(flacFile);
-								toast.success(t("dialog.mp3Conversion.success", "转换成功"));
+								toast.success(t("dialog.mp3Conversion.success", "Conversion successful"));
 								return;
 							} catch (e) {
 								toast.error(
-									t("dialog.mp3Conversion.failed", "转换失败: {error}", {
+									t("dialog.mp3Conversion.failed", "Conversion failed: {error}", {
 										error: e instanceof Error ? e.message : String(e),
 									}),
 								);
@@ -214,13 +222,15 @@ export const useFileOpener = () => {
 
 				if (ext === "ttml") {
 					lyricData = parseTTML(text);
+				} else if (ext === "lyricsfile") {
+					lyricData = parseLyricsfile(text);
 				} else if (ext in LYRIC_PARSERS) {
 					const parser = LYRIC_PARSERS[ext];
 					const rawLines = parser(text);
 					lyricData = normalizeLyricLines(rawLines);
 				} else {
 					toast.error(
-						t("error.unsupportedFileFormat", "不支持的文件格式: {ext}", {
+						t("error.unsupportedFileFormat", "Unsupported file format: {ext}", {
 							ext,
 						}),
 					);
@@ -248,32 +258,38 @@ export const useFileOpener = () => {
 
 						if (matchedProject) {
 							log(
-								`匹配到了已有项目: ${matchedProject.name} (${matchedProject.id})`,
+								`Matched existing project: ${matchedProject.name} (${matchedProject.id})`,
 							);
 							resolvedProjectId = matchedProject.id;
 						} else {
-							log("未匹配已有项目");
+							log("No matching project found");
 						}
 					}
 				} catch (e) {
-					logError("解析项目数据时失败", e);
+					logError("Failed to resolve project data", e);
 				}
 
 				setProjectId(resolvedProjectId);
 				setNewLyricLines(lyricData);
+				setActiveFileKind(
+					ext === "lyricsfile" ? ActiveFileKind.Lyricsfile : ActiveFileKind.TTML,
+				);
 				const suggestedFile = getSuggestedTtmlFileName(lyricData.metadata);
 				const nextFileName =
-					ext === "ttml" ? file.name : (suggestedFile?.fileName ?? file.name);
+					ext === "ttml" || ext === "lyricsfile"
+						? file.name
+						: (suggestedFile?.fileName ?? file.name);
 				setSaveFileName(nextFileName);
 			} catch (e) {
 				logError(`Failed to open file: ${file.name}`, e);
-				toast.error(t("error.openFileFailed", "打开文件失败"));
+				toast.error(t("error.openFileFailed", "Failed to open file"));
 			}
 		},
 		[
 			setNewLyricLines,
 			setProjectId,
 			setSaveFileName,
+			setActiveFileKind,
 			normalizeLyricLines,
 			t,
 			conversionMode,
@@ -284,11 +300,6 @@ export const useFileOpener = () => {
 	);
 
 	const openFile = useCallback(
-		/**
-		 * 打开文件
-		 * @param file
-		 * @param forceExt 可选参数，用于强制指定解析方式，不传入则从文件后缀名推断
-		 */
 		(file: File, forceExt?: string) => {
 			const run = () => performOpenFile(file, forceExt);
 
@@ -303,10 +314,10 @@ export const useFileOpener = () => {
 			if (isDirty) {
 				setConfirmDialog({
 					open: true,
-					title: t("confirmDialog.openFile.title", "确认打开文件"),
+					title: t("confirmDialog.openFile.title", "Confirm Open File"),
 					description: t(
 						"confirmDialog.openFile.description",
-						"当前文件有未保存的更改。如果继续，这些更改将会丢失。确定要打开新文件吗？",
+						"You have unsaved changes. If you proceed, these changes will be lost. Are you sure you want to open a new file?",
 					),
 					onConfirm: run,
 				});

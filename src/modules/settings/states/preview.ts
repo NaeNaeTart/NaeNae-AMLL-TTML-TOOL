@@ -42,3 +42,40 @@ export const spicyBackgroundModeAtom = atomWithStorage<SpicyBackgroundMode>(
 	"spicyBackgroundMode",
 	"animated",
 );
+
+export const previewFollowsPlaybackAtom = atomWithStorage(
+	"previewFollowsPlayback",
+	true,
+);
+
+/** All fork-specific feature flags. Each defaults to true (fully enabled). */
+export interface ForkFeatureFlags {
+	folderProjects: boolean;
+	dualFormatSupport: boolean;
+	lyricsfileEngine: boolean;
+	hoverSync: boolean;
+	reversePlayback: boolean;
+}
+
+export const FORK_FEATURE_FLAG_DEFAULTS: ForkFeatureFlags = {
+	folderProjects: true,
+	dualFormatSupport: true,
+	lyricsfileEngine: true,
+	hoverSync: true,
+	reversePlayback: true,
+};
+
+export const featureFlagsAtom = atomWithStorage<ForkFeatureFlags>(
+	"featureFlags",
+	FORK_FEATURE_FLAG_DEFAULTS,
+);
+
+/**
+ * Persistent list of feature flag display labels that require an app restart.
+ * Each entry is a human-readable label like "Folder Projects".
+ * Cleared automatically on app startup once changes have taken effect.
+ */
+export const pendingRestartFlagsAtom = atomWithStorage<string[]>(
+	"pendingRestartFlags",
+	[],
+);

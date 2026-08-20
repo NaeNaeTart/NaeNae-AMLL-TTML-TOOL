@@ -39,7 +39,7 @@ export const useHoverGuide = (
 				isVisible: true,
 			});
 		},
-		[currentDuration, sliderWidthPx],
+		[currentDuration, sliderWidthPx, isDraggingRef],
 	);
 
 	const handleContainerMouseLeave = useCallback(() => {

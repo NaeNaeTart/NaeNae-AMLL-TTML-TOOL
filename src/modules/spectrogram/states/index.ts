@@ -92,6 +92,7 @@ export const currentPaletteAtom = atom((get) => {
 
 export const spectrogramHoverPxAtom = atom(0);
 export const spectrogramHoverPyAtom = atom(0);
+export const spectrogramIsHoveringAtom = atom(false);
 
 export const spectrogramHoverTimeMsAtom = atom((get) => {
 	const hoverPx = get(spectrogramHoverPxAtom);

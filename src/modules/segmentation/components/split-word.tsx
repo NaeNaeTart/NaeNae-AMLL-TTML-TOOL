@@ -254,7 +254,6 @@ export const SplitWordDialog = memo(() => {
 			setLearnedRules(nextRules);
 		}
 	}, [
-		engine,
 		targetWordText,
 		splitIndices,
 		editLyricLines,

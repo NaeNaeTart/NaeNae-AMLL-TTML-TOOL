@@ -2,15 +2,7 @@ import { Box, Flex } from "@radix-ui/themes";
 import { useAtomValue } from "jotai";
 import { Toolbar } from "radix-ui";
 import { type FC, useCallback, useEffect, useState } from "react";
-
-import { HeaderFileInfo } from "./HeaderFileInfo";
-import { EditMenu } from "./modals/EditMenu";
-import { FileMenu } from "./modals/FileMenu";
-import { HelpMenu } from "./modals/HelpMenu";
-import { HomeMenu } from "./modals/HomeMenu";
-import { ToolMenu } from "./modals/ToolMenu";
-import { useTopMenuActions } from "./useTopMenuActions";
-
+import { autoSegmentDoublePressAtom } from "$/modules/keyboard/states";
 import {
 	keyAutoSegmentAtom,
 	keyDeleteSelectionAtom,
@@ -23,13 +15,19 @@ import {
 	keySelectWordsOfMatchedSelectionAtom,
 	keyUndoAtom,
 } from "$/states/keybindings";
-import { autoSegmentDoublePressAtom } from "$/modules/keyboard/states";
 import {
 	registerKeyBindings,
+	useAlwaysActiveKeyBindingAtom,
 	useDoubleKeyBindingAtom,
 	useKeyBindingAtom,
 } from "$/utils/keybindings";
-// top menu actions are used inside individual menu components
+import { HeaderFileInfo } from "./HeaderFileInfo";
+import { EditMenu } from "./modals/EditMenu";
+import { FileMenu } from "./modals/FileMenu";
+import { HelpMenu } from "./modals/HelpMenu";
+import { HomeMenu } from "./modals/HomeMenu";
+import { ToolMenu } from "./modals/ToolMenu";
+import { useTopMenuActions } from "./useTopMenuActions";
 
 const useWindowSize = () => {
 	const [windowSize, setWindowSize] = useState({
@@ -63,7 +61,13 @@ export const TopMenu: FC = () => {
 
 	useKeyBindingAtom(keyNewFileAtom, menu.onNewFile, [menu.onNewFile]);
 	useKeyBindingAtom(keyOpenFileAtom, menu.onOpenFile, [menu.onOpenFile]);
-	useKeyBindingAtom(keySaveFileAtom, menu.onSaveFile, [menu.onSaveFile]);
+	// Save must still fire while the caret is inside a lyric line's text
+	// field - which is where it almost always is while actively editing -
+	// so it's registered "always active" instead of the regular
+	// useKeyBindingAtom, which the global isEditing() gate silently drops.
+	useAlwaysActiveKeyBindingAtom(keySaveFileAtom, menu.onSaveFile, [
+		menu.onSaveFile,
+	]);
 	useKeyBindingAtom(keyUndoAtom, menu.onUndo, [menu.onUndo]);
 	useKeyBindingAtom(keyRedoAtom, menu.onRedo, [menu.onRedo]);
 	useEffect(() => {

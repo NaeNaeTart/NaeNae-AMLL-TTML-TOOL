@@ -8,7 +8,6 @@ import {
 	Delete16Regular as TrashIcon, 
 	ArrowUpload16Regular as UploadIcon,
 	ShoppingBag16Regular as StoreIcon,
-	CheckmarkCircle16Regular as InstalledIcon,
 	CloudArrowDown16Regular as DownloadIcon,
 	Info16Regular as InfoIcon
 } from "@fluentui/react-icons";
@@ -249,7 +248,7 @@ export const PluginManagerDialog: FC = () => {
 														</Popover.Trigger>
 														<Popover.Content className={styles.customPopover}>
 															<Flex direction="column" gap="3">
-																<Text weight="bold" color="white">{entry.name} Details</Text>
+																<Text weight="bold" style={{ color: "white" }}>{entry.name} Details</Text>
 																<Text size="2" style={{ color: "#B0B0B0" }}>{entry.description}</Text>
 																{entry.usage && <Text size="2" style={{ whiteSpace: "pre-line" }}>{entry.usage}</Text>}
 															</Flex>

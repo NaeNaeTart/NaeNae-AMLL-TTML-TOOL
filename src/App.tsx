@@ -27,7 +27,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { platform, version } from "@tauri-apps/plugin-os";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
-import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, type FC, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { lazy } from "$/utils/lazy.ts";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
@@ -49,6 +49,8 @@ import {
 	customGradientTypeAtom,
 	selectedGradientAtom,
 	useCustomAccentAtom,
+	dynamicThemeFromCoverAtom,
+	spicyGlassModeAtom,
 	useCustomGradientAtom,
 	appFontAtom,
 	glassmorphismBlurAtom,
@@ -97,6 +99,12 @@ import { ResizablePanel } from "./components/ResizablePanel";
 import { AiSidebar } from "./modules/ai-sidebar/AiSidebar";
 import { useFileOpener } from "./hooks/useFileOpener.ts";
 import AudioControls from "./modules/audio/components/index.tsx";
+import { audioCoverArtAtom } from "./modules/audio/states/index.ts";
+import {
+	extractDominantColor,
+	findMetadataCoverArt,
+	resolveOnlineCoverArt,
+} from "./utils/color-extract.ts";
 import { useAudioFeedback } from "./modules/audio/hooks/useAudioFeedback.ts";
 import { SyncKeyBinding } from "./modules/lyric-editor/components/sync-keybinding.tsx";
 import { UrbanDictionaryKeybinding } from "./modules/lyric-editor/components/urban-dictionary-keybinding.tsx";
@@ -117,6 +125,7 @@ import {
 	isDarkThemeAtom,
 	isGlobalFileDraggingAtom,
 	lyricLinesAtom,
+	saveFileNameAtom,
 	showPreviewPanelAtom,
 	aiSidebarWidthAtom,
 	ToolMode,
@@ -279,6 +288,14 @@ function App() {
 	const accentColor = useAtomValue(accentColorAtom);
 	const useCustomAccent = useAtomValue(useCustomAccentAtom);
 	const customAccentColor = useAtomValue(customAccentColorAtom);
+	const dynamicThemeFromCover = useAtomValue(dynamicThemeFromCoverAtom);
+	const spicyGlassMode = useAtomValue(spicyGlassModeAtom);
+	const audioCoverArt = useAtomValue(audioCoverArtAtom);
+	const lyrics = useAtomValue(lyricLinesAtom);
+	const fileName = useAtomValue(saveFileNameAtom);
+	const [coverExtractedAccent, setCoverExtractedAccent] = useState<string | null>(
+		null,
+	);
 
 	const useCustomGradient = useAtomValue(useCustomGradientAtom);
 	const customGradientColors = useAtomValue(customGradientColorsAtom);
@@ -326,17 +343,16 @@ function App() {
 
 	const boykisserMode = useAtomValue(boykisserModeAtom);
 	const [boykisserUnlocked, setBoykisserUnlocked] = useAtom(boykisserUnlockedAtom);
-	const [typedSequence, setTypedSequence] = useState("");
+	const typedSequenceRef = useRef("");
 
 	useEffect(() => {
-		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		const isTauri = typeof window !== "undefined" && (!!(window as unknown as { __TAURI__?: unknown }).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || !!(window.navigator as Navigator & { standalone?: boolean }).standalone);
 		const isApp = isTauri || isPwa;
 		
 		if (!isApp) return;
 
 		const handleKeyDown = (e: KeyboardEvent) => {
-			// Don't trigger if typing in text inputs or textareas
 			const activeElement = document.activeElement;
 			if (
 				activeElement &&
@@ -348,13 +364,10 @@ function App() {
 			}
 
 			if (e.key.length === 1) {
-				setTypedSequence((prev) => {
-					const next = (prev + e.key.toLowerCase()).slice(-9);
-					if (next === "boykisser") {
-						setBoykisserUnlocked(true);
-					}
-					return next;
-				});
+				typedSequenceRef.current = (typedSequenceRef.current + e.key.toLowerCase()).slice(-9);
+				if (typedSequenceRef.current === "boykisser") {
+					setBoykisserUnlocked(true);
+				}
 			}
 		};
 		window.addEventListener("keydown", handleKeyDown);
@@ -364,8 +377,8 @@ function App() {
 	}, [setBoykisserUnlocked]);
 
 	const isApp = useMemo(() => {
-		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		const isTauri = typeof window !== "undefined" && (!!(window as unknown as { __TAURI__?: unknown }).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || !!(window.navigator as Navigator & { standalone?: boolean }).standalone);
 		return isTauri || isPwa;
 	}, []);
 
@@ -404,8 +417,63 @@ function App() {
 		}
 	}, [appFont, customFontName]);
 
-	const customThemeStyles = useCustomAccent
-		? generateRadixScale(customAccentColor, isDarkTheme)
+	useEffect(() => {
+		if (!dynamicThemeFromCover) {
+			setCoverExtractedAccent(null);
+			return;
+		}
+
+		const metadataCover = findMetadataCoverArt(lyrics.metadata) ?? undefined;
+
+		let isMounted = true;
+
+		const runExtraction = async () => {
+			let coverSource = audioCoverArt || metadataCover;
+			if (!coverSource) {
+				const title =
+					lyrics.metadata.find(
+						(m) =>
+							m.key.toLowerCase() === "musicname" ||
+							m.key.toLowerCase() === "title",
+					)?.value[0] || fileName.replace(/\.[^.]*$/, "");
+				const artist =
+					lyrics.metadata.find(
+						(m) =>
+							m.key.toLowerCase() === "artists" ||
+							m.key.toLowerCase() === "artist",
+					)?.value[0] || "";
+				if (title) {
+					coverSource = (await resolveOnlineCoverArt(title, artist)) || undefined;
+				}
+			}
+
+			if (!coverSource) {
+				if (isMounted) setCoverExtractedAccent(null);
+				return;
+			}
+
+			const color = await extractDominantColor(coverSource);
+			if (isMounted && color) {
+				setCoverExtractedAccent(color);
+			}
+		};
+
+		void runExtraction();
+
+		return () => {
+			isMounted = false;
+		};
+	}, [dynamicThemeFromCover, audioCoverArt, lyrics, fileName]);
+
+	const activeCustomAccent =
+		dynamicThemeFromCover && coverExtractedAccent
+			? coverExtractedAccent
+			: useCustomAccent
+				? customAccentColor
+				: null;
+
+	const customThemeStyles = activeCustomAccent
+		? generateRadixScale(activeCustomAccent, isDarkTheme)
 		: null;
 
 	const customStyleString = useMemo(() => {
@@ -414,6 +482,16 @@ function App() {
 			vars += Object.entries(customThemeStyles)
 				.map(([k, v]) => `${k}: ${v} !important;`)
 				.join("\n\t\t");
+			vars += `
+				--accent-color: var(--accent-9) !important;
+				--accent-track: var(--accent-a5) !important;
+				--accent-indicator: var(--accent-9) !important;
+				--accent-surface: var(--accent-2) !important;
+				--color-accent: var(--accent-9) !important;
+				--color-accent-subtle: var(--accent-3) !important;
+				--color-accent-hover: var(--accent-10) !important;
+				--color-accent-text: var(--accent-11) !important;
+			`;
 		}
 
 		let customFontFace = "";
@@ -428,15 +506,33 @@ function App() {
 			`;
 		}
 
+		const glassVars = spicyGlassMode
+			? `
+			--color-panel: rgba(24, 24, 28, 0.72) !important;
+			--color-panel-translucent: rgba(24, 24, 28, 0.72) !important;
+			--rt-color-panel-translucent: rgba(24, 24, 28, 0.72) !important;
+			--rt-color-panel-solid: rgba(28, 28, 34, 0.85) !important;
+			--color-background: transparent !important;
+			--titlebar-bg: rgba(18, 18, 20, 0.55) !important;
+			--sidebar-bg: rgba(18, 18, 20, 0.5) !important;
+			--audio-bar-bg: rgba(18, 18, 20, 0.65) !important;
+			--dialog-bg: rgba(24, 24, 28, 0.9) !important;
+			--dialog-border: rgba(255, 255, 255, 0.12) !important;
+			--base-card-surface-box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+			`
+			: "";
+
 		return `
 		${customFontFace}
-		:root {
+		:root, :host, .radix-themes, [data-accent-color], .rt-Theme {
 			--default-font-family: ${appFont} !important;
+			${vars}
 		}
 		.radix-themes {
 			--default-font-family: ${appFont} !important;
 			--glass-blur: ${glassmorphismBlur}px !important;
 			--backdrop-blur: ${glassmorphismBlur}px !important;
+			${glassVars}
 			${advPrimaryText ? `--gray-12: ${advPrimaryText} !important;` : ""}
 			${advSecondaryText ? `--gray-11: ${advSecondaryText} !important;` : ""}
 			${advWaveformColor ? `--adv-waveform-color: ${advWaveformColor} !important;` : ""}
@@ -503,6 +599,7 @@ function App() {
 		`;
 	}, [
 		customThemeStyles,
+		spicyGlassMode,
 		appFont,
 		glassmorphismBlur,
 		advPrimaryText,
@@ -629,16 +726,22 @@ function App() {
 
 		(async () => {
 			const win = getCurrentWindow();
-			if (platform() === "windows") {
-				if (semverGt("10.0.22000", version())) {
-					setHasBackground(true);
-					await win.clearEffects();
+			try {
+				if (platform() === "windows") {
+					if (semverGt("10.0.22000", version())) {
+						setHasBackground(true);
+						await win.clearEffects();
+					}
 				}
+			} catch (e) {
+				logError("Failed to apply OS effects", e);
 			}
 
-			await new Promise((r) => setTimeout(r, 50));
-
-			await win.show();
+			try {
+				await win.show();
+			} catch (e) {
+				logError("Failed to show window", e);
+			}
 		})();
 	}, []);
 
@@ -720,6 +823,29 @@ function App() {
 					// TODO
 				}}
 			>
+				{spicyGlassMode && (
+					<div
+						style={{
+							position: "fixed",
+							inset: 0,
+							zIndex: 0,
+							pointerEvents: "none",
+							overflow: "hidden",
+							background: "#111114",
+						}}
+						aria-hidden="true"
+					>
+						<div
+							style={{
+								position: "absolute",
+								inset: "-35%",
+								background: `radial-gradient(circle at 18% 22%, ${activeCustomAccent || "var(--accent-9)"} 0%, transparent 45%), radial-gradient(circle at 82% 78%, ${activeCustomAccent || "var(--accent-9)"} 0%, transparent 50%), #111114`,
+								filter: "blur(60px) saturate(1.5)",
+								opacity: 0.38,
+							}}
+						/>
+					</div>
+				)}
 				{hasBackground && (
 					<div className={styles.customBackgroundLayer} aria-hidden="true">
 						<div
@@ -774,35 +900,21 @@ function App() {
 											<Flex height="100%" gap="2" p="2">
 												<Box flexGrow="1" overflow="hidden">
 													<AnimatePresence mode="wait">
-														{toolMode !== ToolMode.Preview && (
-															<SuspensePlaceHolder key={toolMode}>
-																<motion.div
-																	layout="position"
-																	style={{
-																		height: "100%",
-																		maxHeight: "100%",
-																		overflowY: "hidden",
-																	}}
-																	initial={{ opacity: 0 }}
-																	animate={{ opacity: 1 }}
-																	exit={{ opacity: 0 }}
-																>
-																	<LyricLinesView key={toolMode} />
-																</motion.div>
-															</SuspensePlaceHolder>
-														)}
-														{toolMode === ToolMode.Preview && (
-															<SuspensePlaceHolder key="preview-switcher">
-																<motion.div
-																	layout="position"
-																	initial={{ opacity: 0 }}
-																	animate={{ opacity: 1 }}
-																	exit={{ opacity: 0 }}
-																>
-																	<PreviewModeSwitcher />
-																</motion.div>
-															</SuspensePlaceHolder>
-														)}
+														<SuspensePlaceHolder>
+															<motion.div
+																layout="position"
+																style={{
+																	height: "100%",
+																	maxHeight: "100%",
+																	overflowY: "hidden",
+																}}
+																initial={{ opacity: 0 }}
+																animate={{ opacity: 1 }}
+																exit={{ opacity: 0 }}
+															>
+																<LyricLinesView />
+															</motion.div>
+														</SuspensePlaceHolder>
 													</AnimatePresence>
 												</Box>
 												<ResizablePanel>
@@ -822,7 +934,7 @@ function App() {
 										) : (
 											<AnimatePresence mode="wait">
 												{toolMode !== ToolMode.Preview && (
-													<SuspensePlaceHolder key={toolMode}>
+													<SuspensePlaceHolder>
 														<motion.div
 															layout="position"
 															style={{
@@ -834,7 +946,7 @@ function App() {
 															animate={{ opacity: 1 }}
 															exit={{ opacity: 0 }}
 														>
-															<LyricLinesView key={toolMode} />
+															<LyricLinesView />
 														</motion.div>
 													</SuspensePlaceHolder>
 												)}

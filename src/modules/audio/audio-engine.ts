@@ -15,16 +15,23 @@ import { AudioWorkerClient } from "$/modules/audio/workers/audio-worker-client";
 import { globalStore } from "$/states/store.ts";
 import { log } from "$/utils/logging";
 
-// Magic, pending original dev's explanation
-// Even don't know where should I put this after refactoring
-// const DELAY = 0.05; // 50ms
-
 let auditionRafId: number | null = null;
+
+type ReversePlayback = {
+	source: AudioBufferSourceNode | null;
+	buffer: AudioBuffer;
+	start: number;
+	end: number;
+	elapsed: number;
+	startedAt: number;
+	rate: number;
+	paused: boolean;
+	onEnded?: () => void;
+};
 
 class AudioEngine extends EventTarget {
 	public workerClient: AudioWorkerClient;
 
-	//#region Audio context basics
 	private _ctx: AudioContext | null = null;
 	get ctx() {
 		if (this._ctx) return this._ctx;
@@ -71,12 +78,10 @@ class AudioEngine extends EventTarget {
 			nodes.push(node);
 		});
 
-		// Connect chain
 		for (let i = 0; i < nodes.length - 1; i++) {
 			nodes[i].connect(nodes[i + 1]);
 		}
 
-		// Final node connects to gain
 		nodes[nodes.length - 1].connect(this.gain);
 
 		this._eqNodes = nodes;
@@ -96,7 +101,6 @@ class AudioEngine extends EventTarget {
 	}
 
 	private _analyserNode: AnalyserNode | null = null;
-	/** A read-only analysis tap for visualizers. It is connected in parallel and never changes playback output. */
 	get analyserNode() {
 		if (this._analyserNode) return this._analyserNode;
 		const analyser = this.ctx.createAnalyser();
@@ -110,8 +114,6 @@ class AudioEngine extends EventTarget {
 	public get eqEntryPoint() {
 		return this.eqNodes[0];
 	}
-	//#endregion
-
 	constructor() {
 		super();
 		this.workerClient = new AudioWorkerClient({
@@ -135,9 +137,6 @@ class AudioEngine extends EventTarget {
 		});
 	}
 
-	//#region Audio element
-	// Since an element is required to sync with waveform.js,
-	// all audio playback is done through this element
 	private _audioEl: HTMLAudioElement | null = null;
 	get audioEl() {
 		if (this._audioEl) return this._audioEl;
@@ -154,10 +153,8 @@ class AudioEngine extends EventTarget {
 
 	private connectAudioToContext() {
 		if (!this._audioEl || !this.ctx || this._audioEl.src === "") return;
-		if (this._mediaSourceNode) return; // already connected!
+		if (this._mediaSourceNode) return;
 
-		// Bypass on Linux due to WebKitGTK / GStreamer bugs with MediaElementAudioSourceNode
-		// which causes audio to be silent and seeking to fail/jump back.
 		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
 			console.warn(
 				"[AudioEngine] Bypassing createMediaElementSource on Linux to prevent playback bugs.",
@@ -173,7 +170,6 @@ class AudioEngine extends EventTarget {
 		}
 	}
 
-	/** Handle browser autoplay policy */
 	private async resumeContext() {
 		if (this.ctx.state === "suspended") {
 			await this.ctx.resume();
@@ -183,7 +179,6 @@ class AudioEngine extends EventTarget {
 
 	private _listenersSetup = false;
 
-	/** Link audio element events into engine events */
 	private setupAudioListeners() {
 		if (this._listenersSetup) return;
 		const audioEl = this._audioEl;
@@ -206,21 +201,21 @@ class AudioEngine extends EventTarget {
 			});
 		});
 	}
-	//#endregion
-
-	//#region Playback
 	private auditionSourceNode: AudioBufferSourceNode | null = null;
+	private reversePlayback: ReversePlayback | null = null;
 
 	get musicLoaded() {
 		return !!this.musicBuffer;
 	}
 
 	get musicPlaying() {
+		if (this.reversePlayback) return !this.reversePlayback.paused;
 		if (!this._audioEl) return false;
 		return !this._audioEl.paused && !this._audioEl.ended;
 	}
 
 	get musicCurrentTime() {
+		if (this.reversePlayback) return this.getReversePlaybackTime();
 		return this._audioEl?.currentTime ?? 0;
 	}
 
@@ -228,6 +223,7 @@ class AudioEngine extends EventTarget {
 	private _lastPerformanceTime = performance.now();
 
 	get interpolatedCurrentTime() {
+		if (this.reversePlayback) return this.getReversePlaybackTime();
 		if (!this._audioEl) return 0;
 		if (!this.musicPlaying) return this._audioEl.currentTime;
 
@@ -255,6 +251,14 @@ class AudioEngine extends EventTarget {
 			this._audioEl.playbackRate = v;
 		}
 		this._musicPlayBackRate = v;
+		if (this.reversePlayback) {
+			this.updateReverseElapsed();
+			this.reversePlayback.rate = v;
+			this.reversePlayback.source?.playbackRate.setValueAtTime(
+				v,
+				this.ctx.currentTime,
+			);
+		}
 		this.dispatchEvent(new Event("music-playback-rate-change"));
 	}
 
@@ -291,6 +295,11 @@ class AudioEngine extends EventTarget {
 	}
 
 	seekMusic(offset: number) {
+		if (this.reversePlayback) {
+			this.seekReversePlayback(offset);
+			return;
+		}
+		this.stopReversePlayback();
 		if (this._audioEl) {
 			this._audioEl.currentTime = offset;
 			this._lastReportedTime = offset;
@@ -300,6 +309,12 @@ class AudioEngine extends EventTarget {
 	}
 
 	async resumeOrSeekMusic(offset = this.musicCurrentTime) {
+		if (this.reversePlayback?.paused) {
+			this.seekReversePlayback(offset);
+			await this.resumeReversePlayback();
+			return;
+		}
+		this.stopReversePlayback();
 		if (!this._audioEl) return;
 		await this.resumeContext();
 		this._audioEl.currentTime = offset;
@@ -310,21 +325,185 @@ class AudioEngine extends EventTarget {
 	}
 
 	pauseMusic() {
+		if (this.reversePlayback) {
+			this.pauseReversePlayback();
+			return;
+		}
 		if (!this._audioEl) return;
 		this._audioEl.pause();
 		this.dispatchEvent(new Event("music-pause"));
 	}
 
-	/**
-	 * 试听一个音频片段
-	 *
-	 * @param startTimeInSeconds 音频片段的开始时间
-	 * @param endTimeInSeconds 音频片段的结束时间
-	 * @returns
-	 */
+	unloadMusic() {
+		if (this.musicBuffer) {
+			this.pauseMusic();
+			this.musicBuffer = null;
+			globalStore.set(audioBufferAtom, null);
+			globalStore.set(loadedAudioAtom, new Blob([]));
+			if (this._audioEl) this._audioEl.src = "";
+			this.dispatchEvent(new Event("music-unload"));
+		}
+	}
+
+	private getReversePlaybackTime() {
+		const playback = this.reversePlayback;
+		if (!playback) return 0;
+		const elapsed =
+			playback.elapsed +
+			(playback.paused
+				? 0
+				: (this.ctx.currentTime - playback.startedAt) * playback.rate);
+		return Math.min(playback.end, playback.start + elapsed);
+	}
+
+	private updateReverseElapsed() {
+		const playback = this.reversePlayback;
+		if (!playback || playback.paused) return;
+		playback.elapsed +=
+			(this.ctx.currentTime - playback.startedAt) * playback.rate;
+		playback.startedAt = this.ctx.currentTime;
+	}
+
+	async playReversedRange(start: number, end: number, onEnded?: () => void) {
+		if (!this.musicBuffer || end <= start) return;
+		this.stopReversePlayback();
+		this._audioEl?.pause();
+		await this.resumeContext();
+
+		const sourceBuffer = this.musicBuffer;
+		const startFrame = Math.max(0, Math.floor(start * sourceBuffer.sampleRate));
+		const endFrame = Math.min(
+			sourceBuffer.length,
+			Math.ceil(end * sourceBuffer.sampleRate),
+		);
+		const frameLength = endFrame - startFrame;
+		if (frameLength <= 0) return;
+
+		const reversedBuffer = this.ctx.createBuffer(
+			sourceBuffer.numberOfChannels,
+			frameLength,
+			sourceBuffer.sampleRate,
+		);
+		for (let channel = 0; channel < sourceBuffer.numberOfChannels; channel++) {
+			const sourceData = sourceBuffer.getChannelData(channel);
+			const targetData = reversedBuffer.getChannelData(channel);
+			for (let index = 0; index < frameLength; index++) {
+				targetData[index] = sourceData[endFrame - index - 1];
+			}
+		}
+
+		const source = this.ctx.createBufferSource();
+		source.buffer = reversedBuffer;
+		source.playbackRate.value = this._musicPlayBackRate;
+		source.connect(this.eqEntryPoint);
+		const playback: ReversePlayback = {
+			source,
+			buffer: reversedBuffer,
+			start,
+			end,
+			elapsed: 0,
+			startedAt: this.ctx.currentTime,
+			rate: this._musicPlayBackRate,
+			paused: false,
+			onEnded,
+		};
+		this.reversePlayback = playback;
+		source.addEventListener("ended", () => {
+			if (
+				this.reversePlayback !== playback ||
+				playback.paused ||
+				playback.source !== source
+			)
+				return;
+			this.reversePlayback = null;
+			source.disconnect();
+			this.dispatchEvent(new Event("music-pause"));
+			onEnded?.();
+		});
+		source.start(playback.startedAt);
+		this.dispatchEvent(new Event("music-resume"));
+	}
+
+	private pauseReversePlayback() {
+		const playback = this.reversePlayback;
+		if (!playback || playback.paused) return;
+		this.updateReverseElapsed();
+		playback.paused = true;
+		const source = playback.source;
+		playback.source = null;
+		try {
+			source?.stop();
+			source?.disconnect();
+		} catch {}
+		this.dispatchEvent(new Event("music-pause"));
+	}
+
+	private seekReversePlayback(offset: number) {
+		const playback = this.reversePlayback;
+		if (!playback) return;
+		this._audioEl?.pause();
+		const position = Math.max(playback.start, Math.min(offset, playback.end));
+		const wasPlaying = !playback.paused;
+
+		if (wasPlaying) {
+			this.updateReverseElapsed();
+			playback.paused = true;
+			const source = playback.source;
+			playback.source = null;
+			try {
+				source?.stop();
+				source?.disconnect();
+			} catch {}
+		}
+
+		playback.elapsed = position - playback.start;
+		playback.startedAt = this.ctx.currentTime;
+		this.dispatchEvent(new Event("music-seeked"));
+		if (wasPlaying) void this.resumeReversePlayback();
+	}
+
+	private async resumeReversePlayback() {
+		const playback = this.reversePlayback;
+		if (!playback || !playback.paused) return;
+		this._audioEl?.pause();
+		await this.resumeContext();
+		const source = this.ctx.createBufferSource();
+		source.buffer = playback.buffer;
+		source.playbackRate.value = playback.rate;
+		source.connect(this.eqEntryPoint);
+		playback.source = source;
+		playback.paused = false;
+		playback.startedAt = this.ctx.currentTime;
+		source.addEventListener("ended", () => {
+			if (
+				this.reversePlayback !== playback ||
+				playback.paused ||
+				playback.source !== source
+			)
+				return;
+			this.reversePlayback = null;
+			source.disconnect();
+			this.dispatchEvent(new Event("music-pause"));
+			playback.onEnded?.();
+		});
+		source.start(playback.startedAt, playback.elapsed);
+		this.dispatchEvent(new Event("music-resume"));
+	}
+
+	stopReversePlayback() {
+		const playback = this.reversePlayback;
+		if (!playback) return;
+		this.reversePlayback = null;
+		try {
+			playback.source?.stop();
+			playback.source?.disconnect();
+		} catch {}
+		this.dispatchEvent(new Event("music-pause"));
+	}
+
 	auditionRange(startTimeInSeconds: number, endTimeInSeconds: number) {
 		if (!this.musicBuffer) {
-			console.warn("musicBuffer 为 null, 无法预览音频");
+			console.warn("Cannot audition without a loaded audio buffer");
 			return;
 		}
 
@@ -333,7 +512,7 @@ class AudioEngine extends EventTarget {
 				this.auditionSourceNode.stop(0);
 				this.auditionSourceNode.disconnect();
 			} catch (e) {
-				console.error("停止 AudioNode 失败:", e);
+				console.error("Failed to stop AudioNode:", e);
 			}
 			this.auditionSourceNode = null;
 		}
@@ -390,9 +569,6 @@ class AudioEngine extends EventTarget {
 		auditionRafId = requestAnimationFrame(progressLoop);
 	}
 
-	//#endregion
-
-	//#region Load sound
 	private musicBuffer: AudioBuffer | null = null;
 	private coverArtRequest = 0;
 
@@ -417,9 +593,7 @@ class AudioEngine extends EventTarget {
 					}
 					this.setEmbeddedCoverArt(metadata.coverUrl ?? null);
 				})
-				.catch(() => {
-					// Audio playback is still valid when a format has no readable tags.
-				});
+				.catch(() => {});
 			if (this.musicBuffer) {
 				this.pauseMusic();
 				this.musicBuffer = null;
@@ -536,9 +710,6 @@ class AudioEngine extends EventTarget {
 		});
 		if (stop) node.stop(stop);
 	}
-	//#endregion
-
-	//#region Misc
 	decodeAudioData(
 		audioData: ArrayBuffer,
 		successCallback?: DecodeSuccessCallback | null,
@@ -546,7 +717,6 @@ class AudioEngine extends EventTarget {
 	): Promise<AudioBuffer> {
 		return this.ctx.decodeAudioData(audioData, successCallback, errorCallback);
 	}
-	//#endregion
 }
 
 export const audioEngine = new AudioEngine();

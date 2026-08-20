@@ -32,6 +32,8 @@ export interface TTMLLyric {
 	lyricLines: LyricLine[];
 	marks?: Mark[];
 	sections?: LyricSection[];
+	reversedSyncLineIds?: string[];
+	vocalistNames?: Record<string, string>;
 }
 
 export const LYRIC_SECTION_CATEGORIES = [
@@ -76,7 +78,6 @@ export interface LyricWordBase {
 }
 
 export interface LyricWord extends AMLLLyricWord {
-	// 用来确定唯一一个单词的标识符，导出时不会保存
 	id: string;
 	startTime: number;
 	endTime: number;
@@ -100,35 +101,28 @@ export const newLyricWord = (): LyricWord => ({
 });
 
 export interface LyricLine extends AMLLLyricLine {
-	// 用来确定唯一一个行的标识符，导出时不会保存
 	id: string;
 	words: LyricWord[];
-	// translatedLyric: string;
-	// romanLyric: string;
-	// isBG: boolean;
-	// isDuet: boolean;
+	
+	isMiddle?: boolean;
+	
+	isDuetGroup?: boolean;
 	startTime: number;
 	endTime: number;
 	ignoreSync: boolean;
-	/** Whether the source stores this lyric as direct text in a timed <p>. */
+	
 	isLineSynced?: boolean;
 	language?: string;
 	agent?: string;
-	/**
-	 * @description 用于记录时间链接前的原始时间值，便于取消链接时恢复
-	 */
+	
 	endTimeLink?: {
-		/**
-		 * @description 该行原始的结束时间
-		 */
+		
 		originalEndTime: number;
-		/**
-		 * @description 下一行原始的开始时间，没有则为 null
-		 */
+		
 		originalNextStartTime: number | null;
 	};
 	sectionId?: string;
-	/** @deprecated Migrated to TTMLLyric.sections + sectionId. */
+	
 	geniusHeader?: string;
 }
 
@@ -139,6 +133,8 @@ export const newLyricLine = (): LyricLine => ({
 	romanLyric: "",
 	isBG: false,
 	isDuet: false,
+	isMiddle: false,
+	isDuetGroup: false,
 	startTime: 0,
 	endTime: 0,
 	ignoreSync: false,

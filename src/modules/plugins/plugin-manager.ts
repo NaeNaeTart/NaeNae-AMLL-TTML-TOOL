@@ -133,11 +133,11 @@ class PluginManager {
 	}
 
 	getImporters() {
-		return Array.from(this.instances.values()).filter(i => i.metadata.type !== "exporter" && i.metadata.runImporter);
+		return Array.from(this.instances.values()).filter(i => i.metadata.type !== "exporter");
 	}
 
 	getExporters() {
-		return Array.from(this.instances.values()).filter(i => i.metadata.type !== "importer" && i.metadata.runExporter);
+		return Array.from(this.instances.values()).filter(i => i.metadata.type !== "importer");
 	}
 
 	async runImporter(pluginId: string, input: string) {

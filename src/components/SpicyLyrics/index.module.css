@@ -248,6 +248,38 @@
 	text-align: end;
 	transform-origin: right center;
 }
+.middle {
+	justify-content: center;
+	text-align: center;
+	transform-origin: center center;
+}
+.duetGroupRow {
+	display: flex;
+	align-items: flex-start;
+	/* Same gap value used for the vertical spacing between regular lines
+	 * (see .line margin below), just applied horizontally between the two
+	 * harmony voices instead. */
+	gap: 2cqw;
+	margin: 1cqw 0;
+}
+.duetGroupRow .line {
+	flex: 1 1 0;
+	min-width: 0;
+	margin: 0;
+}
+.duetGroupRow .duetGroup:first-child {
+	justify-content: flex-start;
+	text-align: start;
+	transform-origin: left center;
+}
+.duetGroupRow .duetGroup:last-child {
+	justify-content: flex-end;
+	text-align: end;
+	transform-origin: right center;
+}
+.middle {
+	font-style: italic;
+}
 .rtl {
 	direction: rtl;
 	transform-origin: right center;
@@ -260,19 +292,31 @@
 		rgba(255, 255, 255, 0.5) calc(var(--gradient-position) + 20%)
 	);
 }
-.hasDuetLines .line:not(.dotLine, .duet) {
+.hasDuetLines .line:not(.dotLine, .duet, .duetGroup, .middle) {
 	padding-right: 15cqw;
 }
 .hasDuetLines .line.duet:not(.dotLine) {
 	padding-left: 15cqw;
 }
-.hasDuetLines .line.rtl:not(.dotLine, .duet) {
+.hasDuetLines .line.rtl:not(.dotLine, .duet, .duetGroup, .middle) {
 	padding-right: 0;
 	padding-left: 15cqw;
 }
 .hasDuetLines .line.rtl.duet:not(.dotLine) {
 	padding-left: 0;
 	padding-right: 15cqw;
+}
+.hasDuetLines .line.duetGroup:not(.dotLine),
+.hasDuetLines .line.middle:not(.dotLine) {
+	padding-left: 15cqw;
+	padding-right: 15cqw;
+}
+/* Paired harmony lines (.duetGroupRow) fill the row themselves, so they
+ * don't get the centered 15cqw side padding that a lone .duetGroup/.middle
+ * line gets. */
+.duetGroupRow .line {
+	padding-left: 0;
+	padding-right: 0;
 }
 .backgroundLine {
 	margin-top: -1cqw;

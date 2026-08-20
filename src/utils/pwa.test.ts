@@ -34,7 +34,7 @@ describe("PWA recovery", () => {
 		const update = vi.fn();
 		const registration = { update, waiting: {} };
 		vi.mocked(navigator.serviceWorker.getRegistration).mockResolvedValue(
-			registration as ServiceWorkerRegistration,
+			registration as unknown as ServiceWorkerRegistration,
 		);
 
 		await expect(forceWebsiteRefresh()).resolves.toBe(true);
@@ -48,7 +48,7 @@ describe("PWA recovery", () => {
 		const update = vi.fn();
 		vi.mocked(navigator.serviceWorker.getRegistration).mockResolvedValue({
 			update,
-		} as ServiceWorkerRegistration);
+		} as unknown as ServiceWorkerRegistration);
 
 		await expect(forceWebsiteRefresh()).resolves.toBe(true);
 
@@ -59,7 +59,7 @@ describe("PWA recovery", () => {
 	it("unregisters service workers and removes Cache Storage before reloading", async () => {
 		const unregister = vi.fn();
 		vi.mocked(navigator.serviceWorker.getRegistrations).mockResolvedValue([
-			{ unregister } as ServiceWorkerRegistration,
+			{ unregister } as unknown as ServiceWorkerRegistration,
 		]);
 		vi.mocked(caches.keys).mockResolvedValue(["workbox-precache", "runtime"]);
 

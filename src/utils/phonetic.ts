@@ -230,7 +230,7 @@ export async function getPhoneticSyllables(
 ): Promise<string[]> {
 	const originalCapsules =
 		typeof textOrArray === "string"
-			? textOrArray.split("").filter((c) => !/^\s*$/.test(c))
+			? Array.from(textOrArray).filter((c) => !/^\s*$/.test(c))
 			: textOrArray;
 	if (originalCapsules.length === 0) return [];
 
@@ -241,8 +241,6 @@ export async function getPhoneticSyllables(
 	}
 	if (detectedLang === "zh") return mapMandarinCapsules(originalCapsules);
 
-	// Prefer full-line context for Chinese because individual Han characters can be
-	// polyphonic. Google returns one whitespace-separated reading per character.
 	const rawLinePhoneticPromise = getPhonetic(fullLineText, detectedLang, true);
 	if (detectedLang === "yue") {
 		const contextual = mapContextualChinesePhonetic(
@@ -252,8 +250,6 @@ export async function getPhoneticSyllables(
 		if (contextual) return contextual;
 	}
 
-	// Other languages, and unusual Chinese responses without a one-to-one
-	// character mapping, use capsule requests while retaining the line fallback.
 	const capResultsPromise = Promise.all(
 		originalCapsules.map(async (cap) => {
 			const capText = cap.trim().replace(/\s+/g, "");
@@ -275,19 +271,15 @@ export async function getPhoneticSyllables(
 		}),
 	);
 
-	// Get ROOT transliteration for FULL line (captures compound readings like 'Jujutsu').
 	const rawLinePhonetic = await rawLinePhoneticPromise;
 	const normalizedLinePhonetic = normalizePhoneticForMatching(rawLinePhonetic);
 
-	// 2. Split master into mora (syllables) — used as fallback for ambiguous chars
 	const masterSyllables = normalizedLinePhonetic
 		.replace(/([aeiouy])([aeiouy])/gi, "$1 $2")
 		.match(/([^aeiouy ]*[aeiouy]{1}([nm](?![aeiouy]))?|[^aeiouy ]+)/gi) || [
 		normalizedLinePhonetic,
 	];
 
-	// 3. Fetch individual phonetics per capsule; store them directly for use as results.
-	//    Also compute syllable-count weights for the master-distribution fallback.
 	const capResults = await capResultsPromise;
 	const charWeights = capResults.map((result) => result.weight);
 	const capPhonetics = capResults.map((result) => result.phonetic);
@@ -302,12 +294,7 @@ export async function getPhoneticSyllables(
 			continue;
 		}
 
-		// Prefer the directly-fetched individual phonetic — it is already correct for
-		// simple kana (の → "no") and avoids syllable-distribution rounding errors.
-		// Only fall back to master-distribution slicing when the individual fetch was empty.
 		if (capPhonetics[i]) {
-			// Still advance syllableIndex so the master pointer stays in sync for any
-			// subsequent capsules that do need the fallback path.
 			let charSyllableCount = Math.round(
 				(charWeights[i] / totalWeight) * masterSyllables.length,
 			);
@@ -331,7 +318,6 @@ export async function getPhoneticSyllables(
 			continue;
 		}
 
-		// Fallback: distribute from the master line phonetic
 		let charSyllableCount = Math.round(
 			(charWeights[i] / totalWeight) * masterSyllables.length,
 		);
@@ -364,13 +350,10 @@ export async function getPhoneticSyllables(
 }
 
 function detectLanguage(text: string): PhoneticLanguage {
-	// Japanese: Contains Hiragana or Katakana
 	if (/[\u3040-\u309F\u30A0-\u30FF]/.test(text)) return "ja";
 
-	// Korean: Contains Hangul
 	if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
 
-	// Chinese: Contains Hanzi (and we assume it's Chinese if no Japanese indicators found)
 	if (/[\u4E00-\u9FA5]/.test(text)) return "zh";
 
 	return "auto";

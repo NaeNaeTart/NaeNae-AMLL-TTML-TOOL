@@ -70,7 +70,6 @@ export const getSynchronizableUnits = (line: LyricLine) =>
 		return text.trim().length > 0;
 	});
 
-
 export const getFirstSynchronizableUnit = (line: LyricLine) =>
 	getSynchronizableUnits(line)[0];
 
@@ -83,7 +82,7 @@ export function getCurrentLineLocation(
 	store: ReturnType<typeof createStore>,
 ): LineLocationResult | undefined {
 	const lyricLines = store.get(lyricLinesAtom).lyricLines;
-	const selectedLineId = [...store.get(selectedLinesAtom)][0]; // 进入打轴模式下一般不会出现多选的情况
+	const selectedLineId = [...store.get(selectedLinesAtom)][0];
 	if (!selectedLineId) return;
 	const lyricLine = lyricLines.findIndex((line) => line.id === selectedLineId);
 	if (lyricLine === -1) return;
@@ -98,7 +97,7 @@ export function getCurrentLocation(
 	store: ReturnType<typeof createStore>,
 ): LineAndWordLocationResult | undefined {
 	const lyricLines = store.get(lyricLinesAtom).lyricLines;
-	const selectedLineId = [...store.get(selectedLinesAtom)][0]; // 进入打轴模式下一般不会出现多选的情况
+	const selectedLineId = [...store.get(selectedLinesAtom)][0];
 	if (!selectedLineId) return;
 	const lyricLine = lyricLines.findIndex((line) => line.id === selectedLineId);
 	if (lyricLine === -1) return;
@@ -238,5 +237,142 @@ export function findNextWord(
 		lineIndex: absoluteIndex,
 		unit: firstUnit,
 		syncIndex: 0,
+	};
+}
+
+interface SyncTargetResult {
+	unit: SyncWordUnit;
+	line: LyricLine;
+	lineIndex: number;
+	syncIndex: number;
+}
+
+/**
+ * Returns the entry unit a line should be selected on when the sync
+ * workflow (auto-)navigates into it: the last synchronizable unit for
+ * lines flagged for reverse sync order, the first one otherwise.
+ */
+export function getLineSyncEntryUnit(
+	line: LyricLine,
+	isReverseSync: boolean,
+): SyncWordUnit | undefined {
+	const units = getSynchronizableUnits(line);
+	if (units.length === 0) return undefined;
+	return isReverseSync ? units[units.length - 1] : units[0];
+}
+
+function findNextSynchronizableLine(
+	lyricLines: LyricLine[],
+	fromLineIndex: number,
+): { line: LyricLine; lineIndex: number } | undefined {
+	for (let i = fromLineIndex; i < lyricLines.length; i++) {
+		const candidate = lyricLines[i];
+		if (
+			isSynchronizableLine(candidate) &&
+			getSynchronizableUnits(candidate).length > 0
+		) {
+			return { line: candidate, lineIndex: i };
+		}
+	}
+	return undefined;
+}
+
+function findPrevSynchronizableLine(
+	lyricLines: LyricLine[],
+	fromLineIndex: number,
+): { line: LyricLine; lineIndex: number } | undefined {
+	for (let i = fromLineIndex; i >= 0; i--) {
+		const candidate = lyricLines[i];
+		if (
+			isSynchronizableLine(candidate) &&
+			getSynchronizableUnits(candidate).length > 0
+		) {
+			return { line: candidate, lineIndex: i };
+		}
+	}
+	return undefined;
+}
+
+/**
+ * Returns the unit that comes "next" in the global sync sequence, honoring
+ * per-line reverse sync order. Within a reverse-flagged line, the sequence
+ * walks from the last word to the first; once that line is exhausted, it
+ * continues forward into the next synchronizable line, entering that line
+ * at its own reverse-aware starting unit (so reverse-flagged lines are
+ * entered at their last word, not their first).
+ */
+export function findNextSyncTarget(
+	lyricLines: LyricLine[],
+	lineIndex: number,
+	syncIndex: number,
+	isReverseSync: boolean,
+	reverseSyncLineIds: ReadonlySet<string>,
+): SyncTargetResult | undefined {
+	const line = lyricLines[lineIndex];
+	if (!line) return;
+	const units = getSynchronizableUnits(line);
+	const withinLineIndex = isReverseSync ? syncIndex - 1 : syncIndex + 1;
+	const withinLineUnit = units[withinLineIndex];
+	if (withinLineUnit) {
+		return {
+			line,
+			lineIndex,
+			unit: withinLineUnit,
+			syncIndex: withinLineIndex,
+		};
+	}
+
+	const nextLine = findNextSynchronizableLine(lyricLines, lineIndex + 1);
+	if (!nextLine) return;
+	const nextLineUnits = getSynchronizableUnits(nextLine.line);
+	const nextLineIsReverse = reverseSyncLineIds.has(nextLine.line.id);
+	const entryIndex = nextLineIsReverse ? nextLineUnits.length - 1 : 0;
+	const entryUnit = nextLineUnits[entryIndex];
+	if (!entryUnit) return;
+	return {
+		line: nextLine.line,
+		lineIndex: nextLine.lineIndex,
+		unit: entryUnit,
+		syncIndex: entryIndex,
+	};
+}
+
+/**
+ * Mirror of {@link findNextSyncTarget} for moving backward through the
+ * global sync sequence.
+ */
+export function findPrevSyncTarget(
+	lyricLines: LyricLine[],
+	lineIndex: number,
+	syncIndex: number,
+	isReverseSync: boolean,
+	reverseSyncLineIds: ReadonlySet<string>,
+): SyncTargetResult | undefined {
+	const line = lyricLines[lineIndex];
+	if (!line) return;
+	const units = getSynchronizableUnits(line);
+	const withinLineIndex = isReverseSync ? syncIndex + 1 : syncIndex - 1;
+	const withinLineUnit = units[withinLineIndex];
+	if (withinLineUnit) {
+		return {
+			line,
+			lineIndex,
+			unit: withinLineUnit,
+			syncIndex: withinLineIndex,
+		};
+	}
+
+	const prevLine = findPrevSynchronizableLine(lyricLines, lineIndex - 1);
+	if (!prevLine) return;
+	const prevLineUnits = getSynchronizableUnits(prevLine.line);
+	const prevLineIsReverse = reverseSyncLineIds.has(prevLine.line.id);
+	const entryIndex = prevLineIsReverse ? 0 : prevLineUnits.length - 1;
+	const entryUnit = prevLineUnits[entryIndex];
+	if (!entryUnit) return;
+	return {
+		line: prevLine.line,
+		lineIndex: prevLine.lineIndex,
+		unit: entryUnit,
+		syncIndex: entryIndex,
 	};
 }

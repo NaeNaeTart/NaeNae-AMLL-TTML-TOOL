@@ -1,4 +1,4 @@
-import { Button, Flex, IconButton, SegmentedControl, Text } from "@radix-ui/themes";
+import { Flex, IconButton, SegmentedControl, Text } from "@radix-ui/themes";
 import { useAtom, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { type FC, useCallback, useMemo } from "react";
@@ -29,8 +29,8 @@ export const TitleBar: FC = () => {
 	const [boykisserMode, setBoykisserMode] = useAtom(boykisserModeAtom);
 	const [boykisserUnlocked] = useAtom(boykisserUnlockedAtom);
 	const isApp = useMemo(() => {
-		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		const isTauri = typeof window !== "undefined" && (!!(window as unknown as { __TAURI__?: unknown }).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || !!(window.navigator as Navigator & { standalone?: boolean }).standalone);
 		return isTauri || isPwa;
 	}, []);
 	const isUnlocked = !isApp || boykisserUnlocked;
@@ -57,16 +57,15 @@ export const TitleBar: FC = () => {
 				<SegmentedControl.Root
 					value={toolMode}
 					onValueChange={(v) => setToolMode(v as ToolMode)}
-					// size="1"
 				>
 					<SegmentedControl.Item value={ToolMode.Edit}>
-						{t("topBar.modeBtns.edit", "编辑")}
+						{t("topBar.modeBtns.edit", "Edit")}
 					</SegmentedControl.Item>
 					<SegmentedControl.Item value={ToolMode.Sync}>
-						{t("topBar.modeBtns.sync", "打轴")}
+						{t("topBar.modeBtns.sync", "Sync")}
 					</SegmentedControl.Item>
 					<SegmentedControl.Item value={ToolMode.Preview}>
-						{t("topBar.modeBtns.preview", "预览")}
+						{t("topBar.modeBtns.preview", "Preview")}
 					</SegmentedControl.Item>
 				</SegmentedControl.Root>
 			}

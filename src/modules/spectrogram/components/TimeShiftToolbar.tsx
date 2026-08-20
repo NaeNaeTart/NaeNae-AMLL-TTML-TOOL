@@ -6,7 +6,6 @@ import {
 	CopyRegular,
 	ArrowRightRegular,
 	RecordRegular,
-	PlayFilled,
 } from "@fluentui/react-icons";
 import {
 	Button,
@@ -34,7 +33,6 @@ import {
 } from "$/states/dialogs.ts";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
 import { currentTimeAtom } from "$/modules/audio/states/index.ts";
-import { audioEngine } from "$/modules/audio/audio-engine.ts";
 import styles from "./TimeShiftToolbar.module.css";
 import { uid } from "uid";
 

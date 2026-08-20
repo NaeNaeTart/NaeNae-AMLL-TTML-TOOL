@@ -8,6 +8,7 @@ export const lineDragAtom = atom<{
 	startX: number;
 	startY: number;
 	isDragging: boolean;
+	isCopy: boolean;
 } | null>(null);
 export const lastLineDragEndAtom = atom(0);
 export const globalEnableInsertAtom = atom(false);

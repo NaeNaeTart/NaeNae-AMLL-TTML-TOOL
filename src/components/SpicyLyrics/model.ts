@@ -31,16 +31,13 @@ export interface SpicyLine {
 	text?: string;
 	isBackground: boolean;
 	isDuet: boolean;
+	isDuetGroup: boolean;
+	isMiddle: boolean;
 	isDotLine?: boolean;
 	translation?: string;
 	words: SpicyToken[];
 }
 
-/**
- * A line-synced lyric is direct text in a timed TTML <p>; word-synced lyrics
- * use timed spans. Preserve the parser's structural distinction instead of
- * inferring it from the number or content of words.
- */
 function isLineSynced(line: LyricLine) {
 	return !!line.isLineSynced;
 }
@@ -56,7 +53,6 @@ function lineText(line: LyricLine, romanized: boolean) {
 		.join("");
 }
 
-/** Match Spicy's first-strong-character direction check. */
 export function isRtl(text: string) {
 	for (const character of text) {
 		if (/[\d\s,.;:?!()[\]{}"'\\/<>@#$%^&*_=+-]/u.test(character)) continue;
@@ -74,12 +70,6 @@ const graphemes = (text: string) => Array.from(text);
 const valid = (start: number, end: number) =>
 	Number.isFinite(start) && Number.isFinite(end) && end > start;
 
-/**
- * Spicy Lyrics keeps timed syllables flat for animation, then adds layout-only
- * word-group wrappers around syllables connected by IsPartOfWord. TTML stores
- * the same boundary as a literal whitespace node, represented here by
- * spaceAfter on the preceding token.
- */
 export function groupSpicyTokens(tokens: SpicyToken[]): SpicyWordGroup[] {
 	const groups: SpicyWordGroup[] = [];
 	let items: SpicyTokenLayoutItem[] = [];
@@ -95,8 +85,7 @@ export function groupSpicyTokens(tokens: SpicyToken[]): SpicyWordGroup[] {
 		) {
 			groups.push({
 				items,
-				hasTrailingSpace:
-					!!token.spaceAfter && wordIndex < tokens.length - 1,
+				hasTrailingSpace: !!token.spaceAfter && wordIndex < tokens.length - 1,
 			});
 			items = [];
 		}
@@ -120,9 +109,6 @@ function makeToken(
 		!isRtl(text) &&
 		duration >= (simple ? 1050 : 1000) &&
 		(!simple || letters.length <= 12);
-	// Spicy's Emphasize helper gives held words their own timing window. In
-	// normal mode it finishes the letter pass 250ms before the word end; simple
-	// mode applies its matching start/end offsets.
 	const emphasisStart = simple ? word.startTime + 21 : word.startTime;
 	const emphasisEnd = simple ? word.endTime + 40 : word.endTime - 250;
 	return {
@@ -138,12 +124,6 @@ function makeToken(
 	};
 }
 
-/**
- * TTML literal text nodes, including spaces between timed spans, are represented
- * by the editor as zero-timed lyric words. Keep those boundaries; never infer
- * them from the script or from romanization, since a timed lyric word can be a
- * syllable rather than a complete word.
- */
 function makeTokens(
 	words: LyricWord[],
 	simple: boolean,
@@ -172,6 +152,8 @@ function dotLine(
 	id: string,
 	isDuet: boolean,
 	isRtl: boolean,
+	isDuetGroup = false,
+	isMiddle = false,
 ): SpicyLine {
 	const total = endTime - startTime;
 	const base = total / 3;
@@ -185,9 +167,9 @@ function dotLine(
 		isLineSynced: false,
 		isRtl,
 		isBackground: false,
-		// An interlude leads into its following vocal line, so it uses that
-		// line's side rather than the side of the lyric that just finished.
 		isDuet,
+		isDuetGroup,
+		isMiddle,
 		isDotLine: true,
 		words: [
 			{
@@ -234,6 +216,8 @@ export function buildSpicyLines(
 				text,
 				isBackground: !!line.isBG,
 				isDuet: !!line.isDuet,
+				isDuetGroup: !!line.isDuetGroup,
+				isMiddle: !!line.isMiddle,
 				translation: line.translatedLyric || undefined,
 				words: makeTokens(line.words, simple, romanized, !!line.isBG),
 			};
@@ -249,6 +233,8 @@ export function buildSpicyLines(
 				"spicy-leading-dot",
 				firstMainLine.isDuet,
 				firstMainLine.isRtl,
+				firstMainLine.isDuetGroup,
+				firstMainLine.isMiddle,
 			),
 		);
 	let latestMainEnd = 0;
@@ -274,6 +260,8 @@ export function buildSpicyLines(
 					`spicy-dot-${lastMainLine.id}`,
 					next.isDuet,
 					next.isRtl,
+					next.isDuetGroup,
+					next.isMiddle,
 				),
 			);
 	}

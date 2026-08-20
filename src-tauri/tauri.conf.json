@@ -20,7 +20,7 @@
 				"devtools": true,
 				"fullscreen": false,
 				"dragDropEnabled": false,
-				"visible": false
+				"visible": true
 			}
 		],
 		"security": {

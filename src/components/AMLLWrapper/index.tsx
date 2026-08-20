@@ -1,15 +1,11 @@
 import classNames from "classnames";
-import { 
-	BackgroundRender, 
-	MeshGradientRenderer 
-} from "@applemusic-like-lyrics/react";
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import {
 	activeLineIdsAtom,
 	currentTimeAtom,
-	audioPlayingAtom,
+	audioCoverArtAtom,
 } from "$/modules/audio/states/index.ts";
 import {
 	showRomanLinesAtom,
@@ -18,6 +14,7 @@ import {
 	showFpsCounterAtom,
 	lyricWordFadeWidthAtom,
 	instantHighlightFadeAtom,
+	spicyBackgroundModeAtom,
 } from "$/modules/settings/states/preview";
 import {
 	isDarkThemeAtom,
@@ -30,6 +27,8 @@ import {
 	customAccentColorAtom,
 } from "$/modules/settings/states/index.ts";
 import { customBackgroundImageAtom } from "$/modules/settings/modals/customBackground";
+import { findMetadataCoverArt } from "$/utils/color-extract";
+import { SpicyBackground, useCoverPalette } from "$/components/SpicyLyrics/SpicyBackground";
 import styles from "./index.module.css";
 
 const displayTimeAtom = atom(0);
@@ -95,49 +94,76 @@ interface LineGroup {
 	bg: any[];
 }
 
-const StaticLineGroup = memo(({ group, isPast }: { group: LineGroup; isPast: boolean }) => (
-	<div className={classNames(styles.lineGroup, isPast && styles.lineGroupPast, group.main.isDuet && styles.lineGroupDuet)}>
-		{/* Main / duet line */}
-		<div className={classNames(styles.line, group.main.isDuet && styles.lineDuetR)}>
-			<div className={styles.wordsContainer}>
-				{group.main.words.map((w: any, i: number) => <StaticWord key={i} word={w} />)}
-			</div>
-		</div>
-		{/* BG lines */}
-		{group.bg.map((bgLine, i) => (
-			<div key={bgLine.id || i} className={classNames(styles.line, styles.lineBG, bgLine.isDuet && styles.lineDuetR)}>
-				<div className={styles.wordsContainer}>
-					{bgLine.words.map((w: any, wi: number) => <StaticWord key={w.id || wi} word={w} />)}
-				</div>
-			</div>
-		))}
-	</div>
-));
-
-const ActiveLineGroup = memo(({ group, onWordClick }: { group: LineGroup; onWordClick: (t: number) => void }) => {
+const LyricLineItem = memo(({ 
+	line, 
+	isBG, 
+	onWordClick 
+}: { 
+	line: any; 
+	isBG?: boolean; 
+	onWordClick: (t: number) => void 
+}) => {
+	const displayTime = useAtomValue(displayTimeAtom);
 	const showTranslation = useAtomValue(showTranslationLinesAtom);
 	const showRoman = useAtomValue(showRomanLinesAtom);
+
+	const isLineActive = displayTime >= line.startTime && displayTime <= line.endTime;
+	const isLinePast = displayTime > line.endTime;
+
 	return (
-		<div className={classNames(styles.lineGroup, styles.lineGroupActive, group.main.isDuet && styles.lineGroupDuet)}>
-			{/* Main / duet line */}
-			<div className={classNames(styles.line, styles.lineActive, group.main.isDuet && styles.lineDuetR)}>
-				<div className={styles.wordsContainer}>
-					{group.main.words.map((w: any, i: number) => (
-						<ActiveWord key={w.id || i} word={w} onWordClick={onWordClick} />
-					))}
-				</div>
-				{showTranslation && group.main.translatedLyric && <span className={styles.extraLine}>{group.main.translatedLyric}</span>}
-				{showRoman && group.main.romanLyric && <span className={styles.extraLine}>{group.main.romanLyric}</span>}
+		<div className={classNames(
+			styles.line,
+			isBG && styles.lineBG,
+			isLineActive && (isBG ? styles.lineBGActive : styles.lineActive),
+			isLinePast && styles.linePast,
+			line.isDuet && styles.lineDuetR,
+			line.isMiddle && styles.lineMiddle,
+		)}>
+			<div className={styles.wordsContainer}>
+				{line.words.map((w: any, i: number) => {
+					if (isLineActive) {
+						return <ActiveWord key={w.id || i} word={w} onWordClick={onWordClick} />;
+					}
+					return <StaticWord key={w.id || i} word={w} />;
+				})}
 			</div>
-			{/* BG lines - also highlight when group is active */}
+			{showTranslation && line.translatedLyric && <span className={styles.extraLine}>{line.translatedLyric}</span>}
+			{showRoman && line.romanLyric && <span className={styles.extraLine}>{line.romanLyric}</span>}
+		</div>
+	);
+});
+
+const LineGroupView = memo(({ 
+	group, 
+	onLineClick, 
+	onWordClick 
+}: { 
+	group: LineGroup; 
+	onLineClick: (line: any) => void; 
+	onWordClick: (t: number) => void 
+}) => {
+	const displayTime = useAtomValue(displayTimeAtom);
+	const isMainActive = displayTime >= group.main.startTime && displayTime <= group.main.endTime;
+	const isBgActive = group.bg.some((b: any) => displayTime >= b.startTime && displayTime <= b.endTime);
+	const isAnyActive = isMainActive || isBgActive;
+
+	const isMainPast = displayTime > group.main.endTime;
+	const isAllPast = isMainPast && group.bg.every((b: any) => displayTime > b.endTime);
+
+	return (
+		<div 
+			onClick={() => onLineClick(group.main)}
+			className={classNames(
+				styles.lineGroup,
+				isAnyActive && styles.lineGroupActive,
+				isAllPast && styles.lineGroupPast,
+				group.main.isDuet && styles.lineGroupDuet,
+				group.main.isMiddle && styles.lineGroupMiddle,
+			)}
+		>
+			<LyricLineItem line={group.main} onWordClick={onWordClick} />
 			{group.bg.map((bgLine, i) => (
-				<div key={bgLine.id || i} className={classNames(styles.line, styles.lineBG, styles.lineBGActive, bgLine.isDuet && styles.lineDuetR)}>
-					<div className={styles.wordsContainer}>
-						{bgLine.words.map((w: any, wi: number) => (
-							<ActiveWord key={w.id || wi} word={w} onWordClick={onWordClick} />
-						))}
-					</div>
-				</div>
+				<LyricLineItem key={bgLine.id || i} line={bgLine} isBG onWordClick={onWordClick} />
 			))}
 		</div>
 	);
@@ -225,6 +251,7 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 	}, [vsync, setDisplayTime]);
 
 	const lyrics = useAtomValue(lyricLinesAtom);
+	const displayTime = useAtomValue(displayTimeAtom);
 	const activeLineIds = useAtomValue(activeLineIdsAtom); 
 	const darkMode = useAtomValue(isDarkThemeAtom);
 	const projectIdentity = useAtomValue(projectIdentityAtom);
@@ -264,7 +291,8 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 	// Scroll to the active group
 	useEffect(() => {
 		const activeGroupIndex = lineGroups.findIndex(
-			g => activeLineIdsSet.has(g.main.id) || g.bg.some(b => activeLineIdsSet.has(b.id))
+			g => (displayTime >= g.main.startTime && displayTime <= g.main.endTime) ||
+				g.bg.some(b => displayTime >= b.startTime && displayTime <= b.endTime)
 		);
 		if (activeGroupIndex === -1) { lastScrolledId.current = null; return; }
 
@@ -274,16 +302,14 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 
 		const container = scrollContainerRef.current;
 		if (container) {
-			const wrapperEl = container.children[activeGroupIndex + 1] as HTMLElement;
-			if (wrapperEl) {
-				// The wrapper has display:contents so it has no layout box (offsetTop = 0).
-				// Use its firstElementChild (the actual lineGroup div) for the real position.
-				const lineEl = (wrapperEl.firstElementChild as HTMLElement) ?? wrapperEl;
-				const targetScroll = lineEl.offsetTop - (container.clientHeight * 0.40) + (lineEl.clientHeight / 2);
+			// +1 because of the <div className={styles.padding} /> at index 0
+			const groupEl = container.children[activeGroupIndex + 1] as HTMLElement;
+			if (groupEl) {
+				const targetScroll = groupEl.offsetTop - (container.clientHeight * 0.40) + (groupEl.clientHeight / 2);
 				container.scrollTo({ top: targetScroll, behavior: "smooth" });
 			}
 		}
-	}, [activeLineIdsSet, lineGroups]);
+	}, [displayTime, lineGroups]);
 
 	const handleLineClick = (line: any) => {
 		setCurrentTime(line.startTime);
@@ -296,23 +322,22 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 		audioEngine.seekMusic(time / 1000);
 	};
 
-	const isPlaying = useAtomValue(audioPlayingAtom);
 	const instantFade = useAtomValue(instantHighlightFadeAtom);
-	const albumImg = useAtomValue(customBackgroundImageAtom);
+	const embeddedCoverArt = useAtomValue(audioCoverArtAtom);
+	const customBackgroundImage = useAtomValue(customBackgroundImageAtom);
+	const backgroundMode = useAtomValue(spicyBackgroundModeAtom);
 
 	const useCustomAccent = useAtomValue(useCustomAccentAtom);
 	const customAccentColor = useAtomValue(customAccentColorAtom);
+	const accentColor = useCustomAccent && customAccentColor ? customAccentColor : "#5c6cff";
 
-	// Fallback colors for the mesh warp when no image is available
-	const fallbackColors = useMemo(() => {
-		// If we have a custom hex accent, use that. 
-		// Otherwise, we'll just use a generic set of colors based on the theme.
-		// (The library usually handles color extraction from images, but we can provide hints)
-		if (useCustomAccent && customAccentColor) {
-			return [customAccentColor, "#121212", "#000000"];
-		}
-		return undefined; // Let library default for named accent colors if possible
-	}, [useCustomAccent, customAccentColor]);
+	// Resolve background image: embedded cover art > metadata cover art > custom background
+	const coverArtFromMetadata = useMemo(
+		() => findMetadataCoverArt(lyrics.metadata),
+		[lyrics.metadata],
+	);
+	const backgroundImage = embeddedCoverArt ?? coverArtFromMetadata ?? customBackgroundImage;
+	const coverPalette = useCoverPalette(backgroundImage);
 
 	return (
 		<div className={classNames(
@@ -320,20 +345,19 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 			darkMode && styles.isDark, 
 			isToxi && styles.isToxi,
 			instantFade && styles.hasInstantFade
-		)}>
-			{/* Dynamic Mesh Warp Background (Kawarp) */}
-			<div className={styles.bgLayer}>
-				<BackgroundRender 
-					key={albumImg || "default"}
-					album={albumImg || undefined}
-					color={fallbackColors?.[0]}
-					// PERF: Only animate when audio is actually playing
-					playing={isPlaying}
-					// PERF: 0.5x render scale - invisible quality difference on a blurred gradient
-					renderScale={0.5}
-					renderer={MeshGradientRenderer}
-				/>
-			</div>
+		)}
+		style={{
+			"--spicy-accent": accentColor,
+			"--spicy-cover-base": coverPalette?.base,
+			"--spicy-cover-highlight": coverPalette?.highlight,
+		} as CSSProperties}
+		>
+			{/* SpicyBackground — animated album art warp */}
+			<SpicyBackground
+				backgroundMode={backgroundMode}
+				backgroundImage={backgroundImage}
+				accentColor={accentColor}
+			/>
 			<div className={styles.contentOverlay}>
 				<div className={styles.header}>
 					<h3>{projectIdentity.name || "Untitled"}</h3>
@@ -342,23 +366,14 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 
 				<div className={styles.lyricsViewport} ref={scrollContainerRef}>
 					<div className={styles.padding} />
-					{lineGroups.map((group) => {
-						const isActive = activeLineIdsSet.has(group.main.id) || group.bg.some(b => activeLineIdsSet.has(b.id));
-	
-
-						if (isActive) {
-							return (
-								<div key={group.main.id} onClick={() => handleLineClick(group.main)} style={{ display: 'contents' }}>
-									<ActiveLineGroup group={group} onWordClick={handleWordClick} />
-								</div>
-							);
-						}
-						return (
-							<div key={group.main.id} onClick={() => handleLineClick(group.main)} style={{ display: 'contents' }}>
-								<StaticLineGroup group={group} isPast={false} />
-							</div>
-						);
-					})}
+					{lineGroups.map((group) => (
+						<LineGroupView
+							key={group.main.id}
+							group={group}
+							onLineClick={handleLineClick}
+							onWordClick={handleWordClick}
+						/>
+					))}
 					<div className={styles.padding} />
 				</div>
 			</div>

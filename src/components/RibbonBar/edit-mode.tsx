@@ -39,7 +39,6 @@ import { atom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { Beaker24Regular } from "@fluentui/react-icons";
 
 import {
 	displayRomanizationInSyncAtom,
@@ -48,18 +47,28 @@ import {
 	showLineRomanizationAtom,
 	showLineTranslationAtom,
 	showWordRomanizationInputAtom,
-	experimentalFeaturesDialogOpenAtom,
 } from "$/modules/settings/states/index.ts";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
 	editingTimeFieldAtom,
 	lyricLinesAtom,
 	requestFocusAtom,
 	selectedLinesAtom,
 	selectedWordsAtom,
 	showEndTimeAsDurationAtom,
-	toolModeAtom,
+	vocalistNamesAtom,
 } from "$/states/main.ts";
+import {
+	reverseSyncLineIdsAtom,
+	reverseSyncTimingBackupAtom,
+} from "$/modules/settings/states/sync";
 import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
+import {
+	createLineTimingSnapshots,
+	restoreLineTimingSnapshots,
+	type LineTimingSnapshot,
+} from "$/modules/lyric-editor/utils/line-timing";
 import { type LyricLine, type LyricWord, newLyricLine } from "$/types/ttml";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
 import {
@@ -78,7 +87,7 @@ const GrammarCheckButton = () => {
 				store.set(grammarCheckDialogAtom, true);
 			}}
 		>
-			{t("ribbonBar.editMode.grammarCheck", "语法检查")}
+			{t("ribbonBar.editMode.grammarCheck", "Grammar Check")}
 		</Button>
 	);
 };
@@ -379,7 +388,7 @@ function EditField<
 			if (durationValue === MULTIPLE_VALUES) {
 				setFieldInput("");
 				setFieldPlaceholder(
-					t("ribbonBar.editMode.multipleValues", "多个值..."),
+					t("ribbonBar.editMode.multipleValues", "Multiple values..."),
 				);
 				return;
 			}
@@ -394,7 +403,7 @@ function EditField<
 		}
 		if (currentValue === MULTIPLE_VALUES) {
 			setFieldInput("");
-			setFieldPlaceholder(t("ribbonBar.editMode.multipleValues", "多个值..."));
+			setFieldPlaceholder(t("ribbonBar.editMode.multipleValues", "Multiple values..."));
 			return;
 		}
 		setFieldInput(currentValue);
@@ -411,7 +420,7 @@ function EditField<
 					onClick={() => setShowDurationInput((v) => !v)}
 				>
 					{showDurationInput
-						? t("ribbonBar.editMode.duration", "持续时间")
+						? t("ribbonBar.editMode.duration", "Duration")
 						: label}
 				</Button>
 			) : (
@@ -458,18 +467,21 @@ function EditField<
 function CheckboxField<
 	L extends Word extends true ? LyricWord : LyricLine,
 	F extends keyof L,
-	V extends L[F] extends boolean ? boolean : never,
+	V extends L[F] extends boolean | undefined ? boolean : never,
 	Word extends boolean | undefined = undefined,
 >({
 	label,
 	isWordField,
 	fieldName,
 	defaultValue,
+	exclusiveWith,
 }: {
 	label: string;
 	isWordField: Word;
 	fieldName: F;
 	defaultValue: V;
+	/** When checked true, these sibling boolean fields on the same line are forced back to false. */
+	exclusiveWith?: (keyof L)[];
 }) {
 	const itemAtom = useMemo(
 		() => (isWordField ? selectedWordsAtom : selectedLinesAtom),
@@ -549,6 +561,12 @@ function CheckboxField<
 							} else {
 								if (selectedItems.has(line.id)) {
 									(line as L)[fieldName] = value as L[F];
+									if (value && exclusiveWith) {
+										for (const other of exclusiveWith) {
+											(line as Record<string, unknown>)[other as string] =
+												false;
+										}
+									}
 								}
 							}
 						}
@@ -560,9 +578,100 @@ function CheckboxField<
 	);
 }
 
+function ReverseSyncCheckbox() {
+	const { t } = useTranslation();
+	const store = useStore();
+	const selectedLines = useAtomValue(selectedLinesAtom);
+	const [reverseSyncLineIds, setReverseSyncLineIds] = useAtom(
+		reverseSyncLineIdsAtom,
+	);
+	const setReverseSyncTimingBackup = useSetAtom(reverseSyncTimingBackupAtom);
+	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
+	const checkboxId = useId();
+
+	const checked = useMemo(() => {
+		if (selectedLines.size === 0) return false;
+		const allSelected = [...selectedLines].every((id) =>
+			reverseSyncLineIds.has(id),
+		);
+		const noneSelected = [...selectedLines].every(
+			(id) => !reverseSyncLineIds.has(id),
+		);
+		if (allSelected) return true;
+		if (noneSelected) return false;
+		return "indeterminate" as const;
+	}, [selectedLines, reverseSyncLineIds]);
+
+	return (
+		<>
+			<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+				<label htmlFor={checkboxId}>
+					{t("contextMenu.reverseSyncOrder", "Reverse sync order")}
+				</label>
+			</Text>
+			<Checkbox
+				disabled={selectedLines.size === 0}
+				id={checkboxId}
+				checked={checked}
+				onCheckedChange={(value) => {
+					if (value === "indeterminate") return;
+					if (value) {
+						const lyrics = store.get(lyricLinesAtom).lyricLines;
+						const snapshots = createLineTimingSnapshots(
+							lyrics,
+							selectedLines,
+						);
+						if (snapshots.length > 0) {
+							setReverseSyncTimingBackup((prev) => {
+								const nextMap = new Map(prev);
+								for (const snapshot of snapshots) {
+									nextMap.set(snapshot.sourceLineId, snapshot);
+								}
+								return nextMap;
+							});
+						}
+					} else {
+						const backup = store.get(reverseSyncTimingBackupAtom);
+						const snapshots = [...selectedLines]
+							.map((lineId) => backup.get(lineId))
+							.filter(
+								(snapshot): snapshot is LineTimingSnapshot =>
+									snapshot !== undefined,
+							);
+						if (snapshots.length > 0) {
+							editLyricLines((state) => {
+								restoreLineTimingSnapshots(
+									state.lyricLines,
+									snapshots,
+								);
+							});
+						}
+						setReverseSyncTimingBackup((prev) => {
+							const nextMap = new Map(prev);
+							for (const lineId of selectedLines) {
+								nextMap.delete(lineId);
+							}
+							return nextMap;
+						});
+					}
+					const next = new Set(reverseSyncLineIds);
+					for (const lineId of selectedLines) {
+						if (value) {
+							next.add(lineId);
+						} else {
+							next.delete(lineId);
+						}
+					}
+					setReverseSyncLineIds(next);
+				}}
+			/>
+		</>
+	);
+}
+
 function EditModeField({
-	simpleModeLabel = "简单模式",
-	advanceModeLabel = "高级模式",
+	simpleModeLabel = "Simple Mode",
+	advanceModeLabel = "Advanced Mode",
 }) {
 	const [layoutMode, setLayoutMode] = useAtom(layoutModeAtom);
 	return (
@@ -683,7 +792,7 @@ function EditModeField({
 // 				}}
 // 			>
 // 				<Select.Trigger
-// 					placeholder={selectedItems.size > 0 ? "多个值..." : undefined}
+
 // 				/>
 // 				<Select.Content>{children}</Select.Content>
 // 			</Select.Root>
@@ -711,7 +820,7 @@ const AuxiliaryDisplayField: FC = () => {
 		<Grid columns="1fr auto" gapX="4" gapY="1" flexGrow="1" align="center">
 			<Text size="1" asChild style={{ color: "var(--accent-11)" }}>
 				<label htmlFor={idTranslation}>
-					{t("ribbonBar.editMode.showTranslation", "显示翻译行")}
+					{t("ribbonBar.editMode.showTranslation", "Show Translation Line")}
 				</label>
 			</Text>
 			<Checkbox
@@ -721,7 +830,7 @@ const AuxiliaryDisplayField: FC = () => {
 			/>
 			<Text size="1" asChild style={{ color: "var(--accent-11)" }}>
 				<label htmlFor={idRomanization}>
-					{t("ribbonBar.editMode.showRomanization", "显示音译行")}
+					{t("ribbonBar.editMode.showRomanization", "Show Romanization Line")}
 				</label>
 			</Text>
 			<Checkbox
@@ -731,7 +840,7 @@ const AuxiliaryDisplayField: FC = () => {
 			/>
 			<Text size="1" asChild style={{ color: "var(--accent-11)" }}>
 				<label htmlFor={idPerWord}>
-					{t("ribbonBar.editMode.showWordRomanizationInput", "显示逐字音译")}
+					{t("ribbonBar.editMode.showWordRomanizationInput", "Show Per-Word Romanization")}
 				</label>
 			</Text>
 			<Checkbox
@@ -743,14 +852,14 @@ const AuxiliaryDisplayField: FC = () => {
 	);
 };
 
-const PhoneticSection = () => {
+const PhoneticSection = ({ isSidebar }: { isSidebar?: boolean }) => {
 	const { t } = useTranslation();
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const selectedLines = useAtomValue(selectedLinesAtom);
 	const selectedWords = useAtomValue(selectedWordsAtom);
 	const store = useStore();
 	const [loading, setLoading] = useState(false);
-	const [lang, setLang] = useState<"auto" | "ja" | "zh" | "ko">("auto");
+	const [lang, setLang] = useState<"auto" | "ja" | "zh" | "ko" | "yue">("auto");
 
 
 	const handleAutoFetch = useCallback(async () => {
@@ -828,7 +937,8 @@ const PhoneticSection = () => {
 	const displayRomanization = useAtomValue(displayRomanizationInSyncAtom);
 
 	return (
-		<RibbonSection 
+		<RibbonSection
+			isSidebar={isSidebar}
 			label={
 				<Flex gap="1" align="center">
 					{t("ribbonBar.editMode.romanization.section", "Romanization")}
@@ -854,7 +964,7 @@ const PhoneticSection = () => {
 			}
 		>
 			<Grid columns="2" gap="2" align="center">
-				<Select.Root value={lang} onValueChange={(v) => setLang(v as "auto" | "ja" | "zh" | "ko" | "yue")} size="1">
+				<Select.Root value={lang} onValueChange={(v) => setLang(v as typeof lang)} size="1">
 					<Select.Trigger />
 					<Select.Content>
 						<Select.Item value="auto">{t("common.autoDetect", "Auto Detect")}</Select.Item>
@@ -880,14 +990,89 @@ const PhoneticSection = () => {
 	);
 };
 
+const VOCAL_ROLE_MAP: Record<string, { label: string; defaultPlaceholder: string }> = {
+	v1: { label: "v1 Lead (Principal)", defaultPlaceholder: "Lead" },
+	v2: { label: "v2 Duet", defaultPlaceholder: "Duet" },
+	v3: { label: "v3 Middle", defaultPlaceholder: "Middle" },
+	v4: { label: "v4 Harmony", defaultPlaceholder: "Harmony" },
+};
+
+const VocalRolesSection: FC<{ isSidebar?: boolean }> = ({ isSidebar }) => {
+	const { t } = useTranslation();
+	const vocalistNames = useAtomValue(vocalistNamesAtom);
+	const lyricLines = useAtomValue(lyricLinesAtom);
+	const selectedLines = useAtomValue(selectedLinesAtom);
+	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
+
+	if (selectedLines.size === 0) return null;
+
+	// Resolve the vocalist IDs used by the currently selected lines
+	const selectedVocalistIds = new Set<string>();
+	for (const line of lyricLines.lyricLines) {
+		if (selectedLines.has(line.id)) {
+			const id = line.isDuetGroup
+				? "v4"
+				: line.isDuet
+					? "v2"
+					: line.isMiddle
+						? "v3"
+						: "v1";
+			selectedVocalistIds.add(id);
+		}
+	}
+
+	if (selectedVocalistIds.size === 0) return null;
+
+	return (
+		<RibbonSection
+			isSidebar={isSidebar}
+			label={t("ribbonBar.editMode.vocalist", "Vocalist")}
+		>
+			<Grid columns="max-content 1fr" gap="2" gapY="1" align="center">
+				{Array.from(selectedVocalistIds).map((id) => {
+					const meta = VOCAL_ROLE_MAP[id] || {
+						label: `${id} Vocalist`,
+						defaultPlaceholder: id,
+					};
+					return (
+						<React.Fragment key={id}>
+							<Text size="1" color="gray" weight="medium">
+								{meta.label}:
+							</Text>
+							<TextField.Root
+								size="1"
+								value={vocalistNames[id] ?? ""}
+								placeholder={meta.defaultPlaceholder}
+								style={{ width: "12em" }}
+								onChange={(e) => {
+									const val = e.target.value;
+									editLyricLines((draft) => {
+										if (!draft.vocalistNames) draft.vocalistNames = {};
+										if (val.trim()) {
+											draft.vocalistNames[id] = val;
+										} else {
+											delete draft.vocalistNames[id];
+										}
+									});
+								}}
+							/>
+						</React.Fragment>
+					);
+				})}
+			</Grid>
+		</RibbonSection>
+	);
+};
+
 export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDivElement, { isSidebar?: boolean }>(
 	({ isSidebar }, ref) => {
-		const store = useStore();
 		const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 		const { t } = useTranslation();
 		const selectedLines = useAtomValue(selectedLinesAtom);
 		const selectedWords = useAtomValue(selectedWordsAtom);
 		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
+		const activeFileKind = useAtomValue(activeFileKindAtom);
+		const isLyricsfile = activeFileKind === ActiveFileKind.Lyricsfile;
 
 		return (
 			<RibbonFrame
@@ -895,7 +1080,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 				isSidebar={isSidebar}
 				reserveControlRows={3}
 			>
-				<RibbonSection label={t("ribbonBar.editMode.new", "新建")} isSidebar={isSidebar}>
+				<RibbonSection label={t("ribbonBar.editMode.new", "New")} isSidebar={isSidebar}>
 					<Grid columns="1" gap="1" gapY="1" flexGrow="1" align="center">
 						<Button
 							size="1"
@@ -906,67 +1091,89 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								})
 							}
 						>
-							{t("ribbonBar.editMode.lyricLine", "歌词行")}
+							{t("ribbonBar.editMode.lyricLine", "Lyric Line")}
 						</Button>
 					</Grid>
 				</RibbonSection>
-				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineTiming", "行时间戳")}>
+				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineTiming", "Line Timing")}>
 					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
 						<EditField
-							label={t("ribbonBar.editMode.startTime", "起始时间")}
+							label={t("ribbonBar.editMode.startTime", "Start Time")}
 							fieldName="startTime"
 							parser={parseTimespan}
 							formatter={msToTimestamp}
 						/>
 						<EditField
-							label={t("ribbonBar.editMode.endTime", "结束时间")}
+							label={t("ribbonBar.editMode.endTime", "End Time")}
 							fieldName="endTime"
 							parser={parseTimespan}
 							formatter={msToTimestamp}
 						/>
 					</Grid>
 				</RibbonSection>}
-				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineProperties", "行属性")}>
+				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineProperties", "Line Properties")}>
 					<Grid columns="max-content max-content" gap="4" gapY="1" flexGrow="1" align="center">
 						<CheckboxField
-							label={t("ribbonBar.editMode.bgLyric", "背景歌词")}
+							label={t("ribbonBar.editMode.bgLyric", "Background Vocal")}
 							defaultValue={false}
 							isWordField={false}
 							fieldName="isBG"
 						/>
 						<CheckboxField
-							label={t("ribbonBar.editMode.duetLyric", "对唱歌词")}
+							label={t("ribbonBar.editMode.duetLyric", "Duet Vocal")}
 							isWordField={false}
 							fieldName="isDuet"
 							defaultValue={false}
+							exclusiveWith={["isMiddle", "isDuetGroup"]}
 						/>
 						<CheckboxField
-							label={t("ribbonBar.editMode.ignoreSync", "忽略打轴")}
+							label={t(
+								"ribbonBar.editMode.duetGroupLyric",
+								"Duet (harmony, sung together)",
+							)}
+							isWordField={false}
+							fieldName="isDuetGroup"
+							defaultValue={false}
+							exclusiveWith={["isDuet", "isMiddle"]}
+						/>
+						<CheckboxField
+							label={t(
+								"ribbonBar.editMode.middleLyric",
+								"Third voice (middle)",
+							)}
+							isWordField={false}
+							fieldName="isMiddle"
+							defaultValue={false}
+							exclusiveWith={["isDuet", "isDuetGroup"]}
+						/>
+						<CheckboxField
+							label={t("ribbonBar.editMode.ignoreSync", "Ignore Sync")}
 							isWordField={false}
 							fieldName="ignoreSync"
 							defaultValue={false}
 						/>
+						<ReverseSyncCheckbox />
 					</Grid>
 				</RibbonSection>}
 				{showAdvanced && (selectedLines.size > 0 || selectedWords.size > 0) && <PhoneticSection isSidebar={isSidebar} />}
-				{selectedWords.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.wordTiming", "词时间戳")}>
+				{selectedWords.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.wordTiming", "Word Timing")}>
 					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
 						<EditField
-							label={t("ribbonBar.editMode.startTime", "起始时间")}
+							label={t("ribbonBar.editMode.startTime", "Start Time")}
 							fieldName="startTime"
 							isWordField
 							parser={parseTimespan}
 							formatter={msToTimestamp}
 						/>
 						<EditField
-							label={t("ribbonBar.editMode.endTime", "结束时间")}
+							label={t("ribbonBar.editMode.endTime", "End Time")}
 							fieldName="endTime"
 							isWordField
 							parser={parseTimespan}
 							formatter={msToTimestamp}
 						/>
 						<EditField
-							label={t("ribbonBar.editMode.emptyBeatCount", "空拍数量")}
+							label={t("ribbonBar.editMode.emptyBeatCount", "Empty Beat Count")}
 							fieldName="emptyBeat"
 							isWordField
 							parser={(v) => {
@@ -979,25 +1186,25 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 				</RibbonSection>}
 				{selectedWords.size > 0 && <RibbonSection
 					isSidebar={isSidebar}
-					label={t("ribbonBar.editMode.wordProperties", "单词属性")}
+					label={t("ribbonBar.editMode.wordProperties", "Word Properties")}
 				>
 					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
 						<EditField
-							label={t("ribbonBar.editMode.wordContent", "单词内容")}
+							label={t("ribbonBar.editMode.wordContent", "Word Content")}
 							fieldName="word"
 							isWordField
 							parser={(v) => v}
 							formatter={(v) => v}
 						/>
 						<EditField
-							label={t("ribbonBar.editMode.romanWord", "单词音译")}
+							label={t("ribbonBar.editMode.romanWord", "Word Romanization")}
 							fieldName="romanWord"
 							isWordField
 							parser={(v) => v}
 							formatter={(v) => v || ""}
 						/>
 						<CheckboxField
-							label={t("ribbonBar.editMode.obscene", "不雅用语")}
+							label={t("ribbonBar.editMode.obscene", "Obscene")}
 							isWordField
 							fieldName="obscene"
 							defaultValue={false}
@@ -1006,18 +1213,18 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 				</RibbonSection>}
 				{showAdvanced && selectedLines.size > 0 && <RibbonSection
 					isSidebar={isSidebar}
-					label={t("ribbonBar.editMode.secondaryContent", "次要内容")}
+					label={t("ribbonBar.editMode.secondaryContent", "Secondary Content")}
 				>
 					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
 						<EditField
-							label={t("ribbonBar.editMode.translatedLyric", "翻译歌词")}
+							label={t("ribbonBar.editMode.translatedLyric", "Translation")}
 							fieldName="translatedLyric"
 							parser={(v) => v}
 							formatter={(v) => v}
 							textFieldStyle={{ width: "15em" }}
 						/>
 						<EditField
-							label={t("ribbonBar.editMode.romanLyric", "音译歌词")}
+							label={t("ribbonBar.editMode.romanLyric", "Romanization")}
 							fieldName="romanLyric"
 							parser={(v) => v}
 							formatter={(v) => v}
@@ -1025,25 +1232,28 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 						/>
 					</Grid>
 				</RibbonSection>}
-				{showAdvanced && <RibbonSection label={t("ribbonBar.editMode.layoutMode", "布局模式")} isSidebar={isSidebar}>
+				{(isLyricsfile || showAdvanced) && (
+					<VocalRolesSection isSidebar={isSidebar} />
+				)}
+				{showAdvanced && <RibbonSection label={t("ribbonBar.editMode.layoutMode", "Layout")} isSidebar={isSidebar}>
 					<EditModeField
 						simpleModeLabel={t(
 							"settings.common.layoutModeOptions.simple",
-							"简单模式",
+							"Simple Mode",
 						)}
 						advanceModeLabel={t(
 							"settings.common.layoutModeOptions.advance",
-							"高级模式",
+							"Advanced Mode",
 						)}
 					/>
 				</RibbonSection>}
 				{showAdvanced && <RibbonSection
-					label={t("ribbonBar.editMode.auxiliaryLineDisplay", "辅助行显示")}
+					label={t("ribbonBar.editMode.auxiliaryLineDisplay", "Auxiliary Line Display")}
 					isSidebar={isSidebar}
 				>
 					<AuxiliaryDisplayField />
 				</RibbonSection>}
-				{showAdvanced && <RibbonSection label={t("ribbonBar.editMode.tools", "工具")} isSidebar={isSidebar}>
+				{showAdvanced && <RibbonSection label={t("ribbonBar.editMode.tools", "Check")} isSidebar={isSidebar}>
 					<Flex gap="2" direction="column">
 						<GrammarCheckButton />
 					</Flex>

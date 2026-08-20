@@ -37,7 +37,7 @@ import {
 	geniusSearchDialogAtom,
 	metadataEditorDialogAtom,
 } from "$/states/dialogs.ts";
-import { lyricLinesAtom } from "$/states/main.ts";
+import { ActiveFileKind, activeFileKindAtom, lyricLinesAtom } from "$/states/main.ts";
 import type { TTMLLyric } from "$/types/ttml";
 import styles from "./MetadataEditor.module.css";
 import {
@@ -395,6 +395,76 @@ const MetadataEntry = memo(
 	},
 );
 
+const VOCALIST_DEFAULT_LABELS: Record<string, string> = {
+	v1: "Lead",
+	v2: "Duet",
+	v3: "Middle",
+	v4: "Harmony",
+};
+
+// Real vocalist names editor. Only relevant for the lyricsfile (YAML) export —
+// TTML has no concept of named vocalists, only the generic v1/v2/v3 agent ids.
+const VocalistNamesEditor = () => {
+	const { t } = useTranslation();
+	const [lyricLines, setLyricLines] = useImmerAtom(lyricLinesAtom);
+	const [activeFileKind] = useAtom(activeFileKindAtom);
+
+	const vocalistIds = useMemo(() => {
+		const lines = lyricLines.lyricLines;
+		const ids: string[] = ["v1"];
+		if (lines.some((l) => l.isDuet && !l.isDuetGroup)) ids.push("v2");
+		if (lines.some((l) => l.isMiddle)) ids.push("v3");
+		if (lines.some((l) => l.isDuetGroup)) ids.push("v4");
+		return ids;
+	}, [lyricLines.lyricLines]);
+
+	if (activeFileKind !== ActiveFileKind.Lyricsfile || vocalistIds.length <= 1) {
+		return null;
+	}
+
+	return (
+		<Box mb="4">
+			<Flex align="center" gap="2" mb="2">
+				<Person16Regular />
+				<Text weight="bold" size="2">
+					{t("metadataDialog.vocalists.title", "Vocalist names (lyricsfile)")}
+				</Text>
+			</Flex>
+			<Text size="1" color="gray" mb="2" as="p">
+				{t(
+					"metadataDialog.vocalists.hint",
+					"Only used when exporting/importing .lyricsfile.yaml. Give each generic voice (v1, v2, v3, v4) a real singer/artist name.",
+				)}
+			</Text>
+			<Flex direction="column" gap="2">
+				{vocalistIds.map((id) => (
+					<Flex key={id} align="center" gap="2">
+						<Text size="1" color="gray" style={{ width: "3.5em", flexShrink: 0 }}>
+							{id}
+						</Text>
+						<TextField.Root
+							style={{ flexGrow: 1 }}
+							placeholder={VOCALIST_DEFAULT_LABELS[id] ?? id}
+							value={lyricLines.vocalistNames?.[id] ?? ""}
+							onChange={(e) => {
+								const newValue = e.currentTarget.value;
+								setLyricLines((prev) => {
+									if (!prev.vocalistNames) prev.vocalistNames = {};
+									if (newValue.trim().length === 0) {
+										delete prev.vocalistNames[id];
+									} else {
+										prev.vocalistNames[id] = newValue;
+									}
+								});
+							}}
+						/>
+					</Flex>
+				))}
+			</Flex>
+		</Box>
+	);
+};
+
 interface SelectOption {
 	label: string;
 	value: string;
@@ -404,7 +474,7 @@ interface SelectOption {
 	validation?: {
 		verifier: (value: string) => boolean;
 		message: string;
-		/** red for true, orange for false */
+		
 		severe?: boolean;
 	};
 }
@@ -446,13 +516,11 @@ export const MetadataEditor = () => {
 		};
 		return [
 			{
-				// 歌词所匹配的歌曲名
 				label: t("metadataDialog.builtinOptions.musicName", "歌曲名称"),
 				value: "musicName",
 				icon: <MusicNote1Regular />,
 			},
 			{
-				// 歌词所匹配的歌手名
 				label: t("metadataDialog.builtinOptions.artists", "歌曲的艺术家"),
 				value: "artists",
 				icon: <Person16Regular />,
@@ -477,7 +545,6 @@ export const MetadataEditor = () => {
 				},
 			},
 			{
-				// 歌词所匹配的专辑名
 				label: t("metadataDialog.builtinOptions.album", "歌曲的专辑名"),
 				value: "album",
 				icon: <AlbumRegular />,
@@ -488,7 +555,6 @@ export const MetadataEditor = () => {
 				icon: <Image16Regular />,
 			},
 			{
-				// 歌词所匹配的网易云音乐 ID
 				label: t("metadataDialog.builtinOptions.ncmMusicId", "网易云音乐 ID"),
 				value: "ncmMusicId",
 				icon: <NeteaseIcon />,
@@ -504,7 +570,6 @@ export const MetadataEditor = () => {
 				},
 			},
 			{
-				// 歌词所匹配的 QQ 音乐 ID
 				label: t("metadataDialog.builtinOptions.qqMusicId", "QQ 音乐 ID"),
 				value: "qqMusicId",
 				icon: <QQMusicIcon />,
@@ -520,7 +585,6 @@ export const MetadataEditor = () => {
 				},
 			},
 			{
-				// 歌词所匹配的 Spotify 音乐 ID
 				label: t("metadataDialog.builtinOptions.spotifyId", "Spotify 音乐 ID"),
 				value: "spotifyId",
 				icon: <SpotifyIcon />,
@@ -536,7 +600,6 @@ export const MetadataEditor = () => {
 				},
 			},
 			{
-				// 歌词所匹配的 Apple Music 音乐 ID
 				label: t(
 					"metadataDialog.builtinOptions.appleMusicId",
 					"Apple Music 音乐 ID",
@@ -555,7 +618,6 @@ export const MetadataEditor = () => {
 				},
 			},
 			{
-				// 歌词所匹配的 ISRC 编码
 				label: t("metadataDialog.builtinOptions.isrc", "歌曲的 ISRC 号码"),
 				value: "isrc",
 				icon: <NumberSymbol16Regular />,
@@ -572,7 +634,6 @@ export const MetadataEditor = () => {
 				},
 			},
 			{
-				// 逐词歌词作者 GitHub ID，例如 39523898
 				label: t(
 					"metadataDialog.builtinOptions.ttmlAuthorGithub",
 					"歌词作者 GitHub ID",
@@ -589,7 +650,6 @@ export const MetadataEditor = () => {
 				},
 			},
 			{
-				// 逐词歌词作者 GitHub 用户名，例如 Steve-xmh
 				label: t(
 					"metadataDialog.builtinOptions.ttmlAuthorGithubLogin",
 					"歌词作者 GitHub 用户名",
@@ -608,6 +668,23 @@ export const MetadataEditor = () => {
 						"GitHub username should be alphanumeric or hyphens, up to 39 characters",
 					),
 					severe: true,
+				},
+			},
+			{
+				label: t(
+					"metadataDialog.builtinOptions.lyricsfileCreatedByDiscord",
+					"[BETA] Lyricsfile creator (Discord username)",
+				),
+				value: "lyricsfileCreatedByDiscord",
+				icon: <Person16Regular />,
+				validation: {
+					verifier: (value: string) =>
+						/^(?!.*\.\.)(?!\.)[a-z0-9._]{2,32}(?<!\.)$/.test(value),
+					message: t(
+						"metadataDialog.builtinOptions.lyricsfileCreatedByDiscordInvalidMsg",
+						"Discord username should be lowercase, 2-32 chars (letters, digits, . or _). Only used when exporting/reading .lyricsfile.yaml — not verified against any server.",
+					),
+					severe: false,
 				},
 			},
 		];
@@ -649,6 +726,7 @@ export const MetadataEditor = () => {
 				</div>
 
 				<div className={styles.dialogBody}>
+					<VocalistNamesEditor />
 					<table className={styles.metadataTable}>
 						<thead>
 							<tr>

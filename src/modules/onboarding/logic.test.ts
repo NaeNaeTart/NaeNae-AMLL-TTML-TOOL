@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newLyricLine, newLyricWord } from "$/types/ttml";
+import { newLyricLine, newLyricWord, type TTMLLyric } from "$/types/ttml";
 import {
 	hasCompleteTiming,
 	hasImportedLyrics,
@@ -7,7 +7,7 @@ import {
 	hasSongwriters,
 } from "./logic";
 
-const createLyrics = () => {
+const createLyrics = (): TTMLLyric => {
 	const line = newLyricLine();
 	line.words = [{ ...newLyricWord(), word: "Hello" }];
 	return { lyricLines: [line], metadata: [] };

@@ -1,6 +1,8 @@
 import { atom } from "jotai/index";
 import { atomWithStorage } from "jotai/utils";
 import { lyricLinesAtom } from "$/states/main.ts";
+import { audioEngine } from "$/modules/audio/audio-engine";
+import { previewFollowsPlaybackAtom } from "$/modules/settings/states/preview";
 
 import { selectAtom } from "jotai/utils";
 
@@ -14,6 +16,33 @@ const activeLineIdsBaseAtom = atom((get) => {
 
 export const activeLineIdsAtom = selectAtom(
 	activeLineIdsBaseAtom,
+	(ids) => ids,
+	(a, b) => {
+		if (a.length !== b.length) return false;
+		for (let i = 0; i < a.length; i++) {
+			if (a[i] !== b[i]) return false;
+		}
+		return true;
+	}
+);
+
+// Preview-specific active lines: uses audio engine time when
+// previewFollowsPlayback is enabled, otherwise falls back to currentTimeAtom
+// (which is driven by Time/Edit modes). This decouples preview scrolling
+// from editor seeking when the toggle is on.
+const previewActiveLineIdsBaseAtom = atom((get) => {
+	const followPlayback = get(previewFollowsPlaybackAtom);
+	const currentTime = followPlayback
+		? audioEngine.musicCurrentTime * 1000
+		: get(currentTimeAtom);
+	const lyrics = get(lyricLinesAtom);
+	return lyrics.lyricLines
+		.filter(l => currentTime >= l.startTime && currentTime <= l.endTime)
+		.map(l => l.id);
+});
+
+export const previewActiveLineIdsAtom = selectAtom(
+	previewActiveLineIdsBaseAtom,
 	(ids) => ids,
 	(a, b) => {
 		if (a.length !== b.length) return false;

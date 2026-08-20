@@ -9,12 +9,6 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-/**
- * @fileoverview
- * 用于将内部歌词数组对象导出成 TTML 格式的模块
- * 但是可能会有信息会丢失
- */
-
 import type { LyricLine, LyricWord, TTMLLyric } from "../../../types/ttml.ts";
 import {
 	type LyricTextNormalizationOptions,
@@ -150,10 +144,6 @@ export default function exportTTMLText(
 		"http://music.apple.com/lyric-ttml-internal",
 	);
 
-	// Determine itunes:timing mode for Spicylyrics compatibility
-	// Word = at least one line has 2+ non-blank words (dynamic/per-word timing)
-	// Line = has lyric lines but every line has 0 or 1 non-blank word
-	// None = no timed words at all
 	const nonBlankWordCountsPerLine = lyric.map(
 		(l) => l.words.filter((w) => w.word.trim().length > 0).length,
 	);
@@ -177,7 +167,9 @@ export default function exportTTMLText(
 	ttRoot.appendChild(head);
 
 	const body = doc.createElement("body");
-	const hasOtherPerson = !!lyric.find((v) => v.isDuet);
+	const hasOtherPerson = !!lyric.find((v) => v.isDuet && !v.isDuetGroup);
+	const hasMiddlePerson = !!lyric.find((v) => v.isMiddle);
+	const hasDuetGroup = !!lyric.find((v) => v.isDuetGroup);
 
 	const metadataEl = doc.createElement("metadata");
 	const mainPersonAgent = doc.createElement("ttm:agent");
@@ -194,7 +186,22 @@ export default function exportTTMLText(
 		metadataEl.appendChild(otherPersonAgent);
 	}
 
-	// Extract songwriter metadata to emit in iTunes format (Spicylyrics compatibility)
+	if (hasMiddlePerson) {
+		const middlePersonAgent = doc.createElement("ttm:agent");
+		middlePersonAgent.setAttribute("type", "other");
+		middlePersonAgent.setAttribute("xml:id", "v3");
+
+		metadataEl.appendChild(middlePersonAgent);
+	}
+
+	if (hasDuetGroup) {
+		const groupAgent = doc.createElement("ttm:agent");
+		groupAgent.setAttribute("type", "group");
+		groupAgent.setAttribute("xml:id", "vg");
+
+		metadataEl.appendChild(groupAgent);
+	}
+
 	const songwriterMeta = ttmlLyric.metadata.find(
 		(m) => m.key === "songwriter" && m.value.some((v) => v.trim().length > 0),
 	);
@@ -219,7 +226,6 @@ export default function exportTTMLText(
 		}
 	}
 
-	// Append remaining metadata entries (skip songwriter since it's in iTunes format)
 	for (const metadata of ttmlLyric.metadata) {
 		if (metadata.key === "songwriter") continue;
 		if (metadata.key === "amll:marks") continue; // We'll handle this separately
@@ -246,6 +252,19 @@ export default function exportTTMLText(
 		metaEl.setAttribute(
 			"value",
 			JSON.stringify({ version: 1, sections: ttmlLyric.sections }),
+		);
+		metadataEl.appendChild(metaEl);
+	}
+
+	if (
+		ttmlLyric.reversedSyncLineIds &&
+		ttmlLyric.reversedSyncLineIds.length > 0
+	) {
+		const metaEl = doc.createElement("amll:meta");
+		metaEl.setAttribute("key", "amll:reversedSync");
+		metaEl.setAttribute(
+			"value",
+			JSON.stringify({ version: 1, lineIds: ttmlLyric.reversedSyncLineIds }),
 		);
 		metadataEl.appendChild(metaEl);
 	}
@@ -282,7 +301,10 @@ export default function exportTTMLText(
 			lineP.setAttribute("begin", msToTimestamp(beginTime));
 			lineP.setAttribute("end", msToTimestamp(endTime));
 
-			lineP.setAttribute("ttm:agent", line.isDuet ? "v2" : "v1");
+			lineP.setAttribute(
+				"ttm:agent",
+				line.isDuetGroup ? "vg" : line.isMiddle ? "v3" : line.isDuet ? "v2" : "v1",
+			);
 
 			const itunesKey = `L${++i}`;
 			lineP.setAttribute("itunes:key", itunesKey);

@@ -20,15 +20,10 @@ import {
 
 export const GeniusHeaderDetectionDialog = () => {
 	const { t } = useTranslation();
-	const [geniusCategorizationEnabled, setGeniusCategorizationEnabled] = useAtom(
-		geniusCategorizationEnabledAtom,
-	);
-	const [dialogShown, setDialogShown] = useAtom(geniusHeaderDetectionDialogShownAtom);
+	const [, setGeniusCategorizationEnabled] = useAtom(geniusCategorizationEnabledAtom);
+	const [, setDialogShown] = useAtom(geniusHeaderDetectionDialogShownAtom);
 	const [isOpen, setIsOpen] = useAtom(geniusHeaderDetectionDialogOpenAtom);
 
-	// This is a bit tricky to trigger from here, maybe a separate atom for this specific dialog's open state
-	// Or just use a local state and trigger it via an effect that we expose?
-	
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
 			<Dialog.Content style={{ maxWidth: 500 }}>

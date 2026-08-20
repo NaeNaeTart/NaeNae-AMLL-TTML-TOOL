@@ -1,7 +1,7 @@
 import { open } from "@tauri-apps/plugin-shell";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom, withImmer } from "jotai-immer";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { uid } from "uid";
@@ -10,6 +10,8 @@ import { audioEngine } from "$/modules/audio/audio-engine";
 import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import { getSynchronizableUnits } from "$/modules/lyric-editor/utils/lyric-states.ts";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system.ts";
+import { exportLyricsfileText } from "$/modules/lyricsfile-processor";
+import { useFolderProject } from "$/modules/project/folder-project/useFolderProject";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
 	segmentationEngineAtom,
@@ -30,12 +32,17 @@ import {
 	historyRestoreDialogAtom,
 	latencyTestDialogAtom,
 	learnedSplitsDialogAtom,
+	lyricsfileConverterDialogAtom,
 	metadataEditorDialogAtom,
+	projectBrowserDialogAtom,
+	projectManagerDialogAtom,
+	projectsDialogAtom,
 	settingsDialogAtom,
 	submitToAMLLDBDialogAtom,
 	timeShiftDialogAtom,
 	timeStretchDialogAtom,
 	ttmlChecklistDialogAtom,
+	workspaceBrowserDialogAtom,
 } from "$/states/dialogs.ts";
 import {
 	keyDeleteSelectionAtom,
@@ -49,14 +56,20 @@ import {
 	keyUndoAtom,
 } from "$/states/keybindings.ts";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
+	FILE_KIND_EXTENSIONS,
 	isDirtyAtom,
+	lastSavedTimeAtom,
 	lyricLinesAtom,
 	newLyricLinesAtom,
 	projectIdAtom,
 	redoLyricLinesAtom,
+	saveFileHandlerAtom,
 	saveFileNameAtom,
 	selectedLinesAtom,
 	selectedWordsAtom,
+	stripKnownFileExtension,
 	undoableLyricLinesAtom,
 	undoLyricLinesAtom,
 } from "$/states/main.ts";
@@ -69,6 +82,7 @@ import { createHistoryActionGate } from "./history-action-gate";
 export const useTopMenuActions = () => {
 	const { t } = useTranslation();
 	const [saveFileName, setSaveFileName] = useAtom(saveFileNameAtom);
+	const [activeFileKind, setActiveFileKind] = useAtom(activeFileKindAtom);
 	const newLyricLine = useSetAtom(newLyricLinesAtom);
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const setMetadataEditorOpened = useSetAtom(metadataEditorDialogAtom);
@@ -88,8 +102,14 @@ export const useTopMenuActions = () => {
 	const setTimeShiftDialog = useSetAtom(timeShiftDialogAtom);
 	const setTimeStretchDialog = useSetAtom(timeStretchDialogAtom);
 	const setTTMLChecklistDialog = useSetAtom(ttmlChecklistDialogAtom);
+	const setProjectBrowserDialog = useSetAtom(projectBrowserDialogAtom);
+	const setProjectManagerDialog = useSetAtom(projectManagerDialogAtom);
+	const setWorkspaceBrowserDialog = useSetAtom(workspaceBrowserDialogAtom);
+	const setProjectsDialog = useSetAtom(projectsDialogAtom);
+	const { saveLyricsOnly: saveFolderLyricsOnly } = useFolderProject();
 	const { openFile } = useFileOpener();
 	const setProjectId = useSetAtom(projectIdAtom);
+	const setSaveFileHandler = useSetAtom(saveFileHandlerAtom);
 	const { config: segmentationConfig } = useSegmentationConfig();
 	const lyricLines = useAtomValue(lyricLinesAtom);
 	const newFileKey = useAtomValue(keyNewFileAtom);
@@ -141,15 +161,16 @@ export const useTopMenuActions = () => {
 			newLyricLine();
 			setProjectId(uid());
 			setSaveFileName("lyric.ttml");
+			setActiveFileKind(ActiveFileKind.TTML);
 		};
 
 		if (isDirty) {
 			setConfirmDialog({
 				open: true,
-				title: t("confirmDialog.newFile.title", "确认新建文件"),
+				title: t("confirmDialog.newFile.title", "Confirm New File"),
 				description: t(
 					"confirmDialog.newFile.description",
-					"当前文件有未保存的更改。如果继续，这些更改将会丢失。确定要新建文件吗？",
+					"You have unsaved changes. If you proceed, these changes will be lost. Are you sure you want to create a new file?",
 				),
 				onConfirm: action,
 			});
@@ -163,6 +184,7 @@ export const useTopMenuActions = () => {
 		t,
 		setProjectId,
 		setSaveFileName,
+		setActiveFileKind,
 	]);
 
 	const onOpenFile = useCallback(async () => {
@@ -173,6 +195,8 @@ export const useTopMenuActions = () => {
 					name: "Lyric/Audio files",
 					extensions: [
 						"ttml",
+						"lyricsfile.yaml",
+						"yaml",
 						"lrc",
 						"qrc",
 						"eslrc",
@@ -205,9 +229,12 @@ export const useTopMenuActions = () => {
 		}
 	}, [openFile]);
 
-	const onSaveFile = useCallback(async () => {
-		const action = async () => {
+	const onSaveFile = useCallback(async (): Promise<boolean> => {
+		const action = async (): Promise<boolean> => {
 			try {
+				const shouldFallback = await saveFolderLyricsOnly();
+				if (!shouldFallback) return false;
+
 				const currentLyrics = store.get(lyricLinesAtom);
 				const sectionIssues = validateSections(currentLyrics);
 				if (sectionIssues.length > 0) {
@@ -215,22 +242,49 @@ export const useTopMenuActions = () => {
 						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
 					);
 				}
-				const ttmlText = exportTTMLText(
-					currentLyrics,
-					store.get(lyricTextNormalizationOptionsAtom),
-				);
-				const savedName = await saveFile(ttmlText, {
-					suggestedName: saveFileName,
+
+				const isLyricsfile = activeFileKind === ActiveFileKind.Lyricsfile;
+				const fileText = isLyricsfile
+					? exportLyricsfileText(currentLyrics)
+					: exportTTMLText(
+							currentLyrics,
+							store.get(lyricTextNormalizationOptionsAtom),
+						);
+				const suggestedName = `${stripKnownFileExtension(saveFileName)}${FILE_KIND_EXTENSIONS[activeFileKind]}`;
+				const savedName = await saveFile(fileText, {
+					suggestedName,
 					types: [
 						{
-							description: "TTML Files",
-							accept: { "application/ttml+xml": [".ttml"] },
+							description: isLyricsfile
+								? "Lyricsfile YAML Files"
+								: "TTML Files",
+							accept: isLyricsfile
+								? {
+										"application/yaml": [
+											FILE_KIND_EXTENSIONS[ActiveFileKind.Lyricsfile],
+										],
+									}
+								: {
+										"application/ttml+xml": [
+											FILE_KIND_EXTENSIONS[ActiveFileKind.TTML],
+										],
+									},
 						},
 					],
 				});
-				if (savedName) setSaveFileName(savedName);
+				if (savedName) {
+					setSaveFileName(savedName);
+					store.set(lastSavedTimeAtom, Date.now());
+					toast.success(
+						t("header.status.savedAs", "Saved as {name}", { name: savedName }),
+					);
+					return true;
+				}
+				return false;
 			} catch (e) {
-				error("Failed to save TTML file", e);
+				error("Failed to save file", e);
+				toast.error(t("error.saveFileFailed", "Failed to save file"));
+				return false;
 			}
 		};
 
@@ -256,6 +310,8 @@ export const useTopMenuActions = () => {
 		}
 
 		if (untimedLine && untimedWord) {
+			const line = untimedLine;
+			const word = untimedWord;
 			setConfirmDialog({
 				open: true,
 				title: t(
@@ -273,16 +329,29 @@ export const useTopMenuActions = () => {
 				cancelText: t("confirmDialog.untimedLyrics.fixIt", "Fix It"),
 				onConfirm: action,
 				onCancel: () => {
-					store.set(selectedLinesAtom, new Set([untimedLine!.id]));
-					store.set(selectedWordsAtom, new Set([untimedWord!.id]));
-					audioEngine.seekMusic(untimedLine!.startTime / 1000);
-					store.set(currentTimeAtom, untimedLine!.startTime);
+					store.set(selectedLinesAtom, new Set([line.id]));
+					store.set(selectedWordsAtom, new Set([word.id]));
+					audioEngine.seekMusic(line.startTime / 1000);
+					store.set(currentTimeAtom, line.startTime);
 				},
 			});
 		} else {
-			action();
+			return action();
 		}
-	}, [saveFileName, store, setSaveFileName, setConfirmDialog, t]);
+		return false;
+	}, [
+		saveFileName,
+		activeFileKind,
+		store,
+		setSaveFileName,
+		setConfirmDialog,
+		t,
+		saveFolderLyricsOnly,
+	]);
+
+	useEffect(() => {
+		setSaveFileHandler(() => onSaveFile);
+	}, [onSaveFile, setSaveFileHandler]);
 
 	const onOpenHistoryRestore = useCallback(() => {
 		setHistoryRestoreDialog(true);
@@ -330,6 +399,8 @@ export const useTopMenuActions = () => {
 		}
 
 		if (untimedLine && untimedWord) {
+			const line = untimedLine;
+			const word = untimedWord;
 			setConfirmDialog({
 				open: true,
 				title: t(
@@ -347,10 +418,10 @@ export const useTopMenuActions = () => {
 				cancelText: t("confirmDialog.untimedLyrics.fixIt", "Fix It"),
 				onConfirm: action,
 				onCancel: () => {
-					store.set(selectedLinesAtom, new Set([untimedLine!.id]));
-					store.set(selectedWordsAtom, new Set([untimedWord!.id]));
-					audioEngine.seekMusic(untimedLine!.startTime / 1000);
-					store.set(currentTimeAtom, untimedLine!.startTime);
+					store.set(selectedLinesAtom, new Set([line.id]));
+					store.set(selectedWordsAtom, new Set([word.id]));
+					audioEngine.seekMusic(line.startTime / 1000);
+					store.set(currentTimeAtom, line.startTime);
 				},
 			});
 		} else {
@@ -366,6 +437,22 @@ export const useTopMenuActions = () => {
 		setMetadataEditorOpened(true);
 	}, [setMetadataEditorOpened]);
 
+	const onOpenProjectBrowser = useCallback(() => {
+		setProjectBrowserDialog(true);
+	}, [setProjectBrowserDialog]);
+
+	const onOpenProjectManager = useCallback(() => {
+		setProjectManagerDialog(true);
+	}, [setProjectManagerDialog]);
+
+	const onOpenWorkspace = useCallback(() => {
+		setWorkspaceBrowserDialog(true);
+	}, [setWorkspaceBrowserDialog]);
+
+	const onOpenProjects = useCallback(() => {
+		setProjectsDialog(true);
+	}, [setProjectsDialog]);
+
 	const onOpenSettings = useCallback(() => {
 		setSettingsDialogOpened(true);
 	}, [setSettingsDialogOpened]);
@@ -377,6 +464,10 @@ export const useTopMenuActions = () => {
 	const onOpenTTMLChecklist = useCallback(() => {
 		setTTMLChecklistDialog(true);
 	}, [setTTMLChecklistDialog]);
+
+	const onOpenLyricsfileConverter = useCallback(() => {
+		store.set(lyricsfileConverterDialogAtom, true);
+	}, [store]);
 
 	const onOpenGitHub = useCallback(async () => {
 		if (import.meta.env.TAURI_ENV_PLATFORM) {
@@ -585,10 +676,13 @@ export const useTopMenuActions = () => {
 
 		setConfirmDialog({
 			open: true,
-			title: t("confirmDialog.syncLineTimestamps.title", "确认同步行时间戳"),
+			title: t(
+				"confirmDialog.syncLineTimestamps.title",
+				"Confirm Sync Line Timestamps",
+			),
 			description: t(
 				"confirmDialog.syncLineTimestamps.description",
-				"此操作将根据每行单词的时间戳自动同步所有行的起始和结束时间为第一个和最后一个音节的开始和结束时间。确定要继续吗？",
+				"This action will automatically synchronize the start and end times of all lines based on the timestamps of each word in the line, matching the start and end times of the first and last syllables. Are you sure you want to proceed?",
 			),
 			onConfirm: action,
 		});
@@ -631,6 +725,10 @@ export const useTopMenuActions = () => {
 		onOpenTimeShift,
 		onOpenTimeStretch,
 		onOpenMetadataEditor,
+		onOpenProjectBrowser,
+		onOpenProjectManager,
+		onOpenProjects,
+		onOpenWorkspace,
 		onOpenSettings,
 		onAutoSegment,
 		onQuickAutoSegment,
@@ -640,6 +738,7 @@ export const useTopMenuActions = () => {
 		onSyncLineTimestamps,
 		onOpenLatencyTest,
 		onOpenTTMLChecklist,
+		onOpenLyricsfileConverter,
 		onOpenGitHub,
 		onOpenWiki,
 	};

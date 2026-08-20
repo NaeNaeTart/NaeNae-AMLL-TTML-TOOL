@@ -22,7 +22,7 @@ const SyncModeRibbonBar = lazy(() => import("./sync-mode"));
 const PreviewModeRibbonBar = lazy(() => import("./preview-mode"));
 
 export const RibbonBar = memo(
-	forwardRef<HTMLDivElement>(({ isSidebar, position = "top" }: { isSidebar?: boolean, position?: "top" | "bottom" | "left" | "right" }, ref) => {
+	forwardRef<HTMLDivElement, { isSidebar?: boolean; position?: "top" | "bottom" | "left" | "right" }>(({ isSidebar, position = "top" }, ref) => {
 		const toolMode = useAtomValue(toolModeAtom);
 
 		return (

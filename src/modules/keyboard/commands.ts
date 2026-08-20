@@ -5,10 +5,6 @@ const IS_MAC = navigator.userAgent.includes("Mac");
 const CONTROL_KEY = IS_MAC ? "Meta" : "Control";
 const DELETE_KEY = IS_MAC ? "Backspace" : "Delete";
 
-// =========================================================================================
-//  文件操作
-// =========================================================================================
-
 export const cmdNewFile = registerCommand(
 	"newFile",
 	[CONTROL_KEY, "KeyN"],
@@ -29,11 +25,6 @@ export const cmdSaveFile = registerCommand(
 	t("settingsDialog.keybindings.saveFile"),
 	"File",
 );
-
-
-// =========================================================================================
-//  编辑与选择
-// =========================================================================================
 
 export const cmdUndo = registerCommand(
 	"undo",
@@ -91,10 +82,6 @@ export const cmdAutoSegment = registerCommand(
 	"Edit",
 );
 
-// =========================================================================================
-//  视图模式
-// =========================================================================================
-
 export const cmdSwitchEditMode = registerCommand(
 	"switchEditMode",
 	["Shift", "Digit1"],
@@ -115,10 +102,6 @@ export const cmdSwitchPreviewMode = registerCommand(
 	t("settingsDialog.keybindings.switchPreviewMode"),
 	"View",
 );
-
-// =========================================================================================
-//  打轴操作
-// =========================================================================================
 
 export const cmdMoveNextWord = registerCommand(
 	"moveNextWord",
@@ -204,7 +187,6 @@ export const cmdUrbanDictionarySync = registerCommand(
 	"Sync",
 );
 
-
 export const cmdMoveFirstWordAndPlay = registerCommand(
 	"moveFirstWordAndPlay",
 	["KeyHome"],
@@ -218,10 +200,6 @@ export const cmdMoveLastWordAndPlay = registerCommand(
 	t("settingsDialog.keybindings.moveLastWordAndPlay"),
 	"Sync",
 );
-
-// =========================================================================================
-//  音频控制
-// =========================================================================================
 
 export const cmdPlayPause = registerCommand(
 	"playPause",
@@ -286,10 +264,6 @@ export const cmdDuplicatePaste = registerCommand(
 	"Edit",
 );
 
-// =========================================================================================
-//  频谱图/试听
-// =========================================================================================
-
 export const cmdAuditionSelectionBefore = registerCommand(
 	"auditionSelectionBefore",
 	["KeyQ"],
@@ -311,6 +285,20 @@ export const cmdAuditionSelectionAfter = registerCommand(
 	"Spectrogram",
 );
 
+export const cmdReversePlaybackStart = registerCommand(
+	"reversePlaybackStart",
+	[CONTROL_KEY, "KeyF"],
+	t("settingsDialog.keybindings.reversePlaybackStart"),
+	"Spectrogram",
+);
+
+export const cmdReversePlaybackEnd = registerCommand(
+	"reversePlaybackEnd",
+	[CONTROL_KEY, "KeyH"],
+	t("settingsDialog.keybindings.reversePlaybackEnd"),
+	"Spectrogram",
+);
+
 if (import.meta.env.DEV) {
 	t("settingsDialog.keybindings.category.File");
 	t("settingsDialog.keybindings.category.Edit");
@@ -318,4 +306,6 @@ if (import.meta.env.DEV) {
 	t("settingsDialog.keybindings.category.Sync");
 	t("settingsDialog.keybindings.category.Audio");
 	t("settingsDialog.keybindings.category.Spectrogram");
+	t("settingsDialog.keybindings.reversePlaybackStart");
+	t("settingsDialog.keybindings.reversePlaybackEnd");
 }

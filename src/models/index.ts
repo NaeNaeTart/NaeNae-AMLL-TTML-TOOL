@@ -2,12 +2,11 @@ export interface Model {
   id: string;
   name: string;
   version: string;
-  predict(input: any): Promise<any>;
+  predict(input: unknown): Promise<unknown>;
 }
 
 export type ModelFactory = () => Model;
 
-// Simple in-memory registry for available models
 type RegistryMap = Map<string, Model>;
 export const modelsRegistry: RegistryMap = new Map();
 

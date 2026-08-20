@@ -20,6 +20,28 @@
   "amll": {
     "noLyrics": "No lyrics available in store"
   },
+  "importChooser": {
+    "title": "导入歌词",
+    "description": "选择要导入歌词的来源。",
+    "options": {
+      "plainText": {
+        "title": "纯文本",
+        "description": "粘贴歌词并选择如何解析行、翻译、注音和分词。"
+      },
+      "lrclib": {
+        "title": "LRCLIB",
+        "description": "按歌曲和艺术家搜索 LRCLIB 的同步或纯文本歌词。"
+      },
+      "lyrically": {
+        "title": "Lyrically",
+        "description": "无需设置 Genius 令牌即可搜索 Lyrically 的可用歌词来源。"
+      },
+      "genius": {
+        "title": "Genius",
+        "description": "使用你的访问令牌搜索 Genius 的歌词和词曲作者信息。"
+      }
+    }
+  },
   "confirmDialog": {
     "cancel": "取消",
     "confirm": "确定",
@@ -158,6 +180,8 @@
     },
     "previewMode": {
       "mode": "Mode",
+      "untitled": "Untitled",
+      "unknownArtist": "Unknown Artist",
       "amllDeprecated": "AMLL mode is deprecated, please use Standard mode",
       "standard": "Standard",
       "timing": "Timing",
@@ -496,6 +520,8 @@
     "boykisser": "boykisser",
     "appName": "Apple Music-like Lyrics TTML 工具",
     "menu": {
+      "switchedFormat": "已切换到 {file}",
+      "switchFormatFailed": "切换格式失败：{reason}",
       "undo": "撤销",
       "redo": "重做",
       "selectAllLines": "全选所有行",
@@ -510,6 +536,11 @@
       "openLyric": "打开歌词",
       "openFromClipboard": "从剪贴板打开 TTML",
       "saveLyric": "保存歌词",
+      "openProject": "打开项目...",
+      "projectManager": "项目管理...",
+      "openWorkspace": "打开工作区...",
+      "projects": "项目",
+      "projectFormat": "项目格式",
       "restoreFromHistory": "从历史记录恢复...",
       "saveLyricToClipboard": "保存 TTML 到剪贴板",
       "uploadToAMLLDB": "上传到数据库 (仅限 CN)",
@@ -522,6 +553,7 @@
       "advancedSegment": "高级分词...",
       "learnedSplits": "Learned Splits...",
       "syncLineTimestamps": "同步行时间戳",
+      "syncFghToHover": "F/G/H 打轴跟随频谱图悬浮位置",
       "tool": "工具",
       "importLyric": {
         "import": "导入歌词",
@@ -626,7 +658,9 @@
       },
       "autoSegmentOptions": "Auto Segment",
       "autoSegmentDoublePress": "Require double press",
-      "autoSegmentDoublePressDesc": "Run Auto Segment only after pressing its shortcut twice quickly."
+      "autoSegmentDoublePressDesc": "Run Auto Segment only after pressing its shortcut twice quickly.",
+      "reversePlaybackStart": "Spectrogram - Mark reversed playback start",
+      "reversePlaybackEnd": "Spectrogram - Mark reversed playback end and play"
     },
     "tab": {
       "common": "通用",

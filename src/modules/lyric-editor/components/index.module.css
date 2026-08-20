@@ -385,6 +385,15 @@
 		font-weight: 700;
 		text-align: center;
 	}
+
+	&[data-copy="true"] {
+		border-color: var(--accent-8);
+		box-shadow: 0 8px 20px rgb(0 0 0 / 35%);
+
+		&::after {
+			content: "+" attr(data-line-count);
+		}
+	}
 }
 
 .dragPreviewNumber {

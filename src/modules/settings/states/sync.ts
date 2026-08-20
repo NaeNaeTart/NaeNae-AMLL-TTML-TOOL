@@ -1,7 +1,6 @@
-// Syncing settings
-
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import type { LineTimingSnapshot } from "$/modules/lyric-editor/utils/line-timing";
 
 export interface Callback<Args extends unknown[], Result = void> {
 	onEmit?: (...args: Args) => Result;
@@ -21,12 +20,27 @@ export const enableTimeModeDoubleClickEditAtom = atomWithStorage(
 	true,
 );
 export const syncTimeOffsetAtom = atomWithStorage("syncTimeOffset", 0);
+export const syncFghToHoverAtom = atomWithStorage("syncFghToHover", true);
 export const syncCommitOffsetAtom = atomWithStorage("syncCommitOffset", 0);
 
 export type SyncLevelMode = "word" | "line";
 export const syncLevelModeAtom = atomWithStorage<SyncLevelMode>(
 	"syncLevelMode",
 	"word",
+);
+
+export const reverseSyncLineIdsAtom = atom<Set<string>>(new Set<string>());
+
+/**
+ * Per-line timing snapshot captured right before "Reverse sync order" is
+ * turned on for that line. If the user turns it back off, whatever timing
+ * progress was made while it was on is discarded and this snapshot is
+ * restored instead, so switching modes never leaves a line stranded with
+ * timings committed under the other direction.
+ */
+export type ReverseSyncTimingBackupMap = Map<string, LineTimingSnapshot>;
+export const reverseSyncTimingBackupAtom = atom<ReverseSyncTimingBackupMap>(
+	new Map<string, LineTimingSnapshot>(),
 );
 
 export const enableUpcomingWordHighlightAtom = atomWithStorage(

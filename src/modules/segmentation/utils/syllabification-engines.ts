@@ -148,49 +148,49 @@ export const splitJapaneseText = (text: string) => {
 
 export const SYLLABIFICATION_ENGINES: SyllabificationEngine[] = [
 	{
-		id: "prosodic",
+		id: "prosodic" as SegmentationEngineId,
 		name: "English (Prosodic)",
 		description:
 			"Dictionary-backed English syllable boundaries with a speech fallback.",
 		split: prosodicSplit,
 	},
 	{
-		id: "basic",
+		id: "basic" as SegmentationEngineId,
 		name: "Basic",
 		description:
 			"Keep Latin words whole and split CJK text using the existing rules.",
-		split: (word) => [word],
+		split: (word: string) => [word],
 	},
 	{
-		id: "japanese",
+		id: "japanese" as SegmentationEngineId,
 		name: "Japanese (Basic)",
 		description:
 			"Use the existing CJK character splitting rules for Japanese text.",
-		split: (word) => [word],
+		split: (word: string) => [word],
 	},
 	{
-		id: "silabas",
+		id: "silabas" as SegmentationEngineId,
 		name: "Spanish (Silabas)",
 		description: "Spanish orthographic syllable splitting.",
-		split: (word) => {
+		split: (word: string): string[] => {
 			try {
-				return silabas(word).syllables();
+				return silabas(word).syllables() as string[];
 			} catch {
 				return [word];
 			}
 		},
 	},
 	{
-		id: "syllabify-fr",
+		id: "syllabify-fr" as SegmentationEngineId,
 		name: "French (Syllabify-fr)",
 		description: "French orthographic syllable splitting.",
-		split: (word) => syllabifyFr(word).syllabes,
+		split: (word: string): string[] => syllabifyFr(word).syllabes as string[],
 	},
 	{
-		id: "syllabify",
+		id: "syllabify" as SegmentationEngineId,
 		name: "Russian (Syllabify)",
 		description: "Russian orthographic syllable splitting.",
-		split: (word) => {
+		split: (word: string): string[] => {
 			try {
 				return syllabify(word);
 			} catch {
@@ -205,10 +205,10 @@ export const SYLLABIFICATION_ENGINES: SyllabificationEngine[] = [
 		split: (word: string) => [word],
 	})),
 	{
-		id: "none",
+		id: "none" as SegmentationEngineId,
 		name: "None",
 		description: "Do not split words automatically.",
-		split: (word) => [word],
+		split: (word: string) => [word],
 	},
 ].sort((left, right) => left.name.localeCompare(right.name));
 

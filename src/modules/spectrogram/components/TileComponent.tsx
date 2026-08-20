@@ -35,7 +35,7 @@ export const TileComponent = memo(
 					console.warn("TileComponent: Failed to draw bitmap (likely detached)", e);
 				}
 			}
-		}, [bitmap, canvasWidth, height]);
+		}, [bitmap]);
 
 		return (
 			<canvas

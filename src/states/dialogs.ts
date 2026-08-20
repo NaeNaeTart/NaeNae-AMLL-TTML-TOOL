@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 export const importFromTextDialogAtom = atom(false);
 export const importLyricsChooserDialogAtom = atom(false);
@@ -31,8 +32,12 @@ export const lineSpectrogramDialogAtom = atom<{
 export const confirmDialogAtom = atom<{
 	open: boolean;
 	title: string;
-	description: string;
+	description: React.ReactNode | string;
 	confirmText?: string;
+	confirmColor?: "red" | "crimson" | "indigo" | "gray" | "green" | "blue";
+	secondaryConfirmText?: string;
+	secondaryConfirmColor?: "red" | "crimson" | "indigo" | "gray" | "green" | "blue";
+	onSecondaryConfirm?: () => void;
 	cancelText?: string;
 	onConfirm?: () => void;
 	onCancel?: () => void;
@@ -42,6 +47,10 @@ export const confirmDialogAtom = atom<{
 	description: "",
 });
 export const historyRestoreDialogAtom = atom(false);
+export const projectBrowserDialogAtom = atom(false);
+export const projectManagerDialogAtom = atom(false);
+export const workspaceBrowserDialogAtom = atom(false);
+export const projectsDialogAtom = atom(false);
 export const importFromLRCLIBDialogAtom = atom(false);
 export const geniusSearchDialogAtom = atom(false);
 export const changelogDialogAtom = atom(false);
@@ -69,3 +78,4 @@ export const suggestedSplitsDialogAtom = atom<{
 	lineId?: string;
 	wordIndex?: number;
 }>({ open: false });
+export const lyricsfileConverterDialogAtom = atom(false);

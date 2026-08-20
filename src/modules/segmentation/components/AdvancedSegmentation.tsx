@@ -50,7 +50,7 @@ import { ManualWordSplitter } from "./ManualWordSplitter";
 export const AdvancedSegmentationDialog = memo(() => {
 	const [open, setOpen] = useAtom(advancedSegmentationDialogAtom);
 	const [scope, setScope] = useAtom(segmentationScopeAtom);
-	const { config: segmentationConfig, isLoading: isLoadingLang } =
+	const { config: segmentationConfig } =
 		useSegmentationConfig();
 	const [rangeStart, setRangeStart] = useAtom(segmentationRangeStartAtom);
 	const [rangeEnd, setRangeEnd] = useAtom(segmentationRangeEndAtom);

@@ -149,6 +149,14 @@ function removeSideOfKeyCode(code: string) {
 
 const pressingKeys = new Set<string>();
 const registeredKeyBindings = new Map<string, Set<KeyBindingCallback>>();
+// Separate registry for combos that must fire even while a text field (or
+// any other `isEditing()` target) has focus - e.g. Ctrl+S while typing
+// lyrics. Modifier-combo shortcuts like this are never part of normal
+// typing, unlike the bare-letter Sync shortcuts (S/D/A/W...) that must stay
+// suppressed so the user can type them as regular characters. Kept as an
+// opt-in registry rather than changing `isEditing()` itself, so every other
+// keybinding keeps its existing (upstream) behavior unchanged.
+const alwaysActiveKeyBindings = new Map<string, Set<KeyBindingCallback>>();
 let downTime = 0;
 
 const MODIFIER_ORDER = ["Control", "Meta", "Alt", "Shift"];
@@ -191,9 +199,44 @@ function triggerCallbacks(
 	}
 }
 
+function triggerAlwaysActiveCallbacks(joinedKey: string, evt: KeyboardEvent) {
+	const callbacks = alwaysActiveKeyBindings.get(joinedKey);
+	if (!callbacks || callbacks.size === 0) return false;
+	const e: KeyBindingEvent = {
+		downTime: evt.timeStamp,
+		downTimeOffset: 0,
+		triggerTime: evt.timeStamp,
+	};
+	for (const cb of callbacks) {
+		try {
+			cb(e);
+		} catch (err) {
+			warn("Error in always-active key binding ", joinedKey, "callback", err);
+		}
+	}
+	evt.preventDefault();
+	evt.stopPropagation();
+	evt.stopImmediatePropagation();
+	return true;
+}
+
 window.addEventListener("keydown", (evt) => {
 	if (evt.repeat) return;
 	if (isEditing(evt)) {
+		// Text fields swallow every shortcut here (see isEditing above), but
+		// a handful of combos - Ctrl+S chief among them - are registered as
+		// "always active" and must still go through, otherwise Ctrl+S while
+		// the cursor is in a lyric line (i.e. almost always) silently does
+		// nothing instead of saving.
+		const modifierKeys = [
+			...(evt.ctrlKey ? ["Control"] : []),
+			...(evt.metaKey ? ["Meta"] : []),
+			...(evt.altKey ? ["Alt"] : []),
+			...(evt.shiftKey ? ["Shift"] : []),
+		];
+		const code = removeSideOfKeyCode(evt.code);
+		const joined = getShortcutKey(new Set([...modifierKeys, code]));
+		triggerAlwaysActiveCallbacks(joined, evt);
 		pressingKeys.clear();
 		return;
 	}
@@ -330,6 +373,31 @@ export function registerKeyBindings(
 	};
 }
 
+/**
+ * Like {@link registerKeyBindings}, but also fires while the keyboard focus
+ * is on a text field / textarea / contentEditable element (where every
+ * normal keybinding is suppressed so its letters can be typed). Use this
+ * only for combos that can never be part of normal typing - e.g. Ctrl+S.
+ */
+export function registerAlwaysActiveKeyBindings(
+	cfg: KeyBindingsConfig,
+	callback: KeyBindingCallback,
+) {
+	if (cfg.length === 0) {
+		return () => {};
+	}
+	const joined = getShortcutKey(cfg);
+	let set = alwaysActiveKeyBindings.get(joined);
+	if (!set) {
+		set = new Set();
+		alwaysActiveKeyBindings.set(joined, set);
+	}
+	set.add(callback);
+	return () => {
+		set?.delete(callback);
+	};
+}
+
 export function useKeyBinding(
 	cfg: KeyBindingsConfig,
 	callback: KeyBindingCallback,
@@ -351,6 +419,29 @@ export function useKeyBindingAtom(
 	const keyBindings = useAtomValue(thisAtom);
 	useEffect(() => {
 		return registerKeyBindings(keyBindings, callback);
+	}, [keyBindings, callback, ...(deps || [])]);
+	return keyBindings;
+}
+
+/**
+ * Same as {@link useKeyBindingAtom}, but backed by
+ * {@link registerAlwaysActiveKeyBindings} so the shortcut also fires while a
+ * text field has focus. Use only for combos like Ctrl+S that are never part
+ * of normal typing.
+ */
+export function useAlwaysActiveKeyBindingAtom(
+	thisAtom: ReturnType<typeof atomWithKeybindingStorage>,
+	callback: KeyBindingCallback,
+	deps?: DependencyList,
+): KeyBindingsConfig {
+	const keyBindings = useAtomValue(thisAtom);
+	useEffect(() => {
+		const unbindAlways = registerAlwaysActiveKeyBindings(keyBindings, callback);
+		const unbindNormal = registerKeyBindings(keyBindings, callback);
+		return () => {
+			unbindAlways();
+			unbindNormal();
+		};
 	}, [keyBindings, callback, ...(deps || [])]);
 	return keyBindings;
 }

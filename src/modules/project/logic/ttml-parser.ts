@@ -9,13 +9,6 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-/**
- * @fileoverview
- * 解析 TTML 歌词文档到歌词数组的解析器
- * 用于解析从 Apple Music 来的歌词文件，且扩展并支持翻译和音译文本。
- * @see https://www.w3.org/TR/2018/REC-ttml1-20181108/
- */
-
 import { uid } from "uid";
 import type {
 	LyricLine,
@@ -380,6 +373,12 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 	});
 
 	let mainAgentId = "v1";
+	
+	let duetAgentId: string | null = null;
+	
+	let middleAgentId: string | null = null;
+	
+	const groupAgentIds = new Set<string>();
 
 	const metadata: TTMLMetadata[] = [];
 	const metaTags = ttmlDoc.getElementsByTagNameNS("*", "meta");
@@ -434,6 +433,19 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			}
 		}
 	}
+	for (let i = 0; i < agents.length; i++) {
+		const agent = agents[i];
+		const id = getAttr(agent, "id");
+		if (!id || id === mainAgentId) continue;
+		const type = getAttr(agent, "type");
+		if (type === "group") {
+			groupAgentIds.add(id);
+		} else if (duetAgentId === null) {
+			duetAgentId = id;
+		} else if (middleAgentId === null && id !== duetAgentId) {
+			middleAgentId = id;
+		}
+	}
 
 	const lyricLines: LyricLine[] = [];
 
@@ -441,6 +453,8 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 		lineEl: Element,
 		isBG = false,
 		isDuet = false,
+		isMiddle = false,
+		isDuetGroup = false,
 		parentItunesKey: string | null = null,
 		parentSectionId?: string,
 	) {
@@ -456,6 +470,10 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 		}
 
 		const agentId = getAttr(lineEl, "agent") || getAttr(lineEl, "participant");
+		const isGroupAgent = !!agentId && groupAgentIds.has(agentId);
+		const isMiddleAgent = !!agentId && agentId === middleAgentId;
+		const isDuetAgent =
+			!!agentId && agentId !== mainAgentId && !isGroupAgent && !isMiddleAgent;
 
 		const line: LyricLine = {
 			id: uid(),
@@ -463,9 +481,9 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			translatedLyric: "",
 			romanLyric: "",
 			isBG,
-			isDuet: isBG
-				? isDuet
-				: !!agentId && agentId !== mainAgentId,
+			isDuet: isBG ? isDuet : isDuetAgent,
+			isMiddle: isBG ? isMiddle : isMiddleAgent,
+			isDuetGroup: isBG ? isDuetGroup : isGroupAgent,
 			agent: agentId || undefined,
 			startTime: parsedStartTime,
 			endTime: parsedEndTime,
@@ -529,12 +547,13 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 							wordEl,
 							true,
 							line.isDuet,
+							line.isMiddle,
+							line.isDuetGroup,
 							itunesKey,
 							line.sectionId,
 						);
 						haveBg = true;
 					} else if (role === "x-translation") {
-						// 没有 Apple Music 样式翻译时才使用内嵌翻译
 						if (!line.translatedLyric) {
 							line.translatedLyric = wordEl.textContent ?? "";
 						}
@@ -603,7 +622,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 	}
 
 	for (const lineEl of ttmlDoc.querySelectorAll("body p[begin][end]")) {
-		parseLineElement(lineEl, false, false, null);
+		parseLineElement(lineEl, false, false, false, false, null);
 	}
 
 	const marks: Mark[] = [];
@@ -633,16 +652,31 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 				sections = parsed.sections;
 			}
 		} catch {
-			// Optional section metadata should never make an otherwise valid TTML fail.
+		}
+	}
+
+	let reversedSyncLineIds: string[] | undefined;
+	const reversedSyncMeta = metadata.find((m) => m.key === "amll:reversedSync");
+	if (reversedSyncMeta?.value[0]) {
+		try {
+			const parsed = JSON.parse(reversedSyncMeta.value[0]);
+			if (parsed?.version === 1 && Array.isArray(parsed.lineIds)) {
+				reversedSyncLineIds = parsed.lineIds;
+			}
+		} catch {
 		}
 	}
 
 	return {
 		metadata: metadata.filter(
-			(m) => m.key !== "amll:marks" && m.key !== "amll:sections",
+			(m) =>
+				m.key !== "amll:marks" &&
+				m.key !== "amll:sections" &&
+				m.key !== "amll:reversedSync",
 		),
 		lyricLines: lyricLines,
 		marks: marks.length > 0 ? marks : undefined,
 		sections,
+		reversedSyncLineIds,
 	};
 }

@@ -6,9 +6,14 @@ import { useTranslation } from "react-i18next";
 import { getSuggestedTtmlFileName } from "$/modules/project/logic/metadata-filename";
 import { confirmDialogAtom, historyRestoreDialogAtom } from "$/states/dialogs";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
+	FILE_KIND_EXTENSIONS,
+	isDirtyAtom,
 	lastSavedTimeAtom,
 	lyricLinesAtom,
 	saveFileNameAtom,
+	stripKnownFileExtension,
 } from "$/states/main";
 
 export const HeaderFileInfo = () => {
@@ -24,14 +29,13 @@ export const HeaderFileInfo = () => {
 	const [autoSaveTimeLabel, setAutoSaveTimeLabel] = useState("");
 	const inputRef = useRef<HTMLInputElement>(null);
 	const lastSavedTimeRef = useRef<number | null>(null);
-	const suffix = ".ttml";
+	const activeFileKind = useAtomValue(activeFileKindAtom);
+	const isDirty = useAtomValue(isDirtyAtom);
+	const suffix = FILE_KIND_EXTENSIONS[activeFileKind];
 	const suggestedFile = getSuggestedTtmlFileName(metadata);
 
 	const getBaseName = useCallback(
-		(value: string) =>
-			value.toLowerCase().endsWith(suffix)
-				? value.slice(0, -suffix.length)
-				: value,
+		(value: string) => stripKnownFileExtension(value),
 		[],
 	);
 
@@ -47,7 +51,7 @@ export const HeaderFileInfo = () => {
 			}
 			setIsEditing(false);
 		},
-		[draftName, filename, getBaseName, setFilename],
+		[draftName, filename, getBaseName, setFilename, suffix],
 	);
 
 	useEffect(() => {
@@ -70,14 +74,16 @@ export const HeaderFileInfo = () => {
 	}, [lastSavedTime]);
 
 	const handleNameClick = useCallback(() => {
-		const isDefaultName = filename.toLowerCase() === "lyric.ttml";
+		const isDefaultName =
+			activeFileKind === ActiveFileKind.TTML &&
+			filename.toLowerCase() === "lyric.ttml";
 		if (isDefaultName && suggestedFile) {
 			setConfirmDialog({
 				open: true,
-				title: t("confirmDialog.useMetadataName.title", "使用元数据命名？"),
+				title: t("confirmDialog.useMetadataName.title", "Name from metadata?"),
 				description: t(
 					"confirmDialog.useMetadataName.description",
-					'是否使用"{name}"作为文件名？',
+					'Use "{name}" as file name?',
 					{ name: suggestedFile.baseName },
 				),
 				onConfirm: () => {
@@ -87,7 +93,7 @@ export const HeaderFileInfo = () => {
 			return;
 		}
 		setIsEditing(true);
-	}, [filename, setConfirmDialog, setFilename, suggestedFile, t]);
+	}, [activeFileKind, filename, setConfirmDialog, setFilename, suggestedFile, t]);
 
 	return (
 		<Flex align="center" gap="2" style={{ maxWidth: "100%" }}>
@@ -108,7 +114,7 @@ export const HeaderFileInfo = () => {
 					</Text>
 					{autoSaveExpanded && (
 						<Text size="1" color="gray">
-							{t("header.status.autoSavedAt", "已自动保存于 {time}", {
+							{t("header.status.autoSavedAt", "Autosaved at {time}", {
 								time: autoSaveTimeLabel,
 							})}
 						</Text>
@@ -170,6 +176,18 @@ export const HeaderFileInfo = () => {
 									{getBaseName(filename)}
 								</Text>
 								<Text size="2">{suffix}</Text>
+								{isDirty && (
+									<Box
+										style={{
+											width: 6,
+											height: 6,
+											borderRadius: "50%",
+											backgroundColor: "var(--accent-11)",
+											marginLeft: 6,
+											flexShrink: 0,
+										}}
+									/>
+								)}
 							</Flex>
 						</Flex>
 					</Button>

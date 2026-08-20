@@ -10,10 +10,15 @@ import { ReplaceWordDialog } from "$/modules/lyric-editor/tools/ReplaceWordDialo
 import { TimeShiftDialog } from "$/modules/lyric-editor/tools/TimeShift.tsx";
 import { TimeStretchDialog } from "$/modules/lyric-editor/tools/TimeStretch.tsx";
 import { ImportLyricsDialog } from "$/modules/lyrics-import/modals/ImportLyricsDialog.tsx";
+import { LyricsfileConverterDialog } from "$/modules/lyricsfile-processor/LyricsfileConverterDialog.tsx";
 import { HistoryRestoreDialog } from "$/modules/project/modals/HistoryRestore.tsx";
 import { ImportFromText } from "$/modules/project/modals/ImportFromText.tsx";
 import { MetadataEditor } from "$/modules/project/modals/MetadataEditor.tsx";
+import { ProjectBrowserDialog } from "$/modules/project/modals/ProjectBrowser.tsx";
+import { ProjectManagerDialog } from "$/modules/project/modals/ProjectManager.tsx";
+import { ProjectsDialog } from "$/modules/project/modals/ProjectsDialog.tsx";
 import { SubmitToAMLLDBDialog } from "$/modules/project/modals/SubmitToAmll.tsx";
+import { WorkspaceBrowserDialog } from "$/modules/project/modals/WorkspaceBrowser.tsx";
 import { AdvancedSegmentationDialog } from "$/modules/segmentation/components/AdvancedSegmentation.tsx";
 import { AutoSegmentDialog } from "$/modules/segmentation/components/AutoSegmentDialog.tsx";
 import { LearnedSplitsDialog } from "$/modules/segmentation/components/LearnedSplits.tsx";
@@ -39,6 +44,7 @@ export const Dialogs = () => {
 			<ImportFromText />
 			<ImportFromLRCLIB />
 			<ImportLyricsDialog />
+			<LyricsfileConverterDialog />
 			<MetadataEditor />
 			<SettingsDialog />
 			<SplitWordDialog />
@@ -51,6 +57,10 @@ export const Dialogs = () => {
 			<ConfirmationDialog />
 			<Mp3ConversionDialog />
 			<HistoryRestoreDialog />
+			<ProjectBrowserDialog />
+			<ProjectManagerDialog />
+			<ProjectsDialog />
+			<WorkspaceBrowserDialog />
 			<AdvancedSegmentationDialog />
 			<AutoSegmentDialog />
 			<LearnedSplitsDialog />

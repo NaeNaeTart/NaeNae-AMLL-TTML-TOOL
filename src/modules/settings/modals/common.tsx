@@ -7,6 +7,7 @@ import {
 	PaddingLeft24Regular,
 	PaddingRight24Regular,
 	Save24Regular,
+	Sparkle24Regular,
 	Speaker224Regular,
 	Stack24Regular,
 	Timer24Regular,
@@ -42,9 +43,11 @@ import {
 	compactBGInSyncAtom,
 	normalizeApostrophesOnImportAtom,
 	normalizeCyrillicEsOnImportAtom,
+	previewFollowsPlaybackAtom,
 } from "$/modules/settings/states";
 import {
 	enableUpcomingWordHighlightAtom,
+	syncFghToHoverAtom,
 	syncTimeOffsetAtom,
 	syncCommitOffsetAtom,
 	upcomingWordHighlightColorAtom,
@@ -85,14 +88,18 @@ export const SettingsCommonTab = ({
 	);
 	const [syncTimeOffset, setSyncTimeOffset] = useAtom(syncTimeOffsetAtom);
 	const [syncCommitOffset, setSyncCommitOffset] = useAtom(syncCommitOffsetAtom);
+	const [syncFghToHover, setSyncFghToHover] = useAtom(syncFghToHoverAtom);
 
-	const [compactBGInSync, setCompactBGInSync] = useAtom(compactBGInSyncAtom);
-	const [normalizeApostrophesOnImport, setNormalizeApostrophesOnImport] =
-		useAtom(normalizeApostrophesOnImportAtom);
-	const [normalizeCyrillicEsOnImport, setNormalizeCyrillicEsOnImport] =
-		useAtom(normalizeCyrillicEsOnImportAtom);
+const [compactBGInSync, setCompactBGInSync] = useAtom(compactBGInSyncAtom);
+const [normalizeApostrophesOnImport, setNormalizeApostrophesOnImport] =
+	useAtom(normalizeApostrophesOnImportAtom);
+const [normalizeCyrillicEsOnImport, setNormalizeCyrillicEsOnImport] =
+	useAtom(normalizeCyrillicEsOnImportAtom);
+const [previewFollowsPlayback, setPreviewFollowsPlayback] = useAtom(
+	previewFollowsPlaybackAtom,
+);
 
-	const { t, i18n } = useTranslation();
+const { t, i18n } = useTranslation();
 	const currentLanguage = i18n.resolvedLanguage || i18n.language;
 
 	const getLanguageName = (code: string) => {
@@ -295,6 +302,33 @@ export const SettingsCommonTab = ({
 						</Flex>
 					</Text>
 				</Card>
+
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<VideoBackgroundEffect24Regular />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t("settings.common.previewFollowsPlayback", "Preview follows playback")}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.common.previewFollowsPlaybackDesc",
+												"When enabled, the preview panel follows audio playback only. When disabled, it also follows seek actions in Time/Edit modes.",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										checked={previewFollowsPlayback}
+										onCheckedChange={setPreviewFollowsPlayback}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
 			</Flex>
 			)}
 
@@ -355,15 +389,41 @@ export const SettingsCommonTab = ({
 					</Flex>
 				</Card>
 
-				<Card>
-					<Flex gap="3" align="center">
-						<Keyboard12324Regular />
-						<Box flexGrow="1">
-							<Flex align="center" justify="between" gap="4">
-								<Flex direction="column" gap="1">
-									<Text>
-										{t("settings.common.keyBindingTrigger", "Keybinding Trigger Timing")}
-									</Text>
+			<Card>
+				<Flex gap="3" align="center">
+					<PaddingLeft24Regular />
+					<Box flexGrow="1">
+						<Flex align="center" justify="between" gap="4">
+							<Flex direction="column" gap="1">
+								<Text>
+									{t("settings.common.syncFghToHover", "Sync F/G/H to Spectrogram Hover")}
+								</Text>
+								<Text size="1" color="gray">
+									{t(
+										"settings.common.syncFghToHoverDesc",
+										"When hovering over the spectrogram, F/G/H will use the hover time instead of the audio playhead.",
+									)}
+								</Text>
+							</Flex>
+
+							<Switch
+								checked={syncFghToHover}
+								onCheckedChange={setSyncFghToHover}
+							/>
+						</Flex>
+					</Box>
+				</Flex>
+			</Card>
+
+			<Card>
+				<Flex gap="3" align="center">
+					<Keyboard12324Regular />
+					<Box flexGrow="1">
+						<Flex align="center" justify="between" gap="4">
+							<Flex direction="column" gap="1">
+								<Text>
+									{t("settings.common.keyBindingTrigger", "Keybinding Trigger Timing")}
+								</Text>
 									<Text size="1" color="gray">
 										{t(
 											"settings.common.keyBindingTriggerDesc",
@@ -590,6 +650,29 @@ export const SettingsCommonTab = ({
 							</Flex>
 						</Box>
 					</Flex>
+				</Card>
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<Keyboard12324Regular />
+							<Box flexGrow="1">
+								<Flex direction="column" gap="1">
+									<Flex align="center" justify="between" gap="4">
+										<Text weight="medium">
+											{t("settings.editor.hoverSync", "Sync F/G/H to Spectrogram Hover")}
+										</Text>
+										<Switch
+											checked={syncFghToHover}
+											onCheckedChange={setSyncFghToHover}
+										/>
+									</Flex>
+									<Text size="1" color="gray">
+										{t("settings.editor.hoverSyncDesc", "Use F/G/H shortcuts to directly sync words to current spectrogram hover position.")}
+									</Text>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
 				</Card>
 			</Flex>
 			)}

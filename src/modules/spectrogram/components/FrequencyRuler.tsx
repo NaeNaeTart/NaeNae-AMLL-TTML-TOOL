@@ -1,18 +1,15 @@
 import type { FC } from "react";
 import { useAtomValue } from "jotai";
 import { audioBufferAtom } from "$/modules/audio/states";
-import { spectrogramHeightAtom } from "$/modules/spectrogram/states";
-import { Flex, Text } from "@radix-ui/themes";
+import { Text } from "@radix-ui/themes";
 
 export const FrequencyRuler: FC = () => {
 	const audioBuffer = useAtomValue(audioBufferAtom);
-	const height = useAtomValue(spectrogramHeightAtom);
 
 	if (!audioBuffer) return null;
 
 	const nyquist = audioBuffer.sampleRate / 2;
-	
-	// Choose some key frequencies to display
+
 	const labels = [
 		0,
 		500,
@@ -24,7 +21,6 @@ export const FrequencyRuler: FC = () => {
 		nyquist
 	].filter(f => f <= nyquist);
 
-	// Ensure unique and sorted
 	const uniqueLabels = Array.from(new Set(labels)).sort((a, b) => b - a);
 
 	return (

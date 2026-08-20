@@ -49,7 +49,7 @@ export async function convertMp3ToFlac(
 			"-y",
 			"output.flac",
 		]);
-	} catch (execError: unknown) {
+	} catch {
 		throw new Error(`FFmpeg failed: ${messages.join(", ")}`);
 	}
 

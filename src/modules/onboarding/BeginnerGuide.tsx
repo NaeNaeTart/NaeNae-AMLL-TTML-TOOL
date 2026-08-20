@@ -491,7 +491,7 @@ export const BeginnerGuide = () => {
 										borderRadius: "var(--radius-1)",
 									}}
 								>
-									<Text size="1" weight="bold" color="accent" style={{ display: "block", marginBottom: "2px" }}>
+									<Text size="1" weight="bold" style={{ display: "block", marginBottom: "2px", color: "var(--accent-11)" }}>
 										{t("beginnerGuide.beforeStart.title", "Before you start:")}
 									</Text>
 									<Text size="1" color="gray">

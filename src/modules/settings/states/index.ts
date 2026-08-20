@@ -90,6 +90,17 @@ export const discordIdleTimeoutMinutesAtom = atomWithStorage(
 	5,
 );
 
+export enum DiscordPresenceImageSource {
+	AppLogo = "app-logo",
+	SongCoverArt = "song-cover-art",
+}
+
+export const discordPresenceImageSourceAtom =
+	atomWithStorage<DiscordPresenceImageSource>(
+		"discordPresenceImageSource",
+		DiscordPresenceImageSource.SongCoverArt,
+	);
+
 export const showTimestampsAtom = atomWithStorage("showTimestamps", true);
 export const enableManualTimestampEditAtom = atomWithStorage(
 	"enableManualTimestampEdit",
@@ -139,7 +150,7 @@ export const accentColorAtom = atomWithStorage<
 	| "lime"
 	| "mint"
 	| "sky"
->("accentColor", "red");
+>( "accentColor", "jade");
 
 export const backgroundModeAtom = atomWithStorage<
 	"none" | "image" | "gradient"
@@ -201,7 +212,7 @@ export const syncGradientToAccentAtom = atomWithStorage<boolean>(
 
 export const appFontAtom = atomWithStorage<string>(
 	"appFont",
-	'"MiSans", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+	'Inter, system-ui, -apple-system, sans-serif',
 );
 
 export const customFontDataAtom = atomWithStorage<string | null>(
@@ -283,7 +294,7 @@ export const boykisserUnlockedAtom = atom<boolean>(false);
 
 export const glassmorphismBlurAtom = atomWithStorage<number>(
 	"glassmorphismBlur",
-	24,
+	16,
 );
 
 export enum AppearanceEditorMode {
@@ -298,6 +309,16 @@ export const appearanceEditorModeAtom = atomWithStorage<AppearanceEditorMode>(
 
 export const legacyDarkThemeAtom = atomWithStorage<boolean>(
 	"legacyDarkTheme",
+	false,
+);
+
+export const dynamicThemeFromCoverAtom = atomWithStorage<boolean>(
+	"dynamicThemeFromCover",
+	false,
+);
+
+export const spicyGlassModeAtom = atomWithStorage<boolean>(
+	"spicyGlassMode",
 	false,
 );
 
@@ -321,7 +342,6 @@ export const advancedSecondaryTextColorAtom = atomWithStorage<string>(
 	"",
 );
 
-// --- 20+ Advanced Workspace Customizations ---
 export const advTitlebarBgAtom = atomWithStorage("advTitlebarBg", "");
 export const advSidebarBgAtom = atomWithStorage("advSidebarBg", "");
 export const advSidebarActiveAtom = atomWithStorage("advSidebarActive", "");
@@ -348,11 +368,11 @@ export const advScrollbarColorAtom = atomWithStorage("advScrollbarColor", "");
 export const advDialogBgAtom = atomWithStorage("advDialogBg", "");
 export const advDialogBorderAtom = atomWithStorage("advDialogBorder", "");
 
-export const advGlobalBorderRadiusAtom = atomWithStorage("advGlobalBorderRadius", 12);
+export const advGlobalBorderRadiusAtom = atomWithStorage("advGlobalBorderRadius", 10);
 export const advGlobalBorderWidthAtom = atomWithStorage("advGlobalBorderWidth", 1);
 export const advShadowIntensityAtom = atomWithStorage("advShadowIntensity", 1);
 export const advSelectionColorAtom = atomWithStorage("advSelectionColor", "");
-export const advBackdropBlurAtom = atomWithStorage("advBackdropBlur", 16);
+export const advBackdropBlurAtom = atomWithStorage("advBackdropBlur", 12);
 
 export const appLayoutOrderAtom = atomWithStorage<string[]>(
 	"appLayoutOrder",
@@ -390,3 +410,21 @@ export const geniusHeaderDetectionDialogShownAtom = atomWithStorage<boolean>(
 export const geniusHeaderDetectionDialogOpenAtom = atom(false);
 
 export const geniusHeaderRestorationTextAtom = atom<string | null>(null);
+
+export {
+	previewModeTypeAtom,
+	showTranslationLinesAtom,
+	showRomanLinesAtom,
+	hideObsceneWordsAtom,
+	lyricWordFadeWidthAtom,
+	vsyncAtom,
+	showFpsCounterAtom,
+	instantHighlightFadeAtom,
+	spicySimpleLyricsModeAtom,
+	spicyForceLineSyncedAtom,
+	spicyBackgroundModeAtom,
+	previewFollowsPlaybackAtom,
+	featureFlagsAtom,
+	type ForkFeatureFlags,
+	FORK_FEATURE_FLAG_DEFAULTS,
+} from "./preview";

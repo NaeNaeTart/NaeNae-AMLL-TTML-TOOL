@@ -13,13 +13,17 @@
 /// <reference types="vite-plugin-pwa/client" />
 
 declare module "virtual:i18next-loader" {
-	const value: typeof import("../i18n/locales/zh-CN/translation.json");
+	const value: Record<
+		string,
+		{ translation: typeof import("../i18n/locales/zh-CN/translation.json") }
+	>;
 	export default value;
 }
 
 declare module "virtual:buildmeta" {
 	export const BUILD_TIME: string;
 	export const GIT_COMMIT: string;
+	export const GIT_REPO_URL: string;
 }
 
 interface ImportMetaEnv {

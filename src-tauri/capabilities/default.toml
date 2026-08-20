@@ -50,10 +50,37 @@ identifier = "dialog:default"
 identifier = "fs:default"
 
 [[permissions]]
-identifier = "fs:allow-read"
+identifier = "fs:allow-read-file"
+	allow = [{ path = "**" }]
 
-[[permissions]]
-identifier = "fs:allow-exists"
+	[[permissions]]
+	identifier = "fs:allow-write-file"
+	allow = [{ path = "**" }]
 
-[[permissions]]
-identifier = "fs:allow-stat"
+	[[permissions]]
+	identifier = "fs:allow-read-text-file"
+	allow = [{ path = "**" }]
+
+	[[permissions]]
+	identifier = "fs:allow-write-text-file"
+	allow = [{ path = "**" }]
+
+	[[permissions]]
+	identifier = "fs:allow-read-dir"
+	allow = [{ path = "**" }]
+
+	[[permissions]]
+	identifier = "fs:allow-mkdir"
+	allow = [{ path = "**" }]
+
+	[[permissions]]
+	identifier = "fs:allow-exists"
+	allow = [{ path = "**" }]
+
+	[[permissions]]
+	identifier = "fs:allow-copy-file"
+	allow = [{ path = "**" }]
+
+	[[permissions]]
+	identifier = "fs:allow-remove"
+	allow = [{ path = "**" }]

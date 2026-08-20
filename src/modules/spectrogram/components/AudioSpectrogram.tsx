@@ -42,6 +42,7 @@ import {
 	draggingIdAtom,
 	globalEnableInsertAtom,
 } from "$/modules/lyric-editor/components/lyric-line-view-states.ts";
+import { useReversePlaybackZone } from "$/modules/spectrogram/hooks/useReversePlaybackZone.ts";
 import { useScrubbing } from "$/modules/spectrogram/hooks/useScrubbing";
 import { useSpectrogramInteraction } from "$/modules/spectrogram/hooks/useSpectrogramInteraction.ts";
 import { useSpectrogramResize } from "$/modules/spectrogram/hooks/useSpectrogramResize.ts";
@@ -58,11 +59,12 @@ import {
 	spectrogramHoverPxAtom,
 	spectrogramHoverPyAtom,
 	spectrogramHoverTimeMsAtom,
+	spectrogramIsHoveringAtom,
 	spectrogramSelectionAtom,
 } from "$/modules/spectrogram/states";
 import { isDraggingAtom } from "$/modules/spectrogram/states/dnd.ts";
+import { reversePlaybackStartAtom } from "$/modules/spectrogram/states/reverse-playback";
 import {
-	timeShiftDialogAtom,
 	timeShiftPreviewActiveAtom,
 } from "$/states/dialogs.ts";
 import {
@@ -76,6 +78,7 @@ import { msToTimestamp } from "$/utils/timestamp.ts";
 import styles from "./AudioSpectrogram.module.css";
 import { FrequencyRuler } from "./FrequencyRuler.tsx";
 import { LyricTimelineOverlay } from "./LyricTimelineOverlay.tsx";
+import { ReversePlaybackZone } from "./ReversePlaybackZone.tsx";
 import {
 	type ISpectrogramContext,
 	SpectrogramContext,
@@ -93,7 +96,7 @@ const LOD_WIDTHS = [512, 1024, 2048, 4096, 8192];
 
 const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const getNoteFromFreq = (freq: number) => {
-	if (freq <= 20) return ""; // Human hearing floor
+	if (freq <= 20) return "";
 	const n = Math.round(69 + 12 * Math.log2(freq / 440));
 	const octave = Math.floor(n / 12) - 1;
 	const noteName = NOTES[((n % 12) + 12) % 12];
@@ -114,7 +117,6 @@ export const AudioSpectrogram: FC = memo(() => {
 		showUnselectedLinesAtom,
 	);
 	const globalEnableInsert = useAtomValue(globalEnableInsertAtom);
-	const setDialogVisible = useSetAtom(timeShiftDialogAtom);
 	const setPreviewActive = useSetAtom(timeShiftPreviewActiveAtom);
 
 	useCommand(cmdDuplicatePaste, () => {
@@ -157,7 +159,6 @@ export const AudioSpectrogram: FC = memo(() => {
 					})),
 				};
 
-				// Distribute words
 				const nonEmptyWords = nl.words.filter((w) => w.word.trim() !== "");
 				if (nonEmptyWords.length > 0) {
 					const perWordDur = duration / nonEmptyWords.length;
@@ -172,14 +173,12 @@ export const AudioSpectrogram: FC = memo(() => {
 							w.endTime = lineStart;
 						}
 					}
-					// Fix rounding issues for the last word
 					const lastNonEmpty = nl.words
 						.slice()
 						.reverse()
 						.find((w) => w.word.trim() !== "");
 					if (lastNonEmpty) lastNonEmpty.endTime = lineEnd;
 				} else {
-					// No words, just set line timing
 					nl.startTime = lineStart;
 					nl.endTime = lineEnd;
 				}
@@ -187,7 +186,6 @@ export const AudioSpectrogram: FC = memo(() => {
 				return nl;
 			});
 		} else {
-			// Fallback to playhead offset
 			const minStart = Math.min(...linesToCopy.map((l) => l.startTime));
 			const offset = currentTimeMs - minStart;
 
@@ -214,7 +212,6 @@ export const AudioSpectrogram: FC = memo(() => {
 			lyricLinesAtom,
 			produce((draft) => {
 				const anchorTime = selection ? selection.start : currentTimeMs;
-				// Find insertion point to keep sorted
 				let insertIndex = draft.lyricLines.findIndex(
 					(l: any) => l.startTime > anchorTime,
 				);
@@ -224,7 +221,6 @@ export const AudioSpectrogram: FC = memo(() => {
 			}),
 		);
 
-		// Clear selection after applying timestamps to make it "apply" and finish
 		if (selection) {
 			store.set(spectrogramSelectionAtom, null);
 		}
@@ -248,14 +244,21 @@ export const AudioSpectrogram: FC = memo(() => {
 	);
 
 	const [isHovering, setIsHovering] = useState(false);
+	const setGlobalIsHovering = useSetAtom(spectrogramIsHoveringAtom);
 	const hoverPx = useAtomValue(spectrogramHoverPxAtom);
 	const setHoverPx = useSetAtom(spectrogramHoverPxAtom);
 	const setHoverPy = useSetAtom(spectrogramHoverPyAtom);
 	const hoverTimeMs = useAtomValue(spectrogramHoverTimeMsAtom);
 	const hoverFrequency = useAtomValue(spectrogramHoverFrequencyAtom);
 	const isDragging = useAtomValue(isDraggingAtom);
+	const reversePlaybackStart = useAtomValue(reversePlaybackStartAtom);
+	const { reverseZone, cancelZone } = useReversePlaybackZone();
 
 	const rulerRef = useRef<TimelineRulerHandle>(null);
+
+	useEffect(() => {
+		return () => setGlobalIsHovering(false);
+	}, [setGlobalIsHovering]);
 
 	const { openFile } = useFileOpener();
 	const handleLoadMusic = useCallback(async () => {
@@ -298,12 +301,6 @@ export const AudioSpectrogram: FC = memo(() => {
 			handleSelectionMouseDown(e);
 		},
 		[handleTimelineMouseDown, handleSelectionMouseDown],
-	);
-
-	const { handleScrubStart } = useScrubbing(
-		scrollContainerRef,
-		scrollLeft,
-		zoom,
 	);
 
 	const contextValue = useMemo<ISpectrogramContext>(
@@ -424,9 +421,19 @@ export const AudioSpectrogram: FC = memo(() => {
 		return () => observer.disconnect();
 	}, [setContainerWidth, audioBuffer]);
 
-	const handleMouseEnter = () => setIsHovering(true);
-	const handleMouseLeave = () => setIsHovering(false);
+	const handleMouseEnter = () => {
+		setIsHovering(true);
+		setGlobalIsHovering(true);
+	};
+	const handleMouseLeave = () => {
+		setIsHovering(false);
+		setGlobalIsHovering(false);
+	};
 	const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+		if (!isHovering) {
+			setIsHovering(true);
+			setGlobalIsHovering(true);
+		}
 		const rect = event.currentTarget.getBoundingClientRect();
 		const x = event.clientX - rect.left;
 		const y = event.clientY - rect.top;
@@ -450,15 +457,18 @@ export const AudioSpectrogram: FC = memo(() => {
 	let hoverLineColor: string | undefined;
 
 	if (isInvalidEndTime) {
-		hoverTimeFormatted = t("spectrogram.invalidEndTime", "不能选择此结束时间");
+		hoverTimeFormatted = t(
+			"spectrogram.invalidEndTime",
+			"Cannot select this end time",
+		);
 		tooltipBgColor = "var(--red-9)";
 		hoverLineColor = "var(--red-9)";
 	} else if (editingTimeField && !editingTimeField.isWord) {
 		const fieldName =
 			editingTimeField.field === "startTime"
-				? t("ribbonBar.editMode.startTime", "起始时间")
-				: t("ribbonBar.editMode.endTime", "结束时间");
-		hoverTimeFormatted = `${t("common.clickToSet", "点击设置")}${fieldName}: ${hoverTimeFormatted}`;
+				? t("ribbonBar.editMode.startTime", "Start time")
+				: t("ribbonBar.editMode.endTime", "End time");
+		hoverTimeFormatted = `${t("common.clickToSet", "Click to set")} ${fieldName}: ${hoverTimeFormatted}`;
 		tooltipBgColor = "var(--accent-9)";
 	}
 
@@ -538,11 +548,11 @@ export const AudioSpectrogram: FC = memo(() => {
 								<Text color="gray" size="3">
 									{t(
 										"spectrogram.noAudioLoaded",
-										"请先加载一个音频文件来渲染频谱图哦",
+										"Please load an audio file to render the spectrogram",
 									)}
 								</Text>
 								<Button variant="soft" onClick={handleLoadMusic}>
-									{t("spectrogram.loadAudio", "加载音频文件")}
+									{t("spectrogram.loadAudio", "Load audio file")}
 								</Button>
 							</Flex>
 						</div>
@@ -684,6 +694,23 @@ export const AudioSpectrogram: FC = memo(() => {
 									{visibleTiles.map((tile) => (
 										<TileComponent key={tile.tileId} {...tile} />
 									))}
+									{reverseZone && (
+										<ReversePlaybackZone
+											zone={reverseZone}
+											zoom={zoom}
+											height={dataHeight}
+											tiles={visibleTiles}
+											onCancel={cancelZone}
+										/>
+									)}
+									{reversePlaybackStart !== null && (
+										<div
+											className={styles.reversePlaybackStartCursor}
+											style={{
+												left: `${(reversePlaybackStart / 1000) * zoom}px`,
+											}}
+										/>
+									)}
 									<PlayheadCursor zoom={zoom} />
 
 									{pendingCursorPosition !== null && (
@@ -719,6 +746,7 @@ export const AudioSpectrogram: FC = memo(() => {
 											<LyricTimelineOverlay
 												clientWidth={containerWidth}
 												hiddenLineIds={showRangePreview ? selectedLines : null}
+												reverseZone={reverseZone}
 											/>
 											{!isDragging && (
 												<div
@@ -745,7 +773,10 @@ export const AudioSpectrogram: FC = memo(() => {
 
 				<div className={`${styles.sidebar} ${styles.rightSidebar}`}>
 					<Tooltip
-						content={t("spectrogram.showUnselectedLines", "显示未选中行")}
+						content={t(
+							"spectrogram.showUnselectedLines",
+							"Show unselected lines",
+						)}
 						side="left"
 					>
 						<IconButton
@@ -773,7 +804,7 @@ export const AudioSpectrogram: FC = memo(() => {
 
 					<Popover.Root>
 						<Tooltip
-							content={t("spectrogram.settings", "频谱图设置")}
+							content={t("spectrogram.settings", "Spectrogram settings")}
 							side="left"
 						>
 							<Popover.Trigger>
@@ -785,13 +816,13 @@ export const AudioSpectrogram: FC = memo(() => {
 						<Popover.Content side="left" align="end" style={{ width: 220 }}>
 							<Flex direction="column" gap="3">
 								<Text size="2" weight="bold">
-									{t("spectrogram.settings", "频谱图设置")}
+									{t("spectrogram.settings", "Spectrogram settings")}
 								</Text>
 
 								<Flex direction="column" gap="2">
 									<Text size="1" color="gray">
 										{t("spectrogram.fftSize", "FFT Size")} (
-										{t("spectrogram.resolution", "解析度")})
+										{t("spectrogram.resolution", "Resolution")})
 									</Text>
 									<Select.Root
 										value={fftSize.toString()}
@@ -820,7 +851,7 @@ export const AudioSpectrogram: FC = memo(() => {
 
 								<Flex align="center" gap="2">
 									<Text size="1" color="gray">
-										{t("spectrogram.height", "高度")}
+										{t("spectrogram.height", "Height")}
 									</Text>
 									<Slider
 										size="1"

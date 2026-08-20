@@ -2,6 +2,7 @@ import {
 	Button,
 	Card,
 	Flex,
+	SegmentedControl,
 	Slider,
 	Switch,
 	Text,
@@ -21,6 +22,8 @@ import {
 	discordDetailsTemplateAtom,
 	discordIdleTimeoutMinutesAtom,
 	discordPlaybackTimelineAtom,
+	discordPresenceImageSourceAtom,
+	DiscordPresenceImageSource,
 	discordProjectElapsedAtom,
 	discordRepositoryButtonAtom,
 	discordRichPresenceEnabledAtom,
@@ -78,6 +81,7 @@ export function DiscordPresenceSettings() {
 		discordRepositoryButtonAtom,
 	);
 	const [showStatusBadge, setShowStatusBadge] = useAtom(discordStatusBadgeAtom);
+	const [imageSource, setImageSource] = useAtom(discordPresenceImageSourceAtom);
 	const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useAtom(
 		discordIdleTimeoutMinutesAtom,
 	);
@@ -337,6 +341,34 @@ export function DiscordPresenceSettings() {
 								checked={showStatusBadge}
 								onCheckedChange={setShowStatusBadge}
 							/>
+
+							<Flex align="center" justify="between" gap="3">
+								<Text size="2">
+									{t(
+										"settings.common.discordPresenceImageSource",
+										"Large image",
+									)}
+								</Text>
+								<SegmentedControl.Root
+									disabled={!enabled}
+									size="1"
+									value={imageSource}
+									onValueChange={(val) =>
+										setImageSource(val as DiscordPresenceImageSource)
+									}
+								>
+									<SegmentedControl.Item
+										value={DiscordPresenceImageSource.AppLogo}
+									>
+										{t("settings.common.discordImageAppLogo", "App Logo")}
+									</SegmentedControl.Item>
+									<SegmentedControl.Item
+										value={DiscordPresenceImageSource.SongCoverArt}
+									>
+										{t("settings.common.discordImageCoverArt", "Cover Art")}
+									</SegmentedControl.Item>
+								</SegmentedControl.Root>
+							</Flex>
 
 							<Flex align="center" justify="between">
 								<Text size="2">

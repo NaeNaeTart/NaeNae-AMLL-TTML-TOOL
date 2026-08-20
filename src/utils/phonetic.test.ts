@@ -99,4 +99,19 @@ describe("phonetic conversion requests", () => {
 			),
 		).toBe("i told you, it's zhōngguó");
 	});
+
+	it("keeps one syllable per grapheme for astral-plane characters", async () => {
+		const fetchMock = vi.fn(async () => googleResponse("jì yě jiā"));
+		vi.stubGlobal("fetch", fetchMock);
+		const syllables = await getPhoneticSyllables("𠮷野家", "ja");
+		expect(syllables.length).toBe(3);
+		expect(Array.from("𠮷野家").map((char, index) => ({
+			char,
+			syllable: syllables[index] ?? "",
+		}))).toEqual([
+			{ char: "𠮷", syllable: expect.any(String) },
+			{ char: "野", syllable: expect.any(String) },
+			{ char: "家", syllable: expect.any(String) },
+		]);
+	});
 });

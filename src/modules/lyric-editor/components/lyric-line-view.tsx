@@ -11,7 +11,10 @@
 
 import {
 	AddFilled,
+	ArrowBidirectionalLeftRightFilled,
 	LinkMultiple20Regular,
+	PeopleFilled,
+	TextAlignCenterFilled,
 	TextAlignRightFilled,
 	VideoBackgroundEffectFilled,
 } from "@fluentui/react-icons";
@@ -54,9 +57,12 @@ import {
 } from "$/modules/settings/states/index.ts";
 import {
 	syncLevelModeAtom,
+	reverseSyncLineIdsAtom,
 	visualizeTimestampUpdateAtom,
 } from "$/modules/settings/states/sync.ts";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
 	selectedLinesAtom,
@@ -64,6 +70,7 @@ import {
 	showEndTimeAsDurationAtom,
 	ToolMode,
 	toolModeAtom,
+	vocalistNamesAtom,
 } from "$/states/main.ts";
 import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml.ts";
 import { msToTimestamp } from "$/utils/timestamp.ts";
@@ -115,9 +122,6 @@ const parseRubyShortcut = (value: string) => {
 	};
 };
 
-// 定义一个派生 Atom，用于计算每一行的显示行号
-// 性能优化：只有当行数或 isBG 状态发生变化时，才重新计算行号
-// 这样在打轴（仅修改时间戳）时，不会触发全量行号重新计算
 const isBGSequenceAtom = selectAtom(
 	lyricLinesAtom,
 	(state) => state.lyricLines.map((line) => line.isBG),
@@ -132,7 +136,7 @@ const isBGSequenceAtom = selectAtom(
 
 const lineDisplayNumbersAtom = atom((get) => {
 	const { lyricLines } = get(lyricLinesAtom);
-	get(isBGSequenceAtom); // 订阅稳定序列的变化
+	get(isBGSequenceAtom);
 	const displayNumbers: number[] = [];
 	let currentNumber = 0;
 
@@ -183,10 +187,8 @@ const LyricLineScroller = ({
 			? scrollToIndex
 			: editingRomanWordIndex;
 		if (targetIndex === null || Number.isNaN(targetIndex)) return;
-		// console.log({ scrollToIndex, wordsContainer });
 		if (!wordsContainer) return;
 		const wordEl = wordsContainer.children[targetIndex] as HTMLElement;
-		// console.log({ wordEl, wordsContainer });
 		if (!wordEl) return;
 		wordsContainer.scrollTo({
 			left: wordEl.offsetLeft - wordsContainer.clientWidth / 2,
@@ -260,8 +262,8 @@ const SubLineEdit = memo(
 		const label = useMemo(
 			() =>
 				type === "translatedLyric"
-					? t("lyricLineView.translatedLabel", "翻译：")
-					: t("lyricLineView.romanLabel", "音译："),
+					? t("lyricLineView.translatedLabel", "Translation:")
+					: t("lyricLineView.romanLabel", "Romanization:"),
 			[type, t],
 		);
 
@@ -303,7 +305,99 @@ const SubLineEdit = memo(
 						}}
 					>
 						{line[type] || (
-							<Text color="gray">{t("lyricLineView.empty", "无")}</Text>
+							<Text color="gray">{t("lyricLineView.empty", "None")}</Text>
+						)}
+					</Button>
+				)}
+			</Flex>
+		);
+	},
+);
+
+// Same row style as SubLineEdit ("Translation:" / "Romanization:"), but for
+// the vocalist name of the resolved v2/v3/v4 role on this line. Editing
+// renames the vocalist everywhere (writes to lyricLinesAtom.vocalistNames),
+const VOCALIST_ROLE_LABELS: Record<string, { lead: string; bg: string }> = {
+	v1: { lead: "v1-lead (Principal)", bg: "v1-bg (Background)" },
+	v2: { lead: "v2-duet (Duet)", bg: "v2-bg (Duet BG)" },
+	v3: { lead: "v3-middle (Middle)", bg: "v3-bg (Middle BG)" },
+	v4: { lead: "v4-harmony (Harmony)", bg: "v4-bg (Harmony BG)" },
+};
+
+const VocalistLineEdit = memo(
+	({ vocalistId, isBG }: { vocalistId: string; isBG?: boolean }) => {
+		const editLyricLines = useSetImmerAtom(lyricLinesAtom);
+		const vocalistNames = useAtomValue(vocalistNamesAtom);
+		const [editing, setEditing] = useState(false);
+		const [inputValue, setInputValue] = useState("");
+		const { t } = useTranslation();
+
+		const roleMeta = VOCALIST_ROLE_LABELS[vocalistId] ?? {
+			lead: `${vocalistId}-lead`,
+			bg: `${vocalistId}-bg`,
+		};
+		const rolePrefix = isBG ? roleMeta.bg : roleMeta.lead;
+		const currentName = vocalistNames[vocalistId] ?? "";
+
+		const onEnter = useCallback(
+			(evt: SyntheticEvent<HTMLInputElement>) => {
+				setEditing(false);
+				const newValue = evt.currentTarget.value.trim();
+				if (newValue !== currentName) {
+					editLyricLines((state) => {
+						if (!state.vocalistNames) state.vocalistNames = {};
+						if (newValue) {
+							state.vocalistNames[vocalistId] = newValue;
+						} else {
+							delete state.vocalistNames[vocalistId];
+						}
+					});
+				}
+			},
+			[editLyricLines, currentName, vocalistId],
+		);
+
+		useEffect(() => {
+			if (editing) setInputValue(currentName);
+		}, [editing, currentName]);
+
+		const inputWidth = useMemo(() => {
+			if (inputValue.length > 0) {
+				return `${Math.min(Math.max(inputValue.length, 2), 60)}ch`;
+			}
+			return "16ch";
+		}, [inputValue]);
+
+		return (
+			<Flex align="baseline" gap="1">
+				<Text size="2" weight="medium" color="gray">
+					{rolePrefix}:
+				</Text>
+				{editing ? (
+					<TextField.Root
+						autoFocus
+						size="1"
+						data-lyric-line-interactive=""
+						value={inputValue}
+						style={{ width: inputWidth }}
+						onChange={(evt) => setInputValue(evt.currentTarget.value)}
+						onBlur={onEnter}
+						onKeyDown={(evt) => {
+							if (evt.key === "Enter") onEnter(evt);
+						}}
+					/>
+				) : (
+					<Button
+						size="2"
+						variant="ghost"
+						data-lyric-line-interactive=""
+						onClick={(evt) => {
+							evt.stopPropagation();
+							setEditing(true);
+						}}
+					>
+						{currentName || (
+							<Text color="gray">{t("lyricLineView.empty", "None")}</Text>
 						)}
 					</Button>
 				)}
@@ -356,7 +450,7 @@ const InsertLineButton = ({
 					count: selectedLinesCount,
 					defaultValue: "Duplicate {count} selected line(s) here",
 				})
-				: t("lyricLineView.insertLine", "在此插入新行")}
+				: t("lyricLineView.insertLine", "Insert new line here")}
 		</Button>
 	);
 };
@@ -388,6 +482,7 @@ export const LyricLineView: FC<{
 	const showEndTimeAsDuration = useAtomValue(showEndTimeAsDurationAtom);
 	const toolMode = useAtomValue(toolModeAtom);
 	const syncLevelMode = useAtomValue(syncLevelModeAtom);
+	const reverseSyncLineIds = useAtomValue(reverseSyncLineIdsAtom);
 	const store = useStore();
 	const geniusCategorizationEnabled = useAtomValue(
 		geniusCategorizationEnabledAtom,
@@ -411,6 +506,19 @@ export const LyricLineView: FC<{
 		: undefined;
 
 	const customHeaderColor = useAtomValue(advGeniusHeaderColorAtom);
+	const activeFileKind = useAtomValue(activeFileKindAtom);
+	const isLyricsfile = activeFileKind === ActiveFileKind.Lyricsfile;
+	// Same base-id priority as the lyricsfile writer/AMLLWrapper preview:
+	// duet-group (harmony) > duet > middle > plain lead ("v1"). Every line
+	// has a nameable vocalist - a plain lead line just resolves to the
+	// implicit "v1" id instead of one of the special roles.
+	const lineVocalistId = line.isDuetGroup
+		? "v4"
+		: line.isDuet
+			? "v2"
+			: line.isMiddle
+				? "v3"
+				: "v1";
 
 	const headerType = useMemo(() => {
 		if (activeSection) return activeSection.category;
@@ -475,7 +583,6 @@ export const LyricLineView: FC<{
 		[],
 	);
 
-	// 创建一个仅订阅当前行显示行号的 atom，优化性能
 	const displayNumberAtom = useMemo(
 		() => atom((get) => get(lineDisplayNumbersAtom)[lineIndex]),
 		[lineIndex],
@@ -805,6 +912,7 @@ export const LyricLineView: FC<{
 							toolMode === ToolMode.Edit ? "" : undefined
 						}
 						data-lyric-line-id={line.id}
+						data-lyric-line-index={lineIndex}
 						style={{
 							...(isSectionStart ? { marginTop: "16px" } : {}),
 						}}
@@ -830,6 +938,7 @@ export const LyricLineView: FC<{
 								startX: evt.clientX,
 								startY: evt.clientY,
 								isDragging: false,
+								isCopy: evt.ctrlKey || evt.metaKey,
 							});
 						}}
 						onPointerUp={() => {
@@ -933,6 +1042,11 @@ export const LyricLineView: FC<{
 									<VideoBackgroundEffectFilled color="var(--accent-9)" />
 								)}
 								{line.isDuet && <TextAlignRightFilled color="#44AA33" />}
+								{line.isDuetGroup && <PeopleFilled color="#3399CC" />}
+								{line.isMiddle && <TextAlignCenterFilled color="#CC8833" />}
+								{reverseSyncLineIds.has(line.id) && (
+									<ArrowBidirectionalLeftRightFilled color="#c084fc" />
+								)}
 							</Flex>
 							<div
 								className={classNames(
@@ -1139,7 +1253,7 @@ export const LyricLineView: FC<{
 									)}
 									{toolMode === ToolMode.Edit && (
 										<TextField.Root
-											placeholder={t("lyricLineView.insertWord", "插入单词…")}
+											placeholder={t("lyricLineView.insertWord", "Insert word…")}
 											className={classNames(
 												styles.insertWordField,
 												words.length === 0 && styles.empty,
@@ -1191,6 +1305,9 @@ export const LyricLineView: FC<{
 												lineIndex={lineIndex}
 												type="romanLyric"
 											/>
+										)}
+										{isLyricsfile && lineVocalistId && (
+											<VocalistLineEdit vocalistId={lineVocalistId} isBG={line.isBG} />
 										)}
 									</>
 								)}
@@ -1304,7 +1421,6 @@ export const LyricLineView: FC<{
 								state.lyricLines.splice(lineIndex + 1, 0, newLyricLine());
 							}
 						});
-						// setInsertMode(InsertMode.None);
 						if (!evt.shiftKey) {
 							disableInsert();
 						}
@@ -1315,7 +1431,7 @@ export const LyricLineView: FC<{
 							count: selectedLinesCount,
 							defaultValue: "Duplicate {count} selected line(s) here",
 						})
-						: t("lyricLineView.insertLine", "在此插入新行")}
+						: t("lyricLineView.insertLine", "Insert new line here")}
 				</Button>
 			)}
 		</>
