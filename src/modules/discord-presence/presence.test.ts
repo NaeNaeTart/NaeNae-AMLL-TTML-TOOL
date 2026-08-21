@@ -58,7 +58,7 @@ describe("Discord presence", () => {
 			...lyrics,
 			metadata: [
 				...lyrics.metadata,
-				{ key: "cover_art", value: ["https://example.com/cover.jpg"] },
+				{ key: "cover_art", value: ["  https://example.com/cover.jpg  "] },
 			],
 		} as TTMLLyric;
 
@@ -91,10 +91,32 @@ describe("Discord presence", () => {
 				showProjectElapsed: false,
 				showRepositoryButton: false,
 				showStatusBadge: false,
-			}
+			},
 		);
 
 		expect(payload.largeImage).toBe("https://example.com/cover.jpg");
+	});
+
+	it("ignores cover art URLs that Discord cannot fetch", () => {
+		const snapshot = createPresenceSnapshot({
+			lyrics: {
+				...lyrics,
+				metadata: [
+					...lyrics.metadata,
+					{ key: "cover_art", value: ["blob:https://example.com/local"] },
+				],
+			} as TTMLLyric,
+			fileName: "fallback.ttml",
+			mode: ToolMode.Sync,
+			selectedLineIds: new Set(),
+			playing: false,
+			positionSeconds: 0,
+			durationSeconds: 4,
+			playbackRate: 1,
+		});
+
+		expect(snapshot.coverUrl).toBeNull();
+		expect(formatDiscordActivity(snapshot).largeImage).toBeUndefined();
 	});
 
 	it("finds the timed preview line and corrects timestamps for playback rate", () => {

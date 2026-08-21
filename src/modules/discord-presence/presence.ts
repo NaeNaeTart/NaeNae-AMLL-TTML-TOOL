@@ -82,6 +82,19 @@ const metadataValues = (lyrics: TTMLLyric, key: string) =>
 const firstMetadataValue = (lyrics: TTMLLyric, key: string) =>
 	metadataValues(lyrics, key)[0] ?? "";
 
+const normalizeDiscordImageUrl = (value: string | undefined) => {
+	const trimmed = value?.trim();
+	if (!trimmed) return null;
+	try {
+		const url = new URL(trimmed);
+		return url.protocol === "https:" || url.protocol === "http:"
+			? trimmed
+			: null;
+	} catch {
+		return null;
+	}
+};
+
 export function createPresenceSnapshot({
 	lyrics,
 	fileName,
@@ -117,10 +130,11 @@ export function createPresenceSnapshot({
 		);
 	}
 
-	const coverUrl =
+	const coverUrl = normalizeDiscordImageUrl(
 		lyrics.metadata
 			.find((entry) => entry.key.toLowerCase() === "cover_art")
-			?.value.find((value) => value.trim().length > 0) ?? null;
+			?.value.find((value) => value.trim().length > 0),
+	);
 
 	return {
 		version: PRESENCE_BRIDGE_VERSION,

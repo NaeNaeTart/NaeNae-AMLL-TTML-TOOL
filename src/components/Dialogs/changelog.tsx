@@ -73,6 +73,11 @@ export function ChangelogDialog() {
 									configurable period of inactivity.
 								</Text>
 								<Text size="2">
+									<strong>Discord Album Artwork:</strong> Show a project's web
+									cover image in native Discord presence, with safe fallback to
+									the app logo when no usable cover URL is available.
+								</Text>
+								<Text size="2">
 									<strong>Quick Combine Words:</strong> Shift-click Combine Words
 									to skip the confirmation dialog and immediately use the
 									last-used combination options.
