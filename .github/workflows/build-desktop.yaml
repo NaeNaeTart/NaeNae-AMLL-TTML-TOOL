@@ -12,7 +12,7 @@ jobs:
     name: Validate release tag
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - name: Verify tag and manifest versions
         if: startsWith(github.ref, 'refs/tags/v')
         run: node scripts/validate-release-version.mjs --tag "${{ github.ref_name }}"
@@ -23,9 +23,9 @@ jobs:
     outputs:
       source: ${{ steps.notes.outputs.source }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: pnpm
@@ -47,7 +47,7 @@ jobs:
           fi
       - name: Upload converted release notes
         if: startsWith(github.ref, 'refs/tags/v') && steps.notes.outputs.source == 'changelog'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: release-notes
           path: ${{ runner.temp }}/release-notes.md
@@ -82,14 +82,14 @@ jobs:
             arch: universal
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: ./src-tauri -> target
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: pnpm
@@ -155,7 +155,7 @@ jobs:
           gh release upload "${{ github.ref_name }}" "$appimage_path" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v4
         with:
           name: AMLL TTML Tool ${{ matrix.name }}-${{ matrix.arch }}
           path: |
@@ -169,7 +169,7 @@ jobs:
     needs: [build-tauri-desktop, prepare-release-notes]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v4
         if: needs.prepare-release-notes.outputs.source == 'changelog'
         with:
           name: release-notes
@@ -196,7 +196,7 @@ jobs:
     needs: finalize-release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - name: Require Winget publishing token
         env:
           WINGET_PKGS_TOKEN: ${{ secrets.WINGET_PKGS_TOKEN }}
@@ -216,7 +216,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Check out the Winget fork
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           repository: TheX24/winget-pkgs
           ref: master
