@@ -56,6 +56,28 @@ interface SpanNode {
 	tail: string;
 }
 
+export function appendParentBeforeNestedLines(
+	lines: LyricLine[],
+	nestedStartIndex: number,
+	parent: LyricLine,
+) {
+	const nestedLines = lines.splice(nestedStartIndex);
+	const hasParentContent =
+		parent.words.some(
+			(word) =>
+				word.word.trim().length > 0 ||
+				word.emptyBeat > 0 ||
+				word.ruby?.some((rubyWord) => rubyWord.word.trim().length > 0),
+		) ||
+		parent.translatedLyric.trim().length > 0 ||
+		parent.romanLyric.trim().length > 0;
+	if (nestedLines.length > 0 && !hasParentContent) {
+		lines.push(...nestedLines);
+		return;
+	}
+	lines.push(parent, ...nestedLines);
+}
+
 function localName(el: Element): string {
 	return el.localName || el.tagName.split(":").pop() || el.tagName;
 }
@@ -444,6 +466,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 		parentItunesKey: string | null = null,
 		parentSectionId?: string,
 	) {
+		const nestedStartIndex = lyricLines.length;
 		const startTimeAttr = lineEl.getAttribute("begin");
 		const endTimeAttr = lineEl.getAttribute("end");
 
@@ -477,7 +500,6 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			),
 			sectionId: getAttr(lineEl, "section") || parentSectionId,
 		};
-		let haveBg = false;
 
 		const itunesKey = isBG
 			? parentItunesKey
@@ -532,7 +554,6 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 							itunesKey,
 							line.sectionId,
 						);
-						haveBg = true;
 					} else if (role === "x-translation") {
 						// 没有 Apple Music 样式翻译时才使用内嵌翻译
 						if (!line.translatedLyric) {
@@ -593,13 +614,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			}
 		}
 
-		if (haveBg) {
-			const bgLine = lyricLines.pop();
-			lyricLines.push(line);
-			if (bgLine) lyricLines.push(bgLine);
-		} else {
-			lyricLines.push(line);
-		}
+		appendParentBeforeNestedLines(lyricLines, nestedStartIndex, line);
 	}
 
 	for (const lineEl of ttmlDoc.querySelectorAll("body p[begin][end]")) {

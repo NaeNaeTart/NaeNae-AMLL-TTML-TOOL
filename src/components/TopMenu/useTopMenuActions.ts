@@ -22,7 +22,7 @@ import {
 } from "$/modules/segmentation/utils/segmentation";
 import { SYLLABIFICATION_ENGINES } from "$/modules/segmentation/utils/syllabification-engines";
 import { useSegmentationConfig } from "$/modules/segmentation/utils/useSegmentationConfig";
-import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
+import { allowConsecutiveBackgroundLinesAtom, lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import {
 	advancedSegmentationDialogAtom,
 	autoSegmentDialogAtom,
@@ -218,6 +218,7 @@ export const useTopMenuActions = () => {
 				const ttmlText = exportTTMLText(
 					currentLyrics,
 					store.get(lyricTextNormalizationOptionsAtom),
+					{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
 				);
 				const savedName = await saveFile(ttmlText, {
 					suggestedName: saveFileName,
@@ -301,6 +302,7 @@ export const useTopMenuActions = () => {
 				const ttml = exportTTMLText(
 					lyric,
 					store.get(lyricTextNormalizationOptionsAtom),
+					{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
 				);
 				await navigator.clipboard.writeText(ttml);
 			} catch (e) {
