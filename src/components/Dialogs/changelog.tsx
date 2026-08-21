@@ -55,6 +55,23 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="orange">
+								v0.9.9 Updates (Artwork & Auditioning)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Discord Album Artwork:</strong> Show a project's web
+									cover image in native Discord presence, with safe fallback to
+									the app logo when no usable cover URL is available.
+								</Text>
+								<Text size="2">
+									<strong>Reliable Word Auditioning:</strong> Play exact word
+									slices from the spectrogram on Linux and web without duplicate
+									right-click playback or incorrect desktop volume scaling.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="teal">
 								v0.9.8 Updates (Discord & Shortcuts)
 							</Heading>

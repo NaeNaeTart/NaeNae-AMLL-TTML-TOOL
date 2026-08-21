@@ -50,6 +50,7 @@ export interface PresenceSnapshot {
 	durationSeconds: number;
 	playbackRate: number;
 	projectElapsedSeconds?: number;
+	coverUrl?: string | null;
 }
 
 export interface DiscordActivityPayload {
@@ -60,6 +61,7 @@ export interface DiscordActivityPayload {
 	showStatusBadge: boolean;
 	startTimestamp?: number;
 	endTimestamp?: number;
+	largeImage?: string;
 }
 
 export interface DiscordActivityOptions {
@@ -79,6 +81,19 @@ const metadataValues = (lyrics: TTMLLyric, key: string) =>
 
 const firstMetadataValue = (lyrics: TTMLLyric, key: string) =>
 	metadataValues(lyrics, key)[0] ?? "";
+
+const normalizeDiscordImageUrl = (value: string | undefined) => {
+	const trimmed = value?.trim();
+	if (!trimmed) return null;
+	try {
+		const url = new URL(trimmed);
+		return url.protocol === "https:" || url.protocol === "http:"
+			? trimmed
+			: null;
+	} catch {
+		return null;
+	}
+};
 
 export function createPresenceSnapshot({
 	lyrics,
@@ -115,6 +130,12 @@ export function createPresenceSnapshot({
 		);
 	}
 
+	const coverUrl = normalizeDiscordImageUrl(
+		lyrics.metadata
+			.find((entry) => entry.key.toLowerCase() === "cover_art")
+			?.value.find((value) => value.trim().length > 0),
+	);
+
 	return {
 		version: PRESENCE_BRIDGE_VERSION,
 		mode,
@@ -129,6 +150,7 @@ export function createPresenceSnapshot({
 		durationSeconds: Math.max(0, durationSeconds),
 		playbackRate: Math.max(0.01, playbackRate),
 		projectElapsedSeconds: Math.max(0, projectElapsedSeconds ?? 0),
+		coverUrl,
 	};
 }
 
@@ -297,6 +319,7 @@ export function formatNativeDiscordActivity(
 		playing: snapshot.playing,
 		showRepositoryButton: options.showRepositoryButton,
 		showStatusBadge: options.showStatusBadge,
+		largeImage: snapshot.coverUrl || undefined,
 	};
 
 	if (
@@ -357,6 +380,7 @@ export function formatDiscordActivity(
 		playing: snapshot.playing,
 		showRepositoryButton: true,
 		showStatusBadge: true,
+		largeImage: snapshot.coverUrl || undefined,
 	};
 
 	if (snapshot.playing && snapshot.durationSeconds > snapshot.positionSeconds) {

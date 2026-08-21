@@ -11,6 +11,7 @@ import {
 	equalizerGainsAtom,
 	loadedAudioAtom,
 } from "$/modules/audio/states/index.ts";
+import { bufferSliceToWav } from "$/modules/audio/utils/wav-slice";
 import { AudioWorkerClient } from "$/modules/audio/workers/audio-worker-client";
 import { globalStore } from "$/states/store.ts";
 import { log } from "$/utils/logging";
@@ -150,6 +151,17 @@ class AudioEngine extends EventTarget {
 		return this._audioEl;
 	}
 
+	private _auditionBlobUrl: string | null = null;
+	private _auditionAudioEl: HTMLAudioElement | null = null;
+	private get auditionAudioEl() {
+		if (this._auditionAudioEl) return this._auditionAudioEl;
+		this._auditionAudioEl = document.createElement("audio");
+		this._auditionAudioEl.crossOrigin = "anonymous";
+		this._auditionAudioEl.preload = "auto";
+		this._auditionAudioEl.volume = this._volume;
+		return this._auditionAudioEl;
+	}
+
 	private _mediaSourceNode: MediaElementAudioSourceNode | null = null;
 
 	private connectAudioToContext() {
@@ -175,7 +187,7 @@ class AudioEngine extends EventTarget {
 
 	/** Handle browser autoplay policy */
 	private async resumeContext() {
-		if (this.ctx.state === "suspended") {
+		if (this.ctx.state !== "running") {
 			await this.ctx.resume();
 			log("AudioContext resumed");
 		}
@@ -254,6 +266,9 @@ class AudioEngine extends EventTarget {
 		if (this._audioEl) {
 			this._audioEl.playbackRate = v;
 		}
+		if (this._auditionAudioEl) {
+			this._auditionAudioEl.playbackRate = v;
+		}
 		this._musicPlayBackRate = v;
 		this.dispatchEvent(new Event("music-playback-rate-change"));
 	}
@@ -269,6 +284,7 @@ class AudioEngine extends EventTarget {
 		} else {
 			this.gain.gain.value = v;
 		}
+		if (this._auditionAudioEl) this._auditionAudioEl.volume = v;
 		this.dispatchEvent(new Event("volume-change"));
 	}
 
@@ -277,6 +293,7 @@ class AudioEngine extends EventTarget {
 	}
 	set preservesPitch(v: boolean) {
 		this.audioEl.preservesPitch = v;
+		if (this._auditionAudioEl) this._auditionAudioEl.preservesPitch = v;
 		this.dispatchEvent(new Event("music-preserves-pitch-change"));
 	}
 
@@ -309,9 +326,35 @@ class AudioEngine extends EventTarget {
 		this.dispatchEvent(new Event("music-resume"));
 	}
 
+	stopAudition() {
+		if (auditionRafId) {
+			cancelAnimationFrame(auditionRafId);
+			auditionRafId = null;
+		}
+		if (this._auditionAudioEl) {
+			this._auditionAudioEl.pause();
+			this._auditionAudioEl.currentTime = 0;
+		}
+		if (this._auditionBlobUrl) {
+			URL.revokeObjectURL(this._auditionBlobUrl);
+			this._auditionBlobUrl = null;
+		}
+		if (this.auditionSourceNode) {
+			try {
+				this.auditionSourceNode.stop(0);
+				this.auditionSourceNode.disconnect();
+			} catch {
+				// ignore
+			}
+			this.auditionSourceNode = null;
+		}
+		globalStore.set(auditionTimeAtom, null);
+	}
+
 	pauseMusic() {
 		if (!this._audioEl) return;
 		this._audioEl.pause();
+		this.stopAudition();
 		this.dispatchEvent(new Event("music-pause"));
 	}
 
@@ -322,72 +365,73 @@ class AudioEngine extends EventTarget {
 	 * @param endTimeInSeconds 音频片段的结束时间
 	 * @returns
 	 */
-	auditionRange(startTimeInSeconds: number, endTimeInSeconds: number) {
+	async auditionRange(startTimeInSeconds: number, endTimeInSeconds: number) {
 		if (!this.musicBuffer) {
 			console.warn("musicBuffer 为 null, 无法预览音频");
 			return;
 		}
 
-		if (this.auditionSourceNode) {
-			try {
-				this.auditionSourceNode.stop(0);
-				this.auditionSourceNode.disconnect();
-			} catch (e) {
-				console.error("停止 AudioNode 失败:", e);
-			}
-			this.auditionSourceNode = null;
-		}
-
-		if (auditionRafId) {
-			cancelAnimationFrame(auditionRafId);
-			auditionRafId = null;
-		}
-
-		globalStore.set(auditionTimeAtom, null);
-
-		const durationInSeconds = endTimeInSeconds - startTimeInSeconds;
+		const totalDuration = this.musicBuffer.duration;
+		const validStartTime = Math.max(
+			0,
+			Math.min(startTimeInSeconds, totalDuration),
+		);
+		const validEndTime = Math.max(
+			validStartTime,
+			Math.min(endTimeInSeconds, totalDuration),
+		);
+		const durationInSeconds = validEndTime - validStartTime;
 
 		if (durationInSeconds <= 0) {
 			return;
 		}
 
-		this.resumeContext();
+		this.stopAudition();
 
-		const audioCtxStartTime = this.ctx.currentTime;
-		const mediaStartTime = startTimeInSeconds;
+		try {
+			const wavBlob = bufferSliceToWav(
+				this.musicBuffer,
+				validStartTime,
+				validEndTime,
+			);
+			const blobUrl = URL.createObjectURL(wavBlob);
+			this._auditionBlobUrl = blobUrl;
 
-		const source = this.ctx.createBufferSource();
-		source.buffer = this.musicBuffer;
-		source.connect(this.eqEntryPoint);
-		this.auditionSourceNode = source;
+			const auditionEl = this.auditionAudioEl;
+			auditionEl.src = blobUrl;
+			auditionEl.volume = this._volume;
+			auditionEl.playbackRate = this._musicPlayBackRate;
+			auditionEl.preservesPitch = this.preservesPitch;
 
-		const progressLoop = () => {
-			const elapsedTime = this.ctx.currentTime - audioCtxStartTime;
-			const currentAuditionTime = mediaStartTime + elapsedTime;
+			const startTimeWall = performance.now();
+			const durationMS = (durationInSeconds / this._musicPlayBackRate) * 1000;
 
-			if (currentAuditionTime >= endTimeInSeconds) {
-				globalStore.set(auditionTimeAtom, null);
-				auditionRafId = null;
-			} else {
-				globalStore.set(auditionTimeAtom, currentAuditionTime);
-				auditionRafId = requestAnimationFrame(progressLoop);
-			}
-		};
+			const progressLoop = () => {
+				const elapsedMS = performance.now() - startTimeWall;
+				const progressRatio = Math.min(1, elapsedMS / durationMS);
+				const currentAuditionTime =
+					validStartTime + progressRatio * durationInSeconds;
 
-		source.addEventListener("ended", () => {
-			if (this.auditionSourceNode === source) {
-				if (auditionRafId) {
-					cancelAnimationFrame(auditionRafId);
+				if (progressRatio >= 1 || auditionEl.paused || auditionEl.ended) {
+					globalStore.set(auditionTimeAtom, null);
 					auditionRafId = null;
+					this.stopAudition();
+				} else {
+					globalStore.set(auditionTimeAtom, currentAuditionTime);
+					auditionRafId = requestAnimationFrame(progressLoop);
 				}
-				globalStore.set(auditionTimeAtom, null);
-				this.auditionSourceNode = null;
-			}
-			source.disconnect();
-		});
+			};
 
-		source.start(audioCtxStartTime, mediaStartTime, durationInSeconds);
-		auditionRafId = requestAnimationFrame(progressLoop);
+			auditionEl.onended = () => {
+				this.stopAudition();
+			};
+
+			await auditionEl.play();
+			auditionRafId = requestAnimationFrame(progressLoop);
+		} catch (e) {
+			console.error("[AudioEngine] Audition failed:", e);
+			this.stopAudition();
+		}
 	}
 
 	//#endregion
@@ -422,6 +466,7 @@ class AudioEngine extends EventTarget {
 				});
 			if (this.musicBuffer) {
 				this.pauseMusic();
+				this.stopAudition();
 				this.musicBuffer = null;
 				globalStore.set(audioBufferAtom, null);
 				globalStore.set(loadedAudioAtom, new Blob([]));
@@ -487,8 +532,9 @@ class AudioEngine extends EventTarget {
 				}
 			};
 
-			if ((src as any).path && import.meta.env.TAURI_ENV_PLATFORM) {
-				audioEl.src = convertFileSrc((src as any).path);
+			const filePath = (src as Blob & { path?: string }).path;
+			if (filePath && import.meta.env.TAURI_ENV_PLATFORM) {
+				audioEl.src = convertFileSrc(filePath);
 			} else {
 				audioEl.src = URL.createObjectURL(src);
 			}
@@ -512,13 +558,14 @@ class AudioEngine extends EventTarget {
 		}
 	}
 
-	playSound(
+	async playSound(
 		audioBuffer: AudioBuffer,
 		when?: number,
 		offset?: number,
 		duration?: number,
 	) {
 		if (!this.ctx) return;
+		await this.resumeContext();
 		const source = this.ctx.createBufferSource();
 		source.buffer = audioBuffer;
 		source.connect(this.eqEntryPoint);
@@ -528,7 +575,8 @@ class AudioEngine extends EventTarget {
 		});
 	}
 
-	playNode(node: AudioScheduledSourceNode, when?: number, stop?: number) {
+	async playNode(node: AudioScheduledSourceNode, when?: number, stop?: number) {
+		await this.resumeContext();
 		node.connect(this.eqEntryPoint);
 		node.start(when);
 		node.addEventListener("ended", () => {

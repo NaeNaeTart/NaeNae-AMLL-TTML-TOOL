@@ -20,6 +20,7 @@ struct DiscordActivityPayload {
     show_status_badge: bool,
     start_timestamp: Option<i64>,
     end_timestamp: Option<i64>,
+    large_image: Option<String>,
 }
 
 struct DiscordConnection {
@@ -71,8 +72,14 @@ fn set_discord_activity(
         }
     }
 
+    let large_image = payload
+        .large_image
+        .as_deref()
+        .filter(|url| url.starts_with("http://") || url.starts_with("https://"))
+        .unwrap_or(DISCORD_LOGO_URL);
+
     let mut assets = activity::Assets::new()
-        .large_image(DISCORD_LOGO_URL)
+        .large_image(large_image)
         .large_text("AMLL TTML Tool");
     if payload.show_status_badge {
         let small_image = if payload.playing {
