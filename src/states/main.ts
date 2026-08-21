@@ -164,7 +164,7 @@ export const activeFileKindAtom = atom<ActiveFileKind>(ActiveFileKind.TTML);
 
 export const FILE_KIND_EXTENSIONS: Record<ActiveFileKind, string> = {
 	[ActiveFileKind.TTML]: ".ttml",
-	[ActiveFileKind.Lyricsfile]: ".yaml",
+	[ActiveFileKind.Lyricsfile]: ".lyricsfile.yaml",
 };
 
 const KNOWN_FILE_EXTENSIONS = [
