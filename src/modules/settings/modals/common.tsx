@@ -30,6 +30,7 @@ import { useTranslation } from "react-i18next";
 import { playbackRateAtom, volumeAtom } from "$/modules/audio/states";
 import { DiscordPresenceSettings } from "$/modules/discord-presence/DiscordPresenceSettings";
 import {
+	allowConsecutiveBackgroundLinesAtom,
 	autosaveEnabledAtom,
 	autosaveIntervalAtom,
 	autosaveLimitAtom,
@@ -91,6 +92,7 @@ export const SettingsCommonTab = ({
 		useAtom(normalizeApostrophesOnImportAtom);
 	const [normalizeCyrillicEsOnImport, setNormalizeCyrillicEsOnImport] =
 		useAtom(normalizeCyrillicEsOnImportAtom);
+	const [allowConsecutiveBackgroundLines, setAllowConsecutiveBackgroundLines] = useAtom(allowConsecutiveBackgroundLinesAtom);
 
 	const { t, i18n } = useTranslation();
 	const currentLanguage = i18n.resolvedLanguage || i18n.language;
@@ -661,6 +663,23 @@ export const SettingsCommonTab = ({
 											"Correct hidden Cyrillic lookalikes in Latin words during import and export.",
 										)}
 									</Text>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<Stack24Regular />
+							<Box flexGrow="1">
+								<Flex direction="column" gap="1">
+									<Flex align="center" justify="between" gap="4">
+										<Text>{t("settings.common.allowConsecutiveBackgroundLines", "Allow consecutive and standalone background vocals")}</Text>
+										<Switch checked={allowConsecutiveBackgroundLines} onCheckedChange={setAllowConsecutiveBackgroundLines} />
+									</Flex>
+									<Text size="1" color="gray">{t("settings.common.allowConsecutiveBackgroundLinesDesc", "Export consecutive background vocals together and preserve standalone background vocals for Spicy Lyrics compatibility. Other players may not support this structure.")}</Text>
 								</Flex>
 							</Box>
 						</Flex>

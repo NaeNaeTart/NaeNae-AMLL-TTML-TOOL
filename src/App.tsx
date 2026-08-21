@@ -86,6 +86,7 @@ import {
 	appLayoutOrderAtom,
 	vRibbonPositionAtom,
 	aiSidebarEnabledAtom,
+	allowConsecutiveBackgroundLinesAtom,
 	lyricTextNormalizationOptionsAtom,
 	legacyDarkThemeAtom,
 } from "$/modules/settings/states/index.ts";
@@ -156,7 +157,7 @@ const AppErrorPage = ({
 					<Button
 						onClick={() => {
 							try {
-								const ttmlText = exportTTMLText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom));
+								const ttmlText = exportTTMLText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom), { allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) });
 								const b = new Blob([ttmlText], { type: "text/plain" });
 								saveFile(b, "lyric.ttml").catch(logError);
 							} catch (e) {
