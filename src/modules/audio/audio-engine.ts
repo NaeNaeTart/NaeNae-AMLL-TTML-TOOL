@@ -11,6 +11,7 @@ import {
 	equalizerGainsAtom,
 	loadedAudioAtom,
 } from "$/modules/audio/states/index.ts";
+import { bufferSliceToWav } from "$/modules/audio/utils/wav-slice";
 import { AudioWorkerClient } from "$/modules/audio/workers/audio-worker-client";
 import { globalStore } from "$/states/store.ts";
 import { log } from "$/utils/logging";
@@ -18,81 +19,6 @@ import { log } from "$/utils/logging";
 // Magic, pending original dev's explanation
 // Even don't know where should I put this after refactoring
 // const DELAY = 0.05; // 50ms
-
-function bufferSliceToWav(
-	buffer: AudioBuffer,
-	startSec: number,
-	endSec: number,
-): Blob {
-	const sampleRate = buffer.sampleRate;
-	const numChannels = buffer.numberOfChannels;
-	const totalSamples = buffer.length;
-
-	const startSample = Math.max(0, Math.floor(startSec * sampleRate));
-	const endSample = Math.min(totalSamples, Math.ceil(endSec * sampleRate));
-	const length = Math.max(0, endSample - startSample);
-
-	const bytesPerSample = 2; // 16-bit PCM
-	const blockAlign = numChannels * bytesPerSample;
-	const byteRate = sampleRate * blockAlign;
-	const dataSize = length * blockAlign;
-	const headerSize = 44;
-	const totalSize = headerSize + dataSize;
-
-	const arrayBuffer = new ArrayBuffer(totalSize);
-	const view = new DataView(arrayBuffer);
-
-	// RIFF chunk descriptor
-	view.setUint8(0, 0x52); // 'R'
-	view.setUint8(1, 0x49); // 'I'
-	view.setUint8(2, 0x46); // 'F'
-	view.setUint8(3, 0x46); // 'F'
-	view.setUint32(4, 36 + dataSize, true); // file length - 8
-	view.setUint8(8, 0x57); // 'W'
-	view.setUint8(9, 0x41); // 'A'
-	view.setUint8(10, 0x56); // 'V'
-	view.setUint8(11, 0x45); // 'E'
-
-	// 'fmt ' sub-chunk
-	view.setUint8(12, 0x66); // 'f'
-	view.setUint8(13, 0x6d); // 'm'
-	view.setUint8(14, 0x74); // 't'
-	view.setUint8(15, 0x20); // ' '
-	view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
-	view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
-	view.setUint16(22, numChannels, true); // NumChannels
-	view.setUint32(24, sampleRate, true); // SampleRate
-	view.setUint32(28, byteRate, true); // ByteRate
-	view.setUint16(32, blockAlign, true); // BlockAlign
-	view.setUint16(34, 16, true); // BitsPerSample (16)
-
-	// 'data' sub-chunk
-	view.setUint8(36, 0x64); // 'd'
-	view.setUint8(37, 0x61); // 'a'
-	view.setUint8(38, 0x74); // 't'
-	view.setUint8(39, 0x61); // 'a'
-	view.setUint32(40, dataSize, true);
-
-	// Interleave Float32 samples into Int16 PCM
-	const channelsData: Float32Array[] = [];
-	for (let c = 0; c < numChannels; c++) {
-		channelsData.push(buffer.getChannelData(c));
-	}
-
-	let offset = 44;
-	for (let i = 0; i < length; i++) {
-		const sampleIdx = startSample + i;
-		for (let c = 0; c < numChannels; c++) {
-			let s = channelsData[c][sampleIdx];
-			s = Math.max(-1, Math.min(1, s));
-			const int16 = s < 0 ? s * 0x8000 : s * 0x7fff;
-			view.setInt16(offset, int16, true);
-			offset += 2;
-		}
-	}
-
-	return new Blob([arrayBuffer], { type: "audio/wav" });
-}
 
 let auditionRafId: number | null = null;
 
@@ -353,9 +279,12 @@ class AudioEngine extends EventTarget {
 	set volume(v: number) {
 		if (this._volume === v) return;
 		this._volume = v;
-		if (this._audioEl) this._audioEl.volume = v;
+		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
+			if (this._audioEl) this._audioEl.volume = v;
+		} else {
+			this.gain.gain.value = v;
+		}
 		if (this._auditionAudioEl) this._auditionAudioEl.volume = v;
-		this.gain.gain.value = v;
 		this.dispatchEvent(new Event("volume-change"));
 	}
 
@@ -603,8 +532,9 @@ class AudioEngine extends EventTarget {
 				}
 			};
 
-			if ((src as any).path && import.meta.env.TAURI_ENV_PLATFORM) {
-				audioEl.src = convertFileSrc((src as any).path);
+			const filePath = (src as Blob & { path?: string }).path;
+			if (filePath && import.meta.env.TAURI_ENV_PLATFORM) {
+				audioEl.src = convertFileSrc(filePath);
 			} else {
 				audioEl.src = URL.createObjectURL(src);
 			}

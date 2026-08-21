@@ -67,13 +67,9 @@ export const LyricWordSegment: FC<LyricWordSegmentProps> = ({
 		}
 	};
 
-	const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+	const handlePanStart = (e: MouseEvent<HTMLDivElement>) => {
 		if (isGhost) return;
 		if (editingTimeField) return;
-		if (e.button === 2) {
-			handleAudition(e);
-			return;
-		}
 		if (e.button !== 0) return;
 
 		e.preventDefault();
@@ -119,18 +115,12 @@ export const LyricWordSegment: FC<LyricWordSegmentProps> = ({
 		showPerWordRomanization && romanWord && romanWord.trim() !== "";
 
 	return (
-		// biome-ignore lint/a11y/useSemanticElements: 在这里用 <button> 显然不正确
 		<div
 			className={styles.wordSegment}
 			style={dynamicStyles}
 			onClick={handleClick}
-			onMouseDown={handleMouseDown}
+			onMouseDown={handlePanStart}
 			onContextMenu={handleAudition}
-			onAuxClick={(e) => {
-				if (e.button === 2) {
-					handleAudition(e);
-				}
-			}}
 			role={isGhost ? "presentation" : "button"}
 			tabIndex={isGhost ? -1 : 0}
 			onKeyDown={handleKeyDown}
