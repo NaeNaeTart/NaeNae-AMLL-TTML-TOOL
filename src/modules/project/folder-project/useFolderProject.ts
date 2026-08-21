@@ -154,35 +154,50 @@ export const useFolderProject = () => {
 				return false;
 			}
 
+			let ttmlFile: string | undefined;
+			let lyricsfileFile: string | undefined;
+
 			try {
 				const entries = await readDir(dir);
-				if (!parsedManifest.lyricsfileFile) {
-					const yamlFile = entries.find((e) => {
-						if (!e.isFile) return false;
-						const ext = getFileExtension(e.name);
-						return ext === "yaml" || ext === "yml";
-					});
-					if (yamlFile) {
-						parsedManifest.lyricsfileFile = yamlFile.name;
-					}
+				const ttmlEntries = entries.filter(
+					(e) => e.isFile && getFileExtension(e.name) === "ttml",
+				);
+				const yamlEntries = entries.filter((e) => {
+					if (!e.isFile) return false;
+					const ext = getFileExtension(e.name);
+					return ext === "yaml" || ext === "yml";
+				});
+
+				if (
+					parsedManifest.ttmlFile &&
+					ttmlEntries.some((e) => e.name === parsedManifest.ttmlFile)
+				) {
+					ttmlFile = parsedManifest.ttmlFile;
+				} else if (ttmlEntries.length > 0) {
+					ttmlFile = ttmlEntries[0].name;
 				}
-				// Auto-detect a .ttml companion file too, the same way the .yaml
-				// one is detected above, so projects saved before `ttmlFile` was
-				// tracked (or edited outside the app) still show as dual on open.
-				if (!parsedManifest.ttmlFile) {
-					const ttmlEntry = entries.find(
-						(e) => e.isFile && getFileExtension(e.name) === "ttml",
-					);
-					if (ttmlEntry) {
-						parsedManifest.ttmlFile = ttmlEntry.name;
-					}
+
+				if (
+					parsedManifest.lyricsfileFile &&
+					yamlEntries.some((e) => e.name === parsedManifest.lyricsfileFile)
+				) {
+					lyricsfileFile = parsedManifest.lyricsfileFile;
+				} else if (yamlEntries.length > 0) {
+					lyricsfileFile = yamlEntries[0].name;
 				}
 			} catch {}
 
+			// Default: Always open in TTML if available, otherwise open in YAML
+			const activeLyricFileName = ttmlFile || lyricsfileFile || "";
+			const isLyricsfile = !ttmlFile && Boolean(lyricsfileFile);
+
+			parsedManifest.ttmlFile = ttmlFile;
+			parsedManifest.lyricsfileFile = lyricsfileFile;
+			parsedManifest.lyricFile = activeLyricFileName;
+
 			let lyricData: TTMLLyric = { lyricLines: [], metadata: [] };
-			let isLyricsfile = false;
-			if (parsedManifest.lyricFile) {
-				const lyricPath = await join(dir, parsedManifest.lyricFile);
+			if (activeLyricFileName) {
+				const lyricPath = await join(dir, activeLyricFileName);
 				let hasLyric = false;
 				try {
 					hasLyric = await exists(lyricPath);
@@ -192,8 +207,6 @@ export const useFolderProject = () => {
 				if (hasLyric) {
 					try {
 						const lyricText = await readTextFile(lyricPath);
-						const ext = getFileExtension(parsedManifest.lyricFile);
-						isLyricsfile = ext === "yaml" || ext === "yml";
 						if (isLyricsfile) {
 							lyricData = parseLyricsfile(lyricText);
 						} else {
@@ -217,7 +230,7 @@ export const useFolderProject = () => {
 							};
 						}
 					} catch (e) {
-						logError(`Error when parsing lyric file: ${parsedManifest.lyricFile}`, e);
+						logError(`Error when parsing lyric file: ${activeLyricFileName}`, e);
 						toast.error(
 							t("error.folderProjectLyricParse", "Failed to parse lyric file"),
 						);
@@ -975,7 +988,7 @@ export const useFolderProject = () => {
 		const shouldWriteLyric = hasLyricContent;
 		const fileKind = store.get(activeFileKindAtom);
 		const isLyricsfile = fileKind === ActiveFileKind.Lyricsfile;
-		const targetExt = isLyricsfile ? "yaml" : "ttml";
+		const targetExt = isLyricsfile ? "lyricsfile.yaml" : "ttml";
 		const suggested = getSuggestedTtmlFileName(lyric.metadata);
 		const lyricFileName = shouldWriteLyric
 			? ensureExtension(
@@ -1135,7 +1148,7 @@ export const useFolderProject = () => {
 			try {
 				const fileKind = store.get(activeFileKindAtom);
 				const isLyricsfile = fileKind === ActiveFileKind.Lyricsfile;
-				const targetExt = isLyricsfile ? "yaml" : "ttml";
+				const targetExt = isLyricsfile ? "lyricsfile.yaml" : "ttml";
 				const suggested = getSuggestedTtmlFileName(lyric.metadata);
 				const lyricFileName = ensureExtension(
 					sanitizeFileName(

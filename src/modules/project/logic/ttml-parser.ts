@@ -495,7 +495,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			),
 			sectionId: getAttr(lineEl, "section") || parentSectionId,
 		};
-		let haveBg = false;
+		let bgCount = 0;
 
 		const itunesKey = isBG
 			? parentItunesKey
@@ -552,7 +552,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 							itunesKey,
 							line.sectionId,
 						);
-						haveBg = true;
+						bgCount++;
 					} else if (role === "x-translation") {
 						if (!line.translatedLyric) {
 							line.translatedLyric = wordEl.textContent ?? "";
@@ -612,10 +612,10 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			}
 		}
 
-		if (haveBg) {
-			const bgLine = lyricLines.pop();
+		if (bgCount > 0) {
+			const bgLines = lyricLines.splice(lyricLines.length - bgCount, bgCount);
 			lyricLines.push(line);
-			if (bgLine) lyricLines.push(bgLine);
+			lyricLines.push(...bgLines);
 		} else {
 			lyricLines.push(line);
 		}

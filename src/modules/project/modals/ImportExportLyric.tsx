@@ -94,7 +94,12 @@ export const ImportExportLyric = () => {
 				types: [
 					{
 						description: "Lyricsfile YAML files",
-						accept: { "text/yaml": [".yaml"] },
+						accept: {
+							"text/yaml": [
+								FILE_KIND_EXTENSIONS[ActiveFileKind.Lyricsfile],
+								".yaml",
+							],
+						},
 					},
 				],
 			});

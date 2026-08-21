@@ -63,7 +63,14 @@ async function scanOneProjectDir(
 			const text = await readTextFile(manifestPath);
 			const parsed = JSON.parse(text) as unknown;
 			if (isProjectManifest(parsed)) {
-				let matchedYaml = parsed.lyricsfileFile;
+				const matchedTtml = ttmlFiles.some((t) => t.name === parsed.ttmlFile)
+					? parsed.ttmlFile
+					: ttmlFiles[0]?.name;
+
+				let matchedYaml = yamlFiles.some((y) => y.name === parsed.lyricsfileFile)
+					? parsed.lyricsfileFile
+					: undefined;
+
 				if (!matchedYaml && parsed.lyricFile) {
 					const lyricBase = stripKnownFileExtension(parsed.lyricFile).toLowerCase();
 					const found = yamlFiles.find(
@@ -71,21 +78,22 @@ async function scanOneProjectDir(
 					);
 					if (found) matchedYaml = found.name;
 				}
+				if (!matchedYaml && yamlFiles.length > 0) {
+					matchedYaml = yamlFiles[0].name;
+				}
+
 				const audioStillExists = parsed.audioFile
 					? subEntries.some((e) => e.isFile && e.name === parsed.audioFile)
 					: false;
-				const lyricStillExists = parsed.lyricFile
-					? subEntries.some((e) => e.isFile && e.name === parsed.lyricFile)
-					: false;
-				const yamlStillExists = matchedYaml
-					? subEntries.some((e) => e.isFile && e.name === matchedYaml)
-					: false;
+
+				const activeLyric = matchedTtml || matchedYaml || "";
+
 				return {
 					dir,
 					name: parsed.name || fallbackName,
 					audioFile: audioStillExists ? parsed.audioFile : "",
-					lyricFile: lyricStillExists ? parsed.lyricFile : "",
-					lyricsfileFile: yamlStillExists ? matchedYaml : undefined,
+					lyricFile: activeLyric,
+					lyricsfileFile: matchedYaml,
 					updatedAt: parsed.updatedAt ?? 0,
 					hasManifest: true,
 				};

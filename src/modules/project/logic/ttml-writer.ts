@@ -345,10 +345,9 @@ export default function exportTTMLText(
 				lineP.setAttribute("end", msToTimestamp(word.endTime));
 			}
 
-			const nextLine = param[lineIndex + 1];
-			if (nextLine?.isBG) {
+			while (param[lineIndex + 1]?.isBG) {
 				lineIndex++;
-				const bgLine = nextLine;
+				const bgLine = param[lineIndex];
 				bgWords = bgLine.words;
 
 				const bgLineSpan = doc.createElement("span");

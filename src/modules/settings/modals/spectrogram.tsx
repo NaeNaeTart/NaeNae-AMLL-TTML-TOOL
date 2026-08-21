@@ -1,4 +1,4 @@
-import { Button, Flex, Select, Text, TextField } from "@radix-ui/themes";
+import { Badge, Button, Flex, Select, Switch, Text, TextField } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -6,10 +6,12 @@ import {
 	customPaletteStopsAtom,
 	predefinedPalettes,
 	selectedPaletteIdAtom,
+	spectrogramSplitModeAtom,
 } from "$/modules/spectrogram/states";
 
 export const SettingsSpectrogramTab = () => {
 	const { t } = useTranslation();
+	const [splitMode, setSplitMode] = useAtom(spectrogramSplitModeAtom);
 	const [selectedPaletteId, setSelectedPaletteId] = useAtom(
 		selectedPaletteIdAtom,
 	);
@@ -68,6 +70,27 @@ export const SettingsSpectrogramTab = () => {
 
 	return (
 		<Flex direction="column" gap="4">
+			<Text as="label">
+				<Flex justify="between" align="center" gap="3">
+					<Flex direction="column" gap="1">
+						<Flex gap="2" align="center">
+							<Text>{t("settings.spectrogram.splitMode", "Multi-Track Split View")}</Text>
+							<Badge variant="soft">VGZ</Badge>
+						</Flex>
+						<Text size="1" color="gray">
+							{t(
+								"settings.spectrogram.splitModeDesc",
+								"Split the spectrogram into two synchronized parallel tracks to manage overlapping lines and duet vocals.",
+							)}
+						</Text>
+					</Flex>
+					<Switch
+						checked={splitMode}
+						onCheckedChange={setSplitMode}
+					/>
+				</Flex>
+			</Text>
+
 			<Text as="label">
 				<Flex direction="column" gap="2" align="start">
 					<Text>{t("settings.spectrogram.palette", "Color Palette")}</Text>

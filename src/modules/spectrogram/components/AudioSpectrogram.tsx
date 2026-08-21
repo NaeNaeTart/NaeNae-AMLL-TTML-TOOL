@@ -1,5 +1,6 @@
 import {
 	ClockRegular,
+	DismissFilled,
 	EyeFilled,
 	EyeOffFilled,
 	MusicNote2Filled,
@@ -61,6 +62,8 @@ import {
 	spectrogramHoverTimeMsAtom,
 	spectrogramIsHoveringAtom,
 	spectrogramSelectionAtom,
+	spectrogramSplitModeAtom,
+	spectrogramTopTrackLinesAtom,
 } from "$/modules/spectrogram/states";
 import { isDraggingAtom } from "$/modules/spectrogram/states/dnd.ts";
 import { reversePlaybackStartAtom } from "$/modules/spectrogram/states/reverse-playback";
@@ -226,6 +229,9 @@ export const AudioSpectrogram: FC = memo(() => {
 		}
 	}, [globalEnableInsert, store]);
 
+	const splitMode = useAtomValue(spectrogramSplitModeAtom);
+	const topTrackLines = useAtomValue(spectrogramTopTrackLinesAtom);
+
 	const { height: uiHeight, resizeHandleProps } = useSpectrogramResize({
 		initialHeight: dataHeight,
 		onCommit: setDataHeight,
@@ -329,6 +335,9 @@ export const AudioSpectrogram: FC = memo(() => {
 
 		const currentPaletteId = palette.id;
 
+		const splitMode = store.get(spectrogramSplitModeAtom);
+		const trackHeight = splitMode ? dataHeight / 2 : dataHeight;
+
 		for (let i = firstVisibleIndex - 2; i <= lastVisibleIndex + 2; i++) {
 			if (i < 0 || i >= totalTiles) continue;
 
@@ -342,7 +351,7 @@ export const AudioSpectrogram: FC = memo(() => {
 				startTime: i * TILE_DURATION_S,
 				endTime: i * TILE_DURATION_S + TILE_DURATION_S,
 				gain: gain,
-				height: dataHeight,
+				height: trackHeight,
 				tileWidthPx: targetLodWidth,
 				paletteId: currentPaletteId,
 				fftSize: fftSize,
@@ -355,7 +364,7 @@ export const AudioSpectrogram: FC = memo(() => {
 				tileId: cacheId,
 				left: i * tileDisplayWidthPx,
 				width: tileDisplayWidthPx,
-				height: dataHeight,
+				height: trackHeight,
 				canvasWidth: currentBitmap?.width || targetLodWidth,
 				bitmap: currentBitmap,
 			});
@@ -691,9 +700,64 @@ export const AudioSpectrogram: FC = memo(() => {
 										transform: `translate3d(${-transformX}px, 0, 0)`,
 									}}
 								>
-									{visibleTiles.map((tile) => (
-										<TileComponent key={tile.tileId} {...tile} />
-									))}
+									{splitMode ? (
+										<div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+											<div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+												{visibleTiles.map((tile) => (
+													<TileComponent key={tile.tileId} {...tile} />
+												))}
+												<SpectrogramContext.Provider value={contextValue}>
+													<Theme appearance="dark">
+														<LyricTimelineOverlay
+															clientWidth={containerWidth}
+															hiddenLineIds={
+																showRangePreview
+																	? new Set([...Array.from(selectedLines), ...Array.from(topTrackLines)])
+																	: undefined
+															}
+															visibleLineIds={topTrackLines}
+															reverseZone={reverseZone}
+														/>
+													</Theme>
+												</SpectrogramContext.Provider>
+											</div>
+											<div style={{ flex: 1, position: "relative", overflow: "hidden", borderTop: "1px solid var(--gray-6)" }}>
+												{visibleTiles.map((tile) => (
+													<TileComponent key={tile.tileId} {...tile} />
+												))}
+												<SpectrogramContext.Provider value={contextValue}>
+													<Theme appearance="dark">
+														<LyricTimelineOverlay
+															clientWidth={containerWidth}
+															hiddenLineIds={
+																new Set([
+																	...(showRangePreview ? Array.from(selectedLines) : []),
+																	...Array.from(topTrackLines),
+																])
+															}
+															reverseZone={reverseZone}
+														/>
+													</Theme>
+												</SpectrogramContext.Provider>
+											</div>
+										</div>
+									) : (
+										<>
+											{visibleTiles.map((tile) => (
+												<TileComponent key={tile.tileId} {...tile} />
+											))}
+											<SpectrogramContext.Provider value={contextValue}>
+												<Theme appearance="dark">
+													<LyricTimelineOverlay
+														clientWidth={containerWidth}
+														hiddenLineIds={showRangePreview ? selectedLines : null}
+														reverseZone={reverseZone}
+													/>
+												</Theme>
+											</SpectrogramContext.Provider>
+										</>
+									)}
+
 									{reverseZone && (
 										<ReversePlaybackZone
 											zone={reverseZone}
@@ -741,30 +805,41 @@ export const AudioSpectrogram: FC = memo(() => {
 											style={selectionStyle}
 										/>
 									)}
-									<SpectrogramContext.Provider value={contextValue}>
-										<Theme appearance="dark">
-											<LyricTimelineOverlay
-												clientWidth={containerWidth}
-												hiddenLineIds={showRangePreview ? selectedLines : null}
-												reverseZone={reverseZone}
+									{!isDragging && (
+										<div
+											className={styles.hoverCursorContainer}
+											style={{
+												left: `${hoverX}px`,
+												opacity: isHovering ? 1 : 0,
+											}}
+										>
+											<div
+												className={styles.hoverCursorLine}
+												style={{ backgroundColor: hoverLineColor }}
 											/>
-											{!isDragging && (
-												<div
-													className={styles.hoverCursorContainer}
-													style={{
-														left: `${hoverX}px`,
-														opacity: isHovering ? 1 : 0,
-													}}
-												>
-													<div
-														className={styles.hoverCursorLine}
-														style={{ backgroundColor: hoverLineColor }}
-													/>
-												</div>
-											)}
-										</Theme>
-									</SpectrogramContext.Provider>
+										</div>
+									)}
 								</div>
+								{splitMode && (
+									<IconButton
+										variant="solid"
+										color="gray"
+										size="1"
+										style={{
+											position: "absolute",
+											top: "4px",
+											right: "4px",
+											zIndex: 10,
+										}}
+										onClick={() => {
+											store.set(spectrogramSplitModeAtom, false);
+											store.set(spectrogramTopTrackLinesAtom, new Set());
+										}}
+										title={t("spectrogram.closeSplitMode", "Close Split Mode")}
+									>
+										<DismissFilled />
+									</IconButton>
+								)}
 							</div>
 							<TimeShiftToolbar />
 						</>

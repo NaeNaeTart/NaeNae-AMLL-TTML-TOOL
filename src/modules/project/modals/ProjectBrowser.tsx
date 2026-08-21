@@ -153,8 +153,15 @@ export const ProjectBrowserDialog = () => {
 														(project.ttmlFile &&
 															project.lyricsfileFile &&
 															project.ttmlFile !== project.lyricsfileFile) ||
+															(project.lyricsfileFile &&
+																project.lyricFile &&
+																project.lyricsfileFile !== project.lyricFile) ||
 															(project.ttmlFile &&
-																project.lyricFile?.endsWith(".yaml")) ||
+																project.lyricFile &&
+																project.ttmlFile !== project.lyricFile) ||
+															(project.ttmlFile &&
+																(project.lyricFile?.endsWith(".yaml") ||
+																	project.lyricFile?.endsWith(".yml"))) ||
 															(project.lyricsfileFile &&
 																project.lyricFile?.endsWith(".ttml")),
 													) && (

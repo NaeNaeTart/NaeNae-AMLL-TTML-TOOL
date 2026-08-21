@@ -25,6 +25,7 @@ import {
 	Switch,
 	Text,
 	TextField,
+	Badge,
 } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -47,6 +48,7 @@ import {
 } from "$/modules/settings/states";
 import {
 	enableUpcomingWordHighlightAtom,
+	reversePlaybackEnabledAtom,
 	syncFghToHoverAtom,
 	syncTimeOffsetAtom,
 	syncCommitOffsetAtom,
@@ -89,6 +91,7 @@ export const SettingsCommonTab = ({
 	const [syncTimeOffset, setSyncTimeOffset] = useAtom(syncTimeOffsetAtom);
 	const [syncCommitOffset, setSyncCommitOffset] = useAtom(syncCommitOffsetAtom);
 	const [syncFghToHover, setSyncFghToHover] = useAtom(syncFghToHoverAtom);
+	const [reversePlaybackEnabled, setReversePlaybackEnabled] = useAtom(reversePlaybackEnabledAtom);
 
 const [compactBGInSync, setCompactBGInSync] = useAtom(compactBGInSyncAtom);
 const [normalizeApostrophesOnImport, setNormalizeApostrophesOnImport] =
@@ -310,13 +313,16 @@ const { t, i18n } = useTranslation();
 							<Box flexGrow="1">
 								<Flex gap="2" align="center" justify="between">
 									<Flex direction="column" gap="1">
-										<Text>
-											{t("settings.common.previewFollowsPlayback", "Preview follows playback")}
-										</Text>
+										<Flex gap="2" align="center">
+											<Text>
+												{t("settings.common.previewFollowsPlayback", "Editor Auto-Scroll to Active Line")}
+											</Text>
+											<Badge variant="soft">VGZ</Badge>
+										</Flex>
 										<Text size="1" color="gray">
 											{t(
 												"settings.common.previewFollowsPlaybackDesc",
-												"When enabled, the preview panel follows audio playback only. When disabled, it also follows seek actions in Time/Edit modes.",
+												"When enabled, the Edit and Time mode editor automatically scrolls to the currently playing line during playback, so you never have to manually scroll to find where the song is.",
 											)}
 										</Text>
 									</Flex>
@@ -395,9 +401,12 @@ const { t, i18n } = useTranslation();
 					<Box flexGrow="1">
 						<Flex align="center" justify="between" gap="4">
 							<Flex direction="column" gap="1">
-								<Text>
-									{t("settings.common.syncFghToHover", "Sync F/G/H to Spectrogram Hover")}
-								</Text>
+								<Flex gap="2" align="center">
+									<Text>
+										{t("settings.common.syncFghToHover", "Sync F/G/H to Spectrogram Hover")}
+									</Text>
+									<Badge variant="soft">VGZ</Badge>
+								</Flex>
 								<Text size="1" color="gray">
 									{t(
 										"settings.common.syncFghToHoverDesc",
@@ -409,6 +418,34 @@ const { t, i18n } = useTranslation();
 							<Switch
 								checked={syncFghToHover}
 								onCheckedChange={setSyncFghToHover}
+							/>
+						</Flex>
+					</Box>
+				</Flex>
+			</Card>
+
+			<Card>
+				<Flex gap="3" align="center">
+					<PaddingRight24Regular />
+					<Box flexGrow="1">
+						<Flex align="center" justify="between" gap="4">
+							<Flex direction="column" gap="1">
+								<Flex gap="2" align="center">
+									<Text>
+										{t("settings.common.reversePlaybackEnabled", "Reverse Playback Zone")}
+									</Text>
+									<Badge variant="soft">VGZ</Badge>
+								</Flex>
+								<Text size="1" color="gray">
+									{t(
+										"settings.common.reversePlaybackEnabledDesc",
+										"Enable the reverse playback zone in the spectrogram. Mark a region to play it reversed and apply mirrored timestamps to the selected reverse-flagged lines.",
+									)}
+								</Text>
+							</Flex>
+							<Switch
+								checked={reversePlaybackEnabled}
+								onCheckedChange={setReversePlaybackEnabled}
 							/>
 						</Flex>
 					</Box>
@@ -651,29 +688,6 @@ const { t, i18n } = useTranslation();
 						</Box>
 					</Flex>
 				</Card>
-				<Card>
-					<Text as="label">
-						<Flex gap="3" align="center">
-							<Keyboard12324Regular />
-							<Box flexGrow="1">
-								<Flex direction="column" gap="1">
-									<Flex align="center" justify="between" gap="4">
-										<Text weight="medium">
-											{t("settings.editor.hoverSync", "Sync F/G/H to Spectrogram Hover")}
-										</Text>
-										<Switch
-											checked={syncFghToHover}
-											onCheckedChange={setSyncFghToHover}
-										/>
-									</Flex>
-									<Text size="1" color="gray">
-										{t("settings.editor.hoverSyncDesc", "Use F/G/H shortcuts to directly sync words to current spectrogram hover position.")}
-									</Text>
-								</Flex>
-							</Box>
-						</Flex>
-					</Text>
-				</Card>
 			</Flex>
 			)}
 
@@ -730,7 +744,7 @@ const { t, i18n } = useTranslation();
 										<Text>
 											{t(
 												"settings.common.normalizeCyrillicEsOnImport",
-												"Fix isolated Cyrillic Е/е in Latin words",
+												"Fix isolated Cyrillic lookalikes in Latin words",
 											)}
 										</Text>
 										<Switch

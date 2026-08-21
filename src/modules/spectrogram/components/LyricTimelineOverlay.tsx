@@ -33,6 +33,7 @@ import { SpectrogramContext } from "./SpectrogramContext.ts";
 interface LyricTimelineOverlayProps {
 	clientWidth: number;
 	hiddenLineIds?: Set<string> | null;
+	visibleLineIds?: Set<string> | null;
 	reverseZone?: ReversePlaybackZone | null;
 }
 
@@ -41,6 +42,7 @@ const SNAP_THRESHOLD_PX = 7;
 export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 	clientWidth,
 	hiddenLineIds,
+	visibleLineIds,
 	reverseZone,
 }) => {
 	const processedLines = useAtomValue(processedLyricLinesAtom);
@@ -253,6 +255,10 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 		linesToRender = linesToRender.filter((line) => !hiddenLineIds.has(line.id));
 	}
 
+	if (visibleLineIds != null) {
+		linesToRender = linesToRender.filter((line) => visibleLineIds.has(line.id));
+	}
+
 	if (!showUnselectedLines) {
 		linesToRender = linesToRender.filter((line) => selectedLines.has(line.id));
 	}
@@ -273,6 +279,8 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 				previewOffset !== 0 &&
 				processedLines.map((line) => {
 					if (line.startTime == null || line.endTime == null) return null;
+					if (hiddenLineIds && hiddenLineIds.has(line.id)) return null;
+					if (visibleLineIds != null && !visibleLineIds.has(line.id)) return null;
 
 					const shiftedStartMs = line.startTime + previewOffset;
 					const shiftedEndMs = line.endTime + previewOffset;

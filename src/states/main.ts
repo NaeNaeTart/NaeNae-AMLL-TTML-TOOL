@@ -18,6 +18,7 @@ import {
 	repairSectionIntegrity,
 } from "$/modules/lyric-editor/utils/section-system";
 import { identifyProject } from "$/modules/project/logic/project-info";
+import { spectrogramSplitModeAtom, spectrogramTopTrackLinesAtom } from "$/modules/spectrogram/states/index.ts";
 import type { TTMLLyric } from "../types/ttml";
 
 export enum DarkMode {
@@ -147,6 +148,8 @@ export const newLyricLinesAtom = atom(
 		set(undoableLyricLinesAtom, RESET);
 		set(selectedLinesAtom, new Set());
 		set(selectedWordsAtom, new Set());
+		set(spectrogramSplitModeAtom, false);
+		set(spectrogramTopTrackLinesAtom, new Set());
 	},
 );
 export const selectedLinesAtom = atom(new Set<string>());

@@ -32,6 +32,15 @@ export const syncLevelModeAtom = atomWithStorage<SyncLevelMode>(
 export const reverseSyncLineIdsAtom = atom<Set<string>>(new Set<string>());
 
 /**
+ * VGZ — Global toggle for the Reverse Playback Zone feature.
+ * When disabled the keyboard commands still fire but buildPlayback ignores them.
+ */
+export const reversePlaybackEnabledAtom = atomWithStorage(
+	"reversePlaybackEnabled",
+	true,
+);
+
+/**
  * Per-line timing snapshot captured right before "Reverse sync order" is
  * turned on for that line. If the user turns it back off, whatever timing
  * progress was made while it was on is discarded and this snapshot is

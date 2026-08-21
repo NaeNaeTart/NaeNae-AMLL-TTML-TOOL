@@ -8,6 +8,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Split Spectrogram Multi-Track Editing**:
+  - Divide spectrogram into two synchronized parallel tracks for editing overlapping vocals, duets, and background ad-libs.
+  - Right-click context menu action `Show on Top Track` to route specific lyric lines to the upper spectrogram track.
+  - Floating quick-close button ("X") on the top track to easily collapse back to unified view.
+  - Automatic split-state reset when opening or switching projects.
+- **Multi-Background TTML Support**:
+  - Full parser and writer support for multiple consecutive and overlapping background lines (`<span ttm:role="x-bg">`) in TTML.
+- **Lyricsfile v1.1 (.lyricsfile.yaml) Enhancements**:
+  - Full support for the `.lyricsfile.yaml` standard extension across folder projects, export dialogs, and the converter tool.
+  - Reliable Dual format detection in all project cards and browsers regardless of active format (TTML or YAML).
+- **Dynamic Project Loading & Priority**:
+  - Always default to opening `.ttml` if present in folder projects, falling back to `.lyricsfile.yaml`.
+  - Real-time disk validation that cleans up deleted file references automatically from project manifests.
+- **Upstream Integrations & Fixes**:
+  - Discord RPC cover art URL validation with safe fallback to application branding.
+  - Persisted lyric import preferences (Process Lyrics, Genius songwriters, and section headers).
+  - Spectrogram word audition playback powered by in-memory WAV slice encoding.
 - **Folder Projects & Workspace System**:
   - Open, create, save, and manage lyrics organized as project folders with a `project.json` manifest.
   - Workspace scanner that discovers and lists all project folders in a directory.
@@ -29,7 +46,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Standard and Toxi preview modes now use the interactive `SpicyBackground` mesh-warp engine with full cover palette extraction from embedded audio, metadata, or custom backgrounds.
   - Cover art resolution chain for Discord Rich Presence with online NetEase API fallback for missing embedded art, and multi-host (tmpfiles, catbox, litterbox) image upload support.
   - Unified rendering for harmony pairs (`isDuetGroup`) side-by-side across Standard, Toxi, and Spicy preview styles.
-  - Preview follows playback toggle (`previewFollowsPlayback`) that synchronizes scroll position seamlessly when switching between Preview, Edit, and Time modes.
+  - Editor Auto-Scroll to Active Line toggle (`previewFollowsPlaybackAtom`) that automatically scrolls the editor in Edit and Time modes to follow the playing line during audio playback.
 - **Lyricsfile Vocal Role Management**:
   - Dynamic **Vocalist** section in the RibbonBar (`RibbonSection`) that shows the custom name input specifically for the currently selected line's vocal role (`v1 Lead`, `v2 Duet`, `v3 Middle`, `v4 Harmony`).
   - Right-click line context menu (`Rename vocalist...`) to rename or clear custom vocalists per line role.
@@ -54,3 +71,32 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Reverse sync order restoration**: Deactivating reverse sync properly restores the original line timing snapshots.
 
 Note: Some of these corrections arose during the development process.
+---
+
+## VGZ Settings & Feature Flags
+
+All features unique to this fork are labeled with a dynamic **VGZ badge** in the Settings dialog for clear identification. This visual badge automatically adapts to the app's configured accent color.
+
+### Configurable VGZ Features
+
+| Feature | Location in Settings | Atom |
+|---|---|---|
+| **Sync F/G/H to Spectrogram Hover** | Editor & Sync | `syncFghToHoverAtom` |
+| **Editor Auto-Scroll to Active Line** | General | `previewFollowsPlaybackAtom` |
+| **Reverse Playback Zone** | Editor & Sync | `reversePlaybackEnabledAtom` |
+| **Multi-Track Split View** | Audio → Spectrogram | `spectrogramSplitModeAtom` |
+
+### Feature Descriptions
+
+- **Sync F/G/H to Spectrogram Hover (VGZ)**: When hovering over the spectrogram, the F, G, and H keyboard shortcuts use the cursor hover timestamp instead of the audio playhead, allowing fast precision syncing without moving the playhead.
+- **Editor Auto-Scroll to Active Line (VGZ)**: When enabled, the Edit and Time mode editor automatically scrolls to the currently playing line during playback, eliminating the need to manually scroll to find the current position.
+- **Reverse Playback Zone (VGZ)**: Enables the reverse playback zone system in the spectrogram. Keyboard shortcuts allow marking a region to play backwards; if the selected lines are flagged for Reverse Sync, their timestamps are mirrored automatically on completion. Can be globally disabled here.
+- **Multi-Track Split View (VGZ)**: Splits the spectrogram into two synchronized parallel tracks so overlapping vocals, duets, and background ad-libs can be managed side-by-side. Individual lines can be sent to the top track via right-click context menu.
+
+### Features Without Global Toggle (Controlled Per-Line or Always Active)
+
+- **Reverse Sync per line**: Toggled per-line from the right-click context menu (`Set Reverse Sync Order`). Timing snapshots are saved automatically before activation and restored if deactivated.
+- **Folder Projects & Workspace System**: Always active. Open, create, and manage lyrics organized as project folders with a `project.json` manifest and workspace browser.
+- **Dual Format Support (TTML + Lyricsfile YAML)**: Always active. Both `.ttml` and `.lyricsfile.yaml` companion files can coexist in the same project folder.
+- **Lyricsfile Engine (YAML 1.x)**: Always active. Full bidirectional parser and exporter for Lyricsfile 1.x YAML with vocalist roles.
+

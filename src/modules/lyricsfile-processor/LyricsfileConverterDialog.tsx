@@ -39,7 +39,7 @@ import { exportLyricsfileText, parseLyricsfile } from "./index.ts";
 type Direction = "ttml-to-lyricsfile" | "lyricsfile-to-ttml";
 
 const OUTPUT_EXTENSION: Record<Direction, string> = {
-	"ttml-to-lyricsfile": "yaml",
+	"ttml-to-lyricsfile": "lyricsfile.yaml",
 	"lyricsfile-to-ttml": "ttml",
 };
 

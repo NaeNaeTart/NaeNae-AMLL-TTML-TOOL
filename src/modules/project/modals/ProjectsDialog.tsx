@@ -174,12 +174,14 @@ const ProjectTab = ({ onClose }: { onClose: () => void }) => {
 				>
 					<MusicNote1Regular /> {hasAudio ? (manifest?.audioFile || "Audio loaded") : "No audio"}
 				</Badge>
-				{!(manifest?.lyricsfileFile && manifest.lyricsfileFile === manifest?.lyricFile) && (
-					<Badge variant="soft" color="gray">
-						<DocumentRegular /> {hasLyric ? `${lyricLines.lyricLines.length} lines` : "No lyrics"}
-					</Badge>
-				)}
-				{manifest?.lyricsfileFile && manifest?.lyricFile && manifest.lyricsfileFile !== manifest.lyricFile ? (
+				<Badge variant="soft" color="gray">
+					<DocumentRegular /> {hasLyric ? `${lyricLines.lyricLines.length} lines` : "No lyrics"}
+				</Badge>
+				{Boolean(
+					(manifest?.ttmlFile && manifest?.lyricsfileFile && manifest.ttmlFile !== manifest.lyricsfileFile) ||
+					(manifest?.lyricsfileFile && manifest?.lyricFile && manifest.lyricsfileFile !== manifest.lyricFile) ||
+					(manifest?.ttmlFile && manifest?.lyricFile && manifest.ttmlFile !== manifest.lyricFile)
+				) ? (
 					<Badge
 						variant="surface"
 						style={{
@@ -294,10 +296,15 @@ const RecentTab = ({ onClose }: { onClose: () => void }) => {
 				) : (
 					projects.map((p) => {
 						const status = fileStatus[p.dir];
-						const isDual =
-							!!p.lyricsfileFile && p.lyricsfileFile !== p.lyricFile;
-						const isYamlOnly =
-							!!p.lyricsfileFile && p.lyricsfileFile === p.lyricFile;
+						const isDual = Boolean(
+							(p.ttmlFile && p.lyricsfileFile && p.ttmlFile !== p.lyricsfileFile) ||
+							(p.lyricsfileFile && p.lyricFile && p.lyricsfileFile !== p.lyricFile) ||
+							(p.ttmlFile && p.lyricFile && p.ttmlFile !== p.lyricFile)
+						);
+						const isYamlOnly = !isDual && Boolean(
+							(p.lyricsfileFile && p.lyricsfileFile === p.lyricFile) ||
+							(p.lyricFile && (p.lyricFile.endsWith(".yaml") || p.lyricFile.endsWith(".yml")))
+						);
 						const lyricMissing = status ? !status.lyricFileExists : false;
 						const lyricsfileMissing = status
 							? !status.lyricsfileFileExists
@@ -315,7 +322,53 @@ const RecentTab = ({ onClose }: { onClose: () => void }) => {
 										<Text weight="bold" truncate>{p.name}</Text>
 										<Text size="1" color="gray" truncate>{p.dir}</Text>
 										<Flex gap="2" mt="1" wrap="wrap">
-											{!isYamlOnly && (
+											{isDual ? (
+												<>
+													<Badge variant="soft" color={lyricMissing ? "red" : "gray"}>
+														<DocumentRegular fontSize={10} />{" "}
+														{p.lyricFile
+															? lyricMissing
+																? t("projectBrowser.fileMissing", "{file} (missing)", { file: p.lyricFile })
+																: p.lyricFile
+															: t("projectBrowser.noLyric", "No lyrics")}
+													</Badge>
+													<Badge
+														variant="surface"
+														color={lyricsfileMissing ? "red" : undefined}
+														style={
+															lyricsfileMissing
+																? undefined
+																: {
+																		backgroundColor: "var(--accent-4)",
+																		color: "var(--accent-11)",
+																	}
+														}
+													>
+														<DocumentRegular fontSize={10} />{" "}
+														{lyricsfileMissing
+															? t("projectBrowser.dualMissing", "Dual (YAML missing)")
+															: "Dual (TTML + YAML)"}
+													</Badge>
+												</>
+											) : isYamlOnly ? (
+												<Badge
+													variant="soft"
+													color={lyricsfileMissing || lyricMissing ? "red" : undefined}
+													style={
+														lyricsfileMissing || lyricMissing
+															? undefined
+															: {
+																	backgroundColor: "var(--accent-4)",
+																	color: "var(--accent-11)",
+																}
+													}
+												>
+													<DocumentRegular fontSize={10} />{" "}
+													{lyricsfileMissing || lyricMissing
+														? t("projectBrowser.fileMissing", "{file} (missing)", { file: p.lyricsfileFile || p.lyricFile })
+														: (p.lyricsfileFile || p.lyricFile)}
+												</Badge>
+											) : (
 												<Badge variant="soft" color={lyricMissing ? "red" : "gray"}>
 													<DocumentRegular fontSize={10} />{" "}
 													{p.lyricFile
@@ -325,43 +378,6 @@ const RecentTab = ({ onClose }: { onClose: () => void }) => {
 														: t("projectBrowser.noLyric", "No lyrics")}
 												</Badge>
 											)}
-											{isDual ? (
-												<Badge
-													variant="surface"
-													color={lyricsfileMissing ? "red" : undefined}
-													style={
-														lyricsfileMissing
-															? undefined
-															: {
-																	backgroundColor: "var(--accent-4)",
-																	color: "var(--accent-11)",
-																}
-													}
-												>
-													<DocumentRegular fontSize={10} />{" "}
-													{lyricsfileMissing
-														? t("projectBrowser.dualMissing", "Dual (YAML missing)")
-														: "Dual (TTML + YAML)"}
-												</Badge>
-											) : isYamlOnly ? (
-												<Badge
-													variant="soft"
-													color={lyricsfileMissing ? "red" : undefined}
-													style={
-														lyricsfileMissing
-															? undefined
-															: {
-																	backgroundColor: "var(--accent-4)",
-																	color: "var(--accent-11)",
-																}
-													}
-												>
-													<DocumentRegular fontSize={10} />{" "}
-													{lyricsfileMissing
-														? t("projectBrowser.fileMissing", "{file} (missing)", { file: p.lyricsfileFile })
-														: p.lyricsfileFile}
-												</Badge>
-											) : null}
 											<Badge variant="soft" color={audioMissing ? "red" : "gray"}>
 												<MusicNote1Regular fontSize={10} />{" "}
 												{p.audioFile
@@ -470,22 +486,26 @@ const WorkspaceTab = ({ onClose }: { onClose: () => void }) => {
 										</Flex>
 										<Text size="1" color="gray" truncate>{project.dir}</Text>
 										<Flex gap="2" align="center" mt="1" wrap="wrap">
-											{!(project.lyricsfileFile && project.lyricsfileFile === project.lyricFile) && (
-												<Badge variant="soft" color="gray">
-													<Flex align="center" gap="1">
-														<DocumentRegular fontSize={12} />
-														{project.lyricFile || t("projectBrowser.noLyric", "No lyrics")}
-													</Flex>
-												</Badge>
-											)}
-											{project.lyricsfileFile && project.lyricsfileFile !== project.lyricFile ? (
-												<Badge variant="surface" color="amber">
-													<Flex align="center" gap="1">
-														<DocumentRegular fontSize={12} />
-														Dual (TTML + YAML)
-													</Flex>
-												</Badge>
-											) : project.lyricsfileFile ? (
+											{Boolean(
+												(project.ttmlFile && project.lyricsfileFile && project.ttmlFile !== project.lyricsfileFile) ||
+												(project.lyricsfileFile && project.lyricFile && project.lyricsfileFile !== project.lyricFile) ||
+												(project.ttmlFile && project.lyricFile && project.ttmlFile !== project.lyricFile)
+											) ? (
+												<>
+													<Badge variant="soft" color="gray">
+														<Flex align="center" gap="1">
+															<DocumentRegular fontSize={12} />
+															{project.lyricFile || t("projectBrowser.noLyric", "No lyrics")}
+														</Flex>
+													</Badge>
+													<Badge variant="surface" color="amber">
+														<Flex align="center" gap="1">
+															<DocumentRegular fontSize={12} />
+															Dual (TTML + YAML)
+														</Flex>
+													</Badge>
+												</>
+											) : (project.lyricsfileFile && project.lyricsfileFile === project.lyricFile) || (project.lyricFile && (project.lyricFile.endsWith(".yaml") || project.lyricFile.endsWith(".yml"))) ? (
 												<Badge
 													variant="soft"
 													style={{
@@ -495,10 +515,17 @@ const WorkspaceTab = ({ onClose }: { onClose: () => void }) => {
 												>
 													<Flex align="center" gap="1">
 														<DocumentRegular fontSize={12} />
-														{project.lyricsfileFile}
+														{project.lyricsfileFile || project.lyricFile}
 													</Flex>
 												</Badge>
-											) : null}
+											) : (
+												<Badge variant="soft" color="gray">
+													<Flex align="center" gap="1">
+														<DocumentRegular fontSize={12} />
+														{project.lyricFile || t("projectBrowser.noLyric", "No lyrics")}
+													</Flex>
+												</Badge>
+											)}
 											<Badge variant="soft" color="gray">
 												<Flex align="center" gap="1">
 													<MusicNote1Regular fontSize={12} />

@@ -6,7 +6,10 @@ import {
 	cmdReversePlaybackStart,
 } from "$/modules/keyboard/commands";
 import { useCommand } from "$/modules/keyboard/hooks";
-import { reverseSyncLineIdsAtom } from "$/modules/settings/states/sync";
+import {
+	reversePlaybackEnabledAtom,
+	reverseSyncLineIdsAtom,
+} from "$/modules/settings/states/sync";
 import {
 	spectrogramContainerWidthAtom,
 	spectrogramHoverTimeMsAtom,
@@ -112,6 +115,7 @@ export function useReversePlaybackZone() {
 	}, [setReverseStart, setReverseZone, store]);
 
 	const markStart = useCallback(() => {
+		if (!store.get(reversePlaybackEnabledAtom)) return;
 		if (!store.get(spectrogramIsHoveringAtom)) return;
 		setReverseStart(
 			Math.max(0, Math.round(store.get(spectrogramHoverTimeMsAtom))),
@@ -119,6 +123,7 @@ export function useReversePlaybackZone() {
 	}, [setReverseStart, store]);
 
 	const startPlayback = useCallback(() => {
+		if (!store.get(reversePlaybackEnabledAtom)) return;
 		if (!store.get(spectrogramIsHoveringAtom)) return;
 		const start = store.get(reversePlaybackStartAtom);
 		const end = Math.max(0, Math.round(store.get(spectrogramHoverTimeMsAtom)));

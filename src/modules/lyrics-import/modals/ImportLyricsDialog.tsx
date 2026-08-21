@@ -26,6 +26,11 @@ import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts
 import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import { LyricallyApi } from "$/modules/lyrically/api/client";
 import {
+	categorizeGeniusHeadersOnImportAtom,
+	fetchImportedSongwritersAtom,
+	processImportedLyricsAtom,
+} from "$/modules/lyrics-import/states";
+import {
 	geniusApiKeyAtom,
 	geniusCategorizationEnabledAtom,
 	normalizeApostrophesOnImportAtom,
@@ -111,9 +116,13 @@ export const ImportLyricsDialog = ({
 	const [fetchingLyrics, setFetchingLyrics] = useState(false);
 	const [editableLyrics, setEditableLyrics] = useState("");
 	const [isEditing, setIsEditing] = useState(false);
-	const [processLyrics, setProcessLyrics] = useState(false);
-	const [fetchSongwriters, setFetchSongwriters] = useState(false);
-	const [categorizeGeniusHeaders, setCategorizeGeniusHeaders] = useState(false);
+	const [processLyrics, setProcessLyrics] = useAtom(processImportedLyricsAtom);
+	const [fetchSongwriters, setFetchSongwriters] = useAtom(
+		fetchImportedSongwritersAtom,
+	);
+	const [categorizeGeniusHeaders, setCategorizeGeniusHeaders] = useAtom(
+		categorizeGeniusHeadersOnImportAtom,
+	);
 	const [sectionReviewOpen, setSectionReviewOpen] = useState(false);
 	const [sectionReviewSubmitted, setSectionReviewSubmitted] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);

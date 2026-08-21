@@ -24,7 +24,9 @@ import {
 import {
 	globalEnableInsertAtom,
 	timingCopyPlacementAtom,
-} from "./lyric-line-view-states";
+} from "$/modules/lyric-editor/components/lyric-line-view-states";
+import { spectrogramSplitModeAtom, spectrogramTopTrackLinesAtom } from "$/modules/spectrogram/states";
+import { VOCALIST_ROLE_LABELS } from "$/utils/vocalist";
 
 const selectedLinesSizeAtom = atom((get) => get(selectedLinesAtom).size);
 
@@ -44,6 +46,9 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 	const setReverseSyncTimingBackup = useSetAtom(
 		reverseSyncTimingBackupAtom,
 	);
+	const [splitMode, setSplitMode] = useAtom(spectrogramSplitModeAtom);
+	const [topTrackLines, setTopTrackLines] = useAtom(spectrogramTopTrackLinesAtom);
+
 	const store = useStore();
 
 	const lineObjs = useAtomValue(lyricLinesAtom);
@@ -278,6 +283,35 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 			>
 				{t("contextMenu.reverseSyncOrder", "Reverse sync order")}
 			</ContextMenu.CheckboxItem>
+
+			<ContextMenu.Separator />
+			<ContextMenu.CheckboxItem
+				checked={splitMode}
+				onCheckedChange={setSplitMode}
+			>
+				{t("contextMenu.splitSpectrogram", "Split Spectrogram")}
+			</ContextMenu.CheckboxItem>
+			{splitMode && (
+				<ContextMenu.CheckboxItem
+					checked={currentLine ? topTrackLines.has(currentLine.id) : false}
+					onCheckedChange={(checked) => {
+						if (!currentLine) return;
+						const next = new Set(topTrackLines);
+						const linesToToggle = selectedLines.has(currentLine.id)
+							? selectedLines
+							: new Set([currentLine.id]);
+
+						for (const id of linesToToggle) {
+							if (checked) next.add(id);
+							else next.delete(id);
+						}
+						setTopTrackLines(next);
+					}}
+				>
+					{t("contextMenu.moveToTopTrack", "Show on Top Track")}
+				</ContextMenu.CheckboxItem>
+			)}
+
 			<ContextMenu.Separator />
 			<ContextMenu.Item
 				onSelect={() => {

@@ -75,47 +75,66 @@ export interface DiscordActivityOptions {
 
 const metadataValues = (lyrics: TTMLLyric, key: string) =>
 	lyrics.metadata
-		.find((entry) => entry.key.toLowerCase() === key.toLowerCase())
-		?.value.map((value) => value.trim())
-		.filter(Boolean) ?? [];
+		.filter((entry) => entry.key.toLowerCase() === key.toLowerCase())
+		.flatMap((entry) => entry.value)
+		.filter((value) => value.trim().length > 0);
 
 const firstMetadataValue = (lyrics: TTMLLyric, key: string) =>
 	metadataValues(lyrics, key)[0] ?? "";
 
+const normalizeDiscordImageUrl = (value: string | undefined) => {
+	const trimmed = value?.trim();
+	if (!trimmed) return null;
+	try {
+		const url = new URL(trimmed);
+		return url.protocol === "https:" || url.protocol === "http:"
+			? trimmed
+			: null;
+	} catch {
+		return null;
+	}
+};
+
 export function createPresenceSnapshot({
 	lyrics,
 	fileName,
-	mode,
-	selectedLineIds,
+	audioFileName,
 	playing,
 	positionSeconds,
 	durationSeconds,
 	playbackRate,
+	mode,
 	projectElapsedSeconds,
 }: {
 	lyrics: TTMLLyric;
 	fileName: string;
-	mode: ToolMode;
-	selectedLineIds: Set<string>;
+	audioFileName?: string;
 	playing: boolean;
 	positionSeconds: number;
 	durationSeconds: number;
 	playbackRate: number;
+	mode: ToolMode;
 	projectElapsedSeconds?: number;
 }): PresenceSnapshot {
 	const primaryLines = lyrics.lyricLines.filter((line) => !line.isBG);
-	let currentIndex = -1;
+	const positionMs = positionSeconds * 1000;
+	let currentIndex = primaryLines.findIndex((line) => {
+		const start = line.startTime ?? 0;
+		const end = line.endTime ?? start;
+		return positionMs >= start && positionMs < end;
+	});
 
-	if (mode === ToolMode.Preview) {
-		const positionMs = positionSeconds * 1000;
-		currentIndex = primaryLines.findIndex(
-			(line) => positionMs >= line.startTime && positionMs <= line.endTime,
-		);
-	} else {
-		currentIndex = primaryLines.findIndex((line) =>
-			selectedLineIds.has(line.id),
+	if (currentIndex === -1 && primaryLines.length > 0) {
+		currentIndex = primaryLines.findLastIndex(
+			(line) => (line.startTime ?? 0) <= positionMs,
 		);
 	}
+
+	const coverUrl = normalizeDiscordImageUrl(
+		lyrics.metadata
+			.find((entry) => entry.key.toLowerCase() === "cover_art")
+			?.value.find((value) => value.trim().length > 0),
+	);
 
 	return {
 		version: PRESENCE_BRIDGE_VERSION,

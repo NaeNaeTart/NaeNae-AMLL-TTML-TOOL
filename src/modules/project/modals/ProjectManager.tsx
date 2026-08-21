@@ -173,8 +173,15 @@ export const ProjectManagerDialog = () => {
 													(p.ttmlFile &&
 														p.lyricsfileFile &&
 														p.ttmlFile !== p.lyricsfileFile) ||
+														(p.lyricsfileFile &&
+															p.lyricFile &&
+															p.lyricsfileFile !== p.lyricFile) ||
 														(p.ttmlFile &&
-															p.lyricFile?.endsWith(".yaml")) ||
+															p.lyricFile &&
+															p.ttmlFile !== p.lyricFile) ||
+														(p.ttmlFile &&
+															(p.lyricFile?.endsWith(".yaml") ||
+																p.lyricFile?.endsWith(".yml"))) ||
 														(p.lyricsfileFile &&
 															p.lyricFile?.endsWith(".ttml")),
 												) && (
