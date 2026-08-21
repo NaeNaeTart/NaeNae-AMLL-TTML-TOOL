@@ -20,8 +20,7 @@ struct DiscordActivityPayload {
     show_status_badge: bool,
     start_timestamp: Option<i64>,
     end_timestamp: Option<i64>,
-    large_image_url: Option<String>,
-    large_image_text: Option<String>,
+    large_image: Option<String>,
 }
 
 struct DiscordConnection {
@@ -73,19 +72,15 @@ fn set_discord_activity(
         }
     }
 
-    let large_image_url = payload
-        .large_image_url
+    let large_image = payload
+        .large_image
         .as_deref()
-        .filter(|url| !url.trim().is_empty())
+        .filter(|url| url.starts_with("http://") || url.starts_with("https://"))
         .unwrap_or(DISCORD_LOGO_URL);
-    let large_text = payload
-        .large_image_text
-        .as_deref()
-        .filter(|text| !text.trim().is_empty())
-        .unwrap_or("AMLL TTML Tool");
+
     let mut assets = activity::Assets::new()
-        .large_image(large_image_url)
-        .large_text(large_text);
+        .large_image(large_image)
+        .large_text("AMLL TTML Tool");
     if payload.show_status_badge {
         let small_image = if payload.playing {
             DISCORD_PLAY_URL
@@ -239,7 +234,7 @@ pub fn run() {
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_decorum::init())
-.plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_process::init());
 

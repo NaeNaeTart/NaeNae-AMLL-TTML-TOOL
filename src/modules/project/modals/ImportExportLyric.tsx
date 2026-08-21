@@ -16,7 +16,7 @@ import { validateSections } from "$/modules/lyric-editor/utils/section-system";
 import { exportLyricsfileText } from "$/modules/lyricsfile-processor/writer";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
-import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
+import { allowConsecutiveBackgroundLinesAtom, lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import { reverseSyncLineIdsAtom } from "$/modules/settings/states/sync";
 import {
 	geniusImportLyricsDialogAtom,
@@ -141,6 +141,7 @@ export const ImportExportLyric = () => {
 			const lyricState = normalizeLyricText(
 				store.get(lyricLinesAtom),
 				store.get(lyricTextNormalizationOptionsAtom),
+				{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
 			);
 			const lyric = lyricState.lyricLines;
 			const metadata = lyricState.metadata;

@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
+	allowConsecutiveBackgroundLinesAtom,
 	generateNameFromMetadataAtom,
 	hideSubmitAMLLDBWarningAtom,
 	lyricTextNormalizationOptionsAtom,
@@ -157,7 +158,7 @@ export const SubmitToAMLLDBDialog = memo(() => {
 				return;
 			}
 
-			const ttmlText = exportTTMLText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom));
+			const ttmlText = exportTTMLText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom), { allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) });
 			const ttmlBlob = new Blob([ttmlText], { type: "text/xml" });
 
 			const formData = new FormData();

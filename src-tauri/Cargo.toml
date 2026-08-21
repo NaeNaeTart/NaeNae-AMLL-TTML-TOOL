@@ -1,6 +1,6 @@
 [package]
 name = "amll-ttml-tool"
-version = "0.9.8"
+version = "0.9.10"
 description = "A brand-new syllable lyric editor for Apple Music-like lyrics"
 license = "AGPL-3.0"
 repository = "https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL"

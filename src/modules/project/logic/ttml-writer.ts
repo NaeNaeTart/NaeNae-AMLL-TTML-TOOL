@@ -9,6 +9,12 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
+/**
+ * @fileoverview
+ * 用于将内部歌词数组对象导出成 TTML 格式的模块
+ * 但是可能会有信息会丢失
+ */
+
 import type { LyricLine, LyricWord, TTMLLyric } from "../../../types/ttml.ts";
 import {
 	type LyricTextNormalizationOptions,
@@ -23,27 +29,47 @@ export function shouldExportAsLineSynced(line: LyricLine): boolean {
 	return line.words.filter((word) => word.word.trim().length > 0).length <= 1;
 }
 
+export function collectFollowingBackgroundLines(lines: LyricLine[], mainLineIndex: number, allowConsecutive: boolean): LyricLine[] {
+	const backgroundLines: LyricLine[] = [];
+	const collectOnlyOne = !allowConsecutive;
+	for (let index = mainLineIndex + 1; index < lines.length; index++) {
+		const line = lines[index];
+		if (!line.isBG) break;
+		backgroundLines.push(line);
+		if (collectOnlyOne) break;
+	}
+	return backgroundLines;
+}
+
+export function hasExportableLineContent(line: LyricLine): boolean {
+	return (
+		line.words.some(
+			(word) =>
+				word.word.trim().length > 0 ||
+				word.romanWord.trim().length > 0 ||
+				word.emptyBeat > 0 ||
+				(word.ruby?.some((rubyWord) => rubyWord.word.trim().length > 0) ?? false),
+		) ||
+		line.translatedLyric.trim().length > 0 ||
+		line.romanLyric.trim().length > 0
+	);
+}
+
+export interface TTMLExportOptions {
+	allowConsecutiveBackgroundLines?: boolean;
+}
+
 export default function exportTTMLText(
 	ttmlLyric: TTMLLyric,
 	normalization?: LyricTextNormalizationOptions,
+	options: TTMLExportOptions = {},
 ): string {
 	if (normalization) ttmlLyric = normalizeLyricText(ttmlLyric, normalization);
 	const params: LyricLine[][] = [];
 	const lyric = ttmlLyric.lyricLines;
 
-	let tmp: LyricLine[] = [];
-	for (const line of lyric) {
-		if (line.words.length === 0 && tmp.length > 0) {
-			params.push(tmp);
-			tmp = [];
-		} else {
-			tmp.push(line);
-		}
-	}
-
-	if (tmp.length > 0) {
-		params.push(tmp);
-	}
+	const exportableLines = lyric.filter(hasExportableLineContent);
+	if (exportableLines.length > 0) params.push(exportableLines);
 
 	const doc = new Document();
 
@@ -144,6 +170,10 @@ export default function exportTTMLText(
 		"http://music.apple.com/lyric-ttml-internal",
 	);
 
+	// Determine itunes:timing mode for Spicylyrics compatibility
+	// Word = at least one line has 2+ non-blank words (dynamic/per-word timing)
+	// Line = has lyric lines but every line has 0 or 1 non-blank word
+	// None = no timed words at all
 	const nonBlankWordCountsPerLine = lyric.map(
 		(l) => l.words.filter((w) => w.word.trim().length > 0).length,
 	);
@@ -167,9 +197,7 @@ export default function exportTTMLText(
 	ttRoot.appendChild(head);
 
 	const body = doc.createElement("body");
-	const hasOtherPerson = !!lyric.find((v) => v.isDuet && !v.isDuetGroup);
-	const hasMiddlePerson = !!lyric.find((v) => v.isMiddle);
-	const hasDuetGroup = !!lyric.find((v) => v.isDuetGroup);
+	const hasOtherPerson = !!lyric.find((v) => v.isDuet);
 
 	const metadataEl = doc.createElement("metadata");
 	const mainPersonAgent = doc.createElement("ttm:agent");
@@ -186,22 +214,7 @@ export default function exportTTMLText(
 		metadataEl.appendChild(otherPersonAgent);
 	}
 
-	if (hasMiddlePerson) {
-		const middlePersonAgent = doc.createElement("ttm:agent");
-		middlePersonAgent.setAttribute("type", "other");
-		middlePersonAgent.setAttribute("xml:id", "v3");
-
-		metadataEl.appendChild(middlePersonAgent);
-	}
-
-	if (hasDuetGroup) {
-		const groupAgent = doc.createElement("ttm:agent");
-		groupAgent.setAttribute("type", "group");
-		groupAgent.setAttribute("xml:id", "vg");
-
-		metadataEl.appendChild(groupAgent);
-	}
-
+	// Extract songwriter metadata to emit in iTunes format (Spicylyrics compatibility)
 	const songwriterMeta = ttmlLyric.metadata.find(
 		(m) => m.key === "songwriter" && m.value.some((v) => v.trim().length > 0),
 	);
@@ -226,6 +239,7 @@ export default function exportTTMLText(
 		}
 	}
 
+	// Append remaining metadata entries (skip songwriter since it's in iTunes format)
 	for (const metadata of ttmlLyric.metadata) {
 		if (metadata.key === "songwriter") continue;
 		if (metadata.key === "amll:marks") continue; // We'll handle this separately
@@ -256,26 +270,13 @@ export default function exportTTMLText(
 		metadataEl.appendChild(metaEl);
 	}
 
-	if (
-		ttmlLyric.reversedSyncLineIds &&
-		ttmlLyric.reversedSyncLineIds.length > 0
-	) {
-		const metaEl = doc.createElement("amll:meta");
-		metaEl.setAttribute("key", "amll:reversedSync");
-		metaEl.setAttribute(
-			"value",
-			JSON.stringify({ version: 1, lineIds: ttmlLyric.reversedSyncLineIds }),
-		);
-		metadataEl.appendChild(metaEl);
-	}
-
 	head.appendChild(metadataEl);
 
 	let i = 0;
 
 	const romanizationMap = new Map<
 		string,
-		{ main: LyricWord[]; bg: LyricWord[] }
+		{ main: LyricWord[]; backgrounds: LyricWord[][] }
 	>();
 
 	const guessDuration = lyric[lyric.length - 1]?.endTime ?? 0;
@@ -294,6 +295,8 @@ export default function exportTTMLText(
 
 		for (let lineIndex = 0; lineIndex < param.length; lineIndex++) {
 			const line = param[lineIndex];
+			const exportAsStandaloneBackground =
+				(options.allowConsecutiveBackgroundLines ?? false) && line.isBG;
 			const lineP = doc.createElement("p");
 			const beginTime = line.startTime ?? 0;
 			const endTime = line.endTime;
@@ -301,10 +304,7 @@ export default function exportTTMLText(
 			lineP.setAttribute("begin", msToTimestamp(beginTime));
 			lineP.setAttribute("end", msToTimestamp(endTime));
 
-			lineP.setAttribute(
-				"ttm:agent",
-				line.isDuetGroup ? "vg" : line.isMiddle ? "v3" : line.isDuet ? "v2" : "v1",
-			);
+			lineP.setAttribute("ttm:agent", line.isDuet ? "v2" : "v1");
 
 			const itunesKey = `L${++i}`;
 			lineP.setAttribute("itunes:key", itunesKey);
@@ -312,10 +312,12 @@ export default function exportTTMLText(
 				lineP.setAttribute("amll:section", line.sectionId);
 			}
 
-			const mainWords = line.words;
-			let bgWords: LyricWord[] = [];
+			const mainWords = exportAsStandaloneBackground ? [] : line.words;
+			const backgroundWordGroups: LyricWord[][] = [];
 
-			if (shouldExportAsLineSynced(line)) {
+			if (exportAsStandaloneBackground) {
+				// The line is emitted below as x-bg inside an otherwise empty p.
+			} else if (shouldExportAsLineSynced(line)) {
 				lineP.appendChild(
 					doc.createTextNode(line.words.map((word) => word.word).join("")),
 				);
@@ -345,10 +347,20 @@ export default function exportTTMLText(
 				lineP.setAttribute("end", msToTimestamp(word.endTime));
 			}
 
-			while (param[lineIndex + 1]?.isBG) {
-				lineIndex++;
-				const bgLine = param[lineIndex];
-				bgWords = bgLine.words;
+			const followingBackgroundLines = collectFollowingBackgroundLines(
+				param,
+				lineIndex,
+				options.allowConsecutiveBackgroundLines ?? false,
+			);
+			const backgroundLines = exportAsStandaloneBackground
+				? [line, ...followingBackgroundLines]
+				: followingBackgroundLines;
+			lineIndex += followingBackgroundLines.length;
+			if (exportAsStandaloneBackground) {
+				lineP.setAttribute("end", msToTimestamp(backgroundLines.at(-1)?.endTime ?? line.endTime));
+			}
+			for (const bgLine of backgroundLines) {
+				backgroundWordGroups.push(bgLine.words);
 
 				const bgLineSpan = doc.createElement("span");
 				bgLineSpan.setAttribute("ttm:role", "x-bg");
@@ -423,7 +435,7 @@ export default function exportTTMLText(
 				lineP.appendChild(bgLineSpan);
 			}
 
-			if (line.translatedLyric) {
+			if (!exportAsStandaloneBackground && line.translatedLyric) {
 				const span = doc.createElement("span");
 				span.setAttribute("ttm:role", "x-translation");
 				span.setAttribute("xml:lang", "zh-CN");
@@ -431,7 +443,7 @@ export default function exportTTMLText(
 				lineP.appendChild(span);
 			}
 
-			if (line.romanLyric) {
+			if (!exportAsStandaloneBackground && line.romanLyric) {
 				const span = doc.createElement("span");
 				span.setAttribute("ttm:role", "x-roman");
 				span.appendChild(doc.createTextNode(line.romanLyric));
@@ -440,10 +452,10 @@ export default function exportTTMLText(
 
 			const hasRoman =
 				mainWords.some((w) => w.romanWord && w.romanWord.trim().length > 0) ||
-				bgWords.some((w) => w.romanWord && w.romanWord.trim().length > 0);
+				backgroundWordGroups.some((words) => words.some((w) => w.romanWord && w.romanWord.trim().length > 0));
 
 			if (hasRoman) {
-				romanizationMap.set(itunesKey, { main: mainWords, bg: bgWords });
+				romanizationMap.set(itunesKey, { main: mainWords, backgrounds: backgroundWordGroups });
 			}
 
 			paramDiv.appendChild(lineP);
@@ -462,7 +474,7 @@ export default function exportTTMLText(
 		const transliterations = doc.createElement("transliterations");
 		const transliteration = doc.createElement("transliteration");
 
-		for (const [key, { main, bg }] of romanizationMap.entries()) {
+		for (const [key, { main, backgrounds }] of romanizationMap.entries()) {
 			const textEl = doc.createElement("text");
 			textEl.setAttribute("for", key);
 
@@ -474,10 +486,9 @@ export default function exportTTMLText(
 				}
 			}
 
-			const hasBgRoman = bg.some(
-				(w) => w.romanWord && w.romanWord.trim().length > 0,
-			);
-			if (hasBgRoman) {
+			for (const bg of backgrounds) {
+				const hasBgRoman = bg.some((w) => w.romanWord && w.romanWord.trim().length > 0);
+				if (!hasBgRoman) continue;
 				const bgSpan = doc.createElement("span");
 				bgSpan.setAttribute("ttm:role", "x-bg");
 

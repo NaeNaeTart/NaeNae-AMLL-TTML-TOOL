@@ -53,6 +53,72 @@ describe("Discord presence", () => {
 		});
 	});
 
+	it("extracts cover art from metadata if present", () => {
+		const lyricsWithCover = {
+			...lyrics,
+			metadata: [
+				...lyrics.metadata,
+				{ key: "cover_art", value: ["  https://example.com/cover.jpg  "] },
+			],
+		} as TTMLLyric;
+
+		const snapshot = createPresenceSnapshot({
+			lyrics: lyricsWithCover,
+			fileName: "fallback.ttml",
+			mode: ToolMode.Sync,
+			selectedLineIds: new Set(),
+			playing: false,
+			positionSeconds: 0,
+			durationSeconds: 4,
+			playbackRate: 1,
+		});
+
+		expect(snapshot.coverUrl).toBe("https://example.com/cover.jpg");
+
+		const payload = formatNativeDiscordActivity(
+			snapshot,
+			createDiscordTemplateContext({
+				snapshot,
+				lyrics: lyricsWithCover,
+				fileName: "fallback.ttml",
+				selectedLineIds: new Set(),
+				selectedWordIds: new Set(),
+			}),
+			{
+				detailsTemplate: "",
+				stateTemplate: "",
+				showPlaybackTimeline: false,
+				showProjectElapsed: false,
+				showRepositoryButton: false,
+				showStatusBadge: false,
+			},
+		);
+
+		expect(payload.largeImage).toBe("https://example.com/cover.jpg");
+	});
+
+	it("ignores cover art URLs that Discord cannot fetch", () => {
+		const snapshot = createPresenceSnapshot({
+			lyrics: {
+				...lyrics,
+				metadata: [
+					...lyrics.metadata,
+					{ key: "cover_art", value: ["blob:https://example.com/local"] },
+				],
+			} as TTMLLyric,
+			fileName: "fallback.ttml",
+			mode: ToolMode.Sync,
+			selectedLineIds: new Set(),
+			playing: false,
+			positionSeconds: 0,
+			durationSeconds: 4,
+			playbackRate: 1,
+		});
+
+		expect(snapshot.coverUrl).toBeNull();
+		expect(formatDiscordActivity(snapshot).largeImage).toBeUndefined();
+	});
+
 	it("finds the timed preview line and corrects timestamps for playback rate", () => {
 		const snapshot = createPresenceSnapshot({
 			lyrics,

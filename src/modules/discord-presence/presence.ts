@@ -50,6 +50,7 @@ export interface PresenceSnapshot {
 	durationSeconds: number;
 	playbackRate: number;
 	projectElapsedSeconds?: number;
+	coverUrl?: string | null;
 }
 
 export interface DiscordActivityPayload {
@@ -60,8 +61,7 @@ export interface DiscordActivityPayload {
 	showStatusBadge: boolean;
 	startTimestamp?: number;
 	endTimestamp?: number;
-	largeImageUrl?: string;
-	largeImageText?: string;
+	largeImage?: string;
 }
 
 export interface DiscordActivityOptions {
@@ -75,9 +75,9 @@ export interface DiscordActivityOptions {
 
 const metadataValues = (lyrics: TTMLLyric, key: string) =>
 	lyrics.metadata
-		.filter((entry) => entry.key.toLowerCase() === key.toLowerCase())
-		.flatMap((entry) => entry.value)
-		.filter((value) => value.trim().length > 0);
+		.find((entry) => entry.key.toLowerCase() === key.toLowerCase())
+		?.value.map((value) => value.trim())
+		.filter(Boolean) ?? [];
 
 const firstMetadataValue = (lyrics: TTMLLyric, key: string) =>
 	metadataValues(lyrics, key)[0] ?? "";
@@ -98,35 +98,35 @@ const normalizeDiscordImageUrl = (value: string | undefined) => {
 export function createPresenceSnapshot({
 	lyrics,
 	fileName,
-	audioFileName,
+	mode,
+	selectedLineIds,
 	playing,
 	positionSeconds,
 	durationSeconds,
 	playbackRate,
-	mode,
 	projectElapsedSeconds,
 }: {
 	lyrics: TTMLLyric;
 	fileName: string;
-	audioFileName?: string;
+	mode: ToolMode;
+	selectedLineIds: Set<string>;
 	playing: boolean;
 	positionSeconds: number;
 	durationSeconds: number;
 	playbackRate: number;
-	mode: ToolMode;
 	projectElapsedSeconds?: number;
 }): PresenceSnapshot {
 	const primaryLines = lyrics.lyricLines.filter((line) => !line.isBG);
-	const positionMs = positionSeconds * 1000;
-	let currentIndex = primaryLines.findIndex((line) => {
-		const start = line.startTime ?? 0;
-		const end = line.endTime ?? start;
-		return positionMs >= start && positionMs < end;
-	});
+	let currentIndex = -1;
 
-	if (currentIndex === -1 && primaryLines.length > 0) {
-		currentIndex = primaryLines.findLastIndex(
-			(line) => (line.startTime ?? 0) <= positionMs,
+	if (mode === ToolMode.Preview) {
+		const positionMs = positionSeconds * 1000;
+		currentIndex = primaryLines.findIndex(
+			(line) => positionMs >= line.startTime && positionMs <= line.endTime,
+		);
+	} else {
+		currentIndex = primaryLines.findIndex((line) =>
+			selectedLineIds.has(line.id),
 		);
 	}
 
@@ -150,6 +150,7 @@ export function createPresenceSnapshot({
 		durationSeconds: Math.max(0, durationSeconds),
 		playbackRate: Math.max(0.01, playbackRate),
 		projectElapsedSeconds: Math.max(0, projectElapsedSeconds ?? 0),
+		coverUrl,
 	};
 }
 
@@ -159,7 +160,7 @@ const modeLabels: Record<ToolMode, string> = {
 	[ToolMode.Preview]: "Previewing",
 };
 
-export const truncateDiscordText = (value: string) =>
+const truncateDiscordText = (value: string) =>
 	Array.from(value).slice(0, 128).join("");
 
 const formatClock = (seconds: number) => {
@@ -318,6 +319,7 @@ export function formatNativeDiscordActivity(
 		playing: snapshot.playing,
 		showRepositoryButton: options.showRepositoryButton,
 		showStatusBadge: options.showStatusBadge,
+		largeImage: snapshot.coverUrl || undefined,
 	};
 
 	if (
@@ -378,6 +380,7 @@ export function formatDiscordActivity(
 		playing: snapshot.playing,
 		showRepositoryButton: true,
 		showStatusBadge: true,
+		largeImage: snapshot.coverUrl || undefined,
 	};
 
 	if (snapshot.playing && snapshot.durationSeconds > snapshot.positionSeconds) {

@@ -24,7 +24,7 @@ import {
 } from "$/modules/segmentation/utils/segmentation";
 import { SYLLABIFICATION_ENGINES } from "$/modules/segmentation/utils/syllabification-engines";
 import { useSegmentationConfig } from "$/modules/segmentation/utils/useSegmentationConfig";
-import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
+import { allowConsecutiveBackgroundLinesAtom, lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import {
 	advancedSegmentationDialogAtom,
 	autoSegmentDialogAtom,
@@ -242,13 +242,13 @@ export const useTopMenuActions = () => {
 						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
 					);
 				}
-
 				const isLyricsfile = activeFileKind === ActiveFileKind.Lyricsfile;
 				const fileText = isLyricsfile
 					? exportLyricsfileText(currentLyrics)
 					: exportTTMLText(
 							currentLyrics,
 							store.get(lyricTextNormalizationOptionsAtom),
+							{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
 						);
 				const suggestedName = `${stripKnownFileExtension(saveFileName)}${FILE_KIND_EXTENSIONS[activeFileKind]}`;
 				const savedName = await saveFile(fileText, {
@@ -370,6 +370,7 @@ export const useTopMenuActions = () => {
 				const ttml = exportTTMLText(
 					lyric,
 					store.get(lyricTextNormalizationOptionsAtom),
+					{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
 				);
 				await navigator.clipboard.writeText(ttml);
 			} catch (e) {

@@ -55,6 +55,47 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="green">
+								v0.9.10 Updates (Guides & Background Vocals)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Clearer Beginner Guide:</strong> Added a preparation step
+									that pairs the in-app walkthrough with the full TTML guide,
+									provides compact lyric-source cards, and fixes guide navigation
+									and documentation links.
+								</Text>
+								<Text size="2">
+									<strong>Flexible Background Vocal Export:</strong> Added an optional
+									Spicy Lyrics-compatible export mode for consecutive and standalone
+									background-vocal lines, with reliable re-importing and empty editor
+									lines ignored during export.
+								</Text>
+								<Text size="2">
+									<strong>Remembered Lyric Import Options:</strong> Process Lyrics and
+									Genius songwriter and header options now persist across import
+									sources and app sessions.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="orange">
+								v0.9.9 Updates (Artwork & Auditioning)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Discord Album Artwork:</strong> Show a project's web
+									cover image in native Discord presence, with safe fallback to
+									the app logo when no usable cover URL is available.
+								</Text>
+								<Text size="2">
+									<strong>Reliable Word Auditioning:</strong> Play exact word
+									slices from the spectrogram on Linux and web without duplicate
+									right-click playback or incorrect desktop volume scaling.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="teal">
 								v0.9.8 Updates (Discord & Shortcuts)
 							</Heading>

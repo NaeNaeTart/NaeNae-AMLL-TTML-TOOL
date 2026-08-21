@@ -264,6 +264,8 @@ export const normalizeCyrillicEsOnImportAtom = atomWithStorage<boolean>(
 	false,
 );
 
+export const allowConsecutiveBackgroundLinesAtom = atomWithStorage<boolean>("allowConsecutiveBackgroundLines", false);
+
 export const lyricTextNormalizationOptionsAtom = atom((get) => ({
 	normalizeApostrophes: get(normalizeApostrophesOnImportAtom),
 	normalizeCyrillicEs: get(normalizeCyrillicEsOnImportAtom),
