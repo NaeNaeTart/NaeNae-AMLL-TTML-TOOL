@@ -53,3 +53,4 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Spicy background node collision**: Dedicated slot node for Kawarp animations preventing React `insertBefore` reconciliation crashes.
 - **Reverse sync order restoration**: Deactivating reverse sync properly restores the original line timing snapshots.
 
+Note: Some of these corrections arose during the development process.
