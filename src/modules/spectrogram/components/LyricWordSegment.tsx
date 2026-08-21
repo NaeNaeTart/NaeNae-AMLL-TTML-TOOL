@@ -56,9 +56,24 @@ export const LyricWordSegment: FC<LyricWordSegmentProps> = ({
 		setSelectedWordId(segment.id);
 	};
 
-	const handlePanStart = (e: MouseEvent<HTMLDivElement>) => {
+	const handleAudition = (e: MouseEvent<HTMLDivElement>) => {
 		if (isGhost) return;
 		if (editingTimeField) return;
+		e.preventDefault();
+		e.stopPropagation();
+		setSelectedWordId(segment.id);
+		if (startTime != null && endTime != null) {
+			audioEngine.auditionRange(startTime / 1000, endTime / 1000);
+		}
+	};
+
+	const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+		if (isGhost) return;
+		if (editingTimeField) return;
+		if (e.button === 2) {
+			handleAudition(e);
+			return;
+		}
 		if (e.button !== 0) return;
 
 		e.preventDefault();
@@ -80,17 +95,6 @@ export const LyricWordSegment: FC<LyricWordSegmentProps> = ({
 		});
 
 		setSelectedWordId(segment.id);
-	};
-
-	const handleContextMenu = (e: MouseEvent<HTMLDivElement>) => {
-		if (isGhost) return;
-		if (editingTimeField) return;
-		e.preventDefault();
-		e.stopPropagation();
-		setSelectedWordId(segment.id);
-		if (startTime != null && endTime != null) {
-			audioEngine.auditionRange(startTime / 1000, endTime / 1000);
-		}
 	};
 
 	const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -120,8 +124,13 @@ export const LyricWordSegment: FC<LyricWordSegmentProps> = ({
 			className={styles.wordSegment}
 			style={dynamicStyles}
 			onClick={handleClick}
-			onMouseDown={handlePanStart}
-			onContextMenu={handleContextMenu}
+			onMouseDown={handleMouseDown}
+			onContextMenu={handleAudition}
+			onAuxClick={(e) => {
+				if (e.button === 2) {
+					handleAudition(e);
+				}
+			}}
 			role={isGhost ? "presentation" : "button"}
 			tabIndex={isGhost ? -1 : 0}
 			onKeyDown={handleKeyDown}

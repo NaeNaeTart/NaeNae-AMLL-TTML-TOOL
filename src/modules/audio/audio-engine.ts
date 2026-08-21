@@ -19,6 +19,81 @@ import { log } from "$/utils/logging";
 // Even don't know where should I put this after refactoring
 // const DELAY = 0.05; // 50ms
 
+function bufferSliceToWav(
+	buffer: AudioBuffer,
+	startSec: number,
+	endSec: number,
+): Blob {
+	const sampleRate = buffer.sampleRate;
+	const numChannels = buffer.numberOfChannels;
+	const totalSamples = buffer.length;
+
+	const startSample = Math.max(0, Math.floor(startSec * sampleRate));
+	const endSample = Math.min(totalSamples, Math.ceil(endSec * sampleRate));
+	const length = Math.max(0, endSample - startSample);
+
+	const bytesPerSample = 2; // 16-bit PCM
+	const blockAlign = numChannels * bytesPerSample;
+	const byteRate = sampleRate * blockAlign;
+	const dataSize = length * blockAlign;
+	const headerSize = 44;
+	const totalSize = headerSize + dataSize;
+
+	const arrayBuffer = new ArrayBuffer(totalSize);
+	const view = new DataView(arrayBuffer);
+
+	// RIFF chunk descriptor
+	view.setUint8(0, 0x52); // 'R'
+	view.setUint8(1, 0x49); // 'I'
+	view.setUint8(2, 0x46); // 'F'
+	view.setUint8(3, 0x46); // 'F'
+	view.setUint32(4, 36 + dataSize, true); // file length - 8
+	view.setUint8(8, 0x57); // 'W'
+	view.setUint8(9, 0x41); // 'A'
+	view.setUint8(10, 0x56); // 'V'
+	view.setUint8(11, 0x45); // 'E'
+
+	// 'fmt ' sub-chunk
+	view.setUint8(12, 0x66); // 'f'
+	view.setUint8(13, 0x6d); // 'm'
+	view.setUint8(14, 0x74); // 't'
+	view.setUint8(15, 0x20); // ' '
+	view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
+	view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
+	view.setUint16(22, numChannels, true); // NumChannels
+	view.setUint32(24, sampleRate, true); // SampleRate
+	view.setUint32(28, byteRate, true); // ByteRate
+	view.setUint16(32, blockAlign, true); // BlockAlign
+	view.setUint16(34, 16, true); // BitsPerSample (16)
+
+	// 'data' sub-chunk
+	view.setUint8(36, 0x64); // 'd'
+	view.setUint8(37, 0x61); // 'a'
+	view.setUint8(38, 0x74); // 't'
+	view.setUint8(39, 0x61); // 'a'
+	view.setUint32(40, dataSize, true);
+
+	// Interleave Float32 samples into Int16 PCM
+	const channelsData: Float32Array[] = [];
+	for (let c = 0; c < numChannels; c++) {
+		channelsData.push(buffer.getChannelData(c));
+	}
+
+	let offset = 44;
+	for (let i = 0; i < length; i++) {
+		const sampleIdx = startSample + i;
+		for (let c = 0; c < numChannels; c++) {
+			let s = channelsData[c][sampleIdx];
+			s = Math.max(-1, Math.min(1, s));
+			const int16 = s < 0 ? s * 0x8000 : s * 0x7fff;
+			view.setInt16(offset, int16, true);
+			offset += 2;
+		}
+	}
+
+	return new Blob([arrayBuffer], { type: "audio/wav" });
+}
+
 let auditionRafId: number | null = null;
 
 class AudioEngine extends EventTarget {
@@ -150,6 +225,17 @@ class AudioEngine extends EventTarget {
 		return this._audioEl;
 	}
 
+	private _auditionBlobUrl: string | null = null;
+	private _auditionAudioEl: HTMLAudioElement | null = null;
+	private get auditionAudioEl() {
+		if (this._auditionAudioEl) return this._auditionAudioEl;
+		this._auditionAudioEl = document.createElement("audio");
+		this._auditionAudioEl.crossOrigin = "anonymous";
+		this._auditionAudioEl.preload = "auto";
+		this._auditionAudioEl.volume = this._volume;
+		return this._auditionAudioEl;
+	}
+
 	private _mediaSourceNode: MediaElementAudioSourceNode | null = null;
 
 	private connectAudioToContext() {
@@ -175,7 +261,7 @@ class AudioEngine extends EventTarget {
 
 	/** Handle browser autoplay policy */
 	private async resumeContext() {
-		if (this.ctx.state === "suspended") {
+		if (this.ctx.state !== "running") {
 			await this.ctx.resume();
 			log("AudioContext resumed");
 		}
@@ -254,6 +340,9 @@ class AudioEngine extends EventTarget {
 		if (this._audioEl) {
 			this._audioEl.playbackRate = v;
 		}
+		if (this._auditionAudioEl) {
+			this._auditionAudioEl.playbackRate = v;
+		}
 		this._musicPlayBackRate = v;
 		this.dispatchEvent(new Event("music-playback-rate-change"));
 	}
@@ -264,11 +353,9 @@ class AudioEngine extends EventTarget {
 	set volume(v: number) {
 		if (this._volume === v) return;
 		this._volume = v;
-		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
-			if (this._audioEl) this._audioEl.volume = v;
-		} else {
-			this.gain.gain.value = v;
-		}
+		if (this._audioEl) this._audioEl.volume = v;
+		if (this._auditionAudioEl) this._auditionAudioEl.volume = v;
+		this.gain.gain.value = v;
 		this.dispatchEvent(new Event("volume-change"));
 	}
 
@@ -277,6 +364,7 @@ class AudioEngine extends EventTarget {
 	}
 	set preservesPitch(v: boolean) {
 		this.audioEl.preservesPitch = v;
+		if (this._auditionAudioEl) this._auditionAudioEl.preservesPitch = v;
 		this.dispatchEvent(new Event("music-preserves-pitch-change"));
 	}
 
@@ -309,9 +397,35 @@ class AudioEngine extends EventTarget {
 		this.dispatchEvent(new Event("music-resume"));
 	}
 
+	stopAudition() {
+		if (auditionRafId) {
+			cancelAnimationFrame(auditionRafId);
+			auditionRafId = null;
+		}
+		if (this._auditionAudioEl) {
+			this._auditionAudioEl.pause();
+			this._auditionAudioEl.currentTime = 0;
+		}
+		if (this._auditionBlobUrl) {
+			URL.revokeObjectURL(this._auditionBlobUrl);
+			this._auditionBlobUrl = null;
+		}
+		if (this.auditionSourceNode) {
+			try {
+				this.auditionSourceNode.stop(0);
+				this.auditionSourceNode.disconnect();
+			} catch {
+				// ignore
+			}
+			this.auditionSourceNode = null;
+		}
+		globalStore.set(auditionTimeAtom, null);
+	}
+
 	pauseMusic() {
 		if (!this._audioEl) return;
 		this._audioEl.pause();
+		this.stopAudition();
 		this.dispatchEvent(new Event("music-pause"));
 	}
 
@@ -322,72 +436,73 @@ class AudioEngine extends EventTarget {
 	 * @param endTimeInSeconds 音频片段的结束时间
 	 * @returns
 	 */
-	auditionRange(startTimeInSeconds: number, endTimeInSeconds: number) {
+	async auditionRange(startTimeInSeconds: number, endTimeInSeconds: number) {
 		if (!this.musicBuffer) {
 			console.warn("musicBuffer 为 null, 无法预览音频");
 			return;
 		}
 
-		if (this.auditionSourceNode) {
-			try {
-				this.auditionSourceNode.stop(0);
-				this.auditionSourceNode.disconnect();
-			} catch (e) {
-				console.error("停止 AudioNode 失败:", e);
-			}
-			this.auditionSourceNode = null;
-		}
-
-		if (auditionRafId) {
-			cancelAnimationFrame(auditionRafId);
-			auditionRafId = null;
-		}
-
-		globalStore.set(auditionTimeAtom, null);
-
-		const durationInSeconds = endTimeInSeconds - startTimeInSeconds;
+		const totalDuration = this.musicBuffer.duration;
+		const validStartTime = Math.max(
+			0,
+			Math.min(startTimeInSeconds, totalDuration),
+		);
+		const validEndTime = Math.max(
+			validStartTime,
+			Math.min(endTimeInSeconds, totalDuration),
+		);
+		const durationInSeconds = validEndTime - validStartTime;
 
 		if (durationInSeconds <= 0) {
 			return;
 		}
 
-		this.resumeContext();
+		this.stopAudition();
 
-		const audioCtxStartTime = this.ctx.currentTime;
-		const mediaStartTime = startTimeInSeconds;
+		try {
+			const wavBlob = bufferSliceToWav(
+				this.musicBuffer,
+				validStartTime,
+				validEndTime,
+			);
+			const blobUrl = URL.createObjectURL(wavBlob);
+			this._auditionBlobUrl = blobUrl;
 
-		const source = this.ctx.createBufferSource();
-		source.buffer = this.musicBuffer;
-		source.connect(this.eqEntryPoint);
-		this.auditionSourceNode = source;
+			const auditionEl = this.auditionAudioEl;
+			auditionEl.src = blobUrl;
+			auditionEl.volume = this._volume;
+			auditionEl.playbackRate = this._musicPlayBackRate;
+			auditionEl.preservesPitch = this.preservesPitch;
 
-		const progressLoop = () => {
-			const elapsedTime = this.ctx.currentTime - audioCtxStartTime;
-			const currentAuditionTime = mediaStartTime + elapsedTime;
+			const startTimeWall = performance.now();
+			const durationMS = (durationInSeconds / this._musicPlayBackRate) * 1000;
 
-			if (currentAuditionTime >= endTimeInSeconds) {
-				globalStore.set(auditionTimeAtom, null);
-				auditionRafId = null;
-			} else {
-				globalStore.set(auditionTimeAtom, currentAuditionTime);
-				auditionRafId = requestAnimationFrame(progressLoop);
-			}
-		};
+			const progressLoop = () => {
+				const elapsedMS = performance.now() - startTimeWall;
+				const progressRatio = Math.min(1, elapsedMS / durationMS);
+				const currentAuditionTime =
+					validStartTime + progressRatio * durationInSeconds;
 
-		source.addEventListener("ended", () => {
-			if (this.auditionSourceNode === source) {
-				if (auditionRafId) {
-					cancelAnimationFrame(auditionRafId);
+				if (progressRatio >= 1 || auditionEl.paused || auditionEl.ended) {
+					globalStore.set(auditionTimeAtom, null);
 					auditionRafId = null;
+					this.stopAudition();
+				} else {
+					globalStore.set(auditionTimeAtom, currentAuditionTime);
+					auditionRafId = requestAnimationFrame(progressLoop);
 				}
-				globalStore.set(auditionTimeAtom, null);
-				this.auditionSourceNode = null;
-			}
-			source.disconnect();
-		});
+			};
 
-		source.start(audioCtxStartTime, mediaStartTime, durationInSeconds);
-		auditionRafId = requestAnimationFrame(progressLoop);
+			auditionEl.onended = () => {
+				this.stopAudition();
+			};
+
+			await auditionEl.play();
+			auditionRafId = requestAnimationFrame(progressLoop);
+		} catch (e) {
+			console.error("[AudioEngine] Audition failed:", e);
+			this.stopAudition();
+		}
 	}
 
 	//#endregion
@@ -422,6 +537,7 @@ class AudioEngine extends EventTarget {
 				});
 			if (this.musicBuffer) {
 				this.pauseMusic();
+				this.stopAudition();
 				this.musicBuffer = null;
 				globalStore.set(audioBufferAtom, null);
 				globalStore.set(loadedAudioAtom, new Blob([]));
@@ -512,13 +628,14 @@ class AudioEngine extends EventTarget {
 		}
 	}
 
-	playSound(
+	async playSound(
 		audioBuffer: AudioBuffer,
 		when?: number,
 		offset?: number,
 		duration?: number,
 	) {
 		if (!this.ctx) return;
+		await this.resumeContext();
 		const source = this.ctx.createBufferSource();
 		source.buffer = audioBuffer;
 		source.connect(this.eqEntryPoint);
@@ -528,7 +645,8 @@ class AudioEngine extends EventTarget {
 		});
 	}
 
-	playNode(node: AudioScheduledSourceNode, when?: number, stop?: number) {
+	async playNode(node: AudioScheduledSourceNode, when?: number, stop?: number) {
+		await this.resumeContext();
 		node.connect(this.eqEntryPoint);
 		node.start(when);
 		node.addEventListener("ended", () => {
