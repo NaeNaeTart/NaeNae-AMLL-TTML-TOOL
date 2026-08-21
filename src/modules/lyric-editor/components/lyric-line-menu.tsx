@@ -26,7 +26,6 @@ import {
 	timingCopyPlacementAtom,
 } from "$/modules/lyric-editor/components/lyric-line-view-states";
 import { spectrogramSplitModeAtom, spectrogramTopTrackLinesAtom } from "$/modules/spectrogram/states";
-import { VOCALIST_ROLE_LABELS } from "$/utils/vocalist";
 
 const selectedLinesSizeAtom = atom((get) => get(selectedLinesAtom).size);
 
@@ -275,6 +274,7 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 			{isLyricsfile && currentLineVocalistId && (
 				<ContextMenu.Item onSelect={renameVocalist}>
 					{t("contextMenu.renameVocalist", "Rename vocalist...")}
+					{vocalistItemLabel ? ` (${vocalistItemLabel})` : ""}
 				</ContextMenu.Item>
 			)}
 			<ContextMenu.CheckboxItem

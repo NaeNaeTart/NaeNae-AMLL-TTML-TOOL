@@ -32,7 +32,6 @@ interface ImportMetaEnv {
 	readonly TAURI_ENV_ARCH?: string;
 	readonly TAURI_ENV_PLATFORM?: string;
 	readonly TAURI_ENV_FAMILY?: string;
-	// 更多环境变量...
 }
 
 // biome-ignore lint/correctness/noUnusedVariables: 环境声明文件

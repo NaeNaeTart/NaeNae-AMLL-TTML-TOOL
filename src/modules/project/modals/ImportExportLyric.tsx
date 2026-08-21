@@ -141,7 +141,6 @@ export const ImportExportLyric = () => {
 			const lyricState = normalizeLyricText(
 				store.get(lyricLinesAtom),
 				store.get(lyricTextNormalizationOptionsAtom),
-				{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
 			);
 			const lyric = lyricState.lyricLines;
 			const metadata = lyricState.metadata;
@@ -200,6 +199,11 @@ export const ImportExportLyric = () => {
 					reversedSyncLineIds: Array.from(store.get(reverseSyncLineIdsAtom)),
 				},
 				store.get(lyricTextNormalizationOptionsAtom),
+				{
+					allowConsecutiveBackgroundLines: store.get(
+						allowConsecutiveBackgroundLinesAtom,
+					),
+				},
 			);
 
 			try {

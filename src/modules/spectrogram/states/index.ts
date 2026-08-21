@@ -124,4 +124,4 @@ export const spectrogramHoverFrequencyAtom = atom((get) => {
 export const spectrogramSelectionAtom = atom<{ start: number; end: number } | null>(null);
 
 export const spectrogramSplitModeAtom = atom(false);
-export const spectrogramTopTrackLinesAtom = atom<Set<string>>(new Set());
+export const spectrogramTopTrackLinesAtom = atom<Set<string>>(new Set<string>());

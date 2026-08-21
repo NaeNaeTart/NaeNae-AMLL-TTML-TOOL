@@ -13,6 +13,7 @@ export interface ScannedProject {
 	audioFile: string;
 	lyricFile: string;
 	lyricsfileFile?: string;
+	ttmlFile?: string;
 	updatedAt: number;
 	hasManifest: boolean;
 }
@@ -94,6 +95,7 @@ async function scanOneProjectDir(
 					audioFile: audioStillExists ? parsed.audioFile : "",
 					lyricFile: activeLyric,
 					lyricsfileFile: matchedYaml,
+					ttmlFile: matchedTtml,
 					updatedAt: parsed.updatedAt ?? 0,
 					hasManifest: true,
 				};
@@ -124,6 +126,7 @@ async function scanOneProjectDir(
 			audioFile: audioFile?.name ?? "",
 			lyricFile,
 			lyricsfileFile,
+			ttmlFile: primaryTtml?.name,
 			updatedAt: 0,
 			hasManifest: false,
 		};

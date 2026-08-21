@@ -288,8 +288,8 @@
 				"interval": "Save Interval (minutes)",
 				"limit": "Snapshots to keep"
 			},
-			"previewFollowsPlayback": "Preview follows playback",
-			"previewFollowsPlaybackDesc": "When enabled, the preview panel follows audio playback only. When disabled, it also follows seek actions in Time/Edit modes.",
+			"previewFollowsPlayback": "Editor Auto-Scroll to Active Line",
+			"previewFollowsPlaybackDesc": "When enabled, the Edit and Time mode editor automatically scrolls to the currently playing line during playback, so you never have to manually scroll to find where the song is.",
 			"featureFlagsDesc": "Enable/disable experimental features",
 			"featureFlagsNote": "Features added in this fork can be toggled here. Requires app restart for some changes.",
 			"activeFeatures": "Active feature flags",

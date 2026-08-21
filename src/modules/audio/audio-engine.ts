@@ -222,6 +222,7 @@ class AudioEngine extends EventTarget {
 
 	//#region Playback
 	private auditionSourceNode: AudioBufferSourceNode | null = null;
+	private reversePlaybackSourceNode: AudioBufferSourceNode | null = null;
 
 	get musicLoaded() {
 		return !!this.musicBuffer;
@@ -358,13 +359,6 @@ class AudioEngine extends EventTarget {
 		this.dispatchEvent(new Event("music-pause"));
 	}
 
-	/**
-	 * 试听一个音频片段
-	 *
-	 * @param startTimeInSeconds 音频片段的开始时间
-	 * @param endTimeInSeconds 音频片段的结束时间
-	 * @returns
-	 */
 	async auditionRange(startTimeInSeconds: number, endTimeInSeconds: number) {
 		if (!this.musicBuffer) {
 			console.warn("musicBuffer 为 null, 无法预览音频");
@@ -434,6 +428,82 @@ class AudioEngine extends EventTarget {
 		}
 	}
 
+	/**
+	 * Play a range of the loaded music reversed (sample-reversed), used by the reverse playback zone.
+	 * Calls onComplete when playback finishes naturally; a manual stopReversePlayback() call does not.
+	 */
+	async playReversedRange(
+		startTimeInSeconds: number,
+		endTimeInSeconds: number,
+		onComplete?: () => void,
+	) {
+		if (!this.musicBuffer) {
+			console.warn("musicBuffer is null, cannot play reversed range");
+			return;
+		}
+
+		const totalDuration = this.musicBuffer.duration;
+		const validStartTime = Math.max(
+			0,
+			Math.min(startTimeInSeconds, totalDuration),
+		);
+		const validEndTime = Math.max(
+			validStartTime,
+			Math.min(endTimeInSeconds, totalDuration),
+		);
+		const durationInSeconds = validEndTime - validStartTime;
+		if (durationInSeconds <= 0) return;
+
+		this.stopReversePlayback();
+		await this.resumeContext();
+
+		const sampleRate = this.musicBuffer.sampleRate;
+		const startSample = Math.floor(validStartTime * sampleRate);
+		const frameCount = Math.floor(durationInSeconds * sampleRate);
+		const channelCount = this.musicBuffer.numberOfChannels;
+
+		const reversedBuffer = this.ctx.createBuffer(
+			channelCount,
+			frameCount,
+			sampleRate,
+		);
+		for (let channel = 0; channel < channelCount; channel++) {
+			const sourceData = this.musicBuffer.getChannelData(channel);
+			const reversedData = reversedBuffer.getChannelData(channel);
+			for (let i = 0; i < frameCount; i++) {
+				reversedData[i] = sourceData[startSample + frameCount - 1 - i] ?? 0;
+			}
+		}
+
+		const source = this.ctx.createBufferSource();
+		source.buffer = reversedBuffer;
+		source.playbackRate.value = this._musicPlayBackRate;
+		source.connect(this.eqEntryPoint);
+		source.onended = () => {
+			if (this.reversePlaybackSourceNode === source) {
+				this.reversePlaybackSourceNode = null;
+			}
+			source.disconnect();
+			onComplete?.();
+		};
+		this.reversePlaybackSourceNode = source;
+		source.start(0);
+	}
+
+	/** Stop any in-progress reversed playback started via playReversedRange(). Does not trigger its onComplete. */
+	stopReversePlayback() {
+		const source = this.reversePlaybackSourceNode;
+		if (!source) return;
+		this.reversePlaybackSourceNode = null;
+		source.onended = null;
+		try {
+			source.stop(0);
+			source.disconnect();
+		} catch {
+			// ignore
+		}
+	}
+
 	//#endregion
 
 	//#region Load sound
@@ -444,6 +514,18 @@ class AudioEngine extends EventTarget {
 		const previous = globalStore.get(audioCoverArtAtom);
 		if (previous && previous !== coverUrl) URL.revokeObjectURL(previous);
 		globalStore.set(audioCoverArtAtom, coverUrl);
+	}
+
+	/** Unload the currently loaded music, resetting playback state and buffers. No-op if nothing is loaded. */
+	unloadMusic() {
+		if (!this.musicBuffer) return;
+		this.pauseMusic();
+		this.stopAudition();
+		this.musicBuffer = null;
+		globalStore.set(audioBufferAtom, null);
+		globalStore.set(loadedAudioAtom, new Blob([]));
+		this.audioEl.src = "";
+		this.dispatchEvent(new Event("music-unload"));
 	}
 
 	async loadMusic(src: Blob, isRetry = false): Promise<HTMLAudioElement> {
@@ -464,15 +546,7 @@ class AudioEngine extends EventTarget {
 				.catch(() => {
 					// Audio playback is still valid when a format has no readable tags.
 				});
-			if (this.musicBuffer) {
-				this.pauseMusic();
-				this.stopAudition();
-				this.musicBuffer = null;
-				globalStore.set(audioBufferAtom, null);
-				globalStore.set(loadedAudioAtom, new Blob([]));
-				audioEl.src = "";
-				this.dispatchEvent(new Event("music-unload"));
-			}
+			this.unloadMusic();
 			this.dispatchEvent(new Event("music-loading"));
 		}
 

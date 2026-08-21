@@ -3,7 +3,6 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { type CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import {
-	activeLineIdsAtom,
 	currentTimeAtom,
 	audioCoverArtAtom,
 } from "$/modules/audio/states/index.ts";
@@ -252,7 +251,6 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const displayTime = useAtomValue(displayTimeAtom);
-	const activeLineIds = useAtomValue(activeLineIdsAtom); 
 	const darkMode = useAtomValue(isDarkThemeAtom);
 	const projectIdentity = useAtomValue(projectIdentityAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
@@ -285,8 +283,6 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 
 		return groups;
 	}, [lyrics.lyricLines]);
-
-	const activeLineIdsSet = useMemo(() => new Set(activeLineIds), [activeLineIds]);
 
 	// Scroll to the active group
 	useEffect(() => {

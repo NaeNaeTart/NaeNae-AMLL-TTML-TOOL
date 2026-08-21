@@ -1,5 +1,4 @@
 import { atom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
 
 export const importFromTextDialogAtom = atom(false);
 export const importLyricsChooserDialogAtom = atom(false);

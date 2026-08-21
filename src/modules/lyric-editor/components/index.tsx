@@ -602,9 +602,9 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		scrollToLineIndex(index);
 	}, [store, scrollToLineIndex]);
 
-	// Auto-scroll to active line in Edit/Time modes during playback or time changes
+	// Auto-scroll to active line in Edit/Sync modes during playback or time changes
 	useEffect(() => {
-		if (toolMode !== ToolMode.Edit && toolMode !== ToolMode.Time) return;
+		if (toolMode !== ToolMode.Edit && toolMode !== ToolMode.Sync) return;
 
 		const syncPosition = () => {
 			if (!previewFollowsPlayback && audioEngine.musicPlaying) return;

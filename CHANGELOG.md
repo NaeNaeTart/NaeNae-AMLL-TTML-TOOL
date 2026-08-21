@@ -8,6 +8,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **TTML v3/v4 Vocal Agent Round-Trip**:
+  - Parser now maps `ttm:agent="v3"` to middle vocals (`isMiddle`) and `"v4"` to duet groups (`isDuetGroup`), propagating both roles into nested background sub-lines on import.
+  - Writer emits matching `v3`/`v4` `ttm:agent` declarations in document metadata and per-line agent attributes for full round-trip fidelity.
+- **Always-Standalone Background Export**: Background lines are now exported as their own `<p>` elements by default; the `allowConsecutiveBackgroundLines` option only controls whether consecutive background lines get grouped under one element.
 - **Split Spectrogram Multi-Track Editing**:
   - Divide spectrogram into two synchronized parallel tracks for editing overlapping vocals, duets, and background ad-libs.
   - Right-click context menu action `Show on Top Track` to route specific lyric lines to the upper spectrogram track.
@@ -56,8 +60,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - New **Clear History** button in the Projects dialog to wipe the auto-save database.
   - Workspace directory persistence (`workspaceDirAtom`) using `atomWithStorage` so last scanned folders survive application reloads.
 
+### Changed
+
+- **Upstream Alignment**: Multiple fork behaviors were adapted to follow `upstream/main` conventions, since absorbing upstream changes cleanly and staying compatible with future pull requests required adapting our side. This includes routing every TTML export through the shared `exportTTMLText(ttmlLyric, normalization?, options?)` contract instead of ad-hoc normalization at call sites, matching the Discord activity payload field names to the Tauri IPC contract (`largeImage` → `large_image`), adding a pnpm `onlyBuiltDependencies` allowlist for AMLL packages/esbuild, and dropping fork-only dead code that diverged from upstream APIs. Upstream-inherited user-facing strings and comments remain untouched by design.
+- **TTML Export Semantics for Multi-Background Lyrics**: Background lines are serialized as independent `<p ttm:role="x-bg">` elements by default (with optional grouping of consecutive backgrounds via `allowConsecutiveBackgroundLines`), and middle / duet-group vocals now persist through `ttm:agent="v3"` / `"v4"`. Together with the parser changes this makes true multi-background, multi-vocalist TTML files possible that round-trip through the editor without losing vocal roles.
+
 ### Fixed
 
+- **Ghost Duet Agents on Export**: All TTML export paths (folder project save, Import/Export dialog, Lyricsfile Converter) now forward text normalization options and `allowConsecutiveBackgroundLines` to `exportTTMLText`, so saved files no longer gain phantom `v2` duet agents when the setting is disabled.
+- **Reverse Playback Zone Audio**: Added the missing reversed-audio engine implementation (`playReversedRange` / `stopReversePlayback`) that zone playback was already calling; playing a marked zone now works instead of failing.
+- **Discord Rich Presence Cover Art**: Activity payload now uses `largeImage`, matching the Tauri IPC contract (`large_image`), so cover art URLs actually render in the Discord status instead of being silently dropped.
+- **Editor Auto-Scroll Mode Scope**: Auto-scroll to the active line now tracks Edit and Sync modes (previously Edit/Time), matching where timestamp seeking actually happens.
+- **Vocalist Rename Menu Label**: The rename vocalist context menu entry now shows the resolved vocalist label for the selected line.
+- **Legacy Comment Cleanup**: Removed inherited Chinese `@fileoverview` / inline comments from fork-touched modules (`ttml-parser`, `ttml-writer`, audio engine, keybindings, segmentation) per repo conventions, keeping GPLv3 license headers intact.
 - **Standard and Toxi Active Line Overlap Bug**: Refactored the core preview renderer (`AMLLWrapper`) to evaluate `isActive` and `isPast` on a per-line basis rather than a per-group block. Co-timed or overlapping lines (like a duet overlapping a lead vocal) now illuminate individually and dim into gray *immediately* after their exact `endTime` finishes.
 - **Standard and Toxi Preview Contrast**: Boosted inactive text color opacity (`rgba(255, 255, 255, 0.45)`) and added top/bottom alpha masks so upcoming and past lyrics remain perfectly readable when playback is paused. Secondary content (translations and romanization) now render correctly on inactive/static lines.
 - **Auto-Scroll Jumping to Top**: Removed an outdated layout hack for `display: contents` in the preview auto-scroll system. The viewport now calculates the exact `offsetTop` of the active line container, preventing the view from erratically jumping to the beginning of the song during playback or line clicks.

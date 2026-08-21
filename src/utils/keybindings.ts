@@ -11,20 +11,13 @@ export interface KeyBindingEvent {
 }
 export type KeyBindingCallback = (evt: KeyBindingEvent) => void;
 
-/**
- * 触发模式枚举
- */
 export enum KeyBindingTriggerMode {
 	KeyDown = "keydown",
 	KeyUp = "keyup",
 }
 
-/**
- * 用于在事件监听器中快速读取当前模式
- */
 let currentTriggerMode: KeyBindingTriggerMode = KeyBindingTriggerMode.KeyDown;
 
-// TODO: 把这个组件变成 hook 这样就可以直接读取 atom 而不是手动解析 localStorage 了
 if (typeof localStorage !== "undefined") {
 	const raw = localStorage.getItem("keyBindingTriggerMode");
 	if (raw) {
@@ -246,7 +239,6 @@ window.addEventListener("keydown", (evt) => {
 
 	const code = removeSideOfKeyCode(evt.code);
 
-	// 阻止空格滚动
 	if (
 		(evt.code === "Space" || evt.code === "Home" || evt.code === "End") &&
 		evt.target === document.body
@@ -409,7 +401,7 @@ export function useKeyBinding(
 }
 
 /**
- * @deprecated 请使用 useCommand
+ * @deprecated Use useCommand instead.
  */
 export function useKeyBindingAtom(
 	thisAtom: ReturnType<typeof atomWithKeybindingStorage>,

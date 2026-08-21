@@ -44,6 +44,10 @@ import {
 import { scanProjectWorkspace } from "$/modules/project/folder-project/workspace-scan";
 import { getSuggestedTtmlFileName } from "$/modules/project/logic/metadata-filename";
 import {
+	allowConsecutiveBackgroundLinesAtom,
+	lyricTextNormalizationOptionsAtom,
+} from "$/modules/settings/states";
+import {
 	exportLyricsfileText,
 	parseLyricsfile,
 } from "$/modules/lyricsfile-processor";
@@ -112,10 +116,18 @@ export const useFolderProject = () => {
 			}
 		}
 		try {
-			return exportTTMLText({
-				...lyric,
-				reversedSyncLineIds: Array.from(store.get(reverseSyncLineIdsAtom)),
-			});
+			return exportTTMLText(
+				{
+					...lyric,
+					reversedSyncLineIds: Array.from(store.get(reverseSyncLineIdsAtom)),
+				},
+				store.get(lyricTextNormalizationOptionsAtom),
+				{
+					allowConsecutiveBackgroundLines: store.get(
+						allowConsecutiveBackgroundLinesAtom,
+					),
+				},
+			);
 		} catch (e) {
 			logError("Error when generating TTML", e);
 			toast.error(t("error.ttmlGenerateFailed", "Failed to generate TTML"));

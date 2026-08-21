@@ -1,19 +1,13 @@
 import {
 	ContentView24Regular,
 	History24Regular,
-	Keyboard12324Regular,
-	LocalLanguage24Regular,
 	PaddingLeft24Regular,
-	PaddingRight24Regular,
 	Save24Regular,
 	Speaker224Regular,
 	Stack24Regular,
 	Timer24Regular,
-	TopSpeed24Regular,
 	VideoBackgroundEffect24Regular,
 	Sparkle24Regular,
-	TimeAndWeather24Regular,
-	ErrorCircle24Regular,
 	TextT24Regular,
 } from "@fluentui/react-icons";
 import {
@@ -25,7 +19,6 @@ import {
 	Heading,
 	IconButton,
 	Popover,
-	RadioGroup,
 	SegmentedControl,
 	Slider,
 	Switch,
@@ -352,7 +345,7 @@ export const SettingsAppearanceTab = () => {
 										<Flex align="center" justify="between">
 											<Box flexGrow="1" overflow="hidden">
 												<Text size="2" weight="bold" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</Text>
-												{lastLoaded === p.name && <Text size="1" color="accent" style={{ display: "block" }}>Active</Text>}
+												{lastLoaded === p.name && <Text size="1" style={{ display: "block" }}>Active</Text>}
 											</Box>
 											<Flex gap="1">
 												<IconButton size="1" variant="soft" onClick={() => handleLoadPreset(p)} title="Load Preset">
@@ -491,7 +484,7 @@ export const SettingsAppearanceTab = () => {
 												{t("settings.appearance.glassBlurDesc", "Adjust the background blur effect for glassmorphic elements.")}
 											</Text>
 										</Flex>
-										<Text size="1" weight="bold" color="accent">{glassBlur}px</Text>
+										<Text size="1" weight="bold">{glassBlur}px</Text>
 									</Flex>
 									<Slider 
 										min={0} 
@@ -886,7 +879,7 @@ export const SettingsAppearanceTab = () => {
 				</Heading>
 				<Card>
 					<Flex direction="column" gap="2">
-						<Flex align="center" gap="2" color="gray">
+						<Flex align="center" gap="2" style={{ color: "var(--gray-a11)" }}>
 							<History24Regular />
 							<Text size="2">
 								{t("settings.appearance.resetDesc", "Reset all colors, backgrounds, gradients, and custom overrides back to the default theme.")}
@@ -1092,7 +1085,7 @@ export const SettingsAppearanceTab = () => {
 
 					<Card size="2">
 						<Flex direction="column" gap="2">
-							<Flex align="center" gap="2" color="gray">
+							<Flex align="center" gap="2" style={{ color: "var(--gray-a11)" }}>
 								<Sparkle24Regular />
 								<Text size="2">{t("settings.appearance.advanced.masterResetNote", "This will reset all 20+ granular overrides.")}</Text>
 							</Flex>
@@ -1145,7 +1138,7 @@ const AdvancedSliderItem = ({ label, icon, value, min, max, step = 1, onChange, 
 	<Box>
 		<Flex align="center" justify="between" mb="1">
 			<Flex align="center" gap="2">
-				<Box color="accent">{icon}</Box>
+				<Box style={{ color: "var(--accent-9)" }}>{icon}</Box>
 				<Text size="1" weight="bold">{label}</Text>
 			</Flex>
 			<Text size="1" color="gray">{value}{unit}</Text>

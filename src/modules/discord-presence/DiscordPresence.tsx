@@ -34,7 +34,6 @@ import {
 	DEFAULT_DISCORD_STATE_TEMPLATE,
 	formatNativeDiscordActivity,
 	PRESENCE_META_NAME,
-	truncateDiscordText,
 	validateDiscordTemplate,
 } from "./presence";
 import { ProjectTimeTracker } from "./project-time";
@@ -134,7 +133,6 @@ export function DiscordPresence() {
 	const idleTimeoutMinutes = useAtomValue(discordIdleTimeoutMinutesAtom);
 	const projectId = useAtomValue(projectIdAtom);
 	const [inactive, setInactive] = useState(false);
-	const onlineCoverArtRef = useRef<string | null>(null);
 	const trackerRef = useRef<ProjectTimeTracker | null>(null);
 	if (!trackerRef.current) {
 		trackerRef.current = new ProjectTimeTracker(window.localStorage);
@@ -341,10 +339,7 @@ export function DiscordPresence() {
 				/^https?:\/\//i.test(coverArtUrl) &&
 				!coverArtUrl.includes("data:")
 			) {
-				payload.largeImageUrl = coverArtUrl;
-				payload.largeImageText = truncateDiscordText(
-					snapshot.title || "AMLL TTML Tool",
-				);
+				payload.largeImage = coverArtUrl;
 			}
 
 			invoke("set_discord_activity", {

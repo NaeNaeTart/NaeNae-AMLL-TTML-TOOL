@@ -7,7 +7,6 @@ import {
 	PaddingLeft24Regular,
 	PaddingRight24Regular,
 	Save24Regular,
-	Sparkle24Regular,
 	Speaker224Regular,
 	Stack24Regular,
 	Timer24Regular,

@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { parseLyric as parseTTML } from "$/modules/project/logic/ttml-parser";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
+import { allowConsecutiveBackgroundLinesAtom } from "$/modules/settings/states";
 import { lyricsfileConverterDialogAtom } from "$/states/dialogs.ts";
 import {
 	ActiveFileKind,
@@ -69,23 +70,33 @@ export const LyricsfileConverterDialog = () => {
 	const currentLyricLines = useAtomValue(lyricLinesAtom);
 	const currentFileKind = useAtomValue(activeFileKindAtom);
 	const currentSaveFileName = useAtomValue(saveFileNameAtom);
+	const allowConsecutiveBackgroundLines = useAtomValue(
+		allowConsecutiveBackgroundLinesAtom,
+	);
 
-	const convert = useCallback((text: string, dir: Direction) => {
-		setErrorMessage("");
-		try {
-			if (dir === "ttml-to-lyricsfile") {
-				const parsed = parseTTML(text);
-				setOutputText(exportLyricsfileText(parsed));
-			} else {
-				const parsed = parseLyricsfile(text);
-				setOutputText(exportTTMLText(parsed));
+	const convert = useCallback(
+		(text: string, dir: Direction) => {
+			setErrorMessage("");
+			try {
+				if (dir === "ttml-to-lyricsfile") {
+					const parsed = parseTTML(text);
+					setOutputText(exportLyricsfileText(parsed));
+				} else {
+					const parsed = parseLyricsfile(text);
+					setOutputText(
+						exportTTMLText(parsed, undefined, {
+							allowConsecutiveBackgroundLines,
+						}),
+					);
+				}
+			} catch (e) {
+				logError("Lyricsfile conversion failed", e);
+				setOutputText("");
+				setErrorMessage(e instanceof Error ? e.message : String(e));
 			}
-		} catch (e) {
-			logError("Lyricsfile conversion failed", e);
-			setOutputText("");
-			setErrorMessage(e instanceof Error ? e.message : String(e));
-		}
-	}, []);
+		},
+		[allowConsecutiveBackgroundLines],
+	);
 
 	const handleTextChange = useCallback(
 		(value: string) => {

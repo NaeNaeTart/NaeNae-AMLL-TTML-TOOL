@@ -160,7 +160,7 @@ const modeLabels: Record<ToolMode, string> = {
 	[ToolMode.Preview]: "Previewing",
 };
 
-const truncateDiscordText = (value: string) =>
+export const truncateDiscordText = (value: string) =>
 	Array.from(value).slice(0, 128).join("");
 
 const formatClock = (seconds: number) => {

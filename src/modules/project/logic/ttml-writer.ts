@@ -9,12 +9,6 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-/**
- * @fileoverview
- * 用于将内部歌词数组对象导出成 TTML 格式的模块
- * 但是可能会有信息会丢失
- */
-
 import type { LyricLine, LyricWord, TTMLLyric } from "../../../types/ttml.ts";
 import {
 	type LyricTextNormalizationOptions,
@@ -198,6 +192,8 @@ export default function exportTTMLText(
 
 	const body = doc.createElement("body");
 	const hasOtherPerson = !!lyric.find((v) => v.isDuet);
+	const hasMiddlePerson = !!lyric.find((v) => v.isMiddle);
+	const hasDuetGroupPerson = !!lyric.find((v) => v.isDuetGroup);
 
 	const metadataEl = doc.createElement("metadata");
 	const mainPersonAgent = doc.createElement("ttm:agent");
@@ -212,6 +208,22 @@ export default function exportTTMLText(
 		otherPersonAgent.setAttribute("xml:id", "v2");
 
 		metadataEl.appendChild(otherPersonAgent);
+	}
+
+	if (hasMiddlePerson) {
+		const middlePersonAgent = doc.createElement("ttm:agent");
+		middlePersonAgent.setAttribute("type", "other");
+		middlePersonAgent.setAttribute("xml:id", "v3");
+
+		metadataEl.appendChild(middlePersonAgent);
+	}
+
+	if (hasDuetGroupPerson) {
+		const duetGroupPersonAgent = doc.createElement("ttm:agent");
+		duetGroupPersonAgent.setAttribute("type", "other");
+		duetGroupPersonAgent.setAttribute("xml:id", "v4");
+
+		metadataEl.appendChild(duetGroupPersonAgent);
 	}
 
 	// Extract songwriter metadata to emit in iTunes format (Spicylyrics compatibility)
@@ -295,8 +307,7 @@ export default function exportTTMLText(
 
 		for (let lineIndex = 0; lineIndex < param.length; lineIndex++) {
 			const line = param[lineIndex];
-			const exportAsStandaloneBackground =
-				(options.allowConsecutiveBackgroundLines ?? false) && line.isBG;
+			const exportAsStandaloneBackground = line.isBG;
 			const lineP = doc.createElement("p");
 			const beginTime = line.startTime ?? 0;
 			const endTime = line.endTime;
@@ -304,7 +315,12 @@ export default function exportTTMLText(
 			lineP.setAttribute("begin", msToTimestamp(beginTime));
 			lineP.setAttribute("end", msToTimestamp(endTime));
 
-			lineP.setAttribute("ttm:agent", line.isDuet ? "v2" : "v1");
+			let agentId = "v1";
+			if (line.isDuetGroup) agentId = "v4";
+			else if (line.isMiddle) agentId = "v3";
+			else if (line.isDuet) agentId = "v2";
+			
+			lineP.setAttribute("ttm:agent", agentId);
 
 			const itunesKey = `L${++i}`;
 			lineP.setAttribute("itunes:key", itunesKey);
@@ -347,11 +363,13 @@ export default function exportTTMLText(
 				lineP.setAttribute("end", msToTimestamp(word.endTime));
 			}
 
-			const followingBackgroundLines = collectFollowingBackgroundLines(
-				param,
-				lineIndex,
-				options.allowConsecutiveBackgroundLines ?? false,
-			);
+			const followingBackgroundLines = (exportAsStandaloneBackground && !(options.allowConsecutiveBackgroundLines ?? false))
+				? []
+				: collectFollowingBackgroundLines(
+					param,
+					lineIndex,
+					options.allowConsecutiveBackgroundLines ?? false,
+				);
 			const backgroundLines = exportAsStandaloneBackground
 				? [line, ...followingBackgroundLines]
 				: followingBackgroundLines;

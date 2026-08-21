@@ -67,9 +67,6 @@ export const auditionTimeAtom = atom<number | null>(null);
 
 export interface AudioTaskState {
 	type: AudioTaskType;
-	/**
-	 * 转码进度，0 ~ 1 之间的浮点数
-	 */
 	progress: number;
 }
 export type AudioTaskType = "TRANSCODING" | "LOADING";

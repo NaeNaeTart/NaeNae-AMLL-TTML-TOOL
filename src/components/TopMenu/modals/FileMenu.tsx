@@ -20,7 +20,6 @@ import {
 	FILE_KIND_EXTENSIONS,
 	isDirtyAtom,
 	lyricLinesAtom,
-	saveFileHandlerAtom,
 	saveFileNameAtom,
 	stripKnownFileExtension,
 	undoableLyricLinesAtom,
@@ -41,7 +40,6 @@ const FileMenuItems = () => {
 	const activeDir = useAtomValue(activeProjectDirAtom);
 	const [manifest, setManifest] = useAtom(activeProjectManifestAtom);
 	const [activeFileKind, setActiveFileKind] = useAtom(activeFileKindAtom);
-	const saveFileHandler = useAtomValue(saveFileHandlerAtom);
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 
 	const hasDualFormat = Boolean(

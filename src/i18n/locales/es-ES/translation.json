@@ -275,8 +275,8 @@
 				"interval": "Save Interval (minutes)",
 				"limit": "Snapshots to keep"
 			},
-			"previewFollowsPlayback": "El preview sigue la reproducción",
-			"previewFollowsPlaybackDesc": "Cuando está activado, el panel de preview sigue solo la reproducción de audio. Cuando está desactivado, también sigue las búsquedas en los modos Time/Edit.",
+			"previewFollowsPlayback": "Auto-desplazamiento del editor a la línea activa",
+			"previewFollowsPlaybackDesc": "Cuando está activado, el editor en los modos Edit y Time se desplaza automáticamente hasta la línea que está sonando, para no tener que buscarla a mano.",
 			"featureFlagsDesc": "Activar/desactivar características experimentales",
 			"featureFlagsNote": "Las características añadidas en este fork se pueden activar/desactivar aquí. Algunas requieren reiniciar la app.",
 			"activeFeatures": "Banderas de características activas",

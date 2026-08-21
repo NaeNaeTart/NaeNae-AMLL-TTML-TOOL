@@ -9,13 +9,6 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-/**
- * @fileoverview
- * 解析 TTML 歌词文档到歌词数组的解析器
- * 用于解析从 Apple Music 来的歌词文件，且扩展并支持翻译和音译文本。
- * @see https://www.w3.org/TR/2018/REC-ttml1-20181108/
- */
-
 import { uid } from "uid";
 import type {
 	LyricLine,
@@ -463,6 +456,8 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 		lineEl: Element,
 		isBG = false,
 		isDuet = false,
+		isMiddle = false,
+		isDuetGroup = false,
 		parentItunesKey: string | null = null,
 		parentSectionId?: string,
 	) {
@@ -480,15 +475,21 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 
 		const agentId = getAttr(lineEl, "agent") || getAttr(lineEl, "participant");
 
+		const currentIsMiddle = isBG ? isMiddle : (!!agentId && agentId === "v3");
+		const currentIsDuetGroup = isBG ? isDuetGroup : (!!agentId && agentId === "v4");
+		const currentIsDuet = isBG
+			? isDuet
+			: (!!agentId && agentId !== mainAgentId && !currentIsMiddle && !currentIsDuetGroup);
+
 		const line: LyricLine = {
 			id: uid(),
 			words: [],
 			translatedLyric: "",
 			romanLyric: "",
 			isBG,
-			isDuet: isBG
-				? isDuet
-				: !!agentId && agentId !== mainAgentId,
+			isDuet: currentIsDuet,
+			isMiddle: currentIsMiddle,
+			isDuetGroup: currentIsDuetGroup,
 			agent: agentId || undefined,
 			startTime: parsedStartTime,
 			endTime: parsedEndTime,
@@ -551,12 +552,13 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 							wordEl,
 							true,
 							line.isDuet,
+							line.isMiddle,
+							line.isDuetGroup,
 							itunesKey,
 							line.sectionId,
 						);
-					} else if (role === "x-translation") {
-						// 没有 Apple Music 样式翻译时才使用内嵌翻译
-						if (!line.translatedLyric) {
+				} else if (role === "x-translation") {
+					if (!line.translatedLyric) {
 							line.translatedLyric = wordEl.textContent ?? "";
 						}
 					} else if (role === "x-roman") {
@@ -618,7 +620,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 	}
 
 	for (const lineEl of ttmlDoc.querySelectorAll("body p[begin][end]")) {
-		parseLineElement(lineEl, false, false, null);
+		parseLineElement(lineEl, false, false, false);
 	}
 
 	const marks: Mark[] = [];

@@ -1,7 +1,3 @@
-/**
- * @description 高级分词组件
- */
-
 import {
 	DeleteRegular,
 	EditRegular,
