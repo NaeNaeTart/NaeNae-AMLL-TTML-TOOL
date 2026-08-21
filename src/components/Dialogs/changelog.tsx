@@ -60,6 +60,12 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Clearer Beginner Guide:</strong> Added a preparation step
+									that pairs the in-app walkthrough with the full TTML guide,
+									provides compact lyric-source cards, and fixes guide navigation
+									and documentation links.
+								</Text>
+								<Text size="2">
 									<strong>Discord Album Artwork:</strong> Show a project's web
 									cover image in native Discord presence, with safe fallback to
 									the app logo when no usable cover URL is available.
