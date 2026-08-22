@@ -44,4 +44,7 @@ ffmpeg-core.js
 .env.production
 .vercel
 .env*.local
+
+AGENTS.md
 /zyz
+/lyricsfile
