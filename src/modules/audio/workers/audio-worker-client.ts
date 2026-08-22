@@ -33,13 +33,17 @@ export class AudioWorkerClient {
 
 	constructor(uiHandlers: WorkerUIHandlers) {
 		this.uiHandlers = uiHandlers;
-		this.worker = new AudioWorker();
+		if (typeof Worker !== "undefined") {
+			this.worker = new AudioWorker();
 
-		this.worker.onmessage = this.handleMessage.bind(this);
-		this.worker.onerror = (e) => {
-			console.error("[Worker Error]", e);
-			this.uiHandlers.onError("An error occurred");
-		};
+			this.worker.onmessage = this.handleMessage.bind(this);
+			this.worker.onerror = (e) => {
+				console.error("[Worker Error]", e);
+				this.uiHandlers.onError("An error occurred");
+			};
+		} else {
+			this.worker = {} as Worker;
+		}
 	}
 
 	private handleMessage(e: MessageEvent<WorkerResponse>) {
