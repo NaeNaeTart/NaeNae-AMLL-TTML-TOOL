@@ -55,6 +55,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Cover art resolution chain for Discord Rich Presence — fork-built on top of upstream's presence module — with online NetEase API fallback (the NetEase integration itself is upstream's) for missing embedded art, and multi-host (tmpfiles, catbox, litterbox) image upload support.
   - Unified rendering for harmony pairs (`isDuetGroup`) side-by-side across Standard, Toxi, and Spicy preview styles.
   - Editor Auto-Scroll to Active Line toggle (`previewFollowsPlaybackAtom`) that automatically scrolls the editor in Edit and Sync modes to follow the playing line during audio playback.
+- **Highlight Active Line in Edit Mode (`highlightActiveWordInEditAtom`)**:
+  - Optional toggle in Settings under VGZ options (disabled by default) allowing the Edit mode view to subtly highlight the playing line container (`var(--accent-a2)`) in real time during audio playback. Uses soft theme-aware alpha variables without distracting borders, keeping editing clean and distinct from selected and hover states.
 - **Lyricsfile Vocal Role Management**:
   - Dynamic **Vocalist** section in the RibbonBar (`RibbonSection`) that shows the custom name input specifically for the currently selected line's vocal role (`v1 Lead`, `v2 Duet`, `v3 Middle`, `v4 Harmony`).
   - Right-click line context menu (`Rename vocalist...`) to rename or clear custom vocalists per line role.
@@ -71,6 +73,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Stable Viewport Following in Time & Edit Modes**: Prevented disorienting viewport jumps mid-phrase in Time/Sync and Edit modes by checking if the active lyric line is already within the visible viewport before triggering scroll animations. The editor now stays calm and only scrolls to bring the next line into view when that next line actually starts singing, keeping live tracking stable.
 - **Timing Overview Auto-Scroll & Active Line Following**: The Technical Timing Overview preview mode now automatically tracks and follows the active lyric line during playback, maintaining smooth centered scrolling like Spicy and Standard modes. When switching to Timing mode or returning from other previews, the viewport immediately opens at the current song position rather than resetting to the beginning (00:00.000), and user manual scrolling temporarily pauses auto-scroll to allow uninterrupted inspection.
 - **Extended Background Line Illumination in Spicy Lyrics**: Fixed an issue where lead lines and standalone background lines remained frozen in the illuminated `.Active` state past their vocal duration when saved/exported TTML files were played in Spicy Lyrics.
   - **Origin & Root Cause**:

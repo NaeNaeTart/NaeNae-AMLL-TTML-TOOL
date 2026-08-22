@@ -1,4 +1,12 @@
-import { Badge, Button, Flex, Select, Switch, Text, TextField } from "@radix-ui/themes";
+import {
+	Badge,
+	Button,
+	Flex,
+	Select,
+	Switch,
+	Text,
+	TextField,
+} from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -74,7 +82,9 @@ export const SettingsSpectrogramTab = () => {
 				<Flex justify="between" align="center" gap="3">
 					<Flex direction="column" gap="1">
 						<Flex gap="2" align="center">
-							<Text>{t("settings.spectrogram.splitMode", "Multi-Track Split View")}</Text>
+							<Text>
+								{t("settings.spectrogram.splitMode", "Multi-Track Split View")}
+							</Text>
 							<Badge variant="soft">VGZ</Badge>
 						</Flex>
 						<Text size="1" color="gray">
@@ -84,10 +94,7 @@ export const SettingsSpectrogramTab = () => {
 							)}
 						</Text>
 					</Flex>
-					<Switch
-						checked={splitMode}
-						onCheckedChange={setSplitMode}
-					/>
+					<Switch checked={splitMode} onCheckedChange={setSplitMode} />
 				</Flex>
 			</Text>
 
@@ -98,7 +105,8 @@ export const SettingsSpectrogramTab = () => {
 						value={selectedPaletteId}
 						onValueChange={(v) => setSelectedPaletteId(v)}
 					>
-						<Select.Trigger /><Select.Content>
+						<Select.Trigger />
+						<Select.Content>
 							{predefinedPalettes.map((palette) => (
 								<Select.Item key={palette.id} value={palette.id}>
 									{palette.name}
@@ -121,7 +129,8 @@ export const SettingsSpectrogramTab = () => {
 						border: "1px solid var(--gray-a5)",
 						borderRadius: "var(--radius-3)",
 					}}
-				><section>
+				>
+					<section>
 						<Flex direction="column" gap="3" width="100%">
 							<Text size="1" color="gray">
 								{t(

@@ -277,6 +277,8 @@
 			},
 			"previewFollowsPlayback": "Auto-desplazamiento del editor a la línea activa",
 			"previewFollowsPlaybackDesc": "Cuando está activado, el editor en los modos Edit y Time se desplaza automáticamente hasta la línea que está sonando, para no tener que buscarla a mano.",
+			"highlightActiveWordInEdit": "Iluminar letra activa en modo Edit",
+			"highlightActiveWordInEditDesc": "Cuando está activado, las palabras y líneas se iluminan en tiempo real durante la reproducción en el modo Edit, igual que en el modo Time.",
 			"featureFlagsDesc": "Activar/desactivar características experimentales",
 			"featureFlagsNote": "Las características añadidas en este fork se pueden activar/desactivar aquí. Algunas requieren reiniciar la app.",
 			"activeFeatures": "Banderas de características activas",

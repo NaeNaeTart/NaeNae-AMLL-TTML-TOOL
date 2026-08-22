@@ -56,6 +56,10 @@ export const enableUpcomingWordHighlightAtom = atomWithStorage(
 	"enableUpcomingWordHighlight",
 	false,
 );
+export const highlightActiveWordInEditAtom = atomWithStorage(
+	"highlightActiveWordInEdit",
+	false,
+);
 export const upcomingWordHighlightThresholdAtom = atomWithStorage(
 	"upcomingWordHighlightThreshold",
 	500,

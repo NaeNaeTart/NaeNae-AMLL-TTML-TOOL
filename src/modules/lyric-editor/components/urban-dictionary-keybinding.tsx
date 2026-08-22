@@ -1,4 +1,4 @@
-import { useStore, useAtomValue } from "jotai";
+import { useAtomValue, useStore } from "jotai";
 import { type FC, useCallback } from "react";
 import {
 	keyUrbanDictionaryAtom,
@@ -7,13 +7,11 @@ import {
 import {
 	lyricLinesAtom,
 	selectedWordsAtom,
-	toolModeAtom,
 	ToolMode,
+	toolModeAtom,
 } from "$/states/main.ts";
-import {
-	useKeyBindingAtom,
-} from "$/utils/keybindings.ts";
 import { urbanDictionaryDialogAtom } from "$/states/urban-dictionary";
+import { useKeyBindingAtom } from "$/utils/keybindings.ts";
 
 export const UrbanDictionaryKeybinding: FC = () => {
 	const store = useStore();

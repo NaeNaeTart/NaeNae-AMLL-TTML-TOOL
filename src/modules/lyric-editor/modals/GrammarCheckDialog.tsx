@@ -3,8 +3,8 @@ import {
 	CheckRegular,
 	DismissRegular,
 	HistoryRegular,
-	SubtractRegular,
 	SearchRegular,
+	SubtractRegular,
 } from "@fluentui/react-icons";
 import {
 	Box,
@@ -14,23 +14,22 @@ import {
 	ScrollArea,
 	Text,
 } from "@radix-ui/themes";
-import { atom, useAtom } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	lyricLinesAtom,
-	selectedLinesAtom,
-	requestFocusAtom,
-} from "$/states/main.ts";
-import type { LyricWord } from "$/types/ttml";
 import {
 	collectPossibleGrammarWarnings,
 	getGrammarSuggestions,
 	normalizeWord,
 } from "$/modules/lyric-editor/utils/grammar-warning";
+import {
+	lyricLinesAtom,
+	requestFocusAtom,
+	selectedLinesAtom,
+} from "$/states/main.ts";
+import type { LyricWord } from "$/types/ttml";
 
 export const grammarCheckDialogAtom = atom(false);
 
@@ -112,7 +111,9 @@ export const GrammarCheckDialog = () => {
 
 				const firstAlphaIndex = word.word.search(/[a-zA-Zа-яёÁ-ЯЁ]/);
 				const hasCapitalInMiddle = /[a-zA-Zà-ÿÀ-ÿ].*[A-ZÀ-Ý]/.test(word.word);
-				const isRepeatedRemoval = suggestions.includes("__REMOVE_REPEATED_WORD__");
+				const isRepeatedRemoval = suggestions.includes(
+					"__REMOVE_REPEATED_WORD__",
+				);
 				let issueType: GrammarIssue["type"] = "ambiguous";
 				let message = t("grammarCheck.ambiguous", "Possible grammar issue");
 				let suggestion = suggestions[0];
@@ -124,7 +125,8 @@ export const GrammarCheckDialog = () => {
 				} else if (
 					wordIndex === 0 &&
 					firstAlphaIndex !== -1 &&
-					word.word[firstAlphaIndex] === word.word[firstAlphaIndex].toLowerCase()
+					word.word[firstAlphaIndex] ===
+						word.word[firstAlphaIndex].toLowerCase()
 				) {
 					issueType = "capitalization";
 					message = t(
@@ -140,21 +142,21 @@ export const GrammarCheckDialog = () => {
 				}
 
 				if (message) {
-				result.push({
-					type: issueType,
-					lineId: line.id,
-					lineIndex: mainLineCount,
-					isBackground,
-					wordId,
-					wordIndex,
-					word: word.word,
-					wordSnapshot: {
-						...word,
-						ruby: word.ruby?.map((rubyWord) => ({ ...rubyWord })),
-					},
-					message,
-					suggestion,
-				});
+					result.push({
+						type: issueType,
+						lineId: line.id,
+						lineIndex: mainLineCount,
+						isBackground,
+						wordId,
+						wordIndex,
+						word: word.word,
+						wordSnapshot: {
+							...word,
+							ruby: word.ruby?.map((rubyWord) => ({ ...rubyWord })),
+						},
+						message,
+						suggestion,
+					});
 				}
 			});
 		});
@@ -562,7 +564,10 @@ export const GrammarCheckDialog = () => {
 																	size="1"
 																	variant="soft"
 																	onClick={() => handleFix(issue)}
-																	title={t("grammarCheck.applyFix", "Apply suggested fix")}
+																	title={t(
+																		"grammarCheck.applyFix",
+																		"Apply suggested fix",
+																	)}
 																>
 																	<CheckRegular
 																		style={{ color: "var(--green-9)" }}
@@ -574,7 +579,10 @@ export const GrammarCheckDialog = () => {
 																variant="soft"
 																color="red"
 																onClick={() => handleIgnore(issue)}
-																title={t("grammarCheck.ignoreSession", "Ignore this word in this session")}
+																title={t(
+																	"grammarCheck.ignoreSession",
+																	"Ignore this word in this session",
+																)}
 															>
 																<DismissRegular />
 															</IconButton>
@@ -582,7 +590,10 @@ export const GrammarCheckDialog = () => {
 																size="1"
 																variant="soft"
 																onClick={() => handleIgnoreWord(issue.word)}
-																title={t("grammarCheck.ignoreAlways", "Always ignore this word")}
+																title={t(
+																	"grammarCheck.ignoreAlways",
+																	"Always ignore this word",
+																)}
 															>
 																<SubtractRegular />
 															</IconButton>

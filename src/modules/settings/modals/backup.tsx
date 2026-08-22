@@ -97,7 +97,10 @@ export const SettingsBackupTab = memo(() => {
 				case "assets":
 					return counts.assets
 						? t("settings.backup.hint.assetsSet", "Custom background image set")
-						: t("settings.backup.hint.assetsNone", "No custom background image");
+						: t(
+								"settings.backup.hint.assetsNone",
+								"No custom background image",
+							);
 				case "projects":
 					return t("settings.backup.hint.projects", "{count} projects", {
 						count: counts.projects,
@@ -149,7 +152,10 @@ export const SettingsBackupTab = memo(() => {
 					);
 				} else {
 					toast.error(
-						t("settings.backup.invalidFile", "Invalid or corrupted backup file"),
+						t(
+							"settings.backup.invalidFile",
+							"Invalid or corrupted backup file",
+						),
 					);
 				}
 			}

@@ -1,8 +1,8 @@
+import type { WASMPlugin } from "$/modules/plugins/types";
 import type {
 	ProjectInfo,
 	ProjectVersion,
 } from "$/modules/project/autosave/autosave";
-import type { WASMPlugin } from "$/modules/plugins/types";
 
 /**
  * @description 备份文件的应用标识，用于拒绝非本应用的文件

@@ -79,58 +79,79 @@ export const LyricWordMenu = ({
 			>
 				{t("contextMenu.splitWord", "Split word…")}
 			</ContextMenu.Item>
-			{/[\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF\u4E00-\u9FA5]/.test(word.word) && (
+			{/[\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF\u4E00-\u9FA5]/.test(
+				word.word,
+			) && (
 				<ContextMenu.Item
 					disabled={selectedWordsSize !== 1 || word.word.length <= 1}
 					onSelect={async () => {
-					try {
-						const allLines = store.get(lyricLinesAtom).lyricLines;
-						const fullProjectText = allLines.map(l => l.words.map(w => w.word).join("")).join("");
-						let projectLangPriority: "ja" | "zh" | "ko" | "auto" = "auto";
-						
-						if (/[\u3040-\u309F\u30A0-\u30FF]/.test(fullProjectText)) projectLangPriority = "ja";
-						else if (/[\uAC00-\uD7AF]/.test(fullProjectText)) projectLangPriority = "ko";
-						else if (/[\u4E00-\u9FA5]/.test(fullProjectText)) projectLangPriority = "zh";
+						try {
+							const allLines = store.get(lyricLinesAtom).lyricLines;
+							const fullProjectText = allLines
+								.map((l) => l.words.map((w) => w.word).join(""))
+								.join("");
+							let projectLangPriority: "ja" | "zh" | "ko" | "auto" = "auto";
 
-						const syllables = await getPhoneticSyllables(word.word, projectLangPriority);
-						if (syllables.length <= 1) {
-							toast.info(t("contextMenu.noSyllablesFound", "No multiple syllables found."));
-							return;
+							if (/[\u3040-\u309F\u30A0-\u30FF]/.test(fullProjectText))
+								projectLangPriority = "ja";
+							else if (/[\uAC00-\uD7AF]/.test(fullProjectText))
+								projectLangPriority = "ko";
+							else if (/[\u4E00-\u9FA5]/.test(fullProjectText))
+								projectLangPriority = "zh";
+
+							const syllables = await getPhoneticSyllables(
+								word.word,
+								projectLangPriority,
+							);
+							if (syllables.length <= 1) {
+								toast.info(
+									t(
+										"contextMenu.noSyllablesFound",
+										"No multiple syllables found.",
+									),
+								);
+								return;
+							}
+
+							editLyricLines((state) => {
+								const line = state.lyricLines[lineIndex];
+								if (!line) return;
+
+								const targetWordIndex = line.words.findIndex(
+									(w) => w.id === word.id,
+								);
+								if (targetWordIndex === -1) return;
+
+								const originalWord = line.words[targetWordIndex];
+								const duration = originalWord.endTime - originalWord.startTime;
+								const syllDuration = Math.floor(duration / syllables.length);
+
+								const wordChars = Array.from(originalWord.word);
+								const newWords: LyricWord[] = wordChars.map((char, i) => {
+									const nw = newLyricWord();
+									nw.word = char;
+									nw.romanWord = syllables[i] ?? "";
+									nw.startTime = originalWord.startTime + i * syllDuration;
+									nw.endTime =
+										i === wordChars.length - 1
+											? originalWord.endTime
+											: originalWord.startTime + (i + 1) * syllDuration;
+									return nw;
+								});
+
+								line.words.splice(targetWordIndex, 1, ...newWords);
+							});
+						} catch (e) {
+							console.error("Failed to split syllables", e);
+							toast.error(t("common.error", "An error occurred"));
 						}
-
-						editLyricLines((state) => {
-							const line = state.lyricLines[lineIndex];
-							if (!line) return;
-							
-							const targetWordIndex = line.words.findIndex(w => w.id === word.id);
-							if (targetWordIndex === -1) return;
-
-const originalWord = line.words[targetWordIndex];
-						const duration = originalWord.endTime - originalWord.startTime;
-						const syllDuration = Math.floor(duration / syllables.length);
-
-						const wordChars = Array.from(originalWord.word);
-						const newWords: LyricWord[] = wordChars.map((char, i) => {
-							const nw = newLyricWord();
-							nw.word = char;
-							nw.romanWord = syllables[i] ?? "";
-							nw.startTime = originalWord.startTime + i * syllDuration;
-							nw.endTime = (i === wordChars.length - 1) 
-								? originalWord.endTime 
-								: originalWord.startTime + (i + 1) * syllDuration;
-							return nw;
-						});
-
-							line.words.splice(targetWordIndex, 1, ...newWords);
-						});
-					} catch (e) {
-						console.error("Failed to split syllables", e);
-						toast.error(t("common.error", "An error occurred"));
-					}
-				}}
-			>
-				{t("contextMenu.splitIntoSyllables", "Split into Syllables (Romanized)")}
-			</ContextMenu.Item>
+					}}
+				>
+					{t(
+						"contextMenu.splitIntoSyllables",
+						"Split into Syllables (Romanized)",
+					)}
+				</ContextMenu.Item>
 			)}
 			<ContextMenu.Item
 				disabled={selectedWordsSize !== 1}
@@ -235,7 +256,10 @@ const originalWord = line.words[targetWordIndex];
 				disabled={selectedWordsSize !== 1}
 				onSelect={() => afterToNewLine()}
 			>
-				{t("contextMenu.moveFollowingWordToNewLine", "Move followings to new line")}
+				{t(
+					"contextMenu.moveFollowingWordToNewLine",
+					"Move followings to new line",
+				)}
 			</ContextMenu.Item>
 
 			<ContextMenu.Item

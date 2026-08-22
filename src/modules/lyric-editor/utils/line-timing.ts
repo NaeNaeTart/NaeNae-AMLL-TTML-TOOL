@@ -97,13 +97,9 @@ export function restoreLineTimingSnapshots(
 		if (!line) continue;
 		line.startTime = snapshot.startTime;
 		line.endTime = snapshot.endTime;
-		const copiedWordCount = Math.min(
-			line.words.length,
-			snapshot.words.length,
-		);
+		const copiedWordCount = Math.min(line.words.length, snapshot.words.length);
 		for (let wordIndex = 0; wordIndex < copiedWordCount; wordIndex++) {
-			line.words[wordIndex].startTime =
-				snapshot.words[wordIndex].startTime;
+			line.words[wordIndex].startTime = snapshot.words[wordIndex].startTime;
 			line.words[wordIndex].endTime = snapshot.words[wordIndex].endTime;
 		}
 		restoredLineCount++;

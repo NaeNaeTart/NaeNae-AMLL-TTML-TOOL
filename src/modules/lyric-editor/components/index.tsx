@@ -25,22 +25,26 @@ import {
 	useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { uid } from "uid";
-import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modules/onboarding/states";
-import {
-	importLyricsChooserDialogAtom,
-	projectsDialogAtom,
-} from "$/states/dialogs";
-import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
-import { currentTimeAtom } from "$/modules/audio/states";
+import { uid } from "uid";
+import { useFileOpener } from "$/hooks/useFileOpener";
 import { audioEngine } from "$/modules/audio/audio-engine";
+import { currentTimeAtom } from "$/modules/audio/states";
+import {
+	guidePanelOpenAtom,
+	guideStepAtom,
+	guideWelcomeOpenAtom,
+} from "$/modules/onboarding/states";
 import {
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
 	geniusHeaderDetectionDialogShownAtom,
 	previewFollowsPlaybackAtom,
 } from "$/modules/settings/states/index.ts";
+import {
+	importLyricsChooserDialogAtom,
+	projectsDialogAtom,
+} from "$/states/dialogs";
 import {
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
@@ -119,10 +123,14 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		const input = document.createElement("input");
 		input.type = "file";
 		input.accept = ".ttml,*/*";
-		input.addEventListener("change", () => {
-			const file = input.files?.[0];
-			if (file) openFile(file);
-		}, { once: true });
+		input.addEventListener(
+			"change",
+			() => {
+				const file = input.files?.[0];
+				if (file) openFile(file);
+			},
+			{ once: true },
+		);
 		input.click();
 	}, [openFile]);
 
@@ -469,7 +477,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	);
 
 	const scrollToLineIndex = useCallback(
-		(index: number) => {
+		(index: number, force = false) => {
 			const viewEl = viewElRef.current;
 			if (!viewEl) return;
 			const viewContainerEl = viewEl.parentElement;
@@ -478,6 +486,22 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				(item) => item.sourceIndex === index,
 			);
 			if (visibleIndex === -1) return;
+
+			if (!force) {
+				const lineElement = viewEl.querySelector(
+					`[data-lyric-line-index="${index}"]`,
+				) as HTMLElement | null;
+				if (lineElement) {
+					// We use viewEl as the scrolling viewport, not its parent
+					const offset = lineElement.offsetTop - viewEl.clientHeight / 2 + 50;
+					viewEl.scrollTo({
+						top: offset,
+						behavior: "smooth",
+					});
+					return;
+				}
+			}
+
 			viewRef.current?.scrollToIndex({
 				index: visibleIndex,
 				offset: viewContainerEl.clientHeight / -2 + 50,
@@ -518,7 +542,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		)
 			return;
 		lastScrolledIndexRef.current = scrollToIndex;
-		scrollToLineIndex(scrollToIndex);
+		scrollToLineIndex(scrollToIndex, true);
 	}, [scrollToIndex, scrollToLineIndex]);
 
 	const updateEditorAnchor = useCallback(() => {
@@ -528,25 +552,28 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		const centerY = viewRect.top + viewRect.height / 2;
 		let closest = -1;
 		let closestDistance = Number.POSITIVE_INFINITY;
-		for (const element of viewEl.querySelectorAll<HTMLElement>(
-			"[data-lyric-line-index]",
-		)) {
-			const index = Number(element.dataset.lyricLineIndex);
-			if (!Number.isFinite(index)) continue;
-			const rect = element.getBoundingClientRect();
-			const distance = Math.abs(rect.top + rect.height / 2 - centerY);
+
+		for (const child of viewEl.querySelectorAll("[data-lyric-line-index]")) {
+			const rect = child.getBoundingClientRect();
+			const childCenterY = rect.top + rect.height / 2;
+			const distance = Math.abs(childCenterY - centerY);
 			if (distance < closestDistance) {
 				closestDistance = distance;
-				closest = index;
+				const index = Number(child.getAttribute("data-lyric-line-index"));
+				if (!Number.isNaN(index)) {
+					closest = index;
+				}
 			}
 		}
-		if (closest >= 0) editorAnchorLineIndex = closest;
+
+		if (closest !== -1) {
+			editorAnchorLineIndex = closest;
+		}
 	}, []);
 
 	useEffect(() => {
 		const viewEl = viewElRef.current;
 		if (!viewEl) return;
-		updateEditorAnchor();
 		viewEl.addEventListener("scroll", updateEditorAnchor, { passive: true });
 		return () => viewEl.removeEventListener("scroll", updateEditorAnchor);
 	}, [updateEditorAnchor]);
@@ -557,7 +584,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		restoredAnchorRef.current = true;
 		const index = editorAnchorLineIndex;
 		if (index === -1) return;
-		const raf = requestAnimationFrame(() => scrollToLineIndex(index));
+		const raf = requestAnimationFrame(() => scrollToLineIndex(index, true));
 		return () => cancelAnimationFrame(raf);
 	}, [scrollToLineIndex]);
 
@@ -585,14 +612,14 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			const lines = store.get(lyricLinesAtom).lyricLines;
 			const index = findCurrentLineIndex(lines, effectiveTime);
 			if (index !== -1) {
-				const raf = requestAnimationFrame(() => scrollToLineIndex(index));
+				const raf = requestAnimationFrame(() => scrollToLineIndex(index, true));
 				return () => cancelAnimationFrame(raf);
 			}
 		}
 
 		const index = editorAnchorLineIndex;
 		if (index === -1) return;
-		const raf = requestAnimationFrame(() => scrollToLineIndex(index));
+		const raf = requestAnimationFrame(() => scrollToLineIndex(index, true));
 		return () => cancelAnimationFrame(raf);
 	}, [toolMode, previewFollowsPlayback, scrollToLineIndex, store]);
 
@@ -603,43 +630,45 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		const lyricLines = store.get(lyricLinesAtom).lyricLines;
 		const index = findCurrentLineIndex(lyricLines, currentTime);
 		if (index === -1) return;
-		scrollToLineIndex(index);
+		scrollToLineIndex(index, true);
 	}, [store, scrollToLineIndex]);
 
 	// Auto-scroll to active line in Edit/Sync modes during playback or time changes
 	useEffect(() => {
 		if (toolMode !== ToolMode.Edit && toolMode !== ToolMode.Sync) return;
 
-		const syncPosition = () => {
+		const syncPosition = (force = false) => {
 			if (!previewFollowsPlayback && audioEngine.musicPlaying) return;
 			const effectiveTime = audioEngine.musicPlaying
 				? audioEngine.musicCurrentTime * 1000
 				: store.get(currentTimeAtom);
 			const lyricLines = store.get(lyricLinesAtom).lyricLines;
 			const index = findCurrentLineIndex(lyricLines, effectiveTime);
-			if (index !== -1 && index !== lastActiveLineIndexRef.current) {
+			if (index !== -1 && (force || index !== lastActiveLineIndexRef.current)) {
 				lastActiveLineIndexRef.current = index;
-				scrollToLineIndex(index);
+				scrollToLineIndex(index, force);
 			}
 		};
 
 		// Initial sync
-		syncPosition();
+		syncPosition(true);
 
 		const onTimeUpdate = () => {
 			if (audioEngine.musicPlaying && previewFollowsPlayback) {
-				syncPosition();
+				syncPosition(false);
 			}
 		};
 
+		const onSeek = () => syncPosition(true);
+
 		audioEngine.addEventListener("music-timeupdate", onTimeUpdate);
-		audioEngine.addEventListener("music-seeked", syncPosition);
-		audioEngine.addEventListener("music-resume", syncPosition);
+		audioEngine.addEventListener("music-seeked", onSeek);
+		audioEngine.addEventListener("music-resume", onTimeUpdate);
 
 		return () => {
 			audioEngine.removeEventListener("music-timeupdate", onTimeUpdate);
-			audioEngine.removeEventListener("music-seeked", syncPosition);
-			audioEngine.removeEventListener("music-resume", syncPosition);
+			audioEngine.removeEventListener("music-seeked", onSeek);
+			audioEngine.removeEventListener("music-resume", onTimeUpdate);
 		};
 	}, [toolMode, previewFollowsPlayback, scrollToLineIndex, store]);
 
@@ -665,7 +694,13 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					)}
 				</Text>
 				<Flex gap="2" wrap="wrap" justify="center" mt="2">
-					<Button onClick={() => { setGuideStep(0); setGuidePanel(false); setGuideWelcome(true); }}>
+					<Button
+						onClick={() => {
+							setGuideStep(0);
+							setGuidePanel(false);
+							setGuideWelcome(true);
+						}}
+					>
 						{t("beginnerGuide.empty.start", "Start Guide")}
 					</Button>
 					<Button variant="soft" onClick={() => setImportChooser(true)}>
@@ -681,7 +716,12 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			</Flex>
 		);
 	return (
-		<Flex data-guide-target="editor" direction="column" flexGrow="1" className={styles.lyricLinesWrapper}>
+		<Flex
+			data-guide-target="editor"
+			direction="column"
+			flexGrow="1"
+			className={styles.lyricLinesWrapper}
+		>
 			<SectionMetadataDialog />
 			<SectionManagerDialog />
 			<CategorizeSelectionDialog />

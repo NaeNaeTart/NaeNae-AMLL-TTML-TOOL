@@ -4,9 +4,17 @@ import { useSetImmerAtom } from "jotai-immer";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+	globalEnableInsertAtom,
+	timingCopyPlacementAtom,
+} from "$/modules/lyric-editor/components/lyric-line-view-states";
+import {
 	reverseSyncLineIdsAtom,
 	reverseSyncTimingBackupAtom,
 } from "$/modules/settings/states/sync";
+import {
+	spectrogramSplitModeAtom,
+	spectrogramTopTrackLinesAtom,
+} from "$/modules/spectrogram/states";
 import {
 	ActiveFileKind,
 	activeFileKindAtom,
@@ -14,18 +22,12 @@ import {
 	selectedLinesAtom,
 	vocalistNamesAtom,
 } from "$/states/main";
-
 import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml";
 import {
 	createLineTimingSnapshots,
-	restoreLineTimingSnapshots,
 	type LineTimingSnapshot,
+	restoreLineTimingSnapshots,
 } from "../utils/line-timing";
-import {
-	globalEnableInsertAtom,
-	timingCopyPlacementAtom,
-} from "$/modules/lyric-editor/components/lyric-line-view-states";
-import { spectrogramSplitModeAtom, spectrogramTopTrackLinesAtom } from "$/modules/spectrogram/states";
 
 const selectedLinesSizeAtom = atom((get) => get(selectedLinesAtom).size);
 
@@ -42,11 +44,11 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 	const [reverseSyncLineIds, setReverseSyncLineIds] = useAtom(
 		reverseSyncLineIdsAtom,
 	);
-	const setReverseSyncTimingBackup = useSetAtom(
-		reverseSyncTimingBackupAtom,
-	);
+	const setReverseSyncTimingBackup = useSetAtom(reverseSyncTimingBackupAtom);
 	const [splitMode, setSplitMode] = useAtom(spectrogramSplitModeAtom);
-	const [topTrackLines, setTopTrackLines] = useAtom(spectrogramTopTrackLinesAtom);
+	const [topTrackLines, setTopTrackLines] = useAtom(
+		spectrogramTopTrackLinesAtom,
+	);
 
 	const store = useStore();
 
@@ -61,10 +63,7 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 		const lineId = currentLine.id;
 		if (checked) {
 			const lyrics = store.get(lyricLinesAtom).lyricLines;
-			const snapshots = createLineTimingSnapshots(
-				lyrics,
-				new Set([lineId]),
-			);
+			const snapshots = createLineTimingSnapshots(lyrics, new Set([lineId]));
 			if (snapshots.length > 0) {
 				setReverseSyncTimingBackup((prev) => {
 					const nextMap = new Map(prev);
@@ -79,10 +78,9 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 			const snapshot = backup.get(lineId);
 			if (snapshot) {
 				editLyricLines((state) => {
-					restoreLineTimingSnapshots(
-						state.lyricLines,
-						[snapshot] satisfies LineTimingSnapshot[],
-					);
+					restoreLineTimingSnapshots(state.lyricLines, [
+						snapshot,
+					] satisfies LineTimingSnapshot[]);
 				});
 			}
 			setReverseSyncTimingBackup((prev) => {
@@ -226,10 +224,13 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 
 	function renameVocalist() {
 		if (!currentLineVocalistId) return;
-		const roleLabel = VOCALIST_ROLE_LABELS[currentLineVocalistId] || currentLineVocalistId;
+		const roleLabel =
+			VOCALIST_ROLE_LABELS[currentLineVocalistId] || currentLineVocalistId;
 		const currentName = vocalistNames[currentLineVocalistId] ?? "";
 		const nextName = window.prompt(
-			t("contextMenu.renameVocalistPrompt", "Rename vocalist for {{role}}:", { role: roleLabel }),
+			t("contextMenu.renameVocalistPrompt", "Rename vocalist for {{role}}:", {
+				role: roleLabel,
+			}),
 			currentName,
 		);
 		if (nextName === null) return;

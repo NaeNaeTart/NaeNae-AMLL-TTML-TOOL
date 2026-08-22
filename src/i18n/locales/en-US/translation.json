@@ -290,6 +290,8 @@
 			},
 			"previewFollowsPlayback": "Editor Auto-Scroll to Active Line",
 			"previewFollowsPlaybackDesc": "When enabled, the Edit and Time mode editor automatically scrolls to the currently playing line during playback, so you never have to manually scroll to find where the song is.",
+			"highlightActiveWordInEdit": "Highlight Active Lyric in Edit Mode",
+			"highlightActiveWordInEditDesc": "When enabled, words and lines illuminate in real-time as the audio plays during Edit mode, matching Time mode behavior.",
 			"featureFlagsDesc": "Enable/disable experimental features",
 			"featureFlagsNote": "Features added in this fork can be toggled here. Requires app restart for some changes.",
 			"activeFeatures": "Active feature flags",

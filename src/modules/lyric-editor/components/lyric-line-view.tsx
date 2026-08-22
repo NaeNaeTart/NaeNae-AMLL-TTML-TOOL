@@ -56,8 +56,9 @@ import {
 	showWordRomanizationInputAtom,
 } from "$/modules/settings/states/index.ts";
 import {
-	syncLevelModeAtom,
+	highlightActiveWordInEditAtom,
 	reverseSyncLineIdsAtom,
+	syncLevelModeAtom,
 	visualizeTimestampUpdateAtom,
 } from "$/modules/settings/states/sync.ts";
 import {
@@ -80,16 +81,15 @@ import {
 	shiftSectionToTime,
 } from "../utils/genius-sections.ts";
 import {
-	applyLineTimingSnapshots,
 	type ApplyLineTimingsResult,
+	applyLineTimingSnapshots,
 } from "../utils/line-timing.ts";
 import { getSynchronizableUnits } from "../utils/lyric-states.ts";
-import { getWordConnections } from "../utils/word-connections.ts";
 import {
 	duplicateLinesWithSections,
 	repairSectionIntegrity,
 } from "../utils/section-system.ts";
-import { shouldAutoCenterSelection } from "./selection-scroll";
+import { getWordConnections } from "../utils/word-connections.ts";
 import styles from "./index.module.css";
 import { LineTimingMenuItems } from "./line-timing-menu.tsx";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
@@ -108,6 +108,7 @@ import {
 	SectionContextMenuSub,
 	UnassignedSectionContextMenuItems,
 } from "./SectionActions.tsx";
+import { shouldAutoCenterSelection } from "./selection-scroll";
 
 const parseRubyShortcut = (value: string) => {
 	if (value.endsWith("|")) {
@@ -447,9 +448,9 @@ const InsertLineButton = ({
 		>
 			{selectedLinesCount > 0
 				? t("lyricLineView.duplicateLinesHere", {
-					count: selectedLinesCount,
-					defaultValue: "Duplicate {count} selected line(s) here",
-				})
+						count: selectedLinesCount,
+						defaultValue: "Duplicate {count} selected line(s) here",
+					})
 				: t("lyricLineView.insertLine", "Insert new line here")}
 		</Button>
 	);
@@ -569,7 +570,37 @@ export const LyricLineView: FC<{
 	}, [headerType]);
 
 	const wordsContainerRef = useRef<HTMLDivElement>(null);
+	const lineRef = useRef<HTMLDivElement>(null);
 	const blockDragRef = useRef(false);
+
+	const highlightActiveWordInEdit = useAtomValue(highlightActiveWordInEditAtom);
+	const highlightActiveWordInEditRef = useRef(highlightActiveWordInEdit);
+	useEffect(() => {
+		highlightActiveWordInEditRef.current = highlightActiveWordInEdit;
+	}, [highlightActiveWordInEdit]);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: updates active line state on toggle
+	useEffect(() => {
+		const updateActive = () => {
+			const el = lineRef.current;
+			if (!el) return;
+			const isEditMode = store.get(toolModeAtom) === ToolMode.Edit;
+			if (isEditMode && !highlightActiveWordInEditRef.current) {
+				el.classList.remove(styles.activeLine);
+				return;
+			}
+			const currentTime = store.get(currentTimeAtom);
+			const isActive =
+				currentTime >= line.startTime && currentTime < line.endTime;
+			if (isActive) {
+				el.classList.add(styles.activeLine);
+			} else {
+				el.classList.remove(styles.activeLine);
+			}
+		};
+		updateActive();
+		return store.sub(currentTimeAtom, updateActive);
+	}, [store, line.startTime, line.endTime, highlightActiveWordInEdit]);
 
 	const isLastLineAtom = useMemo(
 		() =>
@@ -843,18 +874,18 @@ export const LyricLineView: FC<{
 						store.get(lyricLinesAtom).lyricLines.length - lineIndex,
 					) < timingCopyPlacement.snapshots.length
 						? t("lyricLineView.applyPartialTimingsHere", {
-							applied: Math.min(
-								timingCopyPlacement.snapshots.length,
-								store.get(lyricLinesAtom).lyricLines.length - lineIndex,
-							),
-							total: timingCopyPlacement.snapshots.length,
-							defaultValue:
-								"Apply {applied} of {total} timings starting here",
-						})
+								applied: Math.min(
+									timingCopyPlacement.snapshots.length,
+									store.get(lyricLinesAtom).lyricLines.length - lineIndex,
+								),
+								total: timingCopyPlacement.snapshots.length,
+								defaultValue:
+									"Apply {applied} of {total} timings starting here",
+							})
 						: t("lyricLineView.applyTimingsHere", {
-							count: timingCopyPlacement.snapshots.length,
-							defaultValue: "Apply {count} timing(s) starting here",
-						})}
+								count: timingCopyPlacement.snapshots.length,
+								defaultValue: "Apply {count} timing(s) starting here",
+							})}
 				</Button>
 			)}
 			{enableInsert && (
@@ -887,6 +918,7 @@ export const LyricLineView: FC<{
 					}}
 				>
 					<Flex
+						ref={lineRef}
 						mx="1"
 						my={
 							line.isBG && toolMode === ToolMode.Sync && compactBGInSync
@@ -897,9 +929,9 @@ export const LyricLineView: FC<{
 						className={classNames(
 							styles.lyricLine,
 							line.isBG &&
-							toolMode === ToolMode.Sync &&
-							compactBGInSync &&
-							styles.bg,
+								toolMode === ToolMode.Sync &&
+								compactBGInSync &&
+								styles.bg,
 							lineSelected && styles.selected,
 							toolMode === ToolMode.Sync && styles.sync,
 							toolMode === ToolMode.Edit && styles.edit,
@@ -1168,10 +1200,7 @@ export const LyricLineView: FC<{
 								>
 									{words.map((wordAtom, wi) => {
 										const word = store.get(wordAtom);
-										const connections = getWordConnections(
-											wordTexts,
-											wi,
-										);
+										const connections = getWordConnections(wordTexts, wi);
 										return (
 											<Fragment key={`word-${word.id}`}>
 												{enableInsert && (
@@ -1201,18 +1230,19 @@ export const LyricLineView: FC<{
 													className={classNames(
 														styles.wordGroup,
 														!legacySpaceLabels &&
-														word.word.length > 0 &&
-														word.word.trim().length === 0 &&
-														styles.spaceGroup,
-														showWordRomanizationInput && styles.withRomanization,
+															word.word.length > 0 &&
+															word.word.trim().length === 0 &&
+															styles.spaceGroup,
+														showWordRomanizationInput &&
+															styles.withRomanization,
 														toolMode === ToolMode.Edit &&
-														!enableInsert &&
-														connections.previous &&
-														styles.connectedPrevious,
+															!enableInsert &&
+															connections.previous &&
+															styles.connectedPrevious,
 														toolMode === ToolMode.Edit &&
-														!enableInsert &&
-														connections.next &&
-														styles.connectedNext,
+															!enableInsert &&
+															connections.next &&
+															styles.connectedNext,
 													)}
 												>
 													<LyricWordView
@@ -1253,7 +1283,10 @@ export const LyricLineView: FC<{
 									)}
 									{toolMode === ToolMode.Edit && (
 										<TextField.Root
-											placeholder={t("lyricLineView.insertWord", "Insert word…")}
+											placeholder={t(
+												"lyricLineView.insertWord",
+												"Insert word…",
+											)}
 											className={classNames(
 												styles.insertWordField,
 												words.length === 0 && styles.empty,
@@ -1275,12 +1308,12 @@ export const LyricLineView: FC<{
 															word,
 															ruby: enableRuby
 																? [
-																	{
-																		word: "",
-																		startTime: newWord.startTime,
-																		endTime: newWord.endTime,
-																	},
-																]
+																		{
+																			word: "",
+																			startTime: newWord.startTime,
+																			endTime: newWord.endTime,
+																		},
+																	]
 																: undefined,
 														});
 													});
@@ -1307,7 +1340,10 @@ export const LyricLineView: FC<{
 											/>
 										)}
 										{isLyricsfile && lineVocalistId && (
-											<VocalistLineEdit vocalistId={lineVocalistId} isBG={line.isBG} />
+											<VocalistLineEdit
+												vocalistId={lineVocalistId}
+												isBG={line.isBG}
+											/>
 										)}
 									</>
 								)}
@@ -1428,9 +1464,9 @@ export const LyricLineView: FC<{
 				>
 					{selectedLinesCount > 0
 						? t("lyricLineView.duplicateLinesHere", {
-							count: selectedLinesCount,
-							defaultValue: "Duplicate {count} selected line(s) here",
-						})
+								count: selectedLinesCount,
+								defaultValue: "Duplicate {count} selected line(s) here",
+							})
 						: t("lyricLineView.insertLine", "Insert new line here")}
 				</Button>
 			)}
