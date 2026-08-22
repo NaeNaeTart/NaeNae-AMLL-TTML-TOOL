@@ -3,7 +3,6 @@ import classNames from "classnames";
 import { useAtomValue, useSetAtom } from "jotai";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { currentTimeAtom } from "$/modules/audio/states";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
@@ -185,6 +184,7 @@ const LineRow = memo(
 
 		return (
 			<div
+				data-line-id={line.id}
 				className={classNames(styles.row, isActive && styles.activeRow)}
 				onClick={() => onRowClick(line)}
 				style={{ display: "flex", borderBottom: "1px solid var(--gray-4)" }}
@@ -285,16 +285,25 @@ const LineRow = memo(
 	},
 );
 
-const getActiveLineIndex = (lines: LyricLine[], time: number) => {
-	if (lines.length === 0) return -1;
-	const activeIndex = lines.findIndex(
+const getActiveLine = (
+	lines: LyricLine[],
+	time: number,
+): LyricLine | undefined => {
+	if (lines.length === 0) return undefined;
+	const currentlyActive = lines.find(
 		(l) => time >= l.startTime && time <= l.endTime,
 	);
-	if (activeIndex !== -1) return activeIndex;
-	const nextIndex = lines.findIndex((l) => l.startTime > time);
-	if (nextIndex === 0) return 0;
-	if (nextIndex > 0) return nextIndex - 1;
-	return lines.length - 1;
+	if (currentlyActive) return currentlyActive;
+
+	if (time < lines[0].startTime) return lines[0];
+
+	for (let i = lines.length - 1; i >= 0; i--) {
+		if (time >= lines[i].startTime) {
+			return lines[i];
+		}
+	}
+
+	return lines[0];
 };
 
 export const TimingOverview = memo(() => {
@@ -304,73 +313,61 @@ export const TimingOverview = memo(() => {
 	const setCurrentTime = useSetAtom(currentTimeAtom);
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
 	const scrollRef = useRef<HTMLDivElement>(null);
-	const listRef = useRef<ViewportListRef>(null);
-	const lastScrolledIndexRef = useRef<number | null>(null);
+	const isInitialRef = useRef(true);
+	const lastScrolledIdRef = useRef<string | null>(null);
 	const userScrolledUntilRef = useRef<number>(0);
 
-	const sortedLines = useMemo(() => {
-		return [...lyrics.lyricLines].sort((a, b) => a.startTime - b.startTime);
-	}, [lyrics.lyricLines]);
+	const lyricLines = lyrics.lyricLines;
 
 	const totalDuration = useMemo(() => {
-		if (sortedLines.length === 0) return 0;
-		return (
-			sortedLines[sortedLines.length - 1].endTime - sortedLines[0].startTime
-		);
-	}, [sortedLines]);
+		if (lyricLines.length === 0) return 0;
+		return lyricLines[lyricLines.length - 1].endTime - lyricLines[0].startTime;
+	}, [lyricLines]);
 
 	const stats = useMemo(() => {
-		const lineCount = sortedLines.length;
-		const wordCount = sortedLines.reduce(
+		const lineCount = lyricLines.length;
+		const wordCount = lyricLines.reduce(
 			(acc, line) => acc + line.words.length,
 			0,
 		);
 		const totalMs =
 			lineCount > 0
-				? sortedLines[lineCount - 1].endTime - sortedLines[0].startTime
+				? lyricLines[lineCount - 1].endTime - lyricLines[0].startTime
 				: 0;
 		return { lineCount, wordCount, totalMs };
-	}, [sortedLines]);
+	}, [lyricLines]);
 
-	const activeIndex = useMemo(
-		() => getActiveLineIndex(sortedLines, currentTime),
-		[sortedLines, currentTime],
+	const activeLine = useMemo(
+		() => getActiveLine(lyricLines, currentTime),
+		[lyricLines, currentTime],
 	);
 
-	const scrollToLine = useCallback(
-		(index: number) => {
-			if (index < 0 || index >= sortedLines.length) return;
-			const viewport = scrollRef.current;
-			const offset = viewport ? viewport.clientHeight / -2 + 60 : -150;
-			listRef.current?.scrollToIndex({
-				index,
-				offset,
-				alignToTop: false,
-			});
-		},
-		[sortedLines.length],
-	);
-
-	useEffect(() => {
-		if (activeIndex === -1 || activeIndex === lastScrolledIndexRef.current)
-			return;
-		const now = Date.now();
-		if (now < userScrolledUntilRef.current) return;
-		lastScrolledIndexRef.current = activeIndex;
-		scrollToLine(activeIndex);
-	}, [activeIndex, scrollToLine]);
-
-	// Ensure immediate scroll on initial mount if music is already playing/positioned
-	// biome-ignore lint/correctness/useExhaustiveDependencies: initial mount scroll only
-	useEffect(() => {
-		const initialIdx = getActiveLineIndex(sortedLines, currentTime);
-		if (initialIdx >= 0) {
-			const timer = setTimeout(() => {
-				scrollToLine(initialIdx);
-			}, 60);
-			return () => clearTimeout(timer);
-		}
+	const scrollToLine = useCallback((lineId: string, smooth = true) => {
+		const container = scrollRef.current;
+		if (!container) return;
+		const rowEl = container.querySelector(
+			`[data-line-id="${lineId}"]`,
+		) as HTMLElement | null;
+		if (!rowEl) return;
+		const targetScroll =
+			rowEl.offsetTop - container.clientHeight * 0.42 + rowEl.clientHeight / 2;
+		container.scrollTo({
+			top: Math.max(0, targetScroll),
+			behavior: smooth ? "smooth" : "auto",
+		});
 	}, []);
+
+	useEffect(() => {
+		if (!activeLine) return;
+		if (activeLine.id === lastScrolledIdRef.current) return;
+		const now = Date.now();
+		if (!isInitialRef.current && now < userScrolledUntilRef.current) return;
+
+		lastScrolledIdRef.current = activeLine.id;
+		const smooth = !isInitialRef.current;
+		scrollToLine(activeLine.id, smooth);
+		isInitialRef.current = false;
+	}, [activeLine, scrollToLine]);
 
 	const handleRowClick = useCallback(
 		(line: LyricLine) => {
@@ -378,19 +375,10 @@ export const TimingOverview = memo(() => {
 			setSelectedLines(new Set([line.id]));
 			audioEngine.seekMusic(line.startTime / 1000);
 			userScrolledUntilRef.current = 0;
-			const lineIndex = sortedLines.findIndex((l) => l.id === line.id);
-			if (lineIndex !== -1) {
-				lastScrolledIndexRef.current = lineIndex;
-				scrollToLine(lineIndex);
-			}
+			lastScrolledIdRef.current = line.id;
+			scrollToLine(line.id, true);
 		},
-		[setCurrentTime, setSelectedLines, sortedLines, scrollToLine],
-	);
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: initial viewport index only
-	const initialTargetIdx = useMemo(
-		() => Math.max(0, getActiveLineIndex(sortedLines, currentTime)),
-		[],
+		[setCurrentTime, setSelectedLines, scrollToLine],
 	);
 
 	return (
@@ -498,24 +486,16 @@ export const TimingOverview = memo(() => {
 							{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}
 						</div>
 					</div>
-					<ViewportList
-						ref={listRef}
-						items={sortedLines}
-						viewportRef={scrollRef}
-						initialIndex={initialTargetIdx}
-						initialOffset={-120}
-					>
-						{(line, index) => (
-							<LineRow
-								key={line.id || index}
-								line={line}
-								index={index}
-								currentTime={currentTime}
-								totalDuration={totalDuration}
-								onRowClick={handleRowClick}
-							/>
-						)}
-					</ViewportList>
+					{lyricLines.map((line, index) => (
+						<LineRow
+							key={line.id || index}
+							line={line}
+							index={index}
+							currentTime={currentTime}
+							totalDuration={totalDuration}
+							onRowClick={handleRowClick}
+						/>
+					))}
 				</div>
 			</div>
 		</Card>
