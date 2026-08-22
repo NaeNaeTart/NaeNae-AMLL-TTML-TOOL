@@ -150,7 +150,7 @@ export const accentColorAtom = atomWithStorage<
 	| "lime"
 	| "mint"
 	| "sky"
->( "accentColor", "jade");
+>("accentColor", "jade");
 
 export const backgroundModeAtom = atomWithStorage<
 	"none" | "image" | "gradient"
@@ -212,7 +212,7 @@ export const syncGradientToAccentAtom = atomWithStorage<boolean>(
 
 export const appFontAtom = atomWithStorage<string>(
 	"appFont",
-	'Inter, system-ui, -apple-system, sans-serif',
+	"Inter, system-ui, -apple-system, sans-serif",
 );
 
 export const customFontDataAtom = atomWithStorage<string | null>(
@@ -248,7 +248,10 @@ export const aiSidebarBaseUrlAtom = atomWithStorage(
 	"aiSidebarBaseUrl",
 	"https://api.openai.com/v1",
 );
-export const aiSidebarModelAtom = atomWithStorage("aiSidebarModel", "gpt-4o-mini");
+export const aiSidebarModelAtom = atomWithStorage(
+	"aiSidebarModel",
+	"gpt-4o-mini",
+);
 export const aiSidebarPersistKeyAtom = atomWithStorage(
 	"aiSidebarPersistKey",
 	false,
@@ -264,7 +267,10 @@ export const normalizeCyrillicEsOnImportAtom = atomWithStorage<boolean>(
 	false,
 );
 
-export const allowConsecutiveBackgroundLinesAtom = atomWithStorage<boolean>("allowConsecutiveBackgroundLines", false);
+export const allowConsecutiveBackgroundLinesAtom = atomWithStorage<boolean>(
+	"allowConsecutiveBackgroundLines",
+	false,
+);
 
 export const lyricTextNormalizationOptionsAtom = atom((get) => ({
 	normalizeApostrophes: get(normalizeApostrophesOnImportAtom),
@@ -353,15 +359,36 @@ export const advEditorBgAtom = atomWithStorage("advEditorBg", "");
 export const advActiveLineBgAtom = atomWithStorage("advActiveLineBg", "");
 export const advLineHoverBgAtom = atomWithStorage("advLineHoverBg", "");
 
-export const advChipBorderRadiusAtom = atomWithStorage("advChipBorderRadius", 8);
+export const advChipBorderRadiusAtom = atomWithStorage(
+	"advChipBorderRadius",
+	8,
+);
 export const advChipGapAtom = atomWithStorage("advChipGap", 8);
-export const advChipPaddingVerticalAtom = atomWithStorage("advChipPaddingVertical", 2);
-export const advChipPaddingHorizontalAtom = atomWithStorage("advChipPaddingHorizontal", 8);
-export const legacySpaceLabelsAtom = atomWithStorage("legacySpaceLabels", false);
+export const advChipPaddingVerticalAtom = atomWithStorage(
+	"advChipPaddingVertical",
+	2,
+);
+export const advChipPaddingHorizontalAtom = atomWithStorage(
+	"advChipPaddingHorizontal",
+	8,
+);
+export const legacySpaceLabelsAtom = atomWithStorage(
+	"legacySpaceLabels",
+	false,
+);
 
-export const advRomanizationColorAtom = atomWithStorage("advRomanizationColor", "");
-export const advTranslationColorAtom = atomWithStorage("advTranslationColor", "");
-export const advGeniusHeaderColorAtom = atomWithStorage("advGeniusHeaderColor", "");
+export const advRomanizationColorAtom = atomWithStorage(
+	"advRomanizationColor",
+	"",
+);
+export const advTranslationColorAtom = atomWithStorage(
+	"advTranslationColor",
+	"",
+);
+export const advGeniusHeaderColorAtom = atomWithStorage(
+	"advGeniusHeaderColor",
+	"",
+);
 
 export const advAudioBarBgAtom = atomWithStorage("advAudioBarBg", "");
 export const advAudioBarTextAtom = atomWithStorage("advAudioBarText", "");
@@ -370,21 +397,28 @@ export const advScrollbarColorAtom = atomWithStorage("advScrollbarColor", "");
 export const advDialogBgAtom = atomWithStorage("advDialogBg", "");
 export const advDialogBorderAtom = atomWithStorage("advDialogBorder", "");
 
-export const advGlobalBorderRadiusAtom = atomWithStorage("advGlobalBorderRadius", 10);
-export const advGlobalBorderWidthAtom = atomWithStorage("advGlobalBorderWidth", 1);
+export const advGlobalBorderRadiusAtom = atomWithStorage(
+	"advGlobalBorderRadius",
+	10,
+);
+export const advGlobalBorderWidthAtom = atomWithStorage(
+	"advGlobalBorderWidth",
+	1,
+);
 export const advShadowIntensityAtom = atomWithStorage("advShadowIntensity", 1);
 export const advSelectionColorAtom = atomWithStorage("advSelectionColor", "");
 export const advBackdropBlurAtom = atomWithStorage("advBackdropBlur", 12);
 
-export const appLayoutOrderAtom = atomWithStorage<string[]>(
-	"appLayoutOrder",
-	["titlebar", "ribbonbar", "editor", "audio-controls"],
-);
+export const appLayoutOrderAtom = atomWithStorage<string[]>("appLayoutOrder", [
+	"titlebar",
+	"ribbonbar",
+	"editor",
+	"audio-controls",
+]);
 
-export const vRibbonPositionAtom = atomWithStorage<"top" | "bottom" | "left" | "right">(
-	"vRibbonPosition",
-	"top",
-);
+export const vRibbonPositionAtom = atomWithStorage<
+	"top" | "bottom" | "left" | "right"
+>("vRibbonPosition", "top");
 
 export interface AppearancePreset {
 	id: string;
@@ -414,19 +448,19 @@ export const geniusHeaderDetectionDialogOpenAtom = atom(false);
 export const geniusHeaderRestorationTextAtom = atom<string | null>(null);
 
 export {
-	previewModeTypeAtom,
-	showTranslationLinesAtom,
-	showRomanLinesAtom,
-	hideObsceneWordsAtom,
-	lyricWordFadeWidthAtom,
-	vsyncAtom,
-	showFpsCounterAtom,
-	instantHighlightFadeAtom,
-	spicySimpleLyricsModeAtom,
-	spicyForceLineSyncedAtom,
-	spicyBackgroundModeAtom,
-	previewFollowsPlaybackAtom,
-	featureFlagsAtom,
-	type ForkFeatureFlags,
 	FORK_FEATURE_FLAG_DEFAULTS,
+	type ForkFeatureFlags,
+	featureFlagsAtom,
+	hideObsceneWordsAtom,
+	instantHighlightFadeAtom,
+	lyricWordFadeWidthAtom,
+	previewFollowsPlaybackAtom,
+	previewModeTypeAtom,
+	showFpsCounterAtom,
+	showRomanLinesAtom,
+	showTranslationLinesAtom,
+	spicyBackgroundModeAtom,
+	spicyForceLineSyncedAtom,
+	spicySimpleLyricsModeAtom,
+	vsyncAtom,
 } from "./preview";

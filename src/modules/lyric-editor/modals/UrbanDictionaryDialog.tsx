@@ -40,7 +40,9 @@ export const UrbanDictionaryDialog = () => {
 		if (state.open && state.word) {
 			setLoading(true);
 			setError(null);
-			fetch(`https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(state.word)}`)
+			fetch(
+				`https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(state.word)}`,
+			)
 				.then((res) => res.json())
 				.then((data) => {
 					setDefinitions(data.list || []);
@@ -99,7 +101,9 @@ export const UrbanDictionaryDialog = () => {
 							}}
 						>
 							<Flex align="center" gap="2">
-								<BookSearchRegular style={{ fontSize: "20px", color: "var(--accent-9)" }} />
+								<BookSearchRegular
+									style={{ fontSize: "20px", color: "var(--accent-9)" }}
+								/>
 								<Heading size="3">{t("urbanDictionary.title")}</Heading>
 							</Flex>
 							<IconButton
@@ -114,7 +118,11 @@ export const UrbanDictionaryDialog = () => {
 
 						<Box style={{ padding: "16px 24px 8px 24px" }}>
 							<Flex align="baseline" gap="2">
-								<Text size="6" weight="bold" style={{ letterSpacing: "-0.02em", color: "var(--accent-9)" }}>
+								<Text
+									size="6"
+									weight="bold"
+									style={{ letterSpacing: "-0.02em", color: "var(--accent-9)" }}
+								>
 									{state.word}
 								</Text>
 								<Text size="2" color="gray" style={{ opacity: 0.8 }}>
@@ -130,13 +138,30 @@ export const UrbanDictionaryDialog = () => {
 										<Spinner size="3" />
 									</Flex>
 								) : error ? (
-									<Flex direction="column" align="center" justify="center" gap="3" height="200px">
-										<Text color="red" size="2">{error}</Text>
+									<Flex
+										direction="column"
+										align="center"
+										justify="center"
+										gap="3"
+										height="200px"
+									>
+										<Text color="red" size="2">
+											{error}
+										</Text>
 									</Flex>
 								) : definitions.length === 0 ? (
-									<Flex direction="column" align="center" justify="center" gap="3" height="200px" style={{ opacity: 0.5 }}>
+									<Flex
+										direction="column"
+										align="center"
+										justify="center"
+										gap="3"
+										height="200px"
+										style={{ opacity: 0.5 }}
+									>
 										<SearchRegular style={{ fontSize: "40px" }} />
-										<Text size="2">{t("urbanDictionary.noDefinitions", { word: state.word })}</Text>
+										<Text size="2">
+											{t("urbanDictionary.noDefinitions", { word: state.word })}
+										</Text>
 									</Flex>
 								) : (
 									<Flex direction="column" gap="4">
@@ -152,11 +177,14 @@ export const UrbanDictionaryDialog = () => {
 												}}
 											>
 												<Flex direction="column" gap="3">
-													<Text size="3" style={{ 
-														whiteSpace: "pre-wrap", 
-														lineHeight: "1.6",
-														wordBreak: "break-word"
-													}}>
+													<Text
+														size="3"
+														style={{
+															whiteSpace: "pre-wrap",
+															lineHeight: "1.6",
+															wordBreak: "break-word",
+														}}
+													>
 														{def.definition.replace(/\[|\]/g, "")}
 													</Text>
 													{def.example && (
@@ -168,24 +196,37 @@ export const UrbanDictionaryDialog = () => {
 																borderLeft: "2px solid var(--gray-7)",
 															}}
 														>
-															<Text size="2" color="gray" style={{ 
-																whiteSpace: "pre-wrap", 
-																fontStyle: "italic",
-																lineHeight: "1.5",
-																wordBreak: "break-word"
-															}}>
+															<Text
+																size="2"
+																color="gray"
+																style={{
+																	whiteSpace: "pre-wrap",
+																	fontStyle: "italic",
+																	lineHeight: "1.5",
+																	wordBreak: "break-word",
+																}}
+															>
 																"{def.example.replace(/\[|\]/g, "")}"
 															</Text>
 														</Box>
 													)}
-													<Flex justify="between" align="center" style={{ marginTop: "4px" }}>
-														<Text size="1" color="gray" style={{ opacity: 0.7 }}>
-															{t("urbanDictionary.by")} {def.author} • 👍 {def.thumbs_up}
+													<Flex
+														justify="between"
+														align="center"
+														style={{ marginTop: "4px" }}
+													>
+														<Text
+															size="1"
+															color="gray"
+															style={{ opacity: 0.7 }}
+														>
+															{t("urbanDictionary.by")} {def.author} • 👍{" "}
+															{def.thumbs_up}
 														</Text>
-														<Link 
-															href={def.permalink} 
-															target="_blank" 
-															size="1" 
+														<Link
+															href={def.permalink}
+															target="_blank"
+															size="1"
 															style={{ fontWeight: 500 }}
 														>
 															{t("urbanDictionary.viewOnline")}

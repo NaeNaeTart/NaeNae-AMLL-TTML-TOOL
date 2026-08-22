@@ -13,12 +13,12 @@ import {
 	isSynchronizableLine,
 } from "$/modules/lyric-editor/utils/lyric-states";
 import {
+	featureFlagsAtom,
 	highlightActiveWordAtom,
 	SyncJudgeMode,
 	smartFirstWordAtom,
 	smartLastWordAtom,
 	syncJudgeModeAtom,
-	featureFlagsAtom,
 } from "$/modules/settings/states";
 import {
 	currentEmptyBeatAtom,
@@ -567,9 +567,7 @@ export const SyncKeyBinding: FC = () => {
 					);
 					if (!next) break;
 
-					const text = (
-						next.unit.rubyWord?.word ?? next.unit.word.word
-					).trim();
+					const text = (next.unit.rubyWord?.word ?? next.unit.word.word).trim();
 					const targetLine = getLineToEdit(next.lineIndex);
 					if (next.lineIndex !== iterLineIndex) {
 						nextLines[iterLineIndex].endTime = currentTime;

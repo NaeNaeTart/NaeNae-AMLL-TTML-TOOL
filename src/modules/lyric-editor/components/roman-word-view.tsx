@@ -111,7 +111,7 @@ export const RomanWordView = ({
 			size="1"
 			variant="soft"
 			color="gray"
-				data-lyric-line-interactive=""
+			data-lyric-line-interactive=""
 			data-word-romanization-editor=""
 			className={classNames(
 				styles.romanWordView,

@@ -9,8 +9,8 @@ import {
 	StarRegular,
 } from "@fluentui/react-icons";
 import {
-	Avatar,
 	AlertDialog,
+	Avatar,
 	Badge,
 	Box,
 	Button,
@@ -25,8 +25,8 @@ import {
 import { open } from "@tauri-apps/plugin-shell";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppUpdate } from "$/utils/useAppUpdate";
 import { clearWebsiteCache, forceWebsiteRefresh } from "$/utils/pwa";
+import { useAppUpdate } from "$/utils/useAppUpdate";
 
 const openExternal = async (url: string) => {
 	if (import.meta.env.TAURI_ENV_PLATFORM) {
@@ -40,7 +40,9 @@ export const SettingsAboutTab = () => {
 	const { t } = useTranslation();
 	const { status, update, progress, installUpdate } = useAppUpdate();
 	const [cacheConfirmationOpen, setCacheConfirmationOpen] = useState(false);
-	const [recoveryAction, setRecoveryAction] = useState<"refresh" | "clear" | null>(null);
+	const [recoveryAction, setRecoveryAction] = useState<
+		"refresh" | "clear" | null
+	>(null);
 
 	const showUpdateCard = ["available", "downloading", "ready"].includes(status);
 	const isWebsite = !import.meta.env.TAURI_ENV_PLATFORM;
@@ -78,7 +80,6 @@ export const SettingsAboutTab = () => {
 				</Text>
 			</Flex>
 
-
 			<Card>
 				<Flex direction="column" gap="3">
 					<Heading size="3">
@@ -91,37 +92,81 @@ export const SettingsAboutTab = () => {
 						)}
 					</Text>
 					<Flex gap="2">
-						<Box p="3" style={{ flex: 1, background: "var(--gray-3)", borderRadius: "var(--radius-3)" }}>
+						<Box
+							p="3"
+							style={{
+								flex: 1,
+								background: "var(--gray-3)",
+								borderRadius: "var(--radius-3)",
+							}}
+						>
 							<Flex align="center">
 								<Flex align="center" gap="2" style={{ minWidth: 0, flex: 1 }}>
-									<Avatar src="https://avatars.githubusercontent.com/u/191877009?v=4" fallback="N" size="3" radius="small" />
+									<Avatar
+										src="https://avatars.githubusercontent.com/u/191877009?v=4"
+										fallback="N"
+										size="3"
+										radius="small"
+									/>
 									<Flex direction="column" gap="1">
-										<Text as="div" weight="bold">NaeNaeTart</Text>
+										<Text as="div" weight="bold">
+											NaeNaeTart
+										</Text>
 										<Text as="div" size="1" color="gray">
-											{t("aboutModal.forkMaintainer", "Fork maintainer & contributor")}
+											{t(
+												"aboutModal.forkMaintainer",
+												"Fork maintainer & contributor",
+											)}
 										</Text>
 									</Flex>
 								</Flex>
 								<Button asChild variant="soft" size="1">
-									<a href="https://yoursit.ee/naenaetart" target="_blank" rel="noreferrer" aria-label={t("aboutModal.visitWebsite", "Visit website")}>
+									<a
+										href="https://yoursit.ee/naenaetart"
+										target="_blank"
+										rel="noreferrer"
+										aria-label={t("aboutModal.visitWebsite", "Visit website")}
+									>
 										<Open16Regular />
 									</a>
 								</Button>
 							</Flex>
 						</Box>
-<Box p="3" style={{ flex: 1, background: "var(--gray-3)", borderRadius: "var(--radius-3)" }}>
+						<Box
+							p="3"
+							style={{
+								flex: 1,
+								background: "var(--gray-3)",
+								borderRadius: "var(--radius-3)",
+							}}
+						>
 							<Flex align="center">
 								<Flex align="center" gap="2" style={{ minWidth: 0, flex: 1 }}>
-									<Avatar src="https://avatars.githubusercontent.com/u/55551133?v=4" fallback="T" size="3" radius="small" />
+									<Avatar
+										src="https://avatars.githubusercontent.com/u/55551133?v=4"
+										fallback="T"
+										size="3"
+										radius="small"
+									/>
 									<Flex direction="column" gap="1">
-										<Text as="div" weight="bold">TX24</Text>
+										<Text as="div" weight="bold">
+											TX24
+										</Text>
 										<Text as="div" size="1" color="gray">
-											{t("aboutModal.forkMaintainer", "Fork maintainer & contributor")}
+											{t(
+												"aboutModal.forkMaintainer",
+												"Fork maintainer & contributor",
+											)}
 										</Text>
 									</Flex>
 								</Flex>
 								<Button asChild variant="soft" size="1">
-									<a href="https://tx24.dev" target="_blank" rel="noreferrer" aria-label={t("aboutModal.visitWebsite", "Visit website")}>
+									<a
+										href="https://tx24.dev"
+										target="_blank"
+										rel="noreferrer"
+										aria-label={t("aboutModal.visitWebsite", "Visit website")}
+									>
 										<Open16Regular />
 									</a>
 								</Button>
@@ -146,44 +191,78 @@ export const SettingsAboutTab = () => {
 						<Card variant="classic" style={{ padding: "var(--space-3)" }}>
 							<Flex direction="column" gap="2">
 								<Flex align="center" gap="2">
-									<Box style={{ color: "var(--ruby-11)" }}><StarRegular /></Box>
+									<Box style={{ color: "var(--ruby-11)" }}>
+										<StarRegular />
+									</Box>
 									<Heading size="3">Spicy Lyrics</Heading>
 								</Flex>
 								<Text size="2" color="gray">
-									Renderer and font adapted from <Link href="https://github.com/Spikerko/Spicy-Lyrics" target="_blank" rel="noreferrer">Spicy Lyrics</Link> by Spikerko and contributors, licensed under AGPL-3.0-or-later.
+									Renderer and font adapted from{" "}
+									<Link
+										href="https://github.com/Spikerko/Spicy-Lyrics"
+										target="_blank"
+										rel="noreferrer"
+									>
+										Spicy Lyrics
+									</Link>{" "}
+									by Spikerko and contributors, licensed under
+									AGPL-3.0-or-later.
 								</Text>
 							</Flex>
 						</Card>
 						<Card variant="classic" style={{ padding: "var(--space-3)" }}>
 							<Flex direction="column" gap="2">
 								<Flex align="center" gap="2">
-									<Box style={{ color: "var(--violet-11)" }}><SettingsRegular /></Box>
+									<Box style={{ color: "var(--violet-11)" }}>
+										<SettingsRegular />
+									</Box>
 									<Heading size="3">Fraktality Spring</Heading>
 								</Flex>
 								<Text size="2" color="gray">
-									Analytic spring implementation derived from Fraktality&apos;s <code>spr.lua</code>, licensed under the MIT License.
+									Analytic spring implementation derived from Fraktality&apos;s{" "}
+									<code>spr.lua</code>, licensed under the MIT License.
 								</Text>
 							</Flex>
 						</Card>
 						<Card variant="classic" style={{ padding: "var(--space-3)" }}>
 							<Flex direction="column" gap="2">
 								<Flex align="center" gap="2">
-									<Box style={{ color: "var(--cyan-11)" }}><MusicNote1Regular /></Box>
+									<Box style={{ color: "var(--cyan-11)" }}>
+										<MusicNote1Regular />
+									</Box>
 									<Heading size="3">Prosodic Engine</Heading>
 								</Flex>
 								<Text size="2" color="gray">
-									Syllabification engine and dictionary adapted from <Link href="https://github.com/amll-dev/amll-editor" target="_blank" rel="noreferrer">amll-dev/amll-editor</Link>, licensed under GNU AGPL-3.0-only.
+									Syllabification engine and dictionary adapted from{" "}
+									<Link
+										href="https://github.com/amll-dev/amll-editor"
+										target="_blank"
+										rel="noreferrer"
+									>
+										amll-dev/amll-editor
+									</Link>
+									, licensed under GNU AGPL-3.0-only.
 								</Text>
 							</Flex>
 						</Card>
 						<Card variant="classic" style={{ padding: "var(--space-3)" }}>
 							<Flex direction="column" gap="2">
 								<Flex align="center" gap="2">
-									<Box style={{ color: "var(--gold-11)" }}><BoxRegular /></Box>
+									<Box style={{ color: "var(--gold-11)" }}>
+										<BoxRegular />
+									</Box>
 									<Heading size="3">AMLL TTML Tool</Heading>
 								</Flex>
 								<Text size="2" color="gray">
-									Forked from <Link href="https://github.com/amll-dev/amll-ttml-tool" target="_blank" rel="noreferrer">amll-dev/amll-ttml-tool</Link>, licensed under GPL-3.0-or-later.
+									Forked from{" "}
+									<Link
+										href="https://github.com/amll-dev/amll-ttml-tool"
+										target="_blank"
+										rel="noreferrer"
+									>
+										amll-dev/amll-ttml-tool
+									</Link>
+									, licensed under GPL-3.0-or-later.
 								</Text>
 							</Flex>
 						</Card>
@@ -205,21 +284,26 @@ export const SettingsAboutTab = () => {
 					<Flex gap="3" mt="1">
 						<Button
 							variant="soft"
-							onClick={() => openExternal("https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL")}
+							onClick={() =>
+								openExternal(
+									"https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL",
+								)
+							}
 						>
 							{t("aboutModal.github", "GitHub Repository")}
 						</Button>
 						<Button
 							variant="soft"
 							color="indigo"
-							onClick={() => openExternal("https://crowdin.com/project/very-cool-ttml-tool")}
+							onClick={() =>
+								openExternal("https://crowdin.com/project/very-cool-ttml-tool")
+							}
 						>
 							{t("aboutModal.crowdin", "Help Translate in Crowdin")}
 						</Button>
 					</Flex>
 				</Flex>
 			</Card>
-
 
 			{isWebsite && (
 				<Card>
@@ -234,7 +318,10 @@ export const SettingsAboutTab = () => {
 							)}
 						</Text>
 						<Flex gap="3" wrap="wrap">
-							<Button onClick={handleForceRefresh} disabled={recoveryAction !== null}>
+							<Button
+								onClick={handleForceRefresh}
+								disabled={recoveryAction !== null}
+							>
 								{t("settings.about.forceRefresh", "Force refresh")}
 							</Button>
 							<Button
@@ -243,7 +330,10 @@ export const SettingsAboutTab = () => {
 								onClick={() => setCacheConfirmationOpen(true)}
 								disabled={recoveryAction !== null}
 							>
-								{t("settings.about.clearWebsiteCache", "Clear cached website data")}
+								{t(
+									"settings.about.clearWebsiteCache",
+									"Clear cached website data",
+								)}
 							</Button>
 						</Flex>
 					</Flex>
@@ -256,7 +346,10 @@ export const SettingsAboutTab = () => {
 			>
 				<AlertDialog.Content maxWidth="420px">
 					<AlertDialog.Title>
-						{t("settings.about.clearWebsiteCacheTitle", "Clear cached website data?")}
+						{t(
+							"settings.about.clearWebsiteCacheTitle",
+							"Clear cached website data?",
+						)}
 					</AlertDialog.Title>
 					<AlertDialog.Description size="2">
 						{t(
@@ -266,13 +359,24 @@ export const SettingsAboutTab = () => {
 					</AlertDialog.Description>
 					<Flex gap="3" mt="4" justify="end">
 						<AlertDialog.Cancel>
-							<Button variant="soft" color="gray" disabled={recoveryAction !== null}>
+							<Button
+								variant="soft"
+								color="gray"
+								disabled={recoveryAction !== null}
+							>
 								{t("common.cancel", "Cancel")}
 							</Button>
 						</AlertDialog.Cancel>
 						<AlertDialog.Action>
-							<Button color="red" onClick={handleClearCache} disabled={recoveryAction !== null}>
-								{t("settings.about.clearWebsiteCache", "Clear cached website data")}
+							<Button
+								color="red"
+								onClick={handleClearCache}
+								disabled={recoveryAction !== null}
+							>
+								{t(
+									"settings.about.clearWebsiteCache",
+									"Clear cached website data",
+								)}
 							</Button>
 						</AlertDialog.Action>
 					</Flex>

@@ -56,18 +56,18 @@
 			transition: none !important;
 			animation: none !important;
 
-			&.active, &.animated {
+			&.active,
+			&.animated {
 				transition: none !important;
 				animation: none !important;
 				box-shadow: none !important; /* Disable glow for instant feedback */
-				
+
 				.displayWord {
 					text-shadow: none !important;
 				}
 			}
 		}
 	}
-
 
 	&.dropLeft {
 		border-left: solid 3px var(--accent-a11);
@@ -306,7 +306,6 @@
 		background-color 0.1s ease,
 		box-shadow 0.1s ease;
 
-
 	&.dropTop {
 		border-top: solid 3px var(--accent-a11);
 	}
@@ -413,7 +412,6 @@
 }
 
 .lyricLineContainer {
-
 	min-width: 0;
 	padding: var(--space-3);
 	flex-grow: 1;
@@ -475,13 +473,13 @@
 			box-shadow: none;
 			padding: 0;
 			margin: 0;
-			
+
 			.wordMainText {
 				font-weight: bold;
 				font-size: 1.2em;
 			}
 		}
-		
+
 		.insertWordField {
 			display: none;
 		}
@@ -499,7 +497,8 @@
 }
 
 .lyricWord.selected:not(.error),
-.lyricLine.selected:not(.error) {
+.lyricLine.selected:not(.error),
+.lyricLine.activeLine.selected:not(.error) {
 	box-shadow: 0 0 0 var(--global-border-width, 2px) var(--accent-a11);
 	background-color: var(--active-line-bg, var(--accent-a3));
 	&:hover {
@@ -508,6 +507,13 @@
 	}
 }
 
+.lyricLine.activeLine:not(.error) {
+	background-color: var(--accent-a2);
+	&:hover {
+		box-shadow: 0 0 0 var(--global-border-width, 2px) var(--accent-a5);
+		background-color: var(--line-hover-bg, var(--accent-a3));
+	}
+}
 
 .lyricWord.error,
 .lyricLine.error {
@@ -553,9 +559,9 @@
 	}
 }
 
-
-.lyricWord.sync.active {
-	background-color: var(--accent-a9);
+.lyricWord.sync.active,
+.lyricWord.active {
+	background-color: var(--accent-a9) !important;
 	transition: background-color 0s;
 	position: relative;
 	z-index: 2;
@@ -566,27 +572,26 @@
 			box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
 		animation: highlightBurst 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-		box-shadow: 0 0 35px var(--accent-a9);
-		
-		.displayWord {
+		box-shadow: 0 0 35px var(--accent-a9) !important;
+
+		.displayWord,
+		.wordMainText {
 			transition: text-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 			text-shadow: 0 0 20px var(--accent-a11);
 		}
 	}
 
-	.displayWord {
-		color: #fff;
+	.displayWord,
+	.wordMainText {
+		color: #fff !important;
 		font-weight: 500;
 	}
 
 	&.selected {
-		background-color: var(--accent-a11);
-		box-shadow: 0 0 40px var(--accent-a7);
+		background-color: var(--accent-a11) !important;
+		box-shadow: 0 0 40px var(--accent-a7) !important;
 	}
 }
-
-
-
 
 .lineNumber {
 	min-width: 2em;
@@ -648,5 +653,3 @@
 		background-color: var(--accent-a9);
 	}
 }
-
-

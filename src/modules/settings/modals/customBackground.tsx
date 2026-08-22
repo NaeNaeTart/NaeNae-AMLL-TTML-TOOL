@@ -301,7 +301,9 @@ export const SettingsCustomBackgroundSettings = ({
 			<Card>
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
-						<Text>{t("settings.common.customBackgroundBlur", "Blur Radius")}</Text>
+						<Text>
+							{t("settings.common.customBackgroundBlur", "Blur Radius")}
+						</Text>
 						<Flex align="center" gap="2">
 							<Text wrap="nowrap" color="gray" size="1">
 								{customBackgroundBlur.toFixed(0)}px
@@ -376,10 +378,15 @@ export const SettingsCustomBackgroundCard = ({
 				<Box flexGrow="1">
 					<Flex align="center" justify="between" gap="4">
 						<Flex direction="column" gap="1">
-							<Text>{t("settings.common.customBackground", "Custom Background")}</Text>
+							<Text>
+								{t("settings.common.customBackground", "Custom Background")}
+							</Text>
 							<Text size="1" color="gray">
 								{customBackgroundImage
-									? t("settings.common.customBackgroundEnabled", "Background applied")
+									? t(
+											"settings.common.customBackgroundEnabled",
+											"Background applied",
+										)
 									: t(
 											"settings.common.customBackgroundDesc",
 											"Select an image to use as background.",
