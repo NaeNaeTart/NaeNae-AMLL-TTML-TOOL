@@ -475,11 +475,16 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 
 		const agentId = getAttr(lineEl, "agent") || getAttr(lineEl, "participant");
 
-		const currentIsMiddle = isBG ? isMiddle : (!!agentId && agentId === "v3");
-		const currentIsDuetGroup = isBG ? isDuetGroup : (!!agentId && agentId === "v4");
+		const currentIsMiddle = isBG ? isMiddle : !!agentId && agentId === "v3";
+		const currentIsDuetGroup = isBG
+			? isDuetGroup
+			: !!agentId && agentId === "v4";
 		const currentIsDuet = isBG
 			? isDuet
-			: (!!agentId && agentId !== mainAgentId && !currentIsMiddle && !currentIsDuetGroup);
+			: !!agentId &&
+				agentId !== mainAgentId &&
+				!currentIsMiddle &&
+				!currentIsDuetGroup;
 
 		const line: LyricLine = {
 			id: uid(),
@@ -496,8 +501,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			ignoreSync: false,
 			isLineSynced: Array.from(lineEl.childNodes).some(
 				(node) =>
-					node.nodeType === Node.TEXT_NODE &&
-					!!node.textContent?.trim(),
+					node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim(),
 			),
 			sectionId: getAttr(lineEl, "section") || parentSectionId,
 		};
@@ -557,8 +561,8 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 							itunesKey,
 							line.sectionId,
 						);
-				} else if (role === "x-translation") {
-					if (!line.translatedLyric) {
+					} else if (role === "x-translation") {
+						if (!line.translatedLyric) {
 							line.translatedLyric = wordEl.textContent ?? "";
 						}
 					} else if (role === "x-roman") {
@@ -586,18 +590,6 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			}
 		}
 
-		if (!startTimeAttr || !endTimeAttr) {
-			line.startTime = line.words
-				.filter((w) => w.word.trim().length > 0)
-				.reduce(
-					(pv, cv) => Math.min(pv, cv.startTime),
-					Number.POSITIVE_INFINITY,
-				);
-			line.endTime = line.words
-				.filter((w) => w.word.trim().length > 0)
-				.reduce((pv, cv) => Math.max(pv, cv.endTime), 0);
-		}
-
 		if (line.isBG) {
 			const firstWord = line.words[0];
 			if (firstWord && /^[（(]/.test(firstWord.word)) {
@@ -614,6 +606,36 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 					line.words.pop();
 				}
 			}
+		}
+
+		const timedWords = line.words.filter(
+			(w) => w.word.trim().length > 0 && w.endTime > w.startTime,
+		);
+		if (timedWords.length > 0) {
+			const computedStart = timedWords.reduce(
+				(pv, cv) => Math.min(pv, cv.startTime),
+				Number.POSITIVE_INFINITY,
+			);
+			const computedEnd = timedWords.reduce(
+				(pv, cv) => Math.max(pv, cv.endTime),
+				0,
+			);
+			if (computedStart !== Number.POSITIVE_INFINITY) {
+				line.startTime = computedStart;
+			}
+			if (computedEnd > 0) {
+				line.endTime = computedEnd;
+			}
+		} else if (!startTimeAttr || !endTimeAttr) {
+			line.startTime = line.words
+				.filter((w) => w.word.trim().length > 0)
+				.reduce(
+					(pv, cv) => Math.min(pv, cv.startTime),
+					Number.POSITIVE_INFINITY,
+				);
+			line.endTime = line.words
+				.filter((w) => w.word.trim().length > 0)
+				.reduce((pv, cv) => Math.max(pv, cv.endTime), 0);
 		}
 
 		appendParentBeforeNestedLines(lyricLines, nestedStartIndex, line);

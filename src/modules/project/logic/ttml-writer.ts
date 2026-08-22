@@ -23,7 +23,11 @@ export function shouldExportAsLineSynced(line: LyricLine): boolean {
 	return line.words.filter((word) => word.word.trim().length > 0).length <= 1;
 }
 
-export function collectFollowingBackgroundLines(lines: LyricLine[], mainLineIndex: number, allowConsecutive: boolean): LyricLine[] {
+export function collectFollowingBackgroundLines(
+	lines: LyricLine[],
+	mainLineIndex: number,
+	allowConsecutive: boolean,
+): LyricLine[] {
 	const backgroundLines: LyricLine[] = [];
 	const collectOnlyOne = !allowConsecutive;
 	for (let index = mainLineIndex + 1; index < lines.length; index++) {
@@ -42,7 +46,8 @@ export function hasExportableLineContent(line: LyricLine): boolean {
 				word.word.trim().length > 0 ||
 				word.romanWord.trim().length > 0 ||
 				word.emptyBeat > 0 ||
-				(word.ruby?.some((rubyWord) => rubyWord.word.trim().length > 0) ?? false),
+				(word.ruby?.some((rubyWord) => rubyWord.word.trim().length > 0) ??
+					false),
 		) ||
 		line.translatedLyric.trim().length > 0 ||
 		line.romanLyric.trim().length > 0
@@ -319,7 +324,7 @@ export default function exportTTMLText(
 			if (line.isDuetGroup) agentId = "v4";
 			else if (line.isMiddle) agentId = "v3";
 			else if (line.isDuet) agentId = "v2";
-			
+
 			lineP.setAttribute("ttm:agent", agentId);
 
 			const itunesKey = `L${++i}`;
@@ -363,20 +368,17 @@ export default function exportTTMLText(
 				lineP.setAttribute("end", msToTimestamp(word.endTime));
 			}
 
-			const followingBackgroundLines = (exportAsStandaloneBackground && !(options.allowConsecutiveBackgroundLines ?? false))
+			const followingBackgroundLines = exportAsStandaloneBackground
 				? []
 				: collectFollowingBackgroundLines(
-					param,
-					lineIndex,
-					options.allowConsecutiveBackgroundLines ?? false,
-				);
+						param,
+						lineIndex,
+						options.allowConsecutiveBackgroundLines ?? false,
+					);
 			const backgroundLines = exportAsStandaloneBackground
-				? [line, ...followingBackgroundLines]
+				? [line]
 				: followingBackgroundLines;
 			lineIndex += followingBackgroundLines.length;
-			if (exportAsStandaloneBackground) {
-				lineP.setAttribute("end", msToTimestamp(backgroundLines.at(-1)?.endTime ?? line.endTime));
-			}
 			for (const bgLine of backgroundLines) {
 				backgroundWordGroups.push(bgLine.words);
 
@@ -470,10 +472,15 @@ export default function exportTTMLText(
 
 			const hasRoman =
 				mainWords.some((w) => w.romanWord && w.romanWord.trim().length > 0) ||
-				backgroundWordGroups.some((words) => words.some((w) => w.romanWord && w.romanWord.trim().length > 0));
+				backgroundWordGroups.some((words) =>
+					words.some((w) => w.romanWord && w.romanWord.trim().length > 0),
+				);
 
 			if (hasRoman) {
-				romanizationMap.set(itunesKey, { main: mainWords, backgrounds: backgroundWordGroups });
+				romanizationMap.set(itunesKey, {
+					main: mainWords,
+					backgrounds: backgroundWordGroups,
+				});
 			}
 
 			paramDiv.appendChild(lineP);
@@ -505,7 +512,9 @@ export default function exportTTMLText(
 			}
 
 			for (const bg of backgrounds) {
-				const hasBgRoman = bg.some((w) => w.romanWord && w.romanWord.trim().length > 0);
+				const hasBgRoman = bg.some(
+					(w) => w.romanWord && w.romanWord.trim().length > 0,
+				);
 				if (!hasBgRoman) continue;
 				const bgSpan = doc.createElement("span");
 				bgSpan.setAttribute("ttm:role", "x-bg");
