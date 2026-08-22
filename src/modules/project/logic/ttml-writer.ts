@@ -28,11 +28,14 @@ export function collectFollowingBackgroundLines(
 	mainLineIndex: number,
 	allowConsecutive: boolean,
 ): LyricLine[] {
+	const mainLine = lines[mainLineIndex];
+	const mainEndTime = mainLine?.endTime ?? 0;
 	const backgroundLines: LyricLine[] = [];
 	const collectOnlyOne = !allowConsecutive;
 	for (let index = mainLineIndex + 1; index < lines.length; index++) {
 		const line = lines[index];
 		if (!line.isBG) break;
+		if (mainEndTime > 0 && line.startTime >= mainEndTime) break;
 		backgroundLines.push(line);
 		if (collectOnlyOne) break;
 	}

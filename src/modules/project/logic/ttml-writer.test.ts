@@ -138,4 +138,55 @@ describe("exportTTMLText background lines", () => {
 		expect(bgSpans1.length).toBe(1);
 		expect(bgSpans2.length).toBe(1);
 	});
+
+	it("exports a non-overlapping background line after a main line as its own p tag", () => {
+		const mainLine: LyricLine = {
+			...newLyricLine(),
+			id: "main",
+			isBG: false,
+			startTime: 43_119,
+			endTime: 43_627,
+			words: [
+				{
+					...newLyricWord(),
+					word: "Check",
+					startTime: 43_119,
+					endTime: 43_262,
+				},
+				{ ...newLyricWord(), word: "it", startTime: 43_262, endTime: 43_364 },
+				{ ...newLyricWord(), word: "out", startTime: 43_364, endTime: 43_627 },
+			],
+		};
+		const bgLine: LyricLine = {
+			...newLyricLine(),
+			id: "bg",
+			isBG: true,
+			startTime: 50_131,
+			endTime: 51_600,
+			words: [
+				{
+					...newLyricWord(),
+					word: "tniop",
+					startTime: 50_131,
+					endTime: 50_383,
+				},
+				{ ...newLyricWord(), word: "siht", startTime: 50_383, endTime: 51_600 },
+			],
+		};
+
+		const ttml = exportTTMLText({
+			metadata: [],
+			lyricLines: [mainLine, bgLine],
+		});
+
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(ttml, "application/xml");
+		const pElements = doc.querySelectorAll("body p");
+
+		expect(pElements.length).toBe(2);
+		expect(pElements[0].getAttribute("begin")).toBe("00:43.119");
+		expect(pElements[0].getAttribute("end")).toBe("00:43.627");
+		expect(pElements[1].getAttribute("begin")).toBe("00:50.131");
+		expect(pElements[1].getAttribute("end")).toBe("00:51.600");
+	});
 });
