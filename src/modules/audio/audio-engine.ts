@@ -194,6 +194,7 @@ class AudioEngine extends EventTarget {
 	}
 
 	private _listenersSetup = false;
+	private suppressElementEvents = false;
 
 	/** Link audio element events into engine events */
 	private setupAudioListeners() {
@@ -214,26 +215,43 @@ class AudioEngine extends EventTarget {
 		};
 		Object.entries(events).forEach(([event, engineEvent]) => {
 			audioEl.addEventListener(event, () => {
+				if (this.suppressElementEvents) return;
 				this.dispatchEvent(new Event(engineEvent));
 			});
 		});
+		audioEl.addEventListener("play", () => this.startZoneTicker());
 	}
 	//#endregion
 
 	//#region Playback
 	private auditionSourceNode: AudioBufferSourceNode | null = null;
-	private reversePlaybackSourceNode: AudioBufferSourceNode | null = null;
+	private zoneTransportSourceNode: AudioBufferSourceNode | null = null;
+	private zoneTransport: {
+		zoneStart: number;
+		zoneEnd: number;
+		virtualBase: number;
+		ctxStartedAt: number | null;
+		rate: number;
+	} | null = null;
+	private registeredReverseZones: { start: number; end: number }[] = [];
+	private zoneTickerId: number | null = null;
+	private pausedZoneVirtualPos: number | null = null;
+	private zoneCrossingComplete: (() => void) | null = null;
 
 	get musicLoaded() {
 		return !!this.musicBuffer;
 	}
 
 	get musicPlaying() {
+		if (this.zoneTransport) return true;
 		if (!this._audioEl) return false;
 		return !this._audioEl.paused && !this._audioEl.ended;
 	}
 
 	get musicCurrentTime() {
+		if (this.pausedZoneVirtualPos !== null) return this.pausedZoneVirtualPos;
+		const v = this.currentZoneVirtualPos;
+		if (v !== null) return v;
 		return this._audioEl?.currentTime ?? 0;
 	}
 
@@ -241,6 +259,9 @@ class AudioEngine extends EventTarget {
 	private _lastPerformanceTime = performance.now();
 
 	get interpolatedCurrentTime() {
+		if (this.pausedZoneVirtualPos !== null) return this.pausedZoneVirtualPos;
+		const v = this.currentZoneVirtualPos;
+		if (v !== null) return v;
 		if (!this._audioEl) return 0;
 		if (!this.musicPlaying) return this._audioEl.currentTime;
 
@@ -264,6 +285,13 @@ class AudioEngine extends EventTarget {
 		return this._musicPlayBackRate;
 	}
 	set musicPlayBackRate(v: number) {
+		const zt = this.zoneTransport;
+		if (zt && zt.ctxStartedAt !== null) {
+			const current = this.currentZoneVirtualPos ?? zt.virtualBase;
+			zt.virtualBase = current;
+			zt.ctxStartedAt = this.ctx.currentTime;
+			zt.rate = v;
+		}
 		if (this._audioEl) {
 			this._audioEl.playbackRate = v;
 		}
@@ -271,6 +299,9 @@ class AudioEngine extends EventTarget {
 			this._auditionAudioEl.playbackRate = v;
 		}
 		this._musicPlayBackRate = v;
+		if (this.zoneTransportSourceNode) {
+			this.zoneTransportSourceNode.playbackRate.value = v;
+		}
 		this.dispatchEvent(new Event("music-playback-rate-change"));
 	}
 
@@ -309,16 +340,25 @@ class AudioEngine extends EventTarget {
 	}
 
 	seekMusic(offset: number) {
-		if (this._audioEl) {
-			this._audioEl.currentTime = offset;
-			this._lastReportedTime = offset;
-			this._lastPerformanceTime = performance.now();
-			this.dispatchEvent(new Event("music-seeked"));
-		}
+		if (!this._audioEl) return;
+		this.cancelZoneTransport();
+		this.pausedZoneVirtualPos = null;
+		this._audioEl.currentTime = offset;
+		this._lastReportedTime = offset;
+		this._lastPerformanceTime = performance.now();
+		this.dispatchEvent(new Event("music-seeked"));
 	}
 
 	async resumeOrSeekMusic(offset = this.musicCurrentTime) {
 		if (!this._audioEl) return;
+		if (offset === this.musicCurrentTime && this.pausedZoneVirtualPos !== null) {
+			const v = this.pausedZoneVirtualPos;
+			this.pausedZoneVirtualPos = null;
+			await this.resumeContext();
+			await this.enterZoneTransport(v);
+			return;
+		}
+		this.pausedZoneVirtualPos = null;
 		await this.resumeContext();
 		this._audioEl.currentTime = offset;
 		this._lastReportedTime = offset;
@@ -353,6 +393,12 @@ class AudioEngine extends EventTarget {
 	}
 
 	pauseMusic() {
+		if (this.zoneTransport && this.zoneTransport.ctxStartedAt !== null) {
+			this.pausedZoneVirtualPos = this.currentZoneVirtualPos ?? this.zoneTransport.virtualBase;
+			this.cancelZoneTransport();
+			this.dispatchEvent(new Event("music-pause"));
+			return;
+		}
 		if (!this._audioEl) return;
 		this._audioEl.pause();
 		this.stopAudition();
@@ -428,79 +474,154 @@ class AudioEngine extends EventTarget {
 		}
 	}
 
-	/**
-	 * Play a range of the loaded music reversed (sample-reversed), used by the reverse playback zone.
-	 * Calls onComplete when playback finishes naturally; a manual stopReversePlayback() call does not.
-	 */
-	async playReversedRange(
-		startTimeInSeconds: number,
-		endTimeInSeconds: number,
-		onComplete?: () => void,
-	) {
-		if (!this.musicBuffer) {
-			console.warn("musicBuffer is null, cannot play reversed range");
-			return;
-		}
+	//#endregion
 
-		const totalDuration = this.musicBuffer.duration;
-		const validStartTime = Math.max(
-			0,
-			Math.min(startTimeInSeconds, totalDuration),
-		);
-		const validEndTime = Math.max(
-			validStartTime,
-			Math.min(endTimeInSeconds, totalDuration),
-		);
-		const durationInSeconds = validEndTime - validStartTime;
-		if (durationInSeconds <= 0) return;
+	//#region Reverse zone virtual transport
 
-		this.stopReversePlayback();
+	private get currentZoneVirtualPos(): number | null {
+		const zt = this.zoneTransport;
+		if (!zt) return null;
+		if (zt.ctxStartedAt === null) return zt.virtualBase;
+		const elapsed = (this.ctx.currentTime - zt.ctxStartedAt) * zt.rate;
+		return Math.min(zt.zoneEnd, zt.virtualBase + elapsed);
+	}
+
+	setReverseZones(zones: { start: number; end: number }[]) {
+		this.registeredReverseZones = zones
+			.map((z) => ({ start: z.start / 1000, end: z.end / 1000 }))
+			.filter((z) => z.end - z.start > 0.01);
+	}
+
+	async enterZoneTransport(virtualPosSec: number) {
+		const zone = this.registeredReverseZones.find(
+			(z) => virtualPosSec >= z.start && virtualPosSec < z.end,
+		);
+		if (!zone || !this.musicBuffer || !this._audioEl) return;
 		await this.resumeContext();
 
+		const realHearingEnd =
+			zone.start + (zone.end - virtualPosSec);
 		const sampleRate = this.musicBuffer.sampleRate;
-		const startSample = Math.floor(validStartTime * sampleRate);
-		const frameCount = Math.floor(durationInSeconds * sampleRate);
-		const channelCount = this.musicBuffer.numberOfChannels;
+		const sA = Math.floor(zone.start * sampleRate);
+		const frameCount = Math.max(1, Math.floor(realHearingEnd * sampleRate) - sA);
 
-		const reversedBuffer = this.ctx.createBuffer(
-			channelCount,
+		const buffer = this.ctx.createBuffer(
+			this.musicBuffer.numberOfChannels,
 			frameCount,
 			sampleRate,
 		);
-		for (let channel = 0; channel < channelCount; channel++) {
-			const sourceData = this.musicBuffer.getChannelData(channel);
-			const reversedData = reversedBuffer.getChannelData(channel);
+		for (let ch = 0; ch < this.musicBuffer.numberOfChannels; ch++) {
+			const src = this.musicBuffer.getChannelData(ch);
+			const dst = buffer.getChannelData(ch);
 			for (let i = 0; i < frameCount; i++) {
-				reversedData[i] = sourceData[startSample + frameCount - 1 - i] ?? 0;
+				dst[i] = src[sA + frameCount - 1 - i] ?? 0;
 			}
 		}
 
+		this.suppressElementEvents = true;
+		this._audioEl.pause();
+		this._audioEl.currentTime = virtualPosSec;
+		this.suppressElementEvents = false;
+		this.stopAudition();
+
 		const source = this.ctx.createBufferSource();
-		source.buffer = reversedBuffer;
+		source.buffer = buffer;
 		source.playbackRate.value = this._musicPlayBackRate;
 		source.connect(this.eqEntryPoint);
 		source.onended = () => {
-			if (this.reversePlaybackSourceNode === source) {
-				this.reversePlaybackSourceNode = null;
-			}
-			source.disconnect();
-			onComplete?.();
+			if (this.zoneTransportSourceNode === source) this.exitZoneTransport();
 		};
-		this.reversePlaybackSourceNode = source;
+
+		this.zoneTransport = {
+			zoneStart: zone.start,
+			zoneEnd: zone.end,
+			virtualBase: virtualPosSec,
+			ctxStartedAt: this.ctx.currentTime,
+			rate: this._musicPlayBackRate,
+		};
+		this.zoneTransportSourceNode = source;
+		this.pausedZoneVirtualPos = null;
 		source.start(0);
+		this.startZoneTicker();
+		this.dispatchEvent(new Event("music-resume"));
 	}
 
-	/** Stop any in-progress reversed playback started via playReversedRange(). Does not trigger its onComplete. */
-	stopReversePlayback() {
-		const source = this.reversePlaybackSourceNode;
-		if (!source) return;
-		this.reversePlaybackSourceNode = null;
-		source.onended = null;
-		try {
-			source.stop(0);
-			source.disconnect();
-		} catch {
-			// ignore
+	/** Fired when normal playback finishes crossing a reverse zone. */
+	set onZoneCrossingComplete(callback: (() => void) | null) {
+		this.zoneCrossingComplete = callback;
+	}
+
+	exitZoneTransport() {
+		const zt = this.zoneTransport;
+		if (!zt) return;
+		this.zoneTransport = null;
+		if (this.zoneTransportSourceNode) {
+			const source = this.zoneTransportSourceNode;
+			this.zoneTransportSourceNode = null;
+			source.onended = null;
+			try {
+				source.stop(0);
+				source.disconnect();
+			} catch {
+				// ignore
+			}
+		}
+		void this.resumeOrSeekMusic(zt.zoneEnd);
+		if (this.zoneCrossingComplete) this.zoneCrossingComplete();
+	}
+
+	cancelZoneTransport() {
+		if (!this.zoneTransport) return;
+		this.zoneTransport = null;
+		if (this.zoneTransportSourceNode) {
+			const source = this.zoneTransportSourceNode;
+			this.zoneTransportSourceNode = null;
+			source.onended = null;
+			try {
+				source.stop(0);
+				source.disconnect();
+			} catch {
+				// ignore
+			}
+		}
+	}
+
+	tickZoneTransport() {
+		if (this.zoneTransport) {
+			if ((this.currentZoneVirtualPos ?? 0) >= this.zoneTransport.zoneEnd - 0.002) {
+				this.exitZoneTransport();
+			}
+			return;
+		}
+		if (
+			!this._audioEl ||
+			this._audioEl.paused ||
+			!this.registeredReverseZones.length
+		) {
+			this.stopZoneTicker();
+			return;
+		}
+		const t = this._audioEl.currentTime;
+		if (
+			this.registeredReverseZones.some((z) => t >= z.start && t < z.end)
+		) {
+			void this.enterZoneTransport(t);
+		}
+	}
+
+	private startZoneTicker() {
+		if (this.zoneTickerId !== null) return;
+		const loop = () => {
+			this.tickZoneTransport();
+			this.zoneTickerId = requestAnimationFrame(loop);
+		};
+		this.zoneTickerId = requestAnimationFrame(loop);
+	}
+
+	private stopZoneTicker() {
+		if (this.zoneTickerId !== null) {
+			cancelAnimationFrame(this.zoneTickerId);
+			this.zoneTickerId = null;
 		}
 	}
 
@@ -519,6 +640,9 @@ class AudioEngine extends EventTarget {
 	/** Unload the currently loaded music, resetting playback state and buffers. No-op if nothing is loaded. */
 	unloadMusic() {
 		if (!this.musicBuffer) return;
+		this.cancelZoneTransport();
+		this.pausedZoneVirtualPos = null;
+		this.stopZoneTicker();
 		this.pauseMusic();
 		this.stopAudition();
 		this.musicBuffer = null;

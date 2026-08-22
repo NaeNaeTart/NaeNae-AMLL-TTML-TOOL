@@ -266,8 +266,13 @@
 .reversePlaybackTiles {
 	position: absolute;
 	inset: 0;
-	transform: scaleX(-1);
 	opacity: 0.85;
+}
+
+.reversePlaybackTilesFlip {
+	position: absolute;
+	inset: 0;
+	transform: scaleX(-1);
 }
 
 .reversePlaybackLabel {

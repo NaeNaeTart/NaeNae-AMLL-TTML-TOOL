@@ -8,7 +8,8 @@ export type GuideStepId =
 	| "sync"
 	| "songwriters"
 	| "export"
-	| "test";
+	| "test"
+	| "vgz";
 
 export const GUIDE_STEP_IDS: GuideStepId[] = [
 	"intro",
@@ -19,6 +20,7 @@ export const GUIDE_STEP_IDS: GuideStepId[] = [
 	"songwriters",
 	"export",
 	"test",
+	"vgz",
 ];
 
 const DOCS_BASE = "https://docs.tx24.dev/guides/ttml.html";
@@ -32,6 +34,7 @@ const GUIDE_ANCHORS: Record<GuideStepId, string> = {
 	songwriters: "#_5-add-songwriters",
 	export: "#_6-export-and-test-the-ttml",
 	test: "#test-locally",
+	vgz: "",
 };
 
 export const getGuideStepNumber = (step: number) => ({

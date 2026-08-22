@@ -61,11 +61,12 @@ describe("beginner guide navigation", () => {
 			"songwriters",
 			"export",
 			"test",
+			"vgz",
 		]);
-		expect(getGuideStepNumber(0)).toEqual({ current: 0, total: 7 });
-		expect(getGuideStepNumber(7)).toEqual({ current: 7, total: 7 });
+		expect(getGuideStepNumber(0)).toEqual({ current: 0, total: 8 });
+		expect(getGuideStepNumber(8)).toEqual({ current: 8, total: 8 });
 		expect(getGuideProgress(0)).toBe(0);
-		expect(getGuideProgress(7)).toBe(100);
+		expect(getGuideProgress(8)).toBe(100);
 	});
 
 	it("builds URLs using the documentation's generated heading IDs", () => {

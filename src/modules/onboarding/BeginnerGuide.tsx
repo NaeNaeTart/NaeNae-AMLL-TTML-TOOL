@@ -39,6 +39,7 @@ import {
 	importFromTextDialogAtom,
 	lyricallyImportLyricsDialogAtom,
 	metadataEditorDialogAtom,
+	projectsDialogAtom,
 	settingsDialogAtom,
 	settingsTabAtom,
 } from "$/states/dialogs";
@@ -49,6 +50,7 @@ import {
 	toolModeAtom,
 } from "$/states/main";
 import { saveFile } from "$/utils/fileSystem";
+import { openExternal } from "$/utils/openExternal";
 import {
 	GUIDE_STEP_IDS,
 	getGuideProgress,
@@ -100,6 +102,10 @@ const GUIDE_COPY = {
 		title: "Test locally",
 		text: "Upload the saved file in Spicy Lyrics and check parsing, formatting, and timing.",
 	},
+	vgz: {
+		title: "VGZ fork features",
+		text: "This fork adds extras such as the split spectrogram, reverse playback zones, F/G/H hover sync, editor auto-scroll, and multi-track background editing. They are labeled with a VGZ badge in Settings.",
+	},
 } as const;
 
 export const startBeginnerGuide = (
@@ -132,6 +138,8 @@ export const BeginnerGuide = () => {
 	const setImportLrclib = useSetAtom(importFromLRCLIBDialogAtom);
 	const setImportLyrically = useSetAtom(lyricallyImportLyricsDialogAtom);
 	const setMetadata = useSetAtom(metadataEditorDialogAtom);
+	const setProjectsDialog = useSetAtom(projectsDialogAtom);
+	const [projectsIntroOpen, setProjectsIntroOpen] = useState(false);
 	const setToolMode = useSetAtom(toolModeAtom);
 	const setSettingsOpen = useSetAtom(settingsDialogAtom);
 	const setSettingsTab = useSetAtom(settingsTabAtom);
@@ -200,6 +208,11 @@ export const BeginnerGuide = () => {
 		setExported(false);
 		startBeginnerGuide(setWelcomeOpen, setPanelOpen, setStep);
 	}, [setExported, setPanelOpen, setStep, setWelcomeOpen]);
+
+	const startAtProjects = useCallback(() => {
+		setWelcomeOpen(false);
+		setProjectsIntroOpen(true);
+	}, [setWelcomeOpen]);
 
 	const openExisting = useCallback(() => {
 		const input = document.createElement("input");
@@ -289,8 +302,6 @@ export const BeginnerGuide = () => {
 			});
 			if (saved) setExported(true);
 		}
-		if (id === "test")
-			window.open(getGuideUrl("test"), "_blank", "noopener,noreferrer");
 	}, [
 		lyrics,
 		pickAudio,
@@ -313,6 +324,10 @@ export const BeginnerGuide = () => {
 	const currentId = GUIDE_STEP_IDS[Math.min(step, GUIDE_STEP_IDS.length - 1)];
 	const copy = GUIDE_COPY[currentId];
 	const stepNumber = getGuideStepNumber(step);
+	const manualContinueStep =
+		currentId === "intro" ||
+		currentId === "test" ||
+		currentId === "vgz";
 	const waitingText =
 		currentId === "intro"
 			? "Read the full guide, then continue when you are ready to begin."
@@ -330,7 +345,9 @@ export const BeginnerGuide = () => {
 								? "Open metadata and add at least one non-empty Songwriter value."
 								: currentId === "export"
 									? "Choose Save TTML and complete the file picker."
-									: "Open the local testing instructions, verify the file in Spicy Lyrics, then finish the guide.";
+									: currentId === "test"
+										? "Open the local testing instructions and verify the file in Spicy Lyrics."
+										: "Browse the VGZ-labeled fork features in Settings, then finish the guide.";
 
 	useEffect(() => {
 		if (!panelOpen) return;
@@ -373,6 +390,12 @@ export const BeginnerGuide = () => {
 						<Button size="3" onClick={start}>
 							{t("beginnerGuide.welcome.own", "Guide me through my first TTML")}
 						</Button>
+						<Button variant="outline" onClick={startAtProjects}>
+							{t(
+								"beginnerGuide.welcome.projects",
+								"First time? Learn how projects work",
+							)}
+						</Button>
 						<Button variant="outline" onClick={openExisting}>
 							{t("beginnerGuide.welcome.open", "Open an existing TTML")}
 						</Button>
@@ -386,6 +409,63 @@ export const BeginnerGuide = () => {
 						>
 							{t("beginnerGuide.welcome.skip", "Skip for now")}
 						</Button>
+					</Flex>
+				</Dialog.Content>
+			</Dialog.Root>
+			<Dialog.Root open={projectsIntroOpen} onOpenChange={setProjectsIntroOpen}>
+				<Dialog.Content maxWidth="520px">
+					<Dialog.Title>
+						{t("beginnerGuide.projectsIntro.title", "How folder projects work")}
+					</Dialog.Title>
+					<Dialog.Description>
+						{t(
+							"beginnerGuide.projectsIntro.description",
+							"A project is simply a folder that keeps everything for one song together.",
+						)}
+					</Dialog.Description>
+					<Flex direction="column" gap="3" mt="4">
+						<Text size="2">
+							{t(
+								"beginnerGuide.projectsIntro.point1",
+								"• Your audio, the .ttml lyric file, and an optional .lyricsfile.yaml companion live side by side, described by a small project.json manifest.",
+							)}
+						</Text>
+						<Text size="2">
+							{t(
+								"beginnerGuide.projectsIntro.point2",
+								"• Recent projects are remembered, so reopening a song restores its audio and lyrics in one click.",
+							)}
+						</Text>
+						<Text size="2">
+							{t(
+								"beginnerGuide.projectsIntro.point3",
+								"• You can switch the active format between TTML and Lyricsfile YAML at any time without losing work.",
+							)}
+						</Text>
+						<Text size="2" color="gray">
+							{t(
+								"beginnerGuide.projectsIntro.note",
+								"Creating one is optional — if you skip it, everything keeps working exactly the same with individual files.",
+							)}
+						</Text>
+						<Flex gap="2" justify="end" mt="2">
+							<Button
+								variant="ghost"
+								color="gray"
+								onClick={() => setProjectsIntroOpen(false)}
+							>
+								{t("common.close", "Close")}
+							</Button>
+							<Button
+								onClick={() => {
+									setProjectsIntroOpen(false);
+									setCompletion("dismissed");
+									setProjectsDialog(true);
+								}}
+							>
+								{t("beginnerGuide.projectsIntro.open", "Open Projects")}
+							</Button>
+						</Flex>
 					</Flex>
 				</Dialog.Content>
 			</Dialog.Root>
@@ -581,6 +661,30 @@ export const BeginnerGuide = () => {
 								{currentId === "lyrics" && !stepComplete && (
 									<ImportSourceCards compact onSelect={openImportSource} />
 								)}
+								{currentId === "test" && (
+									<Button
+										size="2"
+										variant="soft"
+										onClick={() => void openExternal(getGuideUrl("test"))}
+									>
+										{t("beginnerGuide.test.open", "Open testing steps")}
+									</Button>
+								)}
+								{currentId === "vgz" && (
+									<Button
+										size="2"
+										variant="soft"
+										onClick={() => {
+											setSettingsTab("common");
+											setSettingsOpen(true);
+										}}
+									>
+										{t(
+											"beginnerGuide.steps.vgz.openSettings",
+											"Open VGZ features in Settings",
+										)}
+									</Button>
+								)}
 								<Flex gap="1" justify="between" align="center">
 									<Button
 										size="2"
@@ -594,45 +698,39 @@ export const BeginnerGuide = () => {
 										size="2"
 										variant="ghost"
 										onClick={() =>
-											window.open(
-												getGuideUrl(currentId),
-												"_blank",
-												"noopener,noreferrer",
-											)
+											void openExternal(getGuideUrl(currentId))
 										}
 									>
 										<BookOpen24Regular />{" "}
 										{t("beginnerGuide.readMore", "Full guide")}
 									</Button>
-									{currentId === "intro" || stepComplete ? (
-										<Button
-											size="2"
-											color={stepComplete ? "green" : undefined}
-											onClick={continueGuide}
-										>
-											{t("beginnerGuide.continue", "Continue")}
-										</Button>
-									) : currentId === "lyrics" ? null : (
-										<Button size="2" onClick={() => void doAction()}>
-											{currentId === "review"
-												? t(
-														"beginnerGuide.review.confirm",
-														"I checked the lyrics",
-													)
-												: currentId === "test"
-													? t("beginnerGuide.test.open", "Open testing steps")
-													: currentId === "audio"
-														? t("beginnerGuide.audio.choose", "Choose audio")
-														: currentId === "sync"
-															? t("beginnerGuide.sync.open", "Open Time mode")
-															: currentId === "songwriters"
-																? t(
-																		"beginnerGuide.songwriters.open",
-																		"Open metadata",
-																	)
-																: t("beginnerGuide.export.save", "Save TTML")}
-										</Button>
-									)}
+								{manualContinueStep || stepComplete ? (
+									<Button
+										size="2"
+										color={stepComplete ? "green" : undefined}
+										onClick={continueGuide}
+									>
+										{t("beginnerGuide.continue", "Continue")}
+									</Button>
+								) : currentId === "lyrics" ? null : (
+									<Button size="2" onClick={() => void doAction()}>
+										{currentId === "review"
+											? t(
+													"beginnerGuide.review.confirm",
+													"I checked the lyrics",
+												)
+											: currentId === "audio"
+												? t("beginnerGuide.audio.choose", "Choose audio")
+												: currentId === "sync"
+													? t("beginnerGuide.sync.open", "Open Time mode")
+													: currentId === "songwriters"
+														? t(
+																"beginnerGuide.songwriters.open",
+																"Open metadata",
+															)
+														: t("beginnerGuide.export.save", "Save TTML")}
+									</Button>
+								)}
 								</Flex>
 								{currentId === "lyrics" && showGeniusSetup && !geniusApiKey && (
 									<Card variant="surface">
@@ -688,11 +786,7 @@ export const BeginnerGuide = () => {
 												<Button
 													variant="soft"
 													onClick={() =>
-														window.open(
-															"https://genius.com/api-clients",
-															"_blank",
-															"noopener,noreferrer",
-														)
+														void openExternal("https://genius.com/api-clients")
 													}
 												>
 													{t(
@@ -710,11 +804,11 @@ export const BeginnerGuide = () => {
 										</Flex>
 									</Card>
 								)}
-								{currentId === "test" && (
-									<Button color="green" onClick={finish}>
-										{t("beginnerGuide.finish", "Finish guide")}
-									</Button>
-								)}
+							{currentId === "vgz" && (
+								<Button color="green" onClick={finish}>
+									{t("beginnerGuide.finish", "Finish guide")}
+								</Button>
+							)}
 							</Flex>
 						</Card>
 					</motion.div>

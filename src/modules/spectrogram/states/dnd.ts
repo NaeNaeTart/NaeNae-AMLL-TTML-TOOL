@@ -8,6 +8,7 @@ type DividerDragOperation = {
 	zoom: number;
 	startX: number;
 	isGapCreation: boolean;
+	virtual?: boolean;
 };
 
 type WordPanOperation = {
@@ -16,6 +17,7 @@ type WordPanOperation = {
 	wordId: string;
 	initialMouseTimeMS: number;
 	initialWordStartMS: number;
+	virtual?: boolean;
 };
 
 type LinePanOperation = {
@@ -23,6 +25,7 @@ type LinePanOperation = {
 	lineId: string;
 	initialMouseTimeMS: number;
 	initialLineStartMS: number;
+	virtual?: boolean;
 };
 
 export type TimelineDragOperation =

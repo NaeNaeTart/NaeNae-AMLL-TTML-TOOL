@@ -307,22 +307,16 @@ export const AudioSlider = memo(() => {
 
 		let frameId: number | null = null;
 		let anchorAudioTime = 0;
-		let anchorRealTime = performance.now();
 		let isDestroyed = false;
 
 		const syncClock = () => {
 			anchorAudioTime = audioEngine.musicCurrentTime;
-			anchorRealTime = performance.now();
 			setCurrentTime(Math.round(anchorAudioTime * 1000));
 		};
 
 		const handleTimeUpdate = () => {
-			const elapsed = (performance.now() - anchorRealTime) / 1000;
-			const interpolatedTime =
-				anchorAudioTime + elapsed * audioEngine.musicPlayBackRate;
-
 			// Correct stalls and long frame gaps without resetting the smooth clock.
-			if (Math.abs(audioEngine.musicCurrentTime - interpolatedTime) > 0.1) {
+			if (Math.abs(audioEngine.musicCurrentTime - audioEngine.interpolatedCurrentTime) > 0.1) {
 				syncClock();
 			}
 		};
@@ -333,10 +327,9 @@ export const AudioSlider = memo(() => {
 				return;
 			}
 
-			const elapsed = (performance.now() - anchorRealTime) / 1000;
-			const currentTime =
-				anchorAudioTime + elapsed * audioEngine.musicPlayBackRate;
-			setCurrentTime(Math.round(currentTime * 1000));
+			setCurrentTime(
+				Math.round(audioEngine.interpolatedCurrentTime * 1000),
+			);
 			frameId = requestAnimationFrame(onFrame);
 		};
 

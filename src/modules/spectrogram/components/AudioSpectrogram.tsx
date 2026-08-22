@@ -758,6 +758,7 @@ export const AudioSpectrogram: FC = memo(() => {
 										</>
 									)}
 
+								<SpectrogramContext.Provider value={contextValue}>
 									{reverseZone && (
 										<ReversePlaybackZone
 											zone={reverseZone}
@@ -767,6 +768,7 @@ export const AudioSpectrogram: FC = memo(() => {
 											onCancel={cancelZone}
 										/>
 									)}
+								</SpectrogramContext.Provider>
 									{reversePlaybackStart !== null && (
 										<div
 											className={styles.reversePlaybackStartCursor}

@@ -69,17 +69,18 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 
 			switch (timelineDrag.type) {
 				case "divider": {
-					const { startX, lineId, segmentIndex, isGapCreation, zoom } =
+					const { startX, lineId, segmentIndex, isGapCreation, zoom, virtual } =
 						timelineDrag;
 					const lineBeingDragged = processedLines.find((l) => l.id === lineId);
 					if (!lineBeingDragged) return;
 
 					const deltaX = event.clientX - startX;
 					const deltaTimeMs = Math.round((deltaX / zoom) * 1000);
+					const effectiveDeltaTimeMs = virtual ? -deltaTimeMs : deltaTimeMs;
 					let newTime =
 						(segmentIndex === -1
 							? lineBeingDragged.startTime
-							: lineBeingDragged.segments[segmentIndex].endTime) + deltaTimeMs;
+							: lineBeingDragged.segments[segmentIndex].endTime) + effectiveDeltaTimeMs;
 
 					if (!event.shiftKey) {
 						let closestSnapTime: number | null = null;
@@ -109,8 +110,13 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 				}
 
 				case "word-pan": {
-					const { lineId, wordId, initialMouseTimeMS, initialWordStartMS } =
-						timelineDrag;
+					const {
+						lineId,
+						wordId,
+						initialMouseTimeMS,
+						initialWordStartMS,
+						virtual,
+					} = timelineDrag;
 					const processedLine = processedLines.find((l) => l.id === lineId);
 					if (!processedLine) return;
 
@@ -121,7 +127,8 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 					const mouseXPx = event.clientX - rect.left;
 					const currentMouseTimeMS = ((scrollLeft + mouseXPx) / zoom) * 1000;
 					const timeDeltaMS = currentMouseTimeMS - initialMouseTimeMS;
-					const desiredNewStartMS = initialWordStartMS + timeDeltaMS;
+					const desiredNewStartMS =
+						initialWordStartMS + (virtual ? -timeDeltaMS : timeDeltaMS);
 
 					const preview = getUpdatedLineForWordPan(
 						processedLine,
@@ -133,7 +140,7 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 					break;
 				}
 				case "line-pan": {
-					const { lineId, initialMouseTimeMS, initialLineStartMS } =
+					const { lineId, initialMouseTimeMS, initialLineStartMS, virtual } =
 						timelineDrag;
 					const processedLine = processedLines.find((l) => l.id === lineId);
 					if (!processedLine) return;
@@ -145,7 +152,8 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 					const mouseXPx = event.clientX - rect.left;
 					const currentMouseTimeMS = ((scrollLeft + mouseXPx) / zoom) * 1000;
 					const timeDeltaMS = currentMouseTimeMS - initialMouseTimeMS;
-					const desiredNewStartMS = initialLineStartMS + timeDeltaMS;
+					const desiredNewStartMS =
+						initialLineStartMS + (virtual ? -timeDeltaMS : timeDeltaMS);
 
 					const preview = getUpdatedLineForLinePan(
 						processedLine,
@@ -266,7 +274,9 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 	if (reverseZone) {
 		linesToRender = linesToRender.filter((line) => {
 			if (line.startTime == null || line.endTime == null) return true;
-			return line.endTime <= reverseZone.start || line.startTime >= reverseZone.end;
+			const isFullyInside =
+				line.startTime >= reverseZone.start && line.endTime <= reverseZone.end;
+			return !isFullyInside;
 		});
 	}
 

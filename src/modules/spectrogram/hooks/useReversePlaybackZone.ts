@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom, useStore } from "jotai";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import {
 	cmdReversePlaybackEnd,
@@ -68,23 +68,43 @@ export function useReversePlaybackZone() {
 	const setReverseZone = useSetAtom(reversePlaybackZoneAtom);
 
 	const completeZone = useCallback(
-		(start: number, end: number, lineIds: string[]) => {
+		(zone: { start: number; end: number }) => {
+			const overlappingIds = store
+				.get(lyricLinesAtom)
+				.lyricLines.filter(
+					(line) =>
+						line.startTime != null &&
+						line.endTime != null &&
+						line.endTime > zone.start &&
+						line.startTime < zone.end,
+				)
+				.map((line) => line.id);
+
 			store.set(lyricLinesAtom, (state) => ({
 				...state,
 				lyricLines: state.lyricLines.map((line) =>
-					lineIds.includes(line.id) ? mirrorLineTiming(line, start, end) : line,
+					overlappingIds.includes(line.id)
+						? mirrorLineTiming(line, zone.start, zone.end)
+						: line,
 				),
 			}));
-			setReverseZone((zone) =>
-				zone ? { ...zone, status: "completed" } : null,
+
+			setReverseZone((current) =>
+				current
+					? {
+							...current,
+							status: "completed",
+							mirrored: true,
+							lineIds: overlappingIds,
+						}
+					: null,
 			);
-			audioEngine.seekMusic(start / 1000);
 
 			const zoom = store.get(spectrogramZoomAtom);
 			const currentScroll = store.get(spectrogramScrollLeftAtom);
 			const containerWidth = store.get(spectrogramContainerWidthAtom);
-			const zoneStartPx = (start / 1000) * zoom;
-			const zoneEndPx = (end / 1000) * zoom;
+			const zoneStartPx = (zone.start / 1000) * zoom;
+			const zoneEndPx = (zone.end / 1000) * zoom;
 			const isVisible =
 				zoneStartPx < currentScroll + containerWidth &&
 				zoneEndPx > currentScroll;
@@ -98,9 +118,8 @@ export function useReversePlaybackZone() {
 	);
 
 	const cancelZone = useCallback(() => {
-		audioEngine.stopReversePlayback();
 		const zone = store.get(reversePlaybackZoneAtom);
-		if (zone && zone.status === "playing") {
+		if (zone?.mirrored) {
 			store.set(lyricLinesAtom, (state) => ({
 				...state,
 				lyricLines: state.lyricLines.map((line) =>
@@ -122,12 +141,13 @@ export function useReversePlaybackZone() {
 		);
 	}, [setReverseStart, store]);
 
-	const startPlayback = useCallback(() => {
+	const endMarking = useCallback(() => {
 		if (!store.get(reversePlaybackEnabledAtom)) return;
 		if (!store.get(spectrogramIsHoveringAtom)) return;
 		const start = store.get(reversePlaybackStartAtom);
+		if (start === null) return;
 		const end = Math.max(0, Math.round(store.get(spectrogramHoverTimeMsAtom)));
-		if (start === null || end - start < 10) return;
+		if (end - start < 10) return;
 
 		const selectedLineIds = [...store.get(selectedLinesAtom)];
 		const reverseLineIds = store.get(reverseSyncLineIdsAtom);
@@ -136,14 +156,29 @@ export function useReversePlaybackZone() {
 		);
 
 		setReverseStart(null);
-		setReverseZone({ start, end, lineIds, status: "playing" });
-		void audioEngine.playReversedRange(start / 1000, end / 1000, () =>
-			completeZone(start, end, lineIds),
-		);
-	}, [completeZone, setReverseStart, setReverseZone, store]);
+		setReverseZone({ start, end, lineIds, status: "ready", mirrored: false });
+	}, [setReverseStart, setReverseZone, store]);
 
 	useCommand(cmdReversePlaybackStart, markStart, [markStart]);
-	useCommand(cmdReversePlaybackEnd, startPlayback, [startPlayback]);
+	useCommand(cmdReversePlaybackEnd, endMarking, [endMarking]);
+
+	useEffect(() => {
+		audioEngine.setReverseZones(
+			reverseZone ? [{ start: reverseZone.start, end: reverseZone.end }] : [],
+		);
+		return () => audioEngine.setReverseZones([]);
+	}, [reverseZone]);
+
+	useEffect(() => {
+		audioEngine.onZoneCrossingComplete = () => {
+			const zone = store.get(reversePlaybackZoneAtom);
+			if (!zone || zone.mirrored) return;
+			completeZone({ start: zone.start, end: zone.end });
+		};
+		return () => {
+			audioEngine.onZoneCrossingComplete = null;
+		};
+	}, [completeZone, store]);
 
 	return { reverseZone, cancelZone };
 }

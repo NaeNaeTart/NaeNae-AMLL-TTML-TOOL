@@ -4,7 +4,8 @@ export type ReversePlaybackZone = {
 	start: number;
 	end: number;
 	lineIds: string[];
-	status: "playing" | "completed";
+	status: "ready" | "completed";
+	mirrored: boolean;
 };
 
 export const reversePlaybackStartAtom = atom<number | null>(null);
