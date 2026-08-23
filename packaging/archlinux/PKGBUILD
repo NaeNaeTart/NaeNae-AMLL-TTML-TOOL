@@ -1,5 +1,5 @@
 pkgname=amll-ttml-tool-git
-pkgver=0.9.10.r9.g32c57a6
+pkgver=0.9.11.r1080.ge090733
 pkgrel=1
 pkgdesc="A brand-new syllable lyric editor for Apple Music-like lyrics"
 arch=('x86_64')
@@ -36,7 +36,10 @@ sha256sums=(
 
 pkgver() {
   cd NaeNae-AMLL-TTML-TOOL
-  git describe --long --tags --abbrev=7 | sed 's/\([^-]*-g\)/r\1/;s/-/./g' | sed 's/^v//'
+  _ver=$(node -p "require('./package.json').version" 2>/dev/null || echo "0.9.11")
+  _rev=$(git rev-list --count HEAD)
+  _hash=$(git rev-parse --short=7 HEAD)
+  printf "%s.r%s.g%s" "$_ver" "$_rev" "$_hash"
 }
 
 prepare() {
