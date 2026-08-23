@@ -55,6 +55,18 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="blue">
+								v0.9.11 Updates (Reliable Export Settings)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Remembered Background Vocal Export:</strong> Fixed
+									exports sometimes ignoring the saved consecutive and standalone
+									background-vocal setting until it was toggled again.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.9.10 Updates (Guides & Background Vocals)
 							</Heading>
