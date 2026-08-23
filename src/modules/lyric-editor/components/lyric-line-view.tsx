@@ -805,6 +805,7 @@ export const LyricLineView: FC<{
 							toolMode === ToolMode.Edit ? "" : undefined
 						}
 						data-lyric-line-id={line.id}
+						data-lyric-line-index={lineIndex}
 						style={{
 							...(isSectionStart ? { marginTop: "16px" } : {}),
 						}}

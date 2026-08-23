@@ -55,6 +55,34 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="blue">
+								v0.9.11 Updates (Scaling & Export Settings)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Focused Default Dark Theme:</strong> Reworked the modern
+									dark theme with clearer charcoal layers, quieter labels, tighter
+									lyric cards, and crimson reserved for active states and primary
+									actions. The legacy theme remains unchanged.
+								</Text>
+								<Text size="2">
+									<strong>Adjustable Interface Scale:</strong> Resize the whole app
+									from Appearance settings or with Ctrl/Cmd +, -, and 0 shortcuts,
+									with the chosen scale remembered across sessions.
+								</Text>
+								<Text size="2">
+									<strong>Remembered Background Vocal Export:</strong> Fixed
+									exports sometimes ignoring the saved consecutive and standalone
+									background-vocal setting until it was toggled again.
+								</Text>
+								<Text size="2">
+									<strong>Stable Mode Switching:</strong> Switching between Edit and
+									Time mode now keeps the same lyric line in view without centering
+									lines selected while editing.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.9.10 Updates (Guides & Background Vocals)
 							</Heading>

@@ -30,6 +30,8 @@ identifier = "core:window:allow-unmaximize"
 [[permissions]]
 identifier = "core:window:allow-set-effects"
 [[permissions]]
+identifier = "core:webview:allow-set-webview-zoom"
+[[permissions]]
 identifier = "decorum:allow-show-snap-overlay"
 [[permissions]]
 identifier = "shell:allow-open"

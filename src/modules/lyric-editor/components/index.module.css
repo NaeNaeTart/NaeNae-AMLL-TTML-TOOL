@@ -306,7 +306,6 @@
 		background-color 0.1s ease,
 		box-shadow 0.1s ease;
 
-
 	&.dropTop {
 		border-top: solid 3px var(--accent-a11);
 	}
@@ -497,6 +496,97 @@
 		box-shadow: 0 0 0 2px var(--accent-a11);
 		background-color: var(--accent-a4);
 	}
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricWord.edit {
+	border: 1px solid var(--editor-chip-border);
+	background-color: var(--editor-chip-bg);
+	box-shadow: none;
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricWord.edit:not(.error):hover {
+	box-shadow: 0 0 0 var(--global-border-width, 2px) var(--accent-a5);
+	background-color: var(--line-hover-bg, var(--accent-a3));
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricWord.edit.selected:not(.error) {
+	box-shadow: 0 0 0 var(--global-border-width, 2px) var(--accent-a11);
+	background-color: var(--active-line-bg, var(--accent-a3));
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricWord.edit.selected:not(.error):hover {
+	box-shadow: 0 0 0 2px var(--accent-a11);
+	background-color: var(--accent-a4);
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricLine {
+	position: relative;
+	overflow: hidden;
+	border-style: solid;
+	border-color: var(--editor-line-border);
+	border-radius: var(--global-radius, var(--editor-line-radius));
+	background-color: var(--editor-line-bg);
+	box-shadow: var(--editor-line-shadow);
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricLine::before {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: var(--selected-line-rail-width);
+	background: var(--accent-9);
+	content: "";
+	opacity: 0;
+	transition: opacity 0.1s ease;
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricLine:not(.error):hover {
+	box-shadow: var(--editor-line-hover-shadow);
+	background-color: var(--editor-line-hover);
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricLine.selected:not(.error) {
+	border-color: var(--editor-selected-line-border);
+	box-shadow: var(--editor-selected-line-shadow);
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricLine.selected:not(.error)::before {
+	opacity: 1;
+}
+
+:global(
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	)
+	.lyricLine.selected:not(.error):hover {
+	border-color: var(--editor-selected-line-hover-border);
+	box-shadow: var(--editor-selected-line-shadow);
+	background-color: var(--accent-a4);
 }
 
 
