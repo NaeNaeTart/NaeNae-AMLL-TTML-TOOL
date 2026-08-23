@@ -503,7 +503,6 @@
 	)
 	.lyricWord.edit {
 	border: 1px solid var(--editor-chip-border);
-	border-radius: var(--chip-radius, var(--editor-chip-radius));
 	background-color: var(--editor-chip-bg);
 	box-shadow: none;
 }
