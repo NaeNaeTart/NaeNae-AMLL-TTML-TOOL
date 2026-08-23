@@ -60,6 +60,12 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Focused Default Dark Theme:</strong> Reworked the modern
+									dark theme with clearer charcoal layers, quieter labels, tighter
+									lyric cards, and crimson reserved for active states and primary
+									actions. The legacy theme remains unchanged.
+								</Text>
+								<Text size="2">
 									<strong>Adjustable Interface Scale:</strong> Resize the whole app
 									from Appearance settings or with Ctrl/Cmd +, -, and 0 shortcuts,
 									with the chosen scale remembered across sessions.

@@ -10,6 +10,7 @@ import { HelpMenu } from "./modals/HelpMenu";
 import { HomeMenu } from "./modals/HomeMenu";
 import { ToolMenu } from "./modals/ToolMenu";
 import { useTopMenuActions } from "./useTopMenuActions";
+import styles from "./index.module.css";
 
 import {
 	keyAutoSegmentAtom,
@@ -114,7 +115,7 @@ export const TopMenu: FC = () => {
 			{showHomeButton ? (
 				<HomeMenu />
 			) : (
-				<Toolbar.Root>
+				<Toolbar.Root className={styles.topMenuToolbar}>
 					<FileMenu
 						variant="toolbar"
 						buttonStyle={{

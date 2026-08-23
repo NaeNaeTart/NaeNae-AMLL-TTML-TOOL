@@ -29,6 +29,8 @@ export const RibbonBar = memo(
 			<Card
 				data-guide-target="ribbon"
 				style={{
+					"--card-background-color":
+						"var(--ribbon-bg, var(--titlebar-bg, var(--color-panel-translucent)))",
 					minHeight: isSidebar ? "100%" : "fit-content",
 					minWidth: isSidebar ? "240px" : undefined,
 					maxWidth: isSidebar ? "240px" : undefined,
@@ -38,7 +40,8 @@ export const RibbonBar = memo(
 					borderRight: position === "left" ? "1px solid var(--gray-5)" : "none",
 					borderTop: position === "bottom" ? "1px solid var(--gray-5)" : "none",
 					borderBottom: position === "top" ? "1px solid var(--gray-5)" : "none",
-					backgroundColor: "var(--titlebar-bg, var(--color-panel-translucent))",
+					backgroundColor:
+						"var(--ribbon-bg, var(--titlebar-bg, var(--color-panel-translucent)))",
 					backdropFilter: "blur(var(--custom-backdrop-blur, 16px)) saturate(160%)",
 					zIndex: 10,
 				}}

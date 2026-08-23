@@ -116,21 +116,21 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 						flexGrow="1"
 						align="center"
 					>
-						<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+						<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 							{t("ribbonBar.previewMode.simpleLyrics", "Simple lyrics")}
 						</Text>
 						<Checkbox
 							checked={spicySimpleMode}
 							onCheckedChange={(v) => setSpicySimpleMode(!!v)}
 						/>
-						<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+						<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 							{t("ribbonBar.previewMode.forceLineRendering", "Force line rendering")}
 						</Text>
 						<Checkbox
 							checked={spicyForceLineSynced}
 							onCheckedChange={(v) => setSpicyForceLineSynced(!!v)}
 						/>
-						<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+						<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 							{t("ribbonBar.previewMode.background", "Background")}
 						</Text>
 						<SegmentedControl.Root
@@ -162,21 +162,21 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					flexGrow="1"
 					align="center"
 				>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 						{t("ribbonBar.previewMode.showTranslation", "显示翻译")}
 					</Text>
 					<Checkbox
 						checked={showTranslationLine}
 						onCheckedChange={(v) => setShowTranslationLine(!!v)}
 					/>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 						{t("ribbonBar.previewMode.showRoman", "显示音译")}
 					</Text>
 					<Checkbox
 						checked={showRomanLine}
 						onCheckedChange={(v) => setShowRomanLine(!!v)}
 					/>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 						{t("ribbonBar.previewMode.maskObsceneWords", "屏蔽不雅用语")}
 					</Text>
 					<Checkbox
@@ -196,7 +196,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					flexGrow="1"
 					align="center"
 				>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 						{t("ribbonBar.previewMode.fadeWidth", "过渡宽度")}
 					</Text>
 					<TextField.Root
@@ -214,7 +214,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 							}
 						}}
 					/>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 						{t("ribbonBar.previewMode.instantFade", "即时淡出")}
 					</Text>
 					<Checkbox
@@ -234,7 +234,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					flexGrow="1"
 					align="center"
 				>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 						{"V-Sync"}
 					</Text>
 					<Checkbox checked={vsync} onCheckedChange={(v) => setVsync(!!v)} />
@@ -248,7 +248,7 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					flexGrow="1"
 					align="center"
 				>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 						{t("ribbonBar.previewMode.showFps", "Show FPS")}
 					</Text>
 					<Checkbox

@@ -32,12 +32,12 @@ export const RibbonSection: FC<PropsWithChildren<{ label: ReactNode; isSidebar?:
 				{children}
 			</Flex>
 			{!isSidebar && (
-				<Flex align="center" justify="center" px="2" style={{ color: "var(--accent-11)", fontSize: "var(--font-size-1)", whiteSpace: "nowrap" }}>
+				<Flex align="center" justify="center" px="2" style={{ color: "var(--ribbon-label-color)", fontSize: "var(--font-size-1)", whiteSpace: "nowrap" }}>
 					{label}
 				</Flex>
 			)}
 			{isSidebar && label && (
-				<Flex px="3" py="1" style={{ backgroundColor: "var(--accent-3)", color: "var(--accent-11)", fontSize: "10px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+				<Flex px="3" py="1" style={{ backgroundColor: "var(--accent-3)", color: "var(--ribbon-label-color)", fontSize: "10px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
 					{label}
 				</Flex>
 			)}

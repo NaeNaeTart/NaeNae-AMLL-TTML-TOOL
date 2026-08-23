@@ -15,39 +15,57 @@
 .radix-themes {
 	--default-font-family:
 		"MiSans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+	--ribbon-label-color: var(--accent-11);
 }
 
 .radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"]) {
-	--gray-1: #080809 !important;
-	--gray-2: #0d0d0f !important;
-	--gray-3: #131316 !important;
-	--gray-4: #18181c !important;
-	--gray-5: #1d1d22 !important;
-	--gray-6: #252529 !important;
-	--gray-7: #303038 !important;
-	--gray-8: #424249 !important;
-	--gray-9: #585866 !important;
-	--gray-10: #717180 !important;
-	--gray-11: #b2b2ba !important;
-	--gray-12: #ededef !important;
+	--gray-1: #0c0f12 !important;
+	--gray-2: #121619 !important;
+	--gray-3: #171d21 !important;
+	--gray-4: #1d2328 !important;
+	--gray-5: #252d33 !important;
+	--gray-6: #2f383f !important;
+	--gray-7: #3d484f !important;
+	--gray-8: #4f5c67 !important;
+	--gray-9: #6f7c87 !important;
+	--gray-10: #8f9ba5 !important;
+	--gray-11: #cad3db !important;
+	--gray-12: #ffffff !important;
 
-	--gray-a1: rgba(8, 8, 9, 0.05) !important;
-	--gray-a2: rgba(13, 13, 15, 0.1) !important;
-	--gray-a3: rgba(19, 19, 22, 0.15) !important;
-	--gray-a4: rgba(24, 24, 28, 0.2) !important;
-	--gray-a5: rgba(13, 13, 15, 0.82) !important;
-	--gray-a6: rgba(37, 37, 41, 0.45) !important;
-	--gray-a7: rgba(48, 48, 56, 0.6) !important;
-	--gray-a8: rgba(66, 66, 73, 0.8) !important;
-	--gray-a9: rgba(88, 88, 102, 1.0) !important;
-	--gray-a10: rgba(113, 113, 128, 1.0) !important;
-	--gray-a11: rgba(178, 178, 186, 1.0) !important;
-	--gray-a12: rgba(237, 237, 239, 1.0) !important;
+	--gray-a1: rgba(255, 255, 255, 0.02) !important;
+	--gray-a2: rgba(255, 255, 255, 0.035) !important;
+	--gray-a3: rgba(255, 255, 255, 0.055) !important;
+	--gray-a4: rgba(255, 255, 255, 0.075) !important;
+	--gray-a5: rgba(255, 255, 255, 0.1) !important;
+	--gray-a6: rgba(255, 255, 255, 0.14) !important;
+	--gray-a7: rgba(255, 255, 255, 0.2) !important;
+	--gray-a8: rgba(255, 255, 255, 0.3) !important;
+	--gray-a9: rgba(255, 255, 255, 0.42) !important;
+	--gray-a10: rgba(255, 255, 255, 0.55) !important;
+	--gray-a11: rgba(255, 255, 255, 0.72) !important;
+	--gray-a12: rgba(255, 255, 255, 0.95) !important;
 
-	--color-background: #060607 !important;
-	--editor-bg: #0b0b0d !important;
-	--color-panel-solid: var(--gray-2) !important;
-	--color-panel-translucent: var(--gray-a5) !important;
+	--color-background: #090c0e !important;
+	--editor-bg: #0e1316 !important;
+	--titlebar-bg: #13181d !important;
+	--ribbon-bg: #1d252b !important;
+	--audio-bar-bg: #0d1215 !important;
+	--color-panel-solid: #14191e !important;
+	--color-panel-translucent: rgba(20, 25, 30, 0.96) !important;
+	--editor-line-bg: #12171c;
+	--editor-line-border: rgba(255, 255, 255, 0.065);
+	--editor-line-hover: rgba(255, 255, 255, 0.025);
+	--editor-chip-bg: #181f23;
+	--editor-chip-border: rgba(255, 255, 255, 0.07);
+	--editor-chip-radius: var(--radius-2);
+	--editor-line-radius: var(--radius-2);
+	--editor-line-shadow: none;
+	--editor-line-hover-shadow: none;
+	--editor-selected-line-border: var(--accent-a5);
+	--editor-selected-line-hover-border: var(--accent-a6);
+	--editor-selected-line-shadow: none;
+	--selected-line-rail-width: 3px;
+	--ribbon-label-color: var(--gray-10);
 }
 
 ::selection {

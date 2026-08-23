@@ -68,7 +68,7 @@ const EmptyBeatField = () => {
 
 	return (
 		<>
-			<Text wrap="nowrap" size="1" style={{ color: "var(--accent-11)" }}>
+			<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
 				{t("ribbonBar.syncMode.currentEmptyBeat", "当前空拍")}
 			</Text>
 			<Slider
@@ -158,7 +158,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.timeOffset", "时间戳位移")}
 							</Text>
@@ -180,7 +180,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.commitOffset", "Commit Offset")}
 							</Text>
@@ -242,7 +242,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.showTimestampUpdate", "呈现时间戳更新")}
 							</Text>
@@ -253,7 +253,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.touchSyncPanel", "触控打轴辅助面板")}
 							</Text>
@@ -264,7 +264,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.bgLyricIgnoreSync", "背景歌词忽略打轴")}
 							</Text>
@@ -286,7 +286,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.manualTimestampEdit", "Manual Timestamp Editing")}
 							</Text>
@@ -297,7 +297,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t(
 									"ribbonBar.syncMode.doubleClickEdit",
@@ -324,7 +324,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.showTimestamps", "显示时间戳")}
 							</Text>
@@ -335,7 +335,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.highlightActiveWord", "高亮当前音节")}
 							</Text>
@@ -346,7 +346,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.enableGlowAnimation", "启用高亮动态特效")}
 							</Text>
@@ -357,7 +357,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.previewMode.instantFade", "即时淡出")}
 							</Text>
@@ -369,7 +369,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Text
 								wrap="nowrap"
 								size="1"
-								style={{ color: "var(--accent-11)" }}
+								style={{ color: "var(--ribbon-label-color)" }}
 							>
 								{t("ribbonBar.syncMode.highlightErrors", "高亮错误")}
 							</Text>
@@ -383,7 +383,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 									<Text
 										wrap="nowrap"
 										size="1"
-										style={{ color: "var(--accent-11)" }}
+										style={{ color: "var(--ribbon-label-color)" }}
 									>
 										{t(
 											"ribbonBar.syncMode.showPerWordRomanization",
@@ -414,7 +414,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								<Text
 									wrap="nowrap"
 									size="1"
-									style={{ color: "var(--accent-11)" }}
+									style={{ color: "var(--ribbon-label-color)" }}
 								>
 									{t("ribbonBar.syncMode.startSync", "起始轴")}
 								</Text>
@@ -422,7 +422,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								<Text
 									wrap="nowrap"
 									size="1"
-									style={{ color: "var(--accent-11)" }}
+									style={{ color: "var(--ribbon-label-color)" }}
 								>
 									{t("ribbonBar.syncMode.continuousSync", "连续轴")}
 								</Text>
@@ -430,7 +430,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								<Text
 									wrap="nowrap"
 									size="1"
-									style={{ color: "var(--accent-11)" }}
+									style={{ color: "var(--ribbon-label-color)" }}
 								>
 									{t("ribbonBar.syncMode.endSync", "结束轴")}
 								</Text>
