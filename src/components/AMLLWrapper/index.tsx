@@ -4,7 +4,7 @@ import {
 	MeshGradientRenderer 
 } from "@applemusic-like-lyrics/react";
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import {
 	activeLineIdsAtom,
@@ -224,7 +224,8 @@ export const AMLLWrapper = memo(({ variant }: { variant?: "standard" | "toxi" })
 		return () => cancelAnimationFrame(rafId);
 	}, [vsync, setDisplayTime]);
 
-	const lyrics = useAtomValue(lyricLinesAtom);
+	const rawLyrics = useAtomValue(lyricLinesAtom);
+	const lyrics = useDeferredValue(rawLyrics);
 	const activeLineIds = useAtomValue(activeLineIdsAtom); 
 	const darkMode = useAtomValue(isDarkThemeAtom);
 	const projectIdentity = useAtomValue(projectIdentityAtom);

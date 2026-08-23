@@ -849,7 +849,7 @@ const PlayheadCursor: FC<{ zoom: number }> = memo(({ zoom }) => {
 		<div
 			className={styles.playheadCursor}
 			style={{
-				left: `${cursorPosition}px`,
+				transform: `translate3d(${cursorPosition}px, 0, 0)`,
 			}}
 		/>
 	);
@@ -873,7 +873,7 @@ const ScrubHandle: FC<{
 		<div
 			className={styles.playheadScrubHandle}
 			style={{
-				left: `${handleLeftPosition}px`,
+				transform: `translate3d(${handleLeftPosition}px, 0, 0) translateX(-45%)`,
 				display:
 					handleLeftPosition < 0 || handleLeftPosition > containerWidth
 						? "none"

@@ -47,11 +47,12 @@ describe("learned split rules", () => {
 		}
 	});
 
-	it("takes precedence over automatic segmentation and preserves the input", () => {
+	it("takes precedence over automatic segmentation and preserves the input", async () => {
 		const rule = createLearnedRule("hello", [2]);
 		if (!rule) throw new Error("Expected a learned rule");
 		const word = { ...newLyricWord(), word: "(HELLO!)", startTime: 0, endTime: 1000 };
-		expect(segmentWord(word, config(new Map([[rule.key, rule.boundaries]]))).map((item) => item.word)).toEqual([
+		const segmented = await segmentWord(word, config(new Map([[rule.key, rule.boundaries]])));
+		expect(segmented.map((item) => item.word)).toEqual([
 			"(HE",
 			"LLO!)",
 		]);

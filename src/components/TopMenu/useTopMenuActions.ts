@@ -110,7 +110,7 @@ export const useTopMenuActions = () => {
 	);
 
 	const buildRubySegments = useCallback(
-		(text: string, baseWord: LyricWordBase) => {
+		async (text: string, baseWord: LyricWordBase) => {
 			const sourceWord: LyricWord = {
 				...newLyricWord(),
 				word: text,
@@ -118,7 +118,7 @@ export const useTopMenuActions = () => {
 				endTime: baseWord.endTime,
 				emptyBeat: 0,
 			};
-			const segments = segmentWord(sourceWord, segmentationConfig);
+			const segments = await segmentWord(sourceWord, segmentationConfig);
 			if (segments.length === 0) {
 				return [
 					{
@@ -485,7 +485,7 @@ export const useTopMenuActions = () => {
 		setAutoSegmentDialog(true);
 	}, [setAutoSegmentDialog]);
 
-	const onQuickAutoSegment = useCallback(() => {
+	const onQuickAutoSegment = useCallback(async () => {
 		if (
 			!matchesSavedSyllabificationEngine(
 				lyricLines.lyricLines,
@@ -497,12 +497,13 @@ export const useTopMenuActions = () => {
 		}
 
 		setSplitEnglish(savedSegmentationEngine !== "none");
+		const nextLines = await segmentLyricLines(lyricLines.lyricLines, {
+			...segmentationConfig,
+			engine: savedSegmentationEngine,
+			splitEnglish: savedSegmentationEngine !== "none",
+		});
 		editLyricLines((draft) => {
-			draft.lyricLines = segmentLyricLines(draft.lyricLines, {
-				...segmentationConfig,
-				engine: savedSegmentationEngine,
-				splitEnglish: savedSegmentationEngine !== "none",
-			});
+			draft.lyricLines = nextLines;
 		});
 		toast.success(
 			t("autoSegmentApplied", {
@@ -523,30 +524,40 @@ export const useTopMenuActions = () => {
 		t,
 	]);
 
-	const onRubySegment = useCallback(() => {
+	const onRubySegment = useCallback(async () => {
 		const selectedWordIds = store.get(selectedWordsAtom);
 		const hasSelection = selectedWordIds.size > 0;
-		editLyricLines((state) => {
-			for (const line of state.lyricLines) {
-				for (const word of line.words) {
-					if (hasSelection && !selectedWordIds.has(word.id)) continue;
-					if (!word.ruby || word.ruby.length === 0) continue;
-					const nextRuby: LyricWordBase[] = [];
-					for (const rubyWord of word.ruby) {
-						const parts = rubyWord.word.split("|");
-						const nextSegments = buildRubySegments(parts[0] ?? "", rubyWord);
-						const fallbackBase = {
-							word: "",
-							startTime: word.startTime,
-							endTime: word.endTime,
-						};
-						const extraSegments = parts
-							.slice(1)
-							.flatMap((part) => buildRubySegments(part, fallbackBase));
-						nextRuby.push(...nextSegments, ...extraSegments);
+		const state = store.get(lyricLinesAtom);
+		const updates: { lineIndex: number; wordIndex: number; newRuby: LyricWordBase[] }[] = [];
+		
+		for (let i = 0; i < state.lyricLines.length; i++) {
+			const line = state.lyricLines[i];
+			for (let j = 0; j < line.words.length; j++) {
+				const word = line.words[j];
+				if (hasSelection && !selectedWordIds.has(word.id)) continue;
+				if (!word.ruby || word.ruby.length === 0) continue;
+				const nextRuby: LyricWordBase[] = [];
+				for (const rubyWord of word.ruby) {
+					const parts = rubyWord.word.split("|");
+					const nextSegments = await buildRubySegments(parts[0] ?? "", rubyWord);
+					const fallbackBase = {
+						word: "",
+						startTime: word.startTime,
+						endTime: word.endTime,
+					};
+					const extraSegments = [];
+					for (const part of parts.slice(1)) {
+						extraSegments.push(...await buildRubySegments(part, fallbackBase));
 					}
-					word.ruby = nextRuby;
+					nextRuby.push(...nextSegments, ...extraSegments);
 				}
+				updates.push({ lineIndex: i, wordIndex: j, newRuby: nextRuby });
+			}
+		}
+		
+		editLyricLines((draft) => {
+			for (const { lineIndex, wordIndex, newRuby } of updates) {
+				draft.lyricLines[lineIndex].words[wordIndex].ruby = newRuby;
 			}
 		});
 	}, [buildRubySegments, editLyricLines, store]);

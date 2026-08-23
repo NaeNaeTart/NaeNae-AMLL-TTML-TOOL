@@ -141,18 +141,21 @@ export const SplitWordDialog = memo(() => {
 		if (word) {
 			setTargetWordText(word.word);
 
-			const resultWords = segmentWord(word, segmentationConfig);
-			if (resultWords.length > 1) {
-				const indices = new Set<number>();
-				let currentIndex = 0;
-				for (let i = 0; i < resultWords.length - 1; i++) {
-					currentIndex += Array.from(resultWords[i].word).length;
-					indices.add(currentIndex);
+			const run = async () => {
+				const resultWords = await segmentWord(word, segmentationConfig);
+				if (resultWords.length > 1) {
+					const indices = new Set<number>();
+					let currentIndex = 0;
+					for (let i = 0; i < resultWords.length - 1; i++) {
+						currentIndex += Array.from(resultWords[i].word).length;
+						indices.add(currentIndex);
+					}
+					setSplitIndices(indices);
+				} else {
+					setSplitIndices(new Set());
 				}
-				setSplitIndices(indices);
-			} else {
-				setSplitIndices(new Set());
-			}
+			};
+			run();
 		} else {
 			setTargetWordText("");
 			setSplitIndices(new Set());

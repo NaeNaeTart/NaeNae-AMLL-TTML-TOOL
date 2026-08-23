@@ -7,7 +7,7 @@ import {
 } from "@radix-ui/themes";
 import { useAtom, useStore } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	segmentWord,
@@ -31,28 +31,47 @@ export const SuggestedSplitsDialog = memo(() => {
 		return lines.find(l => l.id === dialog.lineId);
 	}, [dialog.open, dialog.lineId, store]);
 
-	const suggestions = useMemo(() => {
-		if (!targetLine) return [];
-		if (dialog.wordIndex !== undefined) {
-			const word = targetLine.words[dialog.wordIndex];
-			if (!word) return [];
-			const result = segmentWord(word, config);
-			// Only suggest if it actually splits into more than 1 part or changes something
-			if (result.length > 1 || (result.length === 1 && result[0].word !== word.word)) {
-				return [result];
-			}
-			return [];
-		} else {
-			// Whole line suggestion
-			const resultLine = segmentLyricLines([targetLine], config)[0];
-			// Only suggest if the number of words changed or contents changed
-			const wordsChanged = resultLine.words.length !== targetLine.words.length || 
-                                resultLine.words.some((w, i) => w.word !== targetLine.words[i]?.word);
-			if (wordsChanged) {
-				return [resultLine.words];
-			}
-			return [];
+	const [suggestions, setSuggestions] = useState<LyricWord[][]>([]);
+
+	useEffect(() => {
+		if (!targetLine) {
+			setSuggestions([]);
+			return;
 		}
+
+		let isCancelled = false;
+		const run = async () => {
+			if (dialog.wordIndex !== undefined) {
+				const word = targetLine.words[dialog.wordIndex];
+				if (!word) {
+					if (!isCancelled) setSuggestions([]);
+					return;
+				}
+				const result = await segmentWord(word, config);
+				if (!isCancelled) {
+					if (result.length > 1 || (result.length === 1 && result[0].word !== word.word)) {
+						setSuggestions([result]);
+					} else {
+						setSuggestions([]);
+					}
+				}
+			} else {
+				const resultLine = (await segmentLyricLines([targetLine], config))[0];
+				if (!isCancelled) {
+					const wordsChanged = resultLine.words.length !== targetLine.words.length || 
+										resultLine.words.some((w, i) => w.word !== targetLine.words[i]?.word);
+					if (wordsChanged) {
+						setSuggestions([resultLine.words]);
+					} else {
+						setSuggestions([]);
+					}
+				}
+			}
+		};
+		run();
+		return () => {
+			isCancelled = true;
+		};
 	}, [targetLine, dialog.wordIndex, config]);
 
 	const handleApply = (words: LyricWord[]) => {

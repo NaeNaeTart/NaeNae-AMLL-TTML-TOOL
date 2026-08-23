@@ -1,5 +1,6 @@
 import { Card, Flex, Popover, Text, TextField, TextArea, Box, IconButton } from "@radix-ui/themes";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtomValue, useSetAtom } from "jotai";
+import { selectAtom } from "jotai/utils";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import WaveSurfer from "wavesurfer.js";
@@ -15,6 +16,32 @@ import { lyricLinesAtom, selectedLinesAtom } from "$/states/main";
 import { useHoverGuide } from "../hooks";
 import { AudioRegion } from "./AudioRegion";
 import styles from "./AudioSlider.module.css";
+
+interface LineTiming {
+	id: string;
+	startTime: number;
+	endTime: number;
+}
+
+const lineTimingsEqual = (a: LineTiming[], b: LineTiming[]) => {
+	if (a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) {
+		if (a[i].id !== b[i].id || a[i].startTime !== b[i].startTime || a[i].endTime !== b[i].endTime) return false;
+	}
+	return true;
+};
+
+const sliderLineTimingsAtom: ReturnType<typeof selectAtom<typeof lyricLinesAtom, LineTiming[]>> = selectAtom(
+	lyricLinesAtom,
+	(lyrics) => lyrics.lyricLines.map((l) => ({ id: l.id, startTime: l.startTime, endTime: l.endTime })),
+	lineTimingsEqual,
+);
+
+const sliderMarksAtom = selectAtom(
+	lyricLinesAtom,
+	(lyrics) => lyrics.marks,
+);
+
 import { HoverGuide } from "./HoverGuide";
 import { Add16Regular, Delete16Regular } from "@fluentui/react-icons";
 import type { Mark } from "$/types/ttml";
@@ -175,7 +202,9 @@ export const AudioSlider = memo(() => {
 	const setAudioPlaying = useSetAtom(audioPlayingAtom);
 
 	const currentDuration = useAtomValue(currentDurationAtom);
-	const [lyricLines, setLyricLines] = useAtom(lyricLinesAtom);
+	const setLyricLines = useSetAtom(lyricLinesAtom);
+	const lineTimings = useAtomValue(sliderLineTimingsAtom);
+	const marks = useAtomValue(sliderMarksAtom);
 	const selectedLines = useAtomValue(selectedLinesAtom);
 	const audioBuffer = useAtomValue(audioBufferAtom);
 
@@ -391,7 +420,7 @@ export const AudioSlider = memo(() => {
 		const pixelsPerMs = sliderWidthPx / currentDuration;
 		const regions: { id: string; left: number; width: number }[] = [];
 
-		for (const line of lyricLines.lyricLines) {
+		for (const line of lineTimings) {
 			if (selectedLines.has(line.id)) {
 				const left = line.startTime * pixelsPerMs;
 				const width = (line.endTime - line.startTime) * pixelsPerMs;
@@ -399,17 +428,17 @@ export const AudioSlider = memo(() => {
 			}
 		}
 		return regions;
-	}, [lyricLines.lyricLines, selectedLines, currentDuration, sliderWidthPx]);
+	}, [lineTimings, selectedLines, currentDuration, sliderWidthPx]);
 
 	const markers = useMemo(() => {
-		if (currentDuration <= 0 || sliderWidthPx <= 0 || !lyricLines.marks)
+		if (currentDuration <= 0 || sliderWidthPx <= 0 || !marks)
 			return [];
-		return lyricLines.marks.map((mark) => ({
+		return marks.map((mark) => ({
 			...mark,
 			left: (mark.timeMs / currentDuration) * sliderWidthPx,
 			timestamp: msToTimestamp(mark.timeMs),
 		}));
-	}, [lyricLines.marks, currentDuration, sliderWidthPx]);
+	}, [marks, currentDuration, sliderWidthPx]);
 
 	return (
 		<Card

@@ -259,36 +259,10 @@ const RainEffect: FC<{ isRaining: boolean }> = memo(({ isRaining }) => {
 });
 
 
-function App() {
+const AppThemeStyles = memo(() => {
 	const isDarkTheme = useAtomValue(isDarkThemeAtom);
-	const legacyDarkTheme = useAtomValue(legacyDarkThemeAtom);
-	const toolMode = useAtomValue(toolModeAtom);
-	const showTouchSyncPanel = useAtomValue(showTouchSyncPanelAtom);
-	const aiSidebarEnabled = useAtomValue(aiSidebarEnabledAtom);
-	const showPreviewPanel = useAtomValue(showPreviewPanelAtom);
-	// Preview mode already owns the entire editor area. Keep the sync preview
-	// pane's setting intact for when the user returns, but never render a second
-	// preview beside it.
-	const previewPanelVisible =
-		showPreviewPanel && toolMode !== ToolMode.Preview;
-	const customBackgroundImage = useAtomValue(customBackgroundImageAtom);
-	const customBackgroundOpacity = useAtomValue(customBackgroundOpacityAtom);
-	const customBackgroundMask = useAtomValue(customBackgroundMaskAtom);
-	const customBackgroundBlur = useAtomValue(customBackgroundBlurAtom);
-	const customBackgroundBrightness = useAtomValue(
-		customBackgroundBrightnessAtom,
-	);
-	const accentColor = useAtomValue(accentColorAtom);
 	const useCustomAccent = useAtomValue(useCustomAccentAtom);
 	const customAccentColor = useAtomValue(customAccentColorAtom);
-
-	const useCustomGradient = useAtomValue(useCustomGradientAtom);
-	const customGradientColors = useAtomValue(customGradientColorsAtom);
-	const customGradientType = useAtomValue(customGradientTypeAtom);
-	const customGradientOpacity = useAtomValue(customGradientOpacityAtom);
-	const customGradientCenter = useAtomValue(customGradientCenterAtom);
-	const customGradientAngle = useAtomValue(customGradientAngleAtom);
-	const customGradientSize = useAtomValue(customGradientSizeAtom);
 	const appFont = useAtomValue(appFontAtom);
 	const appFontWeight = useAtomValue(appFontWeightAtom);
 	const appFontStyle = useAtomValue(appFontStyleAtom);
@@ -299,7 +273,6 @@ function App() {
 	const advSecondaryText = useAtomValue(advancedSecondaryTextColorAtom);
 	const advWaveformColor = useAtomValue(advancedWaveformColorAtom);
 	const advWaveformProgress = useAtomValue(advancedWaveformProgressColorAtom);
-	
 	const vTitlebarBg = useAtomValue(advTitlebarBgAtom);
 	const vSidebarBg = useAtomValue(advSidebarBgAtom);
 	const vSidebarActive = useAtomValue(advSidebarActiveAtom);
@@ -323,65 +296,6 @@ function App() {
 	const vShadow = useAtomValue(advShadowIntensityAtom);
 	const vSelection = useAtomValue(advSelectionColorAtom);
 	const vBackdropBlur = useAtomValue(advBackdropBlurAtom);
-	const appLayoutOrder = useAtomValue(appLayoutOrderAtom);
-	const vRibbonPosition = useAtomValue(vRibbonPositionAtom);
-
-	const boykisserMode = useAtomValue(boykisserModeAtom);
-	const [boykisserUnlocked, setBoykisserUnlocked] = useAtom(boykisserUnlockedAtom);
-	const [typedSequence, setTypedSequence] = useState("");
-
-	useEffect(() => {
-		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
-		const isApp = isTauri || isPwa;
-		
-		if (!isApp) return;
-
-		const handleKeyDown = (e: KeyboardEvent) => {
-			// Don't trigger if typing in text inputs or textareas
-			const activeElement = document.activeElement;
-			if (
-				activeElement &&
-				(activeElement.tagName === "INPUT" ||
-					activeElement.tagName === "TEXTAREA" ||
-					activeElement.getAttribute("contenteditable") === "true")
-			) {
-				return;
-			}
-
-			if (e.key.length === 1) {
-				setTypedSequence((prev) => {
-					const next = (prev + e.key.toLowerCase()).slice(-9);
-					if (next === "boykisser") {
-						setBoykisserUnlocked(true);
-					}
-					return next;
-				});
-			}
-		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-		};
-	}, [setBoykisserUnlocked]);
-
-	const isApp = useMemo(() => {
-		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
-		return isTauri || isPwa;
-	}, []);
-
-	const isUnlocked = !isApp || boykisserUnlocked;
-
-	const [isRaining, setIsRaining] = useState(false);
-
-	const startRain = useCallback(() => {
-		if (isRaining) return;
-		setIsRaining(true);
-		setTimeout(() => setIsRaining(false), 3000);
-	}, [isRaining]);
-
-
 
 	useEffect(() => {
 		// Extract font name from appFont string (e.g., '"Inter", sans-serif' -> 'Inter')
@@ -539,6 +453,95 @@ function App() {
 		customFontData,
 		customFontName,
 	]);
+
+	return customStyleString ? <style>{customStyleString}</style> : null;
+});
+
+function App() {
+	const isDarkTheme = useAtomValue(isDarkThemeAtom);
+	const legacyDarkTheme = useAtomValue(legacyDarkThemeAtom);
+	const toolMode = useAtomValue(toolModeAtom);
+	const showTouchSyncPanel = useAtomValue(showTouchSyncPanelAtom);
+	const aiSidebarEnabled = useAtomValue(aiSidebarEnabledAtom);
+	const showPreviewPanel = useAtomValue(showPreviewPanelAtom);
+	// Preview mode already owns the entire editor area. Keep the sync preview
+	// pane's setting intact for when the user returns, but never render a second
+	// preview beside it.
+	const previewPanelVisible =
+		showPreviewPanel && toolMode !== ToolMode.Preview;
+	const customBackgroundImage = useAtomValue(customBackgroundImageAtom);
+	const customBackgroundOpacity = useAtomValue(customBackgroundOpacityAtom);
+	const customBackgroundMask = useAtomValue(customBackgroundMaskAtom);
+	const customBackgroundBlur = useAtomValue(customBackgroundBlurAtom);
+	const customBackgroundBrightness = useAtomValue(
+		customBackgroundBrightnessAtom,
+	);
+	const accentColor = useAtomValue(accentColorAtom);
+
+	const useCustomGradient = useAtomValue(useCustomGradientAtom);
+	const customGradientColors = useAtomValue(customGradientColorsAtom);
+	const customGradientType = useAtomValue(customGradientTypeAtom);
+	const customGradientOpacity = useAtomValue(customGradientOpacityAtom);
+	const customGradientCenter = useAtomValue(customGradientCenterAtom);
+	const customGradientAngle = useAtomValue(customGradientAngleAtom);
+	const customGradientSize = useAtomValue(customGradientSizeAtom);
+	const appLayoutOrder = useAtomValue(appLayoutOrderAtom);
+	const vRibbonPosition = useAtomValue(vRibbonPositionAtom);
+
+	const boykisserMode = useAtomValue(boykisserModeAtom);
+	const [boykisserUnlocked, setBoykisserUnlocked] = useAtom(boykisserUnlockedAtom);
+	const [typedSequence, setTypedSequence] = useState("");
+
+	useEffect(() => {
+		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		const isApp = isTauri || isPwa;
+		
+		if (!isApp) return;
+
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Don't trigger if typing in text inputs or textareas
+			const activeElement = document.activeElement;
+			if (
+				activeElement &&
+				(activeElement.tagName === "INPUT" ||
+					activeElement.tagName === "TEXTAREA" ||
+					activeElement.getAttribute("contenteditable") === "true")
+			) {
+				return;
+			}
+
+			if (e.key.length === 1) {
+				setTypedSequence((prev) => {
+					const next = (prev + e.key.toLowerCase()).slice(-9);
+					if (next === "boykisser") {
+						setBoykisserUnlocked(true);
+					}
+					return next;
+				});
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [setBoykisserUnlocked]);
+
+	const isApp = useMemo(() => {
+		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		return isTauri || isPwa;
+	}, []);
+
+	const isUnlocked = !isApp || boykisserUnlocked;
+
+	const [isRaining, setIsRaining] = useState(false);
+
+	const startRain = useCallback(() => {
+		if (isRaining) return;
+		setIsRaining(true);
+		setTimeout(() => setIsRaining(false), 3000);
+	}, [isRaining]);
 
 	const backgroundMode = useAtomValue(backgroundModeAtom);
 	const selectedGradientId = useAtomValue(selectedGradientAtom);
@@ -716,7 +719,7 @@ function App() {
 			<MigrationNotice />
 			<DiscordPresence />
 			<BeginnerGuide />
-			{customStyleString ? <style>{customStyleString}</style> : null}
+			<AppThemeStyles />
 			<ErrorBoundary
 				FallbackComponent={AppErrorPage}
 				onReset={(_details) => {

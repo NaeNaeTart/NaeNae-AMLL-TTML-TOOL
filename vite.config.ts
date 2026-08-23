@@ -170,6 +170,17 @@ export default defineConfig({
 		target: process.env.TAURI_ENV_PLATFORM === "windows" ? "chrome105" : "safari15",
 		minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
 		sourcemap: true,
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					"vendor-react": ["react", "react-dom", "jotai", "jotai-immer", "jotai-optics", "jotai-history"],
+					"vendor-ui": ["@radix-ui/themes", "radix-ui", "framer-motion"],
+					"vendor-icons": ["@fluentui/react-icons"],
+					"vendor-wavesurfer": ["wavesurfer.js"],
+					"vendor-i18n": ["i18next", "react-i18next", "i18next-icu"],
+				},
+			},
+		},
 	},
 	resolve: {
 		alias: Object.assign(

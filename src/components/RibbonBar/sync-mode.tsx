@@ -19,9 +19,9 @@ import {
 	Text,
 	TextField,
 } from "@radix-ui/themes";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
-import { type FC, forwardRef } from "react";
+import { type FC, forwardRef, startTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocation } from "$/modules/lyric-editor/utils/lyric-states.ts";
 import {
@@ -95,8 +95,8 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const [showTouchSyncPanel, setShowTouchSyncPanel] = useAtom(
 			showTouchSyncPanelAtom,
 		);
-		const [showPreviewPanel, setShowPreviewPanel] =
-			useAtom(showPreviewPanelAtom);
+		const showPreviewPanel = useAtomValue(showPreviewPanelAtom);
+		const rawSetShowPreviewPanel = useSetAtom(showPreviewPanelAtom);
 		const [showTimestamps, setShowTimestamps] = useAtom(showTimestampsAtom);
 		const [highlightErrors, setHighlightErrors] = useAtom(highlightErrorsAtom);
 		const [highlightActiveWord, setHighlightActiveWord] = useAtom(
@@ -445,7 +445,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 						<Flex direction="column" align="center" gap="1">
 							<Switch
 								checked={showPreviewPanel}
-								onCheckedChange={setShowPreviewPanel}
+								onCheckedChange={(checked) => startTransition(() => rawSetShowPreviewPanel(checked))}
 							/>
 						</Flex>
 					</RibbonSection>}

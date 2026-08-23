@@ -52,7 +52,7 @@ function isMergeablePair(
 /**
  * @description 自动将一个字符串拆分为 token
  */
-function autoTokenize(text: string, config: SegmentationConfig): string[] {
+async function autoTokenize(text: string, config: SegmentationConfig): Promise<string[]> {
 	if (!text) {
 		return [];
 	}
@@ -62,7 +62,7 @@ function autoTokenize(text: string, config: SegmentationConfig): string[] {
 	let currentToken = "";
 	let lastCharType: CharType | null = null;
 
-	const pushCurrentToken = () => {
+	const pushCurrentToken = async () => {
 		if (!currentToken) return;
 
 		if (
@@ -73,7 +73,7 @@ function autoTokenize(text: string, config: SegmentationConfig): string[] {
 			const syllables =
 				getHyphenationLanguage(config.engine) && config.hyphenator
 					? config.hyphenator(currentToken).split("\u00AD")
-					: getSyllabificationEngine(config.engine).split(currentToken);
+					: await getSyllabificationEngine(config.engine).split(currentToken);
 			tokens.push(...syllables);
 		} else {
 			tokens.push(currentToken);
@@ -108,7 +108,7 @@ function autoTokenize(text: string, config: SegmentationConfig): string[] {
 			}
 
 			if (shouldBreak && currentToken) {
-				pushCurrentToken();
+				await pushCurrentToken();
 			}
 		}
 
@@ -116,7 +116,7 @@ function autoTokenize(text: string, config: SegmentationConfig): string[] {
 		lastCharType = currentCharType;
 	}
 
-	pushCurrentToken();
+	await pushCurrentToken();
 
 	return tokens;
 }
@@ -326,11 +326,11 @@ function distributeTime(
 /**
  * @description 将单个 LyricWord 拆分为多个
  */
-export function segmentWord(
+export async function segmentWord(
 	word: LyricWord,
 	config: SegmentationConfig,
 	context?: SegmentationContext,
-): LyricWord[] {
+): Promise<LyricWord[]> {
 	const learnedSegments = applyLearnedRule(word.word, config.learnedRules);
 	if (learnedSegments) {
 		const weights = learnedSegments.map((token) =>
@@ -351,7 +351,7 @@ export function segmentWord(
 	const ctx = context || { isQuoteOpen: false };
 
 	if (protectedWords.size === 0) {
-		const tokens = autoTokenize(word.word, config);
+		const tokens = await autoTokenize(word.word, config);
 		if (tokens.length === 0) return [];
 		const { finalTokens, finalWeights, totalWeight } = postProcess(
 			tokens,
@@ -367,7 +367,7 @@ export function segmentWord(
 		.map(escapeRegExp);
 
 	if (sortedPatterns.length === 0) {
-		const tokens = autoTokenize(word.word, config);
+		const tokens = await autoTokenize(word.word, config);
 		if (tokens.length === 0) return [];
 		const { finalTokens, finalWeights, totalWeight } = postProcess(
 			tokens,
@@ -403,7 +403,7 @@ export function segmentWord(
 			allWeights.push(weight);
 			grandTotalWeight += weight;
 		} else {
-			const tokens = autoTokenize(part, config);
+			const tokens = await autoTokenize(part, config);
 			const { finalTokens, finalWeights, totalWeight } = postProcess(
 				tokens,
 				config,
@@ -426,29 +426,31 @@ export function segmentWord(
  * @param config 分词配置
  * @param resetStatePerLine 是否每行重置上下文状态。默认 false 以支持跨行引号，设为 true 可以防止上一行未闭合的引号影响下一行
  */
-export function segmentLyricLines(
+export async function segmentLyricLines(
 	lines: LyricLine[],
 	config: SegmentationConfig,
 	resetStatePerLine = true,
-): LyricLine[] {
+): Promise<LyricLine[]> {
 	const context: SegmentationContext = { isQuoteOpen: false };
 
-	return lines.map((line) => {
+	const result: LyricLine[] = [];
+	for (const line of lines) {
 		if (resetStatePerLine) {
 			context.isQuoteOpen = false;
 		}
 
 		const newWords: LyricWord[] = [];
 		for (const word of line.words) {
-			const segments = segmentWord(word, config, context);
+			const segments = await segmentWord(word, config, context);
 			newWords.push(...segments);
 		}
 
-		return {
+		result.push({
 			...line,
 			words: newWords,
-		};
-	});
+		});
+	}
+	return result;
 }
 
 /**

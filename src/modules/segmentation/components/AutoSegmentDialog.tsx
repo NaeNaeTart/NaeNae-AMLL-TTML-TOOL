@@ -42,15 +42,16 @@ export const AutoSegmentDialog = () => {
 		[selectedEngine],
 	);
 
-	const apply = () => {
+	const apply = async () => {
 		setEngine(selectedEngine);
 		setSplitEnglish(selectedEngine !== "none");
+		const nextLines = await segmentLyricLines(lyrics.lyricLines, {
+			...config,
+			engine: selectedEngine,
+			splitEnglish: selectedEngine !== "none",
+		});
 		editLyricLines((draft) => {
-			draft.lyricLines = segmentLyricLines(draft.lyricLines, {
-				...config,
-				engine: selectedEngine,
-				splitEnglish: selectedEngine !== "none",
-			});
+			draft.lyricLines = nextLines;
 		});
 		setOpen(false);
 	};

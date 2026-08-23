@@ -1,9 +1,3 @@
-import nlp from "compromise/tokenize";
-import nlpSpeech from "compromise-speech";
-import silabas from "silabas";
-import syllabify from "syllabify";
-import syllabifyFr from "syllabify-fr";
-import prosodicDictionary from "../data/prosodic-dict.json";
 import type { SegmentationEngineId } from "../types";
 
 type DictionaryEntry = number | number[];
@@ -12,7 +6,7 @@ export interface SyllabificationEngine {
 	id: SegmentationEngineId;
 	name: string;
 	description: string;
-	split: (word: string) => string[];
+	split: (word: string) => string[] | Promise<string[]>;
 }
 
 const hyphenationLanguages = [
@@ -32,10 +26,29 @@ export const getHyphenationLanguage = (engine: SegmentationEngineId) =>
 		? engine.slice("hyphenation-".length)
 		: undefined;
 
-const dictionary = new Map<string, DictionaryEntry>(
-	Object.entries(prosodicDictionary as Record<string, DictionaryEntry>),
-);
-const nlpWithSpeech = nlp.extend(nlpSpeech as never);
+// --- Lazy-loaded NLP modules (cached after first load) ---
+
+let _dictionary: Map<string, DictionaryEntry> | null = null;
+let _nlpWithSpeech: ReturnType<typeof import("compromise/tokenize")> extends Promise<infer M> ? M extends { default: infer D } ? D : never : never;
+let _nlpReady: Promise<void> | null = null;
+
+const ensureNlpLoaded = (): Promise<void> => {
+	if (_dictionary && _nlpWithSpeech) return Promise.resolve();
+	if (_nlpReady) return _nlpReady;
+	_nlpReady = (async () => {
+		const [nlpModule, speechModule, dictModule] = await Promise.all([
+			import("compromise/tokenize"),
+			import("compromise-speech"),
+			import("../data/prosodic-dict.json"),
+		]);
+		const nlp = nlpModule.default;
+		_nlpWithSpeech = nlp.extend(speechModule.default as never);
+		_dictionary = new Map<string, DictionaryEntry>(
+			Object.entries(dictModule.default as Record<string, DictionaryEntry>),
+		);
+	})();
+	return _nlpReady;
+};
 
 const splitAtLengths = (word: string, lengths: number[]) => {
 	const boundaries = lengths.reduce<number[]>((result, length) => {
@@ -53,7 +66,7 @@ const splitAtLengths = (word: string, lengths: number[]) => {
 };
 
 const compromiseSplit = (word: string) => {
-	const syllables = (nlpWithSpeech(word).syllables() as string[][]).flat();
+	const syllables = (_nlpWithSpeech!(word).syllables() as string[][]).flat();
 	if (syllables.length <= 1) return [word];
 
 	let offset = 0;
@@ -74,7 +87,7 @@ const compromiseSplit = (word: string) => {
 		}
 		const next = intervals[index + 1];
 		interval.end = next.begin;
-		if (/[’']/.test(word.charAt(interval.end - 1))) {
+		if (/['\u2019]/.test(word.charAt(interval.end - 1))) {
 			interval.end--;
 			next.begin--;
 		}
@@ -87,7 +100,7 @@ const compromiseSplit = (word: string) => {
 const mergeContractionSuffix = (parts: string[]) => {
 	const result: string[] = [];
 	for (const part of parts) {
-		if (/^[’'](?:s|re|ve|ll|d|m|t)$/i.test(part) && result.length > 0) {
+		if (/^['\u2019](?:s|re|ve|ll|d|m|t)$/i.test(part) && result.length > 0) {
 			result[result.length - 1] += part;
 		} else {
 			result.push(part);
@@ -99,8 +112,8 @@ const mergeContractionSuffix = (parts: string[]) => {
 const prosodicSplit = (word: string) => {
 	const key = word.toLowerCase();
 	const entry =
-		dictionary.get(key) ??
-		(key.endsWith("in") ? dictionary.get(`${key}g`) : undefined);
+		_dictionary!.get(key) ??
+		(key.endsWith("in") ? _dictionary!.get(`${key}g`) : undefined);
 	if (entry !== undefined) {
 		return splitAtLengths(word, typeof entry === "number" ? [entry] : entry);
 	}
@@ -146,13 +159,22 @@ export const splitJapaneseText = (text: string) => {
 	return tokens;
 };
 
+// --- Lazy loaders for smaller NLP libs ---
+
+let _silabas: ((word: string) => { syllables: () => string[] }) | null = null;
+let _syllabify: ((word: string) => string[]) | null = null;
+let _syllabifyFr: ((word: string) => { syllabes: string[] }) | null = null;
+
 export const SYLLABIFICATION_ENGINES: SyllabificationEngine[] = [
 	{
 		id: "prosodic",
 		name: "English (Prosodic)",
 		description:
 			"Dictionary-backed English syllable boundaries with a speech fallback.",
-		split: prosodicSplit,
+		split: async (word) => {
+			await ensureNlpLoaded();
+			return prosodicSplit(word);
+		},
 	},
 	{
 		id: "basic",
@@ -172,9 +194,13 @@ export const SYLLABIFICATION_ENGINES: SyllabificationEngine[] = [
 		id: "silabas",
 		name: "Spanish (Silabas)",
 		description: "Spanish orthographic syllable splitting.",
-		split: (word) => {
+		split: async (word) => {
 			try {
-				return silabas(word).syllables();
+				if (!_silabas) {
+					const mod = await import("silabas");
+					_silabas = mod.default;
+				}
+				return _silabas!(word).syllables();
 			} catch {
 				return [word];
 			}
@@ -184,15 +210,25 @@ export const SYLLABIFICATION_ENGINES: SyllabificationEngine[] = [
 		id: "syllabify-fr",
 		name: "French (Syllabify-fr)",
 		description: "French orthographic syllable splitting.",
-		split: (word) => syllabifyFr(word).syllabes,
+		split: async (word) => {
+			if (!_syllabifyFr) {
+				const mod = await import("syllabify-fr");
+				_syllabifyFr = mod.default;
+			}
+			return _syllabifyFr!(word).syllabes;
+		},
 	},
 	{
 		id: "syllabify",
 		name: "Russian (Syllabify)",
 		description: "Russian orthographic syllable splitting.",
-		split: (word) => {
+		split: async (word) => {
 			try {
-				return syllabify(word);
+				if (!_syllabify) {
+					const mod = await import("syllabify");
+					_syllabify = mod.default;
+				}
+				return _syllabify!(word);
 			} catch {
 				return [word];
 			}

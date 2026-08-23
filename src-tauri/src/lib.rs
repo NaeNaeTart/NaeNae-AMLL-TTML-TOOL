@@ -151,59 +151,80 @@ struct OpenFileData {
 }
 
 #[tauri::command]
-fn convert_audio_mp3_to_flac(input_data: Vec<u8>, filename: String) -> Result<Vec<u8>, String> {
-    let temp_dir = std::env::temp_dir();
-    let input_path = temp_dir.join(format!("ttml_tool_input_{}", filename));
-    let output_path = temp_dir.join("ttml_tool_output.flac");
+async fn convert_audio_mp3_to_flac(input_data: Vec<u8>, filename: String) -> Result<Vec<u8>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let unique_id = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0);
+        let temp_dir = std::env::temp_dir();
+        let input_path = temp_dir.join(format!("ttml_tool_input_{}_{}", unique_id, filename));
+        let output_path = temp_dir.join(format!("ttml_tool_output_{}.flac", unique_id));
 
-    if let Err(e) = fs::write(&input_path, &input_data) {
-        return Err(format!("Failed to write temp input file: {}", e));
-    }
+        if let Err(e) = fs::write(&input_path, &input_data) {
+            return Err(format!("Failed to write temp input file: {}", e));
+        }
 
-    let ffmpeg_result = std::process::Command::new("ffmpeg")
-        .args([
-            "-y",
-            "-i",
-            input_path.to_str().unwrap(),
-            "-codec:a",
-            "flac",
-            "-sample-rate",
-            "44100",
-            output_path.to_str().unwrap(),
-        ])
-        .output();
+        let ffmpeg_result = std::process::Command::new("ffmpeg")
+            .args([
+                "-y",
+                "-i",
+                input_path.to_str().unwrap(),
+                "-codec:a",
+                "flac",
+                "-sample-rate",
+                "44100",
+                output_path.to_str().unwrap(),
+            ])
+            .output();
 
-    let _ = fs::remove_file(&input_path);
+        let _ = fs::remove_file(&input_path);
 
-    match ffmpeg_result {
-        Ok(result) => {
-            if result.status.success() {
-                match fs::read(&output_path) {
-                    Ok(converted_data) => {
-                        let _ = fs::remove_file(&output_path);
-                        Ok(converted_data)
+        match ffmpeg_result {
+            Ok(result) => {
+                if result.status.success() {
+                    match fs::read(&output_path) {
+                        Ok(converted_data) => {
+                            let _ = fs::remove_file(&output_path);
+                            Ok(converted_data)
+                        }
+                        Err(e) => {
+                            let _ = fs::remove_file(&output_path);
+                            Err(format!("Failed to read converted file: {}", e))
+                        }
                     }
-                    Err(e) => Err(format!("Failed to read converted file: {}", e))
-                }
-            } else {
-                let stderr_output = String::from_utf8_lossy(&result.stderr);
-                let stdout_output = String::from_utf8_lossy(&result.stdout);
-                if stderr_output.contains("not found") || stderr_output.is_empty() && stdout_output.is_empty() {
-                    Err("ffmpeg not found. Please install ffmpeg and ensure it's in your PATH.".to_string())
                 } else {
-                    Err(format!("FFmpeg conversion failed: {}\nStdout: {}", stderr_output, stdout_output))
+                    let _ = fs::remove_file(&output_path);
+                    let stderr_output = String::from_utf8_lossy(&result.stderr);
+                    let stdout_output = String::from_utf8_lossy(&result.stdout);
+                    if stderr_output.contains("not found")
+                        || stderr_output.is_empty() && stdout_output.is_empty()
+                    {
+                        Err("ffmpeg not found. Please install ffmpeg and ensure it's in your PATH.".to_string())
+                    } else {
+                        Err(format!(
+                            "FFmpeg conversion failed: {}\nStdout: {}",
+                            stderr_output, stdout_output
+                        ))
+                    }
                 }
             }
+            Err(e) => {
+                let _ = fs::remove_file(&output_path);
+                let error_msg = if e.kind() == std::io::ErrorKind::NotFound {
+                    "ffmpeg not found. Please install ffmpeg and ensure it's in your PATH.".to_string()
+                } else {
+                    format!(
+                        "Failed to run ffmpeg: {}. Make sure ffmpeg is installed and in your PATH.",
+                        e
+                    )
+                };
+                Err(error_msg)
+            }
         }
-        Err(e) => {
-            let error_msg = if e.kind() == std::io::ErrorKind::NotFound {
-                "ffmpeg not found. Please install ffmpeg and ensure it's in your PATH.".to_string()
-            } else {
-                format!("Failed to run ffmpeg: {}. Make sure ffmpeg is installed and in your PATH.", e)
-            };
-            Err(error_msg)
-        }
-    }
+    })
+    .await
+    .map_err(|e| format!("Task execution failed: {}", e))?
 }
 
 #[tauri::command]
@@ -230,6 +251,26 @@ fn get_open_file_data() -> Option<OpenFileData> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[allow(clippy::missing_panics_doc)]
 pub fn run() {
+    #[cfg(target_os = "linux")]
+    {
+        // Force GPU hardware compositing in WebKitGTK for smoother rendering and animations
+        if std::env::var("WEBKIT_FORCE_COMPOSITING_MODE").is_err() {
+            unsafe {
+                std::env::set_var("WEBKIT_FORCE_COMPOSITING_MODE", "1");
+            }
+        }
+        // Workaround for DMA-BUF / NVIDIA stutter and rendering glitches on Linux Wayland
+        if std::env::var("WEBKIT_DISABLE_DMABUF_RENDERER").is_err() {
+            let is_nvidia = std::path::Path::new("/proc/driver/nvidia").exists()
+                || std::env::var("__NV_PRIME_RENDER_OFFLOAD").is_ok();
+            if is_nvidia {
+                unsafe {
+                    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+                }
+            }
+        }
+    }
+
     let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())

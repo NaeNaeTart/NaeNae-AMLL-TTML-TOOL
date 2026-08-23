@@ -1,6 +1,29 @@
-import { Romanize } from "hangul-romanize";
-import { pinyin as getPinyin } from "pinyin-pro";
-import * as wanakana from "wanakana";
+let _pinyin: ((word: string, options?: any) => any) | null = null;
+let _wanakana: typeof import("wanakana") | null = null;
+let _romanize: { from: (text: string) => string } | null = null;
+
+const ensurePinyin = async () => {
+	if (!_pinyin) {
+		const mod = await import("pinyin-pro");
+		_pinyin = mod.pinyin;
+	}
+	return _pinyin;
+};
+
+const ensureWanakana = async () => {
+	if (!_wanakana) {
+		_wanakana = await import("wanakana");
+	}
+	return _wanakana;
+};
+
+const ensureRomanize = async () => {
+	if (!_romanize) {
+		const mod = await import("hangul-romanize");
+		_romanize = mod.Romanize;
+	}
+	return _romanize;
+};
 
 export type PhoneticLanguage = "ja" | "zh" | "ko" | "yue" | "auto";
 
@@ -103,12 +126,13 @@ const mapContextualChinesePhonetic = (
 	});
 };
 
-const mapMandarinCapsules = (capsules: string[]) => {
+const mapMandarinCapsules = async (capsules: string[]) => {
 	const hanText = capsules
 		.flatMap((capsule) => capsule.match(/\p{Script=Han}/gu) ?? [])
 		.join("");
 	if (!hanText) return capsules.map(() => "");
 
+	const getPinyin = await ensurePinyin();
 	const readings = getPinyin(hanText, {
 		toneType: "symbol",
 		type: "array",
@@ -218,9 +242,18 @@ async function convertPhonetic(
 	}
 
 	let fallback = "";
-	if (detectedLang === "ja") fallback = wanakana.toRomaji(text);
-	if (detectedLang === "zh") fallback = getPinyin(text, { toneType: "none" });
-	if (detectedLang === "ko") fallback = Romanize.from(text);
+	if (detectedLang === "ja") {
+		const wanakana = await ensureWanakana();
+		fallback = wanakana.toRomaji(text);
+	}
+	if (detectedLang === "zh") {
+		const getPinyin = await ensurePinyin();
+		fallback = getPinyin(text, { toneType: "none" });
+	}
+	if (detectedLang === "ko") {
+		const Romanize = await ensureRomanize();
+		fallback = Romanize.from(text);
+	}
 	return { value: fallback, cacheable: false };
 }
 
@@ -239,7 +272,7 @@ export async function getPhoneticSyllables(
 	if (lang === "auto") {
 		detectedLang = detectLanguage(fullLineText);
 	}
-	if (detectedLang === "zh") return mapMandarinCapsules(originalCapsules);
+	if (detectedLang === "zh") return await mapMandarinCapsules(originalCapsules);
 
 	// Prefer full-line context for Chinese because individual Han characters can be
 	// polyphonic. Google returns one whitespace-separated reading per character.

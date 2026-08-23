@@ -8,6 +8,7 @@ import {
 	type CSSProperties,
 	memo,
 	type RefObject,
+	useDeferredValue,
 	useEffect,
 	useMemo,
 	useRef,
@@ -252,7 +253,8 @@ function useKawarpBackground(
 }
 
 export const SpicyLyrics = memo(() => {
-	const lyrics = useAtomValue(lyricLinesAtom);
+	const rawLyrics = useAtomValue(lyricLinesAtom);
+	const lyrics = useDeferredValue(rawLyrics);
 	const simple = useAtomValue(spicySimpleLyricsModeAtom);
 	const forceLineSynced = useAtomValue(spicyForceLineSyncedAtom);
 	const romanized = useAtomValue(showRomanLinesAtom);
@@ -316,6 +318,81 @@ export const SpicyLyrics = memo(() => {
 		}
 		slmAnimations.current.clear();
 	}, [simple]);
+
+	useEffect(() => {
+		const currentSpringKeys = new Set<string>();
+		const currentGlowKeys = new Set<string>();
+
+		for (const line of lines) {
+			if (line.isLineSynced && !line.isDotLine) {
+				currentGlowKeys.add(line.id);
+				if (!lineGlowSprings.current.has(line.id)) {
+					lineGlowSprings.current.set(line.id, new Spring(0, 1, 0.5));
+				}
+			}
+
+			for (let wi = 0; wi < line.words.length; wi++) {
+				const word = line.words[wi];
+				const rootKey = keyFor(line, word, wi);
+				currentSpringKeys.add(rootKey);
+
+				if (!springs.current.has(rootKey)) {
+					const isDot = !!line.isDotLine;
+					springs.current.set(
+						rootKey,
+						isDot
+							? {
+									scale: new Spring(0.75, 0.7, 0.6),
+									y: new Spring(0, 1.25, 0.4),
+									glow: new Spring(0, 1, 0.5),
+									opacity: new Spring(0.35, 1, 0.5),
+								}
+							: {
+									scale: new Spring(0.95, 0.88, 0.64),
+									y: new Spring(0.01, 1.45, 0.4),
+									glow: new Spring(0, 1.18, 0.56),
+									opacity: new Spring(1, 1, 0.5),
+								},
+					);
+				}
+
+				if (word.letters) {
+					const letterDuration =
+						(word.endTime - word.startTime) / word.letters.length;
+					const letterScale = simple
+						? simpleLetterScaleSpline
+						: letterScaleSpline;
+					const letterY = simple ? simpleLetterYSpline : letterYSpline;
+
+					for (let index = 0; index < word.letters.length; index++) {
+						const start = word.startTime + index * letterDuration;
+						const nodeKey = `${rootKey}:${start}`;
+						currentSpringKeys.add(nodeKey);
+
+						if (!springs.current.has(nodeKey)) {
+							springs.current.set(nodeKey, {
+								scale: new Spring(letterScale.at(0), 0.88, 0.64),
+								y: new Spring(letterY.at(0), 1.45, 0.4),
+								glow: new Spring(glowSpline.at(0), 1.18, 0.56),
+								opacity: new Spring(1, 1, 0.5),
+							});
+						}
+					}
+				}
+			}
+		}
+
+		for (const key of springs.current.keys()) {
+			if (!currentSpringKeys.has(key)) {
+				springs.current.delete(key);
+			}
+		}
+		for (const key of lineGlowSprings.current.keys()) {
+			if (!currentGlowKeys.has(key)) {
+				lineGlowSprings.current.delete(key);
+			}
+		}
+	}, [lines, simple]);
 
 	useEffect(() => {
 		const viewport = viewportRef.current;
@@ -804,17 +881,13 @@ export const SpicyLyrics = memo(() => {
 				? lineNodes.current.get(scrollTarget.id)
 				: undefined;
 			const viewport = viewportRef.current;
+			const scrollRect = scrollNode?.getBoundingClientRect();
+			const viewportRect = viewport?.getBoundingClientRect();
 			const visible =
-				!!scrollNode &&
-				!!viewport &&
-				Math.min(
-					scrollNode.getBoundingClientRect().bottom,
-					viewport.getBoundingClientRect().bottom,
-				) -
-					Math.max(
-						scrollNode.getBoundingClientRect().top,
-						viewport.getBoundingClientRect().top,
-					) >=
+				!!scrollRect &&
+				!!viewportRect &&
+				Math.min(scrollRect.bottom, viewportRect.bottom) -
+					Math.max(scrollRect.top, viewportRect.top) >=
 					5;
 			if (
 				scrollTarget &&

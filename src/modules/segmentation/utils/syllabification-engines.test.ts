@@ -21,32 +21,33 @@ const prosodicConfig: SegmentationConfig = {
 };
 
 describe("syllabification engines", () => {
-	it("uses Prosodic dictionary entries before its speech fallback", () => {
-		const parts = getSyllabificationEngine("prosodic").split("everything");
+	it("uses Prosodic dictionary entries before its speech fallback", async () => {
+		const parts = await getSyllabificationEngine("prosodic").split("everything");
 		expect(parts.join("")).toBe("everything");
 		expect(parts.length).toBeGreaterThan(1);
 	});
 
-	it("handles dropped-g lyric spellings", () => {
-		const parts = getSyllabificationEngine("prosodic").split("singin");
+	it("handles dropped-g lyric spellings", async () => {
+		const parts = await getSyllabificationEngine("prosodic").split("singin");
 		expect(parts.join("")).toBe("singin");
 		expect(parts.length).toBeGreaterThan(1);
 	});
 
-	it("keeps contractions with typographic apostrophes together", () => {
+	it("keeps contractions with typographic apostrophes together", async () => {
 		for (const contraction of ["we’re", "you’ve", "they’re"]) {
 			const word = { ...newLyricWord(), word: contraction };
+			const segmented = await segmentWord(word, prosodicConfig);
 			expect(
-				segmentWord(word, prosodicConfig).map((part) => part.word),
+				segmented.map((part) => part.word),
 			).toEqual([contraction]);
 		}
 	});
 
-	it("keeps basic and none engines unsplit", () => {
-		expect(getSyllabificationEngine("basic").split("beautiful")).toEqual([
+	it("keeps basic and none engines unsplit", async () => {
+		expect(await getSyllabificationEngine("basic").split("beautiful")).toEqual([
 			"beautiful",
 		]);
-		expect(getSyllabificationEngine("none").split("beautiful")).toEqual([
+		expect(await getSyllabificationEngine("none").split("beautiful")).toEqual([
 			"beautiful",
 		]);
 	});
@@ -59,8 +60,8 @@ describe("syllabification engines", () => {
 		["silabas", "corazón"],
 		["syllabify-fr", "bonjour"],
 		["syllabify", "привет"],
-	] as const)("preserves text with the %s engine", (engine, word) => {
-		const parts = getSyllabificationEngine(engine).split(word);
+	] as const)("preserves text with the %s engine", async (engine, word) => {
+		const parts = await getSyllabificationEngine(engine).split(word);
 		expect(parts.join("")).toBe(word);
 	});
 

@@ -23,7 +23,7 @@ import {
 } from "@radix-ui/themes";
 import { useAtom, useAtomValue } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	segmentationCustomRulesAtom,
@@ -136,8 +136,11 @@ export const AdvancedSegmentationDialog = memo(() => {
 		setManualSplitIndices(indices);
 	}, []);
 
-	const testPreview = useMemo(() => {
+	const [testPreviewWords, setTestPreviewWords] = useState<LyricWord[]>([]);
+
+	useEffect(() => {
 		if (!testInput.trim()) {
+			setTestPreviewWords([]);
 			return;
 		}
 
@@ -148,46 +151,63 @@ export const AdvancedSegmentationDialog = memo(() => {
 			endTime: 10000,
 		};
 
-		try {
-			const tempLine = { ...newLyricLine(), words: [testWord] };
-			const processedLines = segmentLyricLines([tempLine], segmentationConfig);
-			const resultWords = processedLines[0].words;
+		let isCancelled = false;
 
-			if (resultWords.length === 0) return;
+		const run = async () => {
+			try {
+				const tempLine = { ...newLyricLine(), words: [testWord] };
+				const processedLines = await segmentLyricLines([tempLine], segmentationConfig);
+				if (!isCancelled) {
+					setTestPreviewWords(processedLines[0].words);
+				}
+			} catch (error) {
+				console.error("分词预览出错:", error);
+				if (!isCancelled) setTestPreviewWords([]);
+			}
+		};
+		run();
 
-			return (
-				<Flex gap="1" wrap="wrap" align="center">
-					{resultWords.map((w, i) => (
-						<span
-							className={styles.previewWord}
-							key={`preview-word-${i}-${w.id}`}
-						>
-							{w.word.trim() === "" ? (
-								<Text color="gray" as="span">
-									{w.word.length > 0
-										? t("splitWordDialog.spaceCount", "空格x{count}", {
-												count: w.word.length,
-											})
-										: t("splitWordDialog.empty", "空白")}
-								</Text>
-							) : (
-								w.word
-							)}
-						</span>
-					))}
-				</Flex>
-			);
-		} catch (error) {
-			console.error("分词预览出错:", error);
+		return () => {
+			isCancelled = true;
+		};
+	}, [testInput, segmentationConfig]);
+
+	const testPreview = useMemo(() => {
+		if (!testInput.trim()) return;
+		
+		if (testPreviewWords.length === 0) {
 			return (
 				<Text color="gray">
-					{t("advancedSegmentDialog.test.outputError", "分词预览出错")}
+					{t("advancedSegmentDialog.test.outputError", "分词预览出错/加载中")}
 				</Text>
 			);
 		}
-	}, [testInput, t, segmentationConfig]);
 
-	const onApply = useCallback(() => {
+		return (
+			<Flex gap="1" wrap="wrap" align="center">
+				{testPreviewWords.map((w, i) => (
+					<span
+						className={styles.previewWord}
+						key={`preview-word-${i}-${w.id}`}
+					>
+						{w.word.trim() === "" ? (
+							<Text color="gray" as="span">
+								{w.word.length > 0
+									? t("splitWordDialog.spaceCount", "空格x{count}", {
+											count: w.word.length,
+										})
+									: t("splitWordDialog.empty", "空白")}
+							</Text>
+						) : (
+							w.word
+						)}
+					</span>
+				))}
+			</Flex>
+		);
+	}, [testInput, testPreviewWords, t]);
+
+	const onApply = useCallback(async () => {
 		const maxLines = currentLyric.lyricLines.length;
 		let startIndex = 0;
 		let endIndex = maxLines;
@@ -199,12 +219,13 @@ export const AdvancedSegmentationDialog = memo(() => {
 			endIndex = Math.max(startIndex, Math.min(endIndex, maxLines));
 		}
 
+		const linesToProcess = currentLyric.lyricLines.slice(startIndex, endIndex);
+		const processedLines = await segmentLyricLines(
+			linesToProcess,
+			segmentationConfig,
+		);
+
 		editLyricLines((draft) => {
-			const linesToProcess = draft.lyricLines.slice(startIndex, endIndex);
-			const processedLines = segmentLyricLines(
-				linesToProcess,
-				segmentationConfig,
-			);
 			draft.lyricLines.splice(
 				startIndex,
 				processedLines.length,
@@ -219,7 +240,7 @@ export const AdvancedSegmentationDialog = memo(() => {
 		rangeStart,
 		rangeEnd,
 		editLyricLines,
-		currentLyric.lyricLines.length,
+		currentLyric.lyricLines,
 		setOpen,
 	]);
 
