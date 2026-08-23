@@ -46,3 +46,9 @@ ffmpeg-core.js
 .env*.local
 
 AGENTS.md
+
+# Arch Linux packaging artifacts
+packaging/archlinux/src/
+packaging/archlinux/pkg/
+packaging/archlinux/*.pkg.tar.*
+packaging/archlinux/NaeNae-AMLL-TTML-TOOL/
