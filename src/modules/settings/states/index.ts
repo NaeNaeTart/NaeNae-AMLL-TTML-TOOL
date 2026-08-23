@@ -293,6 +293,13 @@ export const glassmorphismBlurAtom = atomWithStorage<number>(
 	24,
 );
 
+export const interfaceScaleAtom = atomWithStorage<number>(
+	"interfaceScale",
+	1,
+	undefined,
+	{ getOnInit: true },
+);
+
 export enum AppearanceEditorMode {
 	Basic = "basic",
 	Advanced = "advanced",
