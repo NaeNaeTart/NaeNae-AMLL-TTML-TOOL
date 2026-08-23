@@ -75,6 +75,11 @@ export function ChangelogDialog() {
 									exports sometimes ignoring the saved consecutive and standalone
 									background-vocal setting until it was toggled again.
 								</Text>
+								<Text size="2">
+									<strong>Stable Mode Switching:</strong> Switching between Edit and
+									Time mode now keeps the same lyric line in view without centering
+									lines selected while editing.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
