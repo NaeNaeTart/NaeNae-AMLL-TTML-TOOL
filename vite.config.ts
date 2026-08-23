@@ -163,6 +163,12 @@ export default defineConfig({
 				secure: true,
 				rewrite: (path) => path.replace(/^\/api\/spotify-api/, ""),
 			},
+			"/api/lrclib": {
+				target: "https://lrclib.net",
+				changeOrigin: true,
+				secure: true,
+				rewrite: (path) => path.replace(/^\/api\/lrclib/, "/api"),
+			},
 		},
 	},
 	envPrefix: ["VITE_", "TAURI_", "AMLL_", "SENTRY_"],

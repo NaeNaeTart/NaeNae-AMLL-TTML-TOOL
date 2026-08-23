@@ -32,6 +32,8 @@ export interface TTMLLyric {
 	lyricLines: LyricLine[];
 	marks?: Mark[];
 	sections?: LyricSection[];
+	reversedSyncLineIds?: string[];
+	vocalistNames?: Record<string, string>;
 }
 
 export const LYRIC_SECTION_CATEGORIES = [
@@ -107,6 +109,8 @@ export interface LyricLine extends AMLLLyricLine {
 	// romanLyric: string;
 	// isBG: boolean;
 	// isDuet: boolean;
+	isMiddle?: boolean;
+	isDuetGroup?: boolean;
 	startTime: number;
 	endTime: number;
 	ignoreSync: boolean;
@@ -139,6 +143,8 @@ export const newLyricLine = (): LyricLine => ({
 	romanLyric: "",
 	isBG: false,
 	isDuet: false,
+	isMiddle: false,
+	isDuetGroup: false,
 	startTime: 0,
 	endTime: 0,
 	ignoreSync: false,

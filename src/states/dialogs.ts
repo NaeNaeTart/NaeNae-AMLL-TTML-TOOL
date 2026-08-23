@@ -78,3 +78,7 @@ export const spotMatchDialogAtom = atom<
 	  }
 	| boolean
 >(false);
+
+export const lyricsfileConverterDialogAtom = atom(false);
+export const publishToLRCLIBDialogAtom = atom(false);
+

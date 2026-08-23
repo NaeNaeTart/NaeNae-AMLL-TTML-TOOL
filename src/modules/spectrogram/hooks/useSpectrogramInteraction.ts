@@ -131,8 +131,11 @@ export function useSpectrogramInteraction(
 		}
 	}, [zoom]);
 
+	const prevAudioBufferRef = useRef<AudioBuffer | null>(audioBuffer);
+
 	useEffect(() => {
-		if (audioBuffer) {
+		if (audioBuffer && prevAudioBufferRef.current !== audioBuffer) {
+			prevAudioBufferRef.current = audioBuffer;
 			setScrollLeft(0);
 			targetScrollLeftRef.current = 0;
 			currentScrollLeftRef.current = 0;

@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system";
+import { exportLyricsfileText } from "$/modules/lyricsfile-processor/writer";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import { allowConsecutiveBackgroundLinesAtom, lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
@@ -21,8 +22,15 @@ import {
 	importFromLRCLIBDialogAtom,
 	importFromTextDialogAtom,
 	lyricallyImportLyricsDialogAtom,
+	publishToLRCLIBDialogAtom,
 } from "$/states/dialogs.ts";
-import { lyricLinesAtom, saveFileNameAtom } from "$/states/main.ts";
+import {
+	ActiveFileKind,
+	FILE_KIND_EXTENSIONS,
+	lyricLinesAtom,
+	saveFileNameAtom,
+	stripKnownFileExtension,
+} from "$/states/main.ts";
 import { normalizeLyricText } from "$/utils/apostrophe-normalization";
 import { openFileWithDialog } from "$/utils/fileDialog.ts";
 import { saveFile } from "$/utils/fileSystem.ts";
@@ -32,6 +40,7 @@ export const ImportExportLyric = () => {
 	const store = useStore();
 	const setImportFromTextDialog = useSetAtom(importFromTextDialogAtom);
 	const setImportFromLRCLIBDialog = useSetAtom(importFromLRCLIBDialogAtom);
+	const setPublishToLRCLIBDialog = useSetAtom(publishToLRCLIBDialogAtom);
 	const setGeniusImportLyricsDialog = useSetAtom(geniusImportLyricsDialogAtom);
 	const setLyricallyImportDialog = useSetAtom(lyricallyImportLyricsDialogAtom);
 	const { openFile } = useFileOpener();
@@ -54,6 +63,48 @@ export const ImportExportLyric = () => {
 		});
 		if (!file || Array.isArray(file)) return;
 		openFile(file, extension);
+	};
+
+	const onImportLyricsfile = async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [
+				{
+					name: "Lyricsfile YAML files",
+					extensions: ["lyricsfile.yaml", "yaml", "yml"],
+				},
+			],
+		});
+		if (!file || Array.isArray(file)) return;
+		openFile(file, "lyricsfile");
+	};
+
+	const onExportLyricsfile = async () => {
+		notifySectionIssues();
+		const lyricState = store.get(lyricLinesAtom);
+		const data = exportLyricsfileText(lyricState);
+		const saveFileName = store.get(saveFileNameAtom);
+		const baseName = stripKnownFileExtension(saveFileName);
+		const fileName = `${baseName}${FILE_KIND_EXTENSIONS[ActiveFileKind.Lyricsfile]}`;
+		try {
+			await saveFile(data, {
+				suggestedName: fileName,
+				types: [
+					{
+						description: "Lyricsfile YAML files",
+						accept: {
+							"text/yaml": [
+								FILE_KIND_EXTENSIONS[ActiveFileKind.Lyricsfile],
+								".yaml",
+								".yml",
+							],
+						},
+					},
+				],
+			});
+		} catch (e) {
+			error("Failed to export Lyricsfile", e);
+		}
 	};
 
 	const onImportWithPlugin =
@@ -116,7 +167,7 @@ export const ImportExportLyric = () => {
 				})),
 			}));
 			const saveFileName = store.get(saveFileNameAtom);
-			const baseName = saveFileName.replace(/\.[^.]*$/, "");
+			const baseName = stripKnownFileExtension(saveFileName);
 			const fileName = `${baseName}.${extension}`;
 			try {
 				const data = stringifier(lyricForExport);
@@ -151,7 +202,7 @@ export const ImportExportLyric = () => {
 			try {
 				const result = await pluginManager.runExporter(pluginId, ttmlData);
 				const saveFileName = store.get(saveFileNameAtom);
-				const baseName = saveFileName.replace(/\.[^.]*$/, "");
+				const baseName = stripKnownFileExtension(saveFileName);
 				const fileName = `${baseName}.${extension}`;
 				await saveFile(result, {
 					suggestedName: fileName,
@@ -175,7 +226,7 @@ export const ImportExportLyric = () => {
 				</DropdownMenu.SubTrigger>
 				<DropdownMenu.SubContent>
 					<DropdownMenu.Item onClick={() => setImportFromTextDialog(true)}>
-						{t("topBar.menu.importLyric.fromPlainText", "从纯文本导入")}
+						{t("topBar.menu.importLyric.fromText", "从纯文本导入...")}
 					</DropdownMenu.Item>
 					<DropdownMenu.Item onClick={() => setImportFromLRCLIBDialog(true)}>
 						{t("topBar.menu.importLyric.fromLRCLIB", "从 LRCLIB 导入...")}
@@ -193,6 +244,12 @@ export const ImportExportLyric = () => {
 
 					<DropdownMenu.Item onClick={() => onImportLyric("lrc")}>
 						{t("topBar.menu.importLyric.fromLyRiC", "从 LyRiC 文件导入")}
+					</DropdownMenu.Item>
+					<DropdownMenu.Item onClick={onImportLyricsfile}>
+						{t(
+							"topBar.menu.importLyric.fromLyricsfile",
+							"从 Lyricsfile (YAML) 文件导入",
+						)}
 					</DropdownMenu.Item>
 					<DropdownMenu.Item onClick={() => onImportLyric("eslrc")}>
 						{t("topBar.menu.importLyric.fromESLyRiC", "从 ESLyRiC 文件导入")}
@@ -245,6 +302,16 @@ export const ImportExportLyric = () => {
 					</DropdownMenu.Item>
 					<DropdownMenu.Item onClick={onExportLyric(stringifyAss, "ass")}>
 						{t("topBar.menu.exportLyric.toASS", "导出到 ASS 字幕")}
+					</DropdownMenu.Item>
+					<DropdownMenu.Item onClick={onExportLyricsfile}>
+						{t(
+							"topBar.menu.exportLyric.toLyricsfile",
+							"导出到 Lyricsfile (YAML) [BETA]",
+						)}
+					</DropdownMenu.Item>
+					<DropdownMenu.Separator />
+					<DropdownMenu.Item onClick={() => setPublishToLRCLIBDialog(true)}>
+						{t("topBar.menu.exportLyric.publishToLRCLIB", "发布到 LRCLIB...")}
 					</DropdownMenu.Item>
 
 					{exporters.length > 0 && <DropdownMenu.Separator />}

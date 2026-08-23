@@ -352,8 +352,8 @@ export const AudioSlider = memo(() => {
 			const interpolatedTime =
 				anchorAudioTime + elapsed * audioEngine.musicPlayBackRate;
 
-			// Correct stalls and long frame gaps without resetting the smooth clock.
-			if (Math.abs(audioEngine.musicCurrentTime - interpolatedTime) > 0.1) {
+			// Correct actual seeks or major stalls (>350ms) without snapping on normal buffer jitter.
+			if (Math.abs(audioEngine.musicCurrentTime - interpolatedTime) > 0.35) {
 				syncClock();
 			}
 		};

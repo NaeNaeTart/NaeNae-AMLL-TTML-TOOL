@@ -3,7 +3,7 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { lyricLinesAtom, selectedLinesAtom } from "$/states/main";
+import { lyricLinesAtom, selectedLinesAtom, ActiveFileKind, activeFileKindAtom, vocalistNamesAtom } from "$/states/main";
 
 import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml";
 import {
@@ -21,8 +21,11 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 	const selectedLinesSize = useAtomValue(selectedLinesSizeAtom);
 	const selectedLines = useAtomValue(selectedLinesAtom);
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
+	const activeFileKind = useAtomValue(activeFileKindAtom);
+	const isLyricsfile = activeFileKind === ActiveFileKind.Lyricsfile;
 
 	const lineObjs = useAtomValue(lyricLinesAtom);
+	const currentLine = lineObjs.lyricLines[lineIndex];
 	const selectedLineObjs = lineObjs.lyricLines.filter((line) =>
 		selectedLines.has(line.id),
 	);
@@ -34,6 +37,16 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 	const [DuetChecked, setDuetChecked] = React.useState(() => {
 		if (selectedLineObjs.every((line) => line.isDuet)) return true;
 		else if (selectedLineObjs.every((line) => !line.isDuet)) return false;
+		else return "indeterminate" as const;
+	});
+	const [MiddleChecked, setMiddleChecked] = React.useState(() => {
+		if (selectedLineObjs.every((line) => line.isMiddle)) return true;
+		else if (selectedLineObjs.every((line) => !line.isMiddle)) return false;
+		else return "indeterminate" as const;
+	});
+	const [DuetGroupChecked, setDuetGroupChecked] = React.useState(() => {
+		if (selectedLineObjs.every((line) => line.isDuetGroup)) return true;
+		else if (selectedLineObjs.every((line) => !line.isDuetGroup)) return false;
 		else return "indeterminate" as const;
 	});
 	const combineEnabled = (() => {
@@ -64,9 +77,102 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 			const lines = state.lyricLines.filter((line) =>
 				selectedLines.has(line.id),
 			);
-			for (const line of lines) line.isDuet = checked;
+			for (const line of lines) {
+				line.isDuet = checked;
+				if (checked) {
+					line.isMiddle = false;
+					line.isDuetGroup = false;
+				}
+			}
+		});
+		if (checked) {
+			setMiddleChecked(false);
+			setDuetGroupChecked(false);
+		}
+	}
+	function middleOnCheck(checked: boolean) {
+		setMiddleChecked(checked);
+		editLyricLines((state) => {
+			const lines = state.lyricLines.filter((line) =>
+				selectedLines.has(line.id),
+			);
+			for (const line of lines) {
+				line.isMiddle = checked;
+				if (checked) {
+					line.isDuet = false;
+					line.isDuetGroup = false;
+				}
+			}
+		});
+		if (checked) {
+			setDuetChecked(false);
+			setDuetGroupChecked(false);
+		}
+	}
+	function duetGroupOnCheck(checked: boolean) {
+		setDuetGroupChecked(checked);
+		editLyricLines((state) => {
+			const lines = state.lyricLines.filter((line) =>
+				selectedLines.has(line.id),
+			);
+			for (const line of lines) {
+				line.isDuetGroup = checked;
+				if (checked) {
+					line.isDuet = false;
+					line.isMiddle = false;
+				}
+			}
+		});
+		if (checked) {
+			setDuetChecked(false);
+			setMiddleChecked(false);
+		}
+	}
+
+	const vocalistNames = useAtomValue(vocalistNamesAtom);
+	const currentLineVocalistId = currentLine
+		? currentLine.isDuetGroup
+			? "v4"
+			: currentLine.isDuet
+				? "v2"
+				: currentLine.isMiddle
+					? "v3"
+					: "v1"
+		: undefined;
+
+	const VOCALIST_ROLE_LABELS: Record<string, string> = {
+		v1: "v1-lead (Principal)",
+		v2: "v2-duet (Duet)",
+		v3: "v3-middle (Middle)",
+		v4: "v4-harmony (Harmony)",
+	};
+
+	function renameVocalist() {
+		if (!currentLineVocalistId) return;
+		const roleLabel =
+			VOCALIST_ROLE_LABELS[currentLineVocalistId] || currentLineVocalistId;
+		const currentName = vocalistNames[currentLineVocalistId] ?? "";
+		const nextName = window.prompt(
+			t("contextMenu.renameVocalistPrompt", "Rename vocalist for {{role}}:", {
+				role: roleLabel,
+			}),
+			currentName,
+		);
+		if (nextName === null) return;
+		const trimmed = nextName.trim();
+		editLyricLines((state) => {
+			if (!state.vocalistNames) state.vocalistNames = {};
+			if (trimmed) {
+				state.vocalistNames[currentLineVocalistId] = trimmed;
+			} else {
+				delete state.vocalistNames[currentLineVocalistId];
+			}
 		});
 	}
+
+	const vocalistItemLabel = currentLineVocalistId
+		? `${VOCALIST_ROLE_LABELS[currentLineVocalistId] || currentLineVocalistId}: ${vocalistNames[currentLineVocalistId] || t("lyricLineView.empty", "None")}`
+		: "";
 
 	return (
 		<>
@@ -79,6 +185,24 @@ export const LyricLineMenu = ({ lineIndex }: { lineIndex: number }) => {
 			>
 				{t("contextMenu.duetLyric", "对唱歌词")}
 			</ContextMenu.CheckboxItem>
+			<ContextMenu.CheckboxItem
+				checked={DuetGroupChecked}
+				onCheckedChange={duetGroupOnCheck}
+			>
+				{t("contextMenu.duetGroupLyric", "Duet line (harmony, sung together)")}
+			</ContextMenu.CheckboxItem>
+			<ContextMenu.CheckboxItem
+				checked={MiddleChecked}
+				onCheckedChange={middleOnCheck}
+			>
+				{t("contextMenu.middleLyric", "Third voice (middle) line")}
+			</ContextMenu.CheckboxItem>
+			{isLyricsfile && currentLineVocalistId && (
+				<ContextMenu.Item onSelect={renameVocalist}>
+					{t("contextMenu.renameVocalist", "Rename vocalist...")}
+					{vocalistItemLabel ? ` (${vocalistItemLabel})` : ""}
+				</ContextMenu.Item>
+			)}
 			<ContextMenu.Separator />
 			<ContextMenu.Item
 				onSelect={() => {

@@ -1,5 +1,5 @@
 pkgname=amll-ttml-tool-git
-pkgver=0.9.11.r1080.ge090733
+pkgver=0.9.11.r1082.g061f6f0
 pkgrel=1
 pkgdesc="A brand-new syllable lyric editor for Apple Music-like lyrics"
 arch=('x86_64')

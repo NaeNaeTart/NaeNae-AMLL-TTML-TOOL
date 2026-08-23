@@ -85,6 +85,21 @@ export const allLyricsWordsAtom: Atom<Set<string>> = selectAtom(
  */
 export const projectIdAtom = atom(uid());
 
+const DEFAULT_VOCALIST_NAMES: Record<string, string> = {
+	v1: "Lead",
+	v2: "Duet",
+	v3: "Middle",
+	v4: "Harmony",
+};
+
+// Derived from the active project's real vocalist names (lyricsfile.yaml only,
+// edited in Metadata -> Vocalist names). Falls back to the generic
+// Lead/Duet/Middle/Harmony placeholders for any id the user hasn't renamed.
+export const vocalistNamesAtom = atom<Record<string, string>>((get) => ({
+	...DEFAULT_VOCALIST_NAMES,
+	...get(lyricLinesAtom).vocalistNames,
+}));
+
 export const rubyWarningShownProjectIdsAtom = atom(new Set<string>());
 
 /**
@@ -162,6 +177,35 @@ export const selectedWordsAtom = atom(new Set<string>());
 export const collapsedSectionIdsAtom = atom(new Set<string>());
 
 export const saveFileNameAtom = atom("lyric.ttml");
+
+export enum ActiveFileKind {
+	TTML = "ttml",
+	Lyricsfile = "lyricsfile",
+}
+
+export const activeFileKindAtom = atom<ActiveFileKind>(ActiveFileKind.TTML);
+
+export const FILE_KIND_EXTENSIONS: Record<ActiveFileKind, string> = {
+	[ActiveFileKind.TTML]: ".ttml",
+	[ActiveFileKind.Lyricsfile]: ".lyricsfile.yaml",
+};
+
+const KNOWN_FILE_EXTENSIONS = [
+	...Object.values(FILE_KIND_EXTENSIONS),
+	".lyricsfile.yaml",
+	".yaml",
+	".yml",
+].sort((a, b) => b.length - a.length);
+
+export function stripKnownFileExtension(fileName: string): string {
+	const lower = fileName.toLowerCase();
+	for (const ext of KNOWN_FILE_EXTENSIONS) {
+		if (lower.endsWith(ext)) {
+			return fileName.slice(0, fileName.length - ext.length);
+		}
+	}
+	return fileName.replace(/\.[^.]*$/, "");
+}
 
 export const showUnselectedLinesAtom = atomWithStorage(
 	"showUnselectedLines",

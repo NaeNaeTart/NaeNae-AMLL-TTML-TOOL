@@ -1,7 +1,9 @@
 import { LatencyTestDialog } from "$/modules/audio/modals/LatencyTest.tsx";
+import { LyricsfileConverterDialog } from "$/modules/lyricsfile-processor/LyricsfileConverterDialog.tsx";
 import { GeniusImportLyricsDialog } from "$/modules/genius/modals/GeniusImportLyricsDialog.tsx";
 import { GeniusSearchDialog } from "$/modules/genius/modals/GeniusSearchDialog.tsx";
 import { ImportFromLRCLIB } from "$/modules/lrclib/modals/ImportDialog.tsx";
+import { PublishDialog as PublishToLRCLIBDialog } from "$/modules/lrclib/modals/PublishDialog.tsx";
 import { GrammarCheckDialog } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { UrbanDictionaryDialog } from "$/modules/lyric-editor/modals/UrbanDictionaryDialog.tsx";
 import { CombineWordsDialog } from "$/modules/lyric-editor/tools/CombineWordsDialog.tsx";
@@ -50,6 +52,8 @@ export const Dialogs = () => {
 			<SubmitToAMLLDBDialog />
 			<LatencyTestDialog />
 			<TTMLChecklistDialog />
+			<LyricsfileConverterDialog />
+			<PublishToLRCLIBDialog />
 			<ConfirmationDialog />
 			<Mp3ConversionDialog />
 			<HistoryRestoreDialog />

@@ -21,4 +21,24 @@ export interface LrcLibTrack {
 	 * LRC 歌词
 	 */
 	syncedLyrics: string | null;
+	/**
+	 * Lyricsfile (YAML 1.x) 歌词
+	 */
+	lyricsfile?: string | null;
 }
+
+export interface LrcLibChallengeResponse {
+	prefix: string;
+	target: string;
+}
+
+export interface LrcLibPublishParams {
+	trackName: string;
+	artistName: string;
+	albumName?: string;
+	duration?: number;
+	plainLyrics?: string;
+	syncedLyrics?: string;
+	lyricsfile?: string;
+}
+

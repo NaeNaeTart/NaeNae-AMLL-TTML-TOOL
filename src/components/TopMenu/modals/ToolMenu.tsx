@@ -65,6 +65,12 @@ const ToolMenuItems = () => {
 			<DropdownMenu.Item onSelect={menu.onOpenTTMLChecklist}>
 				{t("topBar.menu.ttmlChecklist", "TTML Checklist")}
 			</DropdownMenu.Item>
+			<DropdownMenu.Item onSelect={menu.onOpenLyricsfileConverter}>
+				{t(
+					"topBar.menu.lyricsfileConverter",
+					"Lyricsfile Converter (TTML ↔ YAML) [BETA]",
+				)}
+			</DropdownMenu.Item>
 			<DropdownMenu.Item onSelect={menu.onOpenSpotMatch}>
 				{t("topBar.menu.spotmatch", "SpotMatch (Find Spotify IDs)...")}
 			</DropdownMenu.Item>

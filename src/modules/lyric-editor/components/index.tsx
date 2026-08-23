@@ -289,6 +289,10 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				store.set(lineDragAtom, { ...drag, isDragging: true });
 				store.set(draggingIdAtom, drag.id);
 				showDragPreview(drag.id);
+				window.addEventListener("wheel", scrollWithWheel, {
+					capture: true,
+					passive: false,
+				});
 			}
 			event.preventDefault();
 			pointer = { x: event.clientX, y: event.clientY };
@@ -298,6 +302,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		};
 
 		const finishDragging = (event?: PointerEvent) => {
+			window.removeEventListener("wheel", scrollWithWheel, true);
 			const drag = store.get(lineDragAtom);
 			if (!drag || (event && drag.pointerId !== event.pointerId)) return;
 			if (drag.isDragging && dropTarget) {
@@ -359,10 +364,6 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		window.addEventListener("pointermove", updatePointer, true);
 		window.addEventListener("pointerup", finishDragging, true);
 		window.addEventListener("pointercancel", finishDragging, true);
-		window.addEventListener("wheel", scrollWithWheel, {
-			capture: true,
-			passive: false,
-		});
 		window.addEventListener("blur", handleWindowBlur);
 
 		return () => {
@@ -379,17 +380,17 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const scrollToIndexAtom = useMemo(
 		() =>
 			atom((get) => {
-				if (!shouldAutoCenterSelection(toolMode)) return;
+				if (!shouldAutoCenterSelection(toolMode)) return null;
 				const selectedLines = get(selectedLinesAtom);
-				if (selectedLines.size === 0) return Number.NaN;
+				if (selectedLines.size === 0) return null;
 				const lyrics = get(lyricLinesAtom).lyricLines;
 				const index = lyrics.findIndex((l) => selectedLines.has(l.id));
-				return index === -1 ? Number.NaN : index;
+				return index === -1 ? null : index;
 			}),
 		[toolMode],
 	);
 	const scrollToIndex = useAtomValue(scrollToIndexAtom);
-	const lastScrolledIndexRef = useRef<number | undefined>(undefined);
+	const lastScrolledIndexRef = useRef<number | null>(null);
 	const lyricLines = useAtomValue(lyricLinesAtom).lyricLines;
 	const collapsedSections = useAtomValue(collapsedSectionIdsAtom);
 	const visibleItems = useMemo(
@@ -415,40 +416,36 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		(index: number) => {
 			const viewEl = viewElRef.current;
 			if (!viewEl) return;
-			const viewContainerEl = viewEl.parentElement;
-			if (!viewContainerEl) return;
 			const visibleIndex = visibleItems.findIndex(
 				(item) => item.sourceIndex === index,
 			);
 			if (visibleIndex === -1) return;
 			viewRef.current?.scrollToIndex({
 				index: visibleIndex,
-				offset: viewContainerEl.clientHeight / -2 + 50,
+				align: "center",
 			});
 		},
 		[visibleItems],
 	);
-	const restoreEditorAnchorOnListReady = useCallback(
-		(instance: ViewportListRef | null) => {
-			viewRef.current = instance;
-			if (!instance || editorAnchorLineIndex === -1) return;
-			const anchorIndex = editorAnchorLineIndex;
-			const visibleIndex = visibleItems.findIndex(
-				(item) => item.sourceIndex === anchorIndex,
-			);
-			if (visibleIndex === -1) return;
-			requestAnimationFrame(() => {
-				const viewEl = viewElRef.current;
-				if (!viewEl?.parentElement) return;
-				const offset = viewEl.parentElement.clientHeight / -2 + 50;
-				instance.scrollToIndex({ index: visibleIndex, offset });
-				if (editorAnchorLineIndex === anchorIndex) {
-					editorAnchorLineIndex = -1;
-				}
-			});
-		},
-		[visibleItems],
-	);
+
+	// Restore anchor only on mode switch / mount
+	useEffect(() => {
+		if (editorAnchorLineIndex === -1) return;
+		const anchorIndex = editorAnchorLineIndex;
+		const visibleIndex = visibleItems.findIndex(
+			(item) => item.sourceIndex === anchorIndex,
+		);
+		if (visibleIndex === -1) return;
+		const timer = setTimeout(() => {
+			const viewEl = viewElRef.current;
+			if (!viewEl?.parentElement || !viewRef.current) return;
+			viewRef.current.scrollToIndex({ index: visibleIndex, align: "center" });
+			if (editorAnchorLineIndex === anchorIndex) {
+				editorAnchorLineIndex = -1;
+			}
+		}, 50);
+		return () => clearTimeout(timer);
+	}, [toolMode]);
 
 	const geniusCategorizationEnabled = useAtomValue(
 		geniusCategorizationEnabledAtom,
@@ -477,6 +474,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 
 	useEffect(() => {
 		if (
+			scrollToIndex === null ||
 			scrollToIndex === undefined ||
 			scrollToIndex === lastScrolledIndexRef.current
 		)
@@ -485,33 +483,26 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		scrollToLineIndex(scrollToIndex);
 	}, [scrollToIndex, scrollToLineIndex]);
 
-	const updateEditorAnchor = useCallback(() => {
-		const viewEl = viewElRef.current;
-		if (!viewEl) return;
-		const viewRect = viewEl.getBoundingClientRect();
-		const positions = Array.from(
-			viewEl.querySelectorAll<HTMLElement>("[data-lyric-line-index]"),
-		).flatMap((element) => {
-			const index = Number(element.dataset.lyricLineIndex);
-			if (!Number.isFinite(index)) return [];
-			const rect = element.getBoundingClientRect();
-			return [{ index, top: rect.top, height: rect.height }];
-		});
-		editorAnchorLineIndex = findClosestLineToViewportCenter(
-			viewRect.top + viewRect.height / 2,
-			positions,
-		);
-	}, []);
-
+	// Capture anchor on toolMode transition only
 	useEffect(() => {
-		const viewEl = viewElRef.current;
-		if (!viewEl) return;
-		viewEl.addEventListener("scroll", updateEditorAnchor, { passive: true });
 		return () => {
-			updateEditorAnchor();
-			viewEl.removeEventListener("scroll", updateEditorAnchor);
+			const viewEl = viewElRef.current;
+			if (!viewEl) return;
+			const viewRect = viewEl.getBoundingClientRect();
+			const positions = Array.from(
+				viewEl.querySelectorAll<HTMLElement>("[data-lyric-line-index]"),
+			).flatMap((element) => {
+				const index = Number(element.dataset.lyricLineIndex);
+				if (!Number.isFinite(index)) return [];
+				const rect = element.getBoundingClientRect();
+				return [{ index, top: rect.top, height: rect.height }];
+			});
+			editorAnchorLineIndex = findClosestLineToViewportCenter(
+				viewRect.top + viewRect.height / 2,
+				positions,
+			);
 		};
-	}, [updateEditorAnchor]);
+	}, [toolMode]);
 
 	const handleLocate = useCallback(() => {
 		const currentTime = store.get(currentTimeAtom);
@@ -568,18 +559,19 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					maxHeight: "100%",
 					overflowY: "auto",
 					backgroundColor: "var(--editor-bg, transparent)",
+					willChange: "scroll-position",
 				}}
 				ref={viewElRef}
 			>
 				<ViewportList
-					overscan={10}
+					overscan={4}
 					items={visibleItems}
-					ref={restoreEditorAnchorOnListReady}
+					ref={viewRef}
 					viewportRef={viewElRef}
 				>
 					{(item) => (
 						<LyricLineView
-							key={`${item.lineAtom}`}
+							key={item.line?.id ?? `line-${item.sourceIndex}`}
 							lineAtom={item.lineAtom}
 							lineIndex={item.sourceIndex}
 						/>

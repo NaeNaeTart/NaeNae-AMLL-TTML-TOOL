@@ -21,6 +21,7 @@ import { getProjectList } from "$/modules/project/autosave/autosave";
 import { getSuggestedTtmlFileName } from "$/modules/project/logic/metadata-filename";
 import { isProjectMatch } from "$/modules/project/logic/project-match";
 import { parseLyric as parseTTML } from "$/modules/project/logic/ttml-parser";
+import { parseLyricsfile } from "$/modules/lyricsfile-processor/parser";
 import {
 	Mp3ConversionMode,
 	mp3ConversionModeAtom,
@@ -32,6 +33,8 @@ import {
 	mp3ConversionDialogAtom,
 } from "$/states/dialogs";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
 	isDirtyAtom,
 	newLyricLinesAtom,
 	projectIdAtom,
@@ -73,6 +76,7 @@ export const useFileOpener = () => {
 	const setNewLyricLines = useSetAtom(newLyricLinesAtom);
 	const setProjectId = useSetAtom(projectIdAtom);
 	const setSaveFileName = useSetAtom(saveFileNameAtom);
+	const setActiveFileKind = useSetAtom(activeFileKindAtom);
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 	const setMp3ConversionDialog = useSetAtom(mp3ConversionDialogAtom);
 	const isDirty = useAtomValue(isDirtyAtom);
@@ -109,7 +113,16 @@ export const useFileOpener = () => {
 	const performOpenFile = useCallback(
 		async (file: File, forceExt?: string) => {
 			const rawExt = file.name.split(".").pop()?.toLowerCase() || "";
-			const ext = forceExt ? forceExt.toLowerCase() : rawExt;
+			const isLyricsfile =
+				file.name.toLowerCase().endsWith(".lyricsfile.yaml") ||
+				rawExt === "lyricsfile" ||
+				rawExt === "yaml" ||
+				rawExt === "yml";
+			const ext = forceExt
+				? forceExt.toLowerCase()
+				: isLyricsfile
+					? "lyricsfile"
+					: rawExt;
 
 			try {
 				if (AUDIO_EXTENSIONS.has(ext)) {
@@ -214,6 +227,8 @@ export const useFileOpener = () => {
 
 				if (ext === "ttml") {
 					lyricData = parseTTML(text);
+				} else if (ext === "lyricsfile") {
+					lyricData = parseLyricsfile(text);
 				} else if (ext in LYRIC_PARSERS) {
 					const parser = LYRIC_PARSERS[ext];
 					const rawLines = parser(text);
@@ -261,9 +276,14 @@ export const useFileOpener = () => {
 
 				setProjectId(resolvedProjectId);
 				setNewLyricLines(lyricData);
+				setActiveFileKind(
+					ext === "lyricsfile" ? ActiveFileKind.Lyricsfile : ActiveFileKind.TTML,
+				);
 				const suggestedFile = getSuggestedTtmlFileName(lyricData.metadata);
 				const nextFileName =
-					ext === "ttml" ? file.name : (suggestedFile?.fileName ?? file.name);
+					ext === "ttml" || ext === "lyricsfile"
+						? file.name
+						: (suggestedFile?.fileName ?? file.name);
 				setSaveFileName(nextFileName);
 			} catch (e) {
 				logError(`Failed to open file: ${file.name}`, e);
@@ -274,6 +294,7 @@ export const useFileOpener = () => {
 			setNewLyricLines,
 			setProjectId,
 			setSaveFileName,
+			setActiveFileKind,
 			normalizeLyricLines,
 			t,
 			conversionMode,

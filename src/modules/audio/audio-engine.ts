@@ -312,18 +312,25 @@ class AudioEngine extends EventTarget {
 			this._audioEl.currentTime = offset;
 			this._lastReportedTime = offset;
 			this._lastPerformanceTime = performance.now();
-			this.dispatchEvent(new Event("music-seeked"));
 		}
 	}
 
-	async resumeOrSeekMusic(offset = this.musicCurrentTime) {
+	async resumeOrSeekMusic(offset?: number) {
 		if (!this._audioEl) return;
 		await this.resumeContext();
-		this._audioEl.currentTime = offset;
-		this._lastReportedTime = offset;
-		this._lastPerformanceTime = performance.now();
-		this._audioEl.play();
-		this.dispatchEvent(new Event("music-resume"));
+		if (
+			offset !== undefined &&
+			Math.abs(this._audioEl.currentTime - offset) > 0.01
+		) {
+			this._audioEl.currentTime = offset;
+			this._lastReportedTime = offset;
+			this._lastPerformanceTime = performance.now();
+		}
+		try {
+			await this._audioEl.play();
+		} catch (e) {
+			console.warn("[AudioEngine] Play request was interrupted:", e);
+		}
 	}
 
 	stopAudition() {
@@ -353,9 +360,14 @@ class AudioEngine extends EventTarget {
 
 	pauseMusic() {
 		if (!this._audioEl) return;
+		const exactTime = this.interpolatedCurrentTime;
 		this._audioEl.pause();
+		if (Number.isFinite(exactTime) && exactTime >= 0) {
+			this._audioEl.currentTime = exactTime;
+			this._lastReportedTime = exactTime;
+			this._lastPerformanceTime = performance.now();
+		}
 		this.stopAudition();
-		this.dispatchEvent(new Event("music-pause"));
 	}
 
 	/**

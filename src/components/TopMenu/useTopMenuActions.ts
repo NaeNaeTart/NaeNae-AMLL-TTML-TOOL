@@ -10,6 +10,7 @@ import { audioEngine } from "$/modules/audio/audio-engine";
 import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import { getSynchronizableUnits } from "$/modules/lyric-editor/utils/lyric-states.ts";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system.ts";
+import { exportLyricsfileText } from "$/modules/lyricsfile-processor/writer";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
 	segmentationEngineAtom,
@@ -30,7 +31,9 @@ import {
 	historyRestoreDialogAtom,
 	latencyTestDialogAtom,
 	learnedSplitsDialogAtom,
+	lyricsfileConverterDialogAtom,
 	metadataEditorDialogAtom,
+	publishToLRCLIBDialogAtom,
 	settingsDialogAtom,
 	submitToAMLLDBDialogAtom,
 	spotMatchDialogAtom,
@@ -50,6 +53,9 @@ import {
 	keyUndoAtom,
 } from "$/states/keybindings.ts";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
+	FILE_KIND_EXTENSIONS,
 	isDirtyAtom,
 	lyricLinesAtom,
 	newLyricLinesAtom,
@@ -58,6 +64,7 @@ import {
 	saveFileNameAtom,
 	selectedLinesAtom,
 	selectedWordsAtom,
+	stripKnownFileExtension,
 	undoableLyricLinesAtom,
 	undoLyricLinesAtom,
 } from "$/states/main.ts";
@@ -91,6 +98,7 @@ export const useTopMenuActions = () => {
 	const setTTMLChecklistDialog = useSetAtom(ttmlChecklistDialogAtom);
 	const { openFile } = useFileOpener();
 	const setProjectId = useSetAtom(projectIdAtom);
+	const activeFileKind = useAtomValue(activeFileKindAtom);
 	const { config: segmentationConfig } = useSegmentationConfig();
 	const lyricLines = useAtomValue(lyricLinesAtom);
 	const newFileKey = useAtomValue(keyNewFileAtom);
@@ -112,26 +120,25 @@ export const useTopMenuActions = () => {
 	const buildRubySegments = useCallback(
 		async (text: string, baseWord: LyricWordBase) => {
 			const sourceWord: LyricWord = {
-				...newLyricWord(),
+				id: uid(),
 				word: text,
 				startTime: baseWord.startTime,
 				endTime: baseWord.endTime,
+				obscene: false,
 				emptyBeat: 0,
+				romanWord: "",
 			};
-			const segments = await segmentWord(sourceWord, segmentationConfig);
-			if (segments.length === 0) {
-				return [
-					{
-						word: text,
-						startTime: baseWord.startTime,
-						endTime: baseWord.endTime,
-					},
-				];
+			const segmented = await segmentWord(sourceWord, {
+				...segmentationConfig,
+				splitEnglish: true,
+			});
+			if (!segmented || segmented.length <= 1) {
+				return [baseWord];
 			}
-			return segments.map((segment) => ({
-				word: segment.word,
-				startTime: segment.startTime,
-				endTime: segment.endTime,
+			return segmented.map((w) => ({
+				word: w.word,
+				startTime: w.startTime,
+				endTime: w.endTime,
 			}));
 		},
 		[segmentationConfig],
@@ -139,9 +146,16 @@ export const useTopMenuActions = () => {
 
 	const onNewFile = useCallback(() => {
 		const action = () => {
-			newLyricLine();
+			store.set(newLyricLinesAtom, {
+				lyricLines: [],
+				metadata: [],
+			});
 			setProjectId(uid());
-			setSaveFileName("lyric.ttml");
+			setSaveFileName(
+				activeFileKind === ActiveFileKind.Lyricsfile
+					? "lyric.lyricsfile.yaml"
+					: "lyric.ttml",
+			);
 		};
 
 		if (isDirty) {
@@ -159,11 +173,12 @@ export const useTopMenuActions = () => {
 		}
 	}, [
 		isDirty,
-		newLyricLine,
-		setConfirmDialog,
-		t,
+		store,
 		setProjectId,
 		setSaveFileName,
+		setConfirmDialog,
+		t,
+		activeFileKind,
 	]);
 
 	const onOpenFile = useCallback(async () => {
@@ -171,11 +186,16 @@ export const useTopMenuActions = () => {
 			multiple: false,
 			filters: [
 				{
-					name: "Lyric/Audio files",
+					name: "Supported files",
 					extensions: [
 						"ttml",
+						"lyricsfile.yaml",
+						"yaml",
+						"yml",
 						"lrc",
 						"qrc",
+						"krc",
+						"tlyric",
 						"eslrc",
 						"lys",
 						"yrc",
@@ -216,23 +236,36 @@ export const useTopMenuActions = () => {
 						`Section review: ${sectionIssues.length} non-blocking issue${sectionIssues.length === 1 ? "" : "s"}.`,
 					);
 				}
-				const ttmlText = exportTTMLText(
-					currentLyrics,
-					store.get(lyricTextNormalizationOptionsAtom),
-					{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
-				);
-				const savedName = await saveFile(ttmlText, {
-					suggestedName: saveFileName,
+				const isLyricsfile = activeFileKind === ActiveFileKind.Lyricsfile;
+				const fileText = isLyricsfile
+					? exportLyricsfileText(currentLyrics)
+					: exportTTMLText(
+							currentLyrics,
+							store.get(lyricTextNormalizationOptionsAtom),
+							{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
+						);
+				const suggestedName = `${stripKnownFileExtension(saveFileName)}${FILE_KIND_EXTENSIONS[activeFileKind]}`;
+				const savedName = await saveFile(fileText, {
+					suggestedName,
 					types: [
 						{
-							description: "TTML Files",
-							accept: { "application/ttml+xml": [".ttml"] },
+							description: isLyricsfile
+								? "Lyricsfile YAML Files"
+								: "TTML Files",
+							accept: isLyricsfile
+								? {
+										"text/yaml": [
+											FILE_KIND_EXTENSIONS[ActiveFileKind.Lyricsfile],
+											".yaml",
+										],
+									}
+								: { "application/ttml+xml": [".ttml"] },
 						},
 					],
 				});
 				if (savedName) setSaveFileName(savedName);
 			} catch (e) {
-				error("Failed to save TTML file", e);
+				error("Failed to save file", e);
 			}
 		};
 
@@ -284,7 +317,7 @@ export const useTopMenuActions = () => {
 		} else {
 			action();
 		}
-	}, [saveFileName, store, setSaveFileName, setConfirmDialog, t]);
+	}, [saveFileName, activeFileKind, store, setSaveFileName, setConfirmDialog, t]);
 
 	const onOpenHistoryRestore = useCallback(() => {
 		setHistoryRestoreDialog(true);
@@ -621,6 +654,14 @@ export const useTopMenuActions = () => {
 		setSpotMatchDialog(true);
 	}, [setSpotMatchDialog]);
 
+	const onOpenLyricsfileConverter = useCallback(() => {
+		store.set(lyricsfileConverterDialogAtom, true);
+	}, [store]);
+
+	const onPublishToLRCLIB = useCallback(() => {
+		store.set(publishToLRCLIBDialogAtom, true);
+	}, [store]);
+
 	return {
 		newFileKey,
 		openFileKey,
@@ -641,6 +682,7 @@ export const useTopMenuActions = () => {
 		onOpenHistoryRestore,
 		onSaveFileToClipboard,
 		onSubmitToAMLLDB,
+		onPublishToLRCLIB,
 		onUndo,
 		onRedo,
 		onSelectAll,
@@ -661,7 +703,9 @@ export const useTopMenuActions = () => {
 		onOpenLatencyTest,
 		onOpenTTMLChecklist,
 		onOpenSpotMatch,
+		onOpenLyricsfileConverter,
 		onOpenGitHub,
 		onOpenWiki,
 	};
 };
+

@@ -12,6 +12,8 @@
 import {
 	AddFilled,
 	LinkMultiple20Regular,
+	People16Filled,
+	TextAlignCenterFilled,
 	TextAlignRightFilled,
 	VideoBackgroundEffectFilled,
 } from "@fluentui/react-icons";
@@ -57,6 +59,8 @@ import {
 	visualizeTimestampUpdateAtom,
 } from "$/modules/settings/states/sync.ts";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
 	selectedLinesAtom,
@@ -64,6 +68,7 @@ import {
 	showEndTimeAsDurationAtom,
 	ToolMode,
 	toolModeAtom,
+	vocalistNamesAtom,
 } from "$/states/main.ts";
 import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml.ts";
 import { msToTimestamp } from "$/utils/timestamp.ts";
@@ -312,6 +317,95 @@ const SubLineEdit = memo(
 	},
 );
 
+const VOCALIST_ROLE_LABELS: Record<string, { lead: string; bg: string }> = {
+	v1: { lead: "v1-lead (Principal)", bg: "v1-bg (Background)" },
+	v2: { lead: "v2-duet (Duet)", bg: "v2-bg (Duet BG)" },
+	v3: { lead: "v3-middle (Middle)", bg: "v3-bg (Middle BG)" },
+	v4: { lead: "v4-harmony (Harmony)", bg: "v4-bg (Harmony BG)" },
+};
+
+const VocalistLineEdit = memo(
+	({ vocalistId, isBG }: { vocalistId: string; isBG?: boolean }) => {
+		const editLyricLines = useSetImmerAtom(lyricLinesAtom);
+		const vocalistNames = useAtomValue(vocalistNamesAtom);
+		const [editing, setEditing] = useState(false);
+		const [inputValue, setInputValue] = useState("");
+		const { t } = useTranslation();
+
+		const roleMeta = VOCALIST_ROLE_LABELS[vocalistId] ?? {
+			lead: `${vocalistId}-lead`,
+			bg: `${vocalistId}-bg`,
+		};
+		const rolePrefix = isBG ? roleMeta.bg : roleMeta.lead;
+		const currentName = vocalistNames[vocalistId] ?? "";
+
+		const onEnter = useCallback(
+			(evt: SyntheticEvent<HTMLInputElement>) => {
+				setEditing(false);
+				const newValue = evt.currentTarget.value.trim();
+				if (newValue !== currentName) {
+					editLyricLines((state) => {
+						if (!state.vocalistNames) state.vocalistNames = {};
+						if (newValue) {
+							state.vocalistNames[vocalistId] = newValue;
+						} else {
+							delete state.vocalistNames[vocalistId];
+						}
+					});
+				}
+			},
+			[editLyricLines, currentName, vocalistId],
+		);
+
+		useEffect(() => {
+			if (editing) setInputValue(currentName);
+		}, [editing, currentName]);
+
+		const inputWidth = useMemo(() => {
+			if (inputValue.length > 0) {
+				return `${Math.min(Math.max(inputValue.length, 2), 60)}ch`;
+			}
+			return "16ch";
+		}, [inputValue]);
+
+		return (
+			<Flex align="baseline" gap="1">
+				<Text size="2" weight="medium" color="gray">
+					{rolePrefix}:
+				</Text>
+				{editing ? (
+					<TextField.Root
+						autoFocus
+						size="1"
+						data-lyric-line-interactive=""
+						value={inputValue}
+						style={{ width: inputWidth }}
+						onChange={(evt) => setInputValue(evt.currentTarget.value)}
+						onBlur={onEnter}
+						onKeyDown={(evt) => {
+							if (evt.key === "Enter") onEnter(evt);
+						}}
+					/>
+				) : (
+					<Button
+						size="2"
+						variant="ghost"
+						data-lyric-line-interactive=""
+						onClick={(evt) => {
+							evt.stopPropagation();
+							setEditing(true);
+						}}
+					>
+						{currentName || (
+							<Text color="gray">{t("lyricLineView.empty", "None")}</Text>
+						)}
+					</Button>
+				)}
+			</Flex>
+		);
+	},
+);
+
 const InsertLineButton = ({
 	lineIndex,
 	selectedLinesCountAtom,
@@ -498,6 +592,15 @@ export const LyricLineView: FC<{
 	const showWordRomanizationInput = useAtomValue(showWordRomanizationInputAtom);
 	const showTranslation = useAtomValue(showLineTranslationAtom);
 	const showRomanization = useAtomValue(showLineRomanizationAtom);
+	const activeFileKind = useAtomValue(activeFileKindAtom);
+	const isLyricsfile = activeFileKind === ActiveFileKind.Lyricsfile;
+	const lineVocalistId = line.isDuetGroup
+		? "v4"
+		: line.isDuet
+			? "v2"
+			: line.isMiddle
+				? "v3"
+				: "v1";
 	const wordTexts = useMemo(
 		() => line.words.map((lineWord) => lineWord.word),
 		[line.words],
@@ -934,6 +1037,8 @@ export const LyricLineView: FC<{
 									<VideoBackgroundEffectFilled color="var(--accent-9)" />
 								)}
 								{line.isDuet && <TextAlignRightFilled color="#44AA33" />}
+								{line.isDuetGroup && <People16Filled color="#3399CC" />}
+								{line.isMiddle && <TextAlignCenterFilled color="#CC8833" />}
 							</Flex>
 							<div
 								className={classNames(
@@ -1191,6 +1296,12 @@ export const LyricLineView: FC<{
 												lineAtom={lineAtom}
 												lineIndex={lineIndex}
 												type="romanLyric"
+											/>
+										)}
+										{isLyricsfile && lineVocalistId && (
+											<VocalistLineEdit
+												vocalistId={lineVocalistId}
+												isBG={line.isBG}
 											/>
 										)}
 									</>

@@ -2,7 +2,9 @@ import { Button, DropdownMenu } from "@radix-ui/themes";
 import { Toolbar } from "radix-ui";
 import type { CSSProperties } from "react";
 import { Trans } from "react-i18next";
+import { useAtomValue } from "jotai";
 import { ImportExportLyric } from "$/modules/project/modals/ImportExportLyric";
+import { ActiveFileKind, activeFileKindAtom } from "$/states/main";
 import { formatKeyBindings } from "$/utils/keybindings";
 import { useTopMenuActions } from "../useTopMenuActions";
 
@@ -13,6 +15,8 @@ type FileMenuProps = {
 
 const FileMenuItems = () => {
 	const menu = useTopMenuActions();
+	const activeFileKind = useAtomValue(activeFileKindAtom);
+	const isYaml = activeFileKind === ActiveFileKind.Lyricsfile;
 
 	const getShortcut = (key: string[] | undefined) =>
 		key ? formatKeyBindings(key) : undefined;
@@ -23,13 +27,21 @@ const FileMenuItems = () => {
 				onSelect={menu.onNewFile}
 				shortcut={getShortcut(menu.newFileKey)}
 			>
-				<Trans i18nKey="topBar.menu.newLyric">新建 TTML 文件</Trans>
+				{isYaml ? (
+					<Trans i18nKey="topBar.menu.newYamlLyric">新建 YAML 文件</Trans>
+				) : (
+					<Trans i18nKey="topBar.menu.newLyric">新建 TTML 文件</Trans>
+				)}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item
 				onSelect={menu.onOpenFile}
 				shortcut={getShortcut(menu.openFileKey)}
 			>
-				<Trans i18nKey="topBar.menu.openLyric">打开 TTML 文件</Trans>
+				{isYaml ? (
+					<Trans i18nKey="topBar.menu.openYamlLyric">打开 YAML 文件</Trans>
+				) : (
+					<Trans i18nKey="topBar.menu.openLyric">打开 TTML 文件</Trans>
+				)}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item onSelect={menu.onOpenFileFromClipboard}>
 				<Trans i18nKey="topBar.menu.openFromClipboard">
@@ -40,7 +52,11 @@ const FileMenuItems = () => {
 				onSelect={menu.onSaveFile}
 				shortcut={getShortcut(menu.saveFileKey)}
 			>
-				<Trans i18nKey="topBar.menu.saveLyric">保存 TTML 文件</Trans>
+				{isYaml ? (
+					<Trans i18nKey="topBar.menu.saveYamlLyric">保存 YAML 文件</Trans>
+				) : (
+					<Trans i18nKey="topBar.menu.saveLyric">保存 TTML 文件</Trans>
+				)}
 			</DropdownMenu.Item>
 			<DropdownMenu.Separator />
 			<DropdownMenu.Item onSelect={menu.onOpenHistoryRestore}>
@@ -60,6 +76,11 @@ const FileMenuItems = () => {
 			<DropdownMenu.Item onSelect={menu.onSubmitToAMLLDB}>
 				<Trans i18nKey="topBar.menu.uploadToAMLLDB">
 					上传到 AMLL 歌词数据库
+				</Trans>
+			</DropdownMenu.Item>
+			<DropdownMenu.Item onSelect={menu.onPublishToLRCLIB}>
+				<Trans i18nKey="topBar.menu.publishToLRCLIB">
+					发布到 LRCLIB...
 				</Trans>
 			</DropdownMenu.Item>
 		</>

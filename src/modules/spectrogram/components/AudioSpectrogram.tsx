@@ -100,8 +100,9 @@ const getNoteFromFreq = (freq: number) => {
 	return `${noteName}${octave}`;
 };
 
-export const AudioSpectrogram: FC = memo(() => {
-	const audioBuffer = useAtomValue(audioBufferAtom);
+export const AudioSpectrogram: FC<{ visible?: boolean }> = memo(
+	({ visible = true }) => {
+		const audioBuffer = useAtomValue(audioBufferAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
 	const auditionTime = useAtomValue(auditionTimeAtom);
 	const selectedLines = useAtomValue(selectedLinesAtom);
@@ -393,20 +394,12 @@ export const AudioSpectrogram: FC = memo(() => {
 	};
 
 	useLayoutEffect(() => {
-		if (lastTileTimestamp === 0) {
-			return;
-		}
-		rulerRef.current?.draw(scrollLeft);
-		updateVisibleTilesRef.current();
-	}, [scrollLeft, lastTileTimestamp]);
-
-	useLayoutEffect(() => {
 		if (lastTileTimestamp === 0 && !audioBuffer) {
 			return;
 		}
 		rulerRef.current?.draw(scrollLeft);
 		updateVisibleTilesRef.current();
-	}, [scrollLeft, lastTileTimestamp, audioBuffer]);
+	}, [scrollLeft, lastTileTimestamp, audioBuffer, containerWidth]);
 
 	useEffect(() => {
 		const container = scrollContainerRef.current;
@@ -423,6 +416,17 @@ export const AudioSpectrogram: FC = memo(() => {
 
 		return () => observer.disconnect();
 	}, [setContainerWidth, audioBuffer]);
+
+	useEffect(() => {
+		if (visible && scrollContainerRef.current) {
+			const width = scrollContainerRef.current.clientWidth;
+			if (width > 0) {
+				setContainerWidth(width);
+			}
+			rulerRef.current?.draw(scrollLeft);
+			updateVisibleTilesRef.current();
+		}
+	}, [visible, scrollLeft, setContainerWidth]);
 
 	const handleMouseEnter = () => setIsHovering(true);
 	const handleMouseLeave = () => setIsHovering(false);

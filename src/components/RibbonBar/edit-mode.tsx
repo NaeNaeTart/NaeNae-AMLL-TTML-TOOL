@@ -11,6 +11,7 @@
 
 import React, {
 	forwardRef,
+	Fragment,
 	useCallback,
 	useEffect,
 	useId,
@@ -51,6 +52,8 @@ import {
 	experimentalFeaturesDialogOpenAtom,
 } from "$/modules/settings/states/index.ts";
 import {
+	ActiveFileKind,
+	activeFileKindAtom,
 	editingTimeFieldAtom,
 	lyricLinesAtom,
 	requestFocusAtom,
@@ -58,6 +61,7 @@ import {
 	selectedWordsAtom,
 	showEndTimeAsDurationAtom,
 	toolModeAtom,
+	vocalistNamesAtom,
 } from "$/states/main.ts";
 import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { type LyricLine, type LyricWord, newLyricLine } from "$/types/ttml";
@@ -465,11 +469,13 @@ function CheckboxField<
 	isWordField,
 	fieldName,
 	defaultValue,
+	exclusiveWith,
 }: {
 	label: string;
 	isWordField: Word;
 	fieldName: F;
 	defaultValue: V;
+	exclusiveWith?: (keyof L)[];
 }) {
 	const itemAtom = useMemo(
 		() => (isWordField ? selectedWordsAtom : selectedLinesAtom),
@@ -549,6 +555,11 @@ function CheckboxField<
 							} else {
 								if (selectedItems.has(line.id)) {
 									(line as L)[fieldName] = value as L[F];
+									if (value && exclusiveWith) {
+										for (const other of exclusiveWith) {
+											(line as L)[other] = false as unknown as L[typeof other];
+										}
+									}
 								}
 							}
 						}
@@ -880,6 +891,86 @@ const PhoneticSection = () => {
 	);
 };
 
+const VOCAL_ROLE_MAP: Record<string, { label: string; defaultPlaceholder: string }> = {
+	v1: { label: "v1 Lead (Principal)", defaultPlaceholder: "Lead" },
+	v2: { label: "v2 Duet", defaultPlaceholder: "Duet" },
+	v3: { label: "v3 Middle", defaultPlaceholder: "Middle" },
+	v4: { label: "v4 Harmony", defaultPlaceholder: "Harmony" },
+};
+
+const VocalRolesSection: FC<{ isSidebar?: boolean }> = ({ isSidebar }) => {
+	const { t } = useTranslation();
+	const vocalistNames = useAtomValue(vocalistNamesAtom);
+	const lyricLines = useAtomValue(lyricLinesAtom);
+	const selectedLines = useAtomValue(selectedLinesAtom);
+	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
+
+	if (selectedLines.size === 0) return null;
+
+	// Resolve the vocalist IDs used by the currently selected lines
+	const selectedVocalistIds = new Set<string>();
+	for (const line of lyricLines.lyricLines) {
+		if (selectedLines.has(line.id)) {
+			const id = line.isDuetGroup
+				? "v4"
+				: line.isDuet
+					? "v2"
+					: line.isMiddle
+						? "v3"
+						: "v1";
+			selectedVocalistIds.add(id);
+		}
+	}
+
+	if (selectedVocalistIds.size === 0) return null;
+
+	return (
+		<RibbonSection
+			isSidebar={isSidebar}
+			label={t("ribbonBar.editMode.vocalist", "Vocalist")}
+		>
+			<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
+				{Array.from(selectedVocalistIds).map((vocalistId) => {
+					const roleMeta = VOCAL_ROLE_MAP[vocalistId] ?? {
+						label: vocalistId,
+						defaultPlaceholder: vocalistId,
+					};
+					const currentVal = vocalistNames[vocalistId] ?? "";
+
+					return (
+						<Fragment key={vocalistId}>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--ribbon-label-color)" }}
+							>
+								{roleMeta.label}
+							</Text>
+							<TextField.Root
+								size="1"
+								style={{ width: "12em" }}
+								placeholder={roleMeta.defaultPlaceholder}
+								value={currentVal}
+								onChange={(evt) => {
+									const text = evt.currentTarget.value.trim();
+									editLyricLines((draft) => {
+										if (!draft.vocalistNames) draft.vocalistNames = {};
+										if (text) {
+											draft.vocalistNames[vocalistId] = text;
+										} else {
+											delete draft.vocalistNames[vocalistId];
+										}
+									});
+								}}
+							/>
+						</Fragment>
+					);
+				})}
+			</Grid>
+		</RibbonSection>
+	);
+};
+
 export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDivElement, { isSidebar?: boolean }>(
 	({ isSidebar }, ref) => {
 		const store = useStore();
@@ -887,6 +978,8 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const { t } = useTranslation();
 		const selectedLines = useAtomValue(selectedLinesAtom);
 		const selectedWords = useAtomValue(selectedWordsAtom);
+		const activeFileKind = useAtomValue(activeFileKindAtom);
+		const isLyricsfile = activeFileKind === ActiveFileKind.Lyricsfile;
 		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
 
 		return (
@@ -939,6 +1032,27 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							isWordField={false}
 							fieldName="isDuet"
 							defaultValue={false}
+							exclusiveWith={["isMiddle", "isDuetGroup"]}
+						/>
+						<CheckboxField
+							label={t(
+								"ribbonBar.editMode.duetGroupLyric",
+								"Duet (harmony, sung together)",
+							)}
+							isWordField={false}
+							fieldName="isDuetGroup"
+							defaultValue={false}
+							exclusiveWith={["isDuet", "isMiddle"]}
+						/>
+						<CheckboxField
+							label={t(
+								"ribbonBar.editMode.middleLyric",
+								"Third voice (middle)",
+							)}
+							isWordField={false}
+							fieldName="isMiddle"
+							defaultValue={false}
+							exclusiveWith={["isDuet", "isDuetGroup"]}
 						/>
 						<CheckboxField
 							label={t("ribbonBar.editMode.ignoreSync", "忽略打轴")}
@@ -948,6 +1062,9 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 						/>
 					</Grid>
 				</RibbonSection>}
+				{(isLyricsfile || showAdvanced) && selectedLines.size > 0 && (
+					<VocalRolesSection isSidebar={isSidebar} />
+				)}
 				{showAdvanced && (selectedLines.size > 0 || selectedWords.size > 0) && <PhoneticSection isSidebar={isSidebar} />}
 				{selectedWords.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.wordTiming", "词时间戳")}>
 					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
