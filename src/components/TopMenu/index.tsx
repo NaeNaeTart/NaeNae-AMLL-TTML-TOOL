@@ -2,16 +2,7 @@ import { Box, Flex } from "@radix-ui/themes";
 import { useAtomValue } from "jotai";
 import { Toolbar } from "radix-ui";
 import { type FC, useCallback, useEffect, useState } from "react";
-
-import { HeaderFileInfo } from "./HeaderFileInfo";
-import { EditMenu } from "./modals/EditMenu";
-import { FileMenu } from "./modals/FileMenu";
-import { HelpMenu } from "./modals/HelpMenu";
-import { HomeMenu } from "./modals/HomeMenu";
-import { ToolMenu } from "./modals/ToolMenu";
-import { useTopMenuActions } from "./useTopMenuActions";
-import styles from "./index.module.css";
-
+import { autoSegmentDoublePressAtom } from "$/modules/keyboard/states";
 import {
 	keyAutoSegmentAtom,
 	keyDeleteSelectionAtom,
@@ -24,12 +15,19 @@ import {
 	keySelectWordsOfMatchedSelectionAtom,
 	keyUndoAtom,
 } from "$/states/keybindings";
-import { autoSegmentDoublePressAtom } from "$/modules/keyboard/states";
 import {
 	registerKeyBindings,
 	useDoubleKeyBindingAtom,
 	useKeyBindingAtom,
 } from "$/utils/keybindings";
+import { HeaderFileInfo } from "./HeaderFileInfo";
+import { EditMenu } from "./modals/EditMenu";
+import { FileMenu } from "./modals/FileMenu";
+import { HelpMenu } from "./modals/HelpMenu";
+import { HomeMenu } from "./modals/HomeMenu";
+import { ToolMenu } from "./modals/ToolMenu";
+import { useTopMenuActions } from "./useTopMenuActions";
+
 // top menu actions are used inside individual menu components
 
 const useWindowSize = () => {
@@ -115,7 +113,7 @@ export const TopMenu: FC = () => {
 			{showHomeButton ? (
 				<HomeMenu />
 			) : (
-				<Toolbar.Root className={styles.topMenuToolbar}>
+				<Toolbar.Root>
 					<FileMenu
 						variant="toolbar"
 						buttonStyle={{

@@ -68,6 +68,44 @@
 	--ribbon-label-color: var(--gray-10);
 }
 
+/* ── Dropdown / context menus – modern dark theme only ─────────────────── */
+/* Override --base-menu-bg so Radix's own background-color declaration picks it up,
+   then layer on top with !important for any portal-level specificity fights.
+   outline replaces border so overflow:hidden on the panel doesn't clip it.      */
+.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"]) {
+	--base-menu-bg: #1f2a31;
+}
+
+.rt-BaseMenuContent {
+	outline: 1px solid rgba(255, 255, 255, 0.16);
+	outline-offset: -1px;
+}
+
+.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	.rt-BaseMenuContent {
+	background-color: #1f2a31 !important;
+	box-shadow:
+		0 8px 32px rgba(0, 0, 0, 0.7),
+		0 2px 8px rgba(0, 0, 0, 0.5) !important;
+	backdrop-filter: blur(20px) saturate(150%) !important;
+}
+
+.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	.rt-BaseMenuSeparator {
+	background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	.rt-BaseMenuItem {
+	color: var(--gray-12) !important;
+}
+
+.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
+	.rt-BaseMenuItem[data-highlighted] {
+	background-color: var(--accent-9) !important;
+	color: var(--accent-contrast) !important;
+}
+
 ::selection {
 	background-color: var(--selection-color, var(--accent-a5));
 	color: var(--accent-contrast);
@@ -136,4 +174,3 @@
 .ribbon-scrollbar::-webkit-scrollbar-thumb:hover {
 	background-color: var(--gray-a9);
 }
-
