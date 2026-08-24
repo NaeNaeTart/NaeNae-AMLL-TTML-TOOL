@@ -21,7 +21,7 @@ A feature-rich, high-performance word-by-word lyrics editor designed for the [Sp
 > [!WARNING]
 > This tool is designed for desktop screens and is not recommended for mobile phones or small displays.
 
-- **Online Web App**: [https://tool.community.spicylyrics.org/](https://tool.community.spicylyrics.org/)
+- **Online Web App**: [https://nae-nae-amll-ttml-tool.vercel.app/](https://nae-nae-amll-ttml-tool.vercel.app/)
 - **Desktop Application (Tauri v2)**: Built for Windows, macOS, and Linux. See the [Latest Release](https://github.com/olafix52/NaeNae-AMLL-TTML-TOOL/releases/latest) or [Upstream Releases](https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/releases/latest).
 - **Arch Linux**: An official `PKGBUILD` is available under [`packaging/archlinux/PKGBUILD`](./packaging/archlinux/PKGBUILD) for building native Arch packages.
 
