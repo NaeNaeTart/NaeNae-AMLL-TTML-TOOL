@@ -24,6 +24,10 @@
 		{
 			"source": "/api/spotify-api/(.*)",
 			"destination": "https://api.spotify.com/$1"
+		},
+		{
+			"source": "/api/lrclib/(.*)",
+			"destination": "https://lrclib.net/api/$1"
 		}
 	],
 	"headers": [

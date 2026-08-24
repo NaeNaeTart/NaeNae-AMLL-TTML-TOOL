@@ -11,16 +11,22 @@ async function fetchLrcLib(
 	endpoint: string,
 	init?: RequestInit,
 ): Promise<Response> {
-	// If in browser environment with HTTP/HTTPS, try local proxy first to bypass CORS preflight restrictions
+	// If in browser environment with HTTP/HTTPS, try local/serverless proxy first to bypass CORS preflight restrictions
 	if (
 		typeof window !== "undefined" &&
 		window.location?.protocol?.startsWith("http")
 	) {
 		try {
 			const proxyRes = await fetch(`${LOCAL_PROXY_PREFIX}${endpoint}`, init);
-			if (proxyRes.status !== 502 && proxyRes.status !== 504) {
+			const contentType = proxyRes.headers.get("content-type") || "";
+			// If proxy request succeeded or returned a valid upstream JSON response, use it
+			if (
+				proxyRes.ok ||
+				(contentType.includes("application/json") && proxyRes.status !== 404)
+			) {
 				return proxyRes;
 			}
+			// If proxy returned 404 HTML (e.g. unconfigured host), fall through to direct fetch
 		} catch {
 			// Fall through to direct fetch
 		}
