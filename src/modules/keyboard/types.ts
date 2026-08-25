@@ -2,7 +2,7 @@ import type { ParseKeys } from "i18next";
 import type { WritableAtom } from "jotai";
 import type { RESET_KEYBINDING } from "$/utils/keybindings";
 
-export type I18nKey = ParseKeys<"translation">;
+export type I18nKey = ParseKeys<"translation"> | (string & {});
 export type KeyBindingsConfig = string[];
 
 export interface KeyBindingCommand {
@@ -12,6 +12,8 @@ export interface KeyBindingCommand {
 	defaultKeys: KeyBindingsConfig;
 	/** 界面上显示的 i18n key */
 	description: I18nKey;
+	/** 默认 fallback 文本 */
+	fallback?: string;
 	/** 设置面板中的分类 */
 	category: string;
 	/**

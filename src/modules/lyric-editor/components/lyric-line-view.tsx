@@ -41,10 +41,11 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { currentTimeAtom } from "$/modules/audio/states/index.ts";
+import { activeLineIdsAtom, currentTimeAtom } from "$/modules/audio/states/index.ts";
 import {
 	advGeniusHeaderColorAtom,
 	compactBGInSyncAtom,
+	editActiveLineHighlightAtom,
 	geniusCategorizationEnabledAtom,
 	legacySpaceLabelsAtom,
 	showLineRomanizationAtom,
@@ -381,6 +382,18 @@ export const LyricLineView: FC<{
 	);
 	const words = useAtomValue(wordsAtom);
 	const lineSelected = useAtomValue(lineSelectedAtom);
+	const editActiveLineHighlight = useAtomValue(editActiveLineHighlightAtom);
+	const isPlaybackActiveAtom = useMemo(() => {
+		const a = atom((get) => {
+			if (!get(editActiveLineHighlightAtom)) return false;
+			return get(activeLineIdsAtom).includes(line.id);
+		});
+		if (import.meta.env.DEV) {
+			a.debugLabel = `isPlaybackActiveAtom-${line.id}`;
+		}
+		return a;
+	}, [line.id]);
+	const isPlaybackActive = useAtomValue(isPlaybackActiveAtom);
 	const setSelectedWords = useSetImmerAtom(selectedWordsAtom);
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const visualizeTimestampUpdate = useAtomValue(visualizeTimestampUpdateAtom);
@@ -794,6 +807,10 @@ export const LyricLineView: FC<{
 							compactBGInSync &&
 							styles.bg,
 							lineSelected && styles.selected,
+							editActiveLineHighlight &&
+							isPlaybackActive &&
+							toolMode === ToolMode.Edit &&
+							styles.activePlayback,
 							toolMode === ToolMode.Sync && styles.sync,
 							toolMode === ToolMode.Edit && styles.edit,
 							line.ignoreSync && styles.ignoreSync,
