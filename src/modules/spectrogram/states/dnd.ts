@@ -8,6 +8,7 @@ type DividerDragOperation = {
 	zoom: number;
 	startX: number;
 	isGapCreation: boolean;
+	virtual?: boolean;
 };
 
 type WordPanOperation = {
