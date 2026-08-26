@@ -25,6 +25,10 @@ export const lyricWordFadeWidthAtom = atomWithStorage(
 );
 export const vsyncAtom = atomWithStorage("vsync", false);
 export const showFpsCounterAtom = atomWithStorage("showFpsCounter", false);
+export const editorAutoScrollEnabledAtom = atomWithStorage(
+	"editorAutoScrollEnabled",
+	false,
+);
 export const instantHighlightFadeAtom = atomWithStorage(
 	"instantHighlightFade",
 	true,

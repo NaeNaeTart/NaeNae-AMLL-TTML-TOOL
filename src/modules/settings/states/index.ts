@@ -404,3 +404,8 @@ export const geniusHeaderDetectionDialogShownAtom = atomWithStorage<boolean>(
 export const geniusHeaderDetectionDialogOpenAtom = atom(false);
 
 export const geniusHeaderRestorationTextAtom = atom<string | null>(null);
+
+export const editActiveLineHighlightAtom = atomWithStorage<boolean>(
+	"editActiveLineHighlight",
+	false,
+);

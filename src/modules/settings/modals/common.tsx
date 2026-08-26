@@ -41,9 +41,11 @@ import {
 	smartLastWordAtom,
 	syncJudgeModeAtom,
 	compactBGInSyncAtom,
+	editActiveLineHighlightAtom,
 	normalizeApostrophesOnImportAtom,
 	normalizeCyrillicEsOnImportAtom,
 } from "$/modules/settings/states";
+import { editorAutoScrollEnabledAtom } from "$/modules/settings/states/preview";
 import {
 	enableUpcomingWordHighlightAtom,
 	syncTimeOffsetAtom,
@@ -93,6 +95,8 @@ export const SettingsCommonTab = ({
 	const [normalizeCyrillicEsOnImport, setNormalizeCyrillicEsOnImport] =
 		useAtom(normalizeCyrillicEsOnImportAtom);
 	const [allowConsecutiveBackgroundLines, setAllowConsecutiveBackgroundLines] = useAtom(allowConsecutiveBackgroundLinesAtom);
+	const [editorAutoScroll, setEditorAutoScroll] = useAtom(editorAutoScrollEnabledAtom);
+	const [editActiveHighlight, setEditActiveHighlight] = useAtom(editActiveLineHighlightAtom);
 
 	const { t, i18n } = useTranslation();
 	const currentLanguage = i18n.resolvedLanguage || i18n.language;
@@ -514,6 +518,68 @@ export const SettingsCommonTab = ({
 
 			{section === "editor" && (
 			<Flex direction="column" gap="3">
+				<Heading size="4">
+					{t("settings.group.editorViewport", "Editor Viewport & Playback")}
+				</Heading>
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<ContentView24Regular />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t(
+												"settingsDialog.preview.editorAutoScroll",
+												"Auto-scroll to active line",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settingsDialog.preview.editorAutoScrollDesc",
+												"Smoothly scroll the editor viewport to keep the active line in view during playback",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										checked={editorAutoScroll}
+										onCheckedChange={setEditorAutoScroll}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<VideoBackgroundEffect24Regular />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t(
+												"settingsDialog.preview.editActiveLineHighlight",
+												"Highlight active line in Edit mode",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settingsDialog.preview.editActiveLineHighlightDesc",
+												"Visually highlight the currently playing line in Edit mode",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										checked={editActiveHighlight}
+										onCheckedChange={setEditActiveHighlight}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+
 				<Heading size="4">
 					{t("settings.group.timingHighlight", "Visual Timing Cue (Sync)")}
 				</Heading>

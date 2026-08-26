@@ -1,14 +1,93 @@
 import { Box, Card, Flex, Text, Tooltip } from "@radix-ui/themes";
 import classNames from "classnames";
 import { useAtomValue, useSetAtom } from "jotai";
-import { memo, useMemo, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ViewportList } from "react-viewport-list";
-import { currentTimeAtom } from "$/modules/audio/states";
+import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
+import {
+	editorAutoScrollEnabledAtom,
+	previewModeTypeAtom,
+	PreviewModeType,
+} from "$/modules/settings/states/preview";
+import { keyLocateActiveLineAtom } from "$/states/keybindings";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
+import { useKeyBindingAtom } from "$/utils/keybindings";
 import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
+
+const easeInOutCubic = (x: number): number => {
+	return x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2;
+};
+
+const smoothScrollContainer = (
+	element: HTMLElement,
+	targetScrollTop: number,
+	onStart?: () => void,
+	onFinish?: () => void,
+): (() => void) => {
+	const start = element.scrollTop;
+	const distance = targetScrollTop - start;
+	if (Math.abs(distance) < 2) return () => {};
+
+	const duration = Math.min(750, Math.max(350, Math.abs(distance) * 0.45));
+	const startTime = performance.now();
+	let cancelled = false;
+	let animId = 0;
+
+	onStart?.();
+
+	const cancel = () => {
+		if (cancelled) return;
+		cancelled = true;
+		if (animId) cancelAnimationFrame(animId);
+		cleanup();
+		onFinish?.();
+	};
+
+	const cleanup = () => {
+		element.removeEventListener("wheel", cancel, true);
+		element.removeEventListener("touchmove", cancel, true);
+		element.removeEventListener("touchstart", cancel, true);
+		element.removeEventListener("pointerdown", cancel, true);
+		element.removeEventListener("mousedown", cancel, true);
+		window.removeEventListener("wheel", cancel, true);
+		window.removeEventListener("touchmove", cancel, true);
+		window.removeEventListener("touchstart", cancel, true);
+		window.removeEventListener("pointerdown", cancel, true);
+		window.removeEventListener("mousedown", cancel, true);
+	};
+
+	element.addEventListener("wheel", cancel, { capture: true, passive: true });
+	element.addEventListener("touchmove", cancel, { capture: true, passive: true });
+	element.addEventListener("touchstart", cancel, { capture: true, passive: true });
+	element.addEventListener("pointerdown", cancel, { capture: true, passive: true });
+	element.addEventListener("mousedown", cancel, { capture: true, passive: true });
+	window.addEventListener("wheel", cancel, { capture: true, passive: true });
+	window.addEventListener("touchmove", cancel, { capture: true, passive: true });
+	window.addEventListener("touchstart", cancel, { capture: true, passive: true });
+	window.addEventListener("pointerdown", cancel, { capture: true, passive: true });
+	window.addEventListener("mousedown", cancel, { capture: true, passive: true });
+
+	const step = (now: number) => {
+		if (cancelled) return;
+		const elapsed = now - startTime;
+		const progress = Math.min(1, elapsed / duration);
+		const ease = easeInOutCubic(progress);
+		element.scrollTop = start + distance * ease;
+
+		if (progress < 1) {
+			animId = requestAnimationFrame(step);
+		} else {
+			cleanup();
+			onFinish?.();
+		}
+	};
+
+	animId = requestAnimationFrame(step);
+	return cancel;
+};
 
 const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTime: number, isGrouped?: boolean }) => {
 	const { t } = useTranslation();
@@ -59,31 +138,22 @@ const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTim
 });
 
 const WordGroup = memo(({ words, currentTime }: { words: any[], currentTime: number }) => {
-	const isActive = words.some(w => currentTime >= w.startTime && currentTime <= w.endTime);
-
 	return (
-		<div className={classNames(styles.wordGroup, isActive && styles.wordGroupActive)}>
-			{words.map((word, idx) => (
-				<div key={word.id || idx} style={{ display: "flex", alignItems: "center" }}>
-					<WordPill word={word} currentTime={currentTime} isGrouped={true} />
-					{idx < words.length - 1 && <div className={styles.wordDivider} />}
-				</div>
+		<div className={styles.wordGroup}>
+			{words.map((word, index) => (
+				<WordPill key={word.id || index} word={word} currentTime={currentTime} isGrouped={true} />
 			))}
 		</div>
 	);
-}, (prev, next) => {
-	const wasAnyActive = prev.words.some(w => prev.currentTime >= w.startTime && prev.currentTime <= w.endTime);
-	const isAnyActive = next.words.some(w => next.currentTime >= w.startTime && next.currentTime <= w.endTime);
-	
-	if (wasAnyActive || isAnyActive) return false;
-	if (prev.words.length !== next.words.length) return false;
-	for (let i = 0; i < prev.words.length; i++) {
-		if (prev.words[i] !== next.words[i]) return false;
-	}
-	return true;
 });
 
-const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: { 
+const LineRow = memo(({ 
+	line, 
+	index, 
+	currentTime, 
+	totalDuration,
+	onRowClick 
+}: { 
 	line: any, 
 	index: number, 
 	currentTime: number, 
@@ -121,6 +191,7 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 		<div
 			className={classNames(styles.row, isActive && styles.activeRow)}
 			onClick={() => onRowClick(line)}
+			data-timing-line-index={index}
 			style={{ display: "flex", borderBottom: "1px solid var(--gray-4)" }}
 		>
 			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "40px", padding: "8px 12px" }}>{index + 1}</div>
@@ -162,6 +233,8 @@ export const TimingOverview = memo(() => {
 	const { t } = useTranslation();
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const currentTime = useAtomValue(currentTimeAtom);
+	const audioPlaying = useAtomValue(audioPlayingAtom);
+	const selectedLines = useAtomValue(selectedLinesAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -181,6 +254,150 @@ export const TimingOverview = memo(() => {
 		const totalMs = lineCount > 0 ? sortedLines[lineCount - 1].endTime - sortedLines[0].startTime : 0;
 		return { lineCount, wordCount, totalMs };
 	}, [sortedLines]);
+
+	const autoScrollEnabled = useAtomValue(editorAutoScrollEnabledAtom);
+	const previewMode = useAtomValue(previewModeTypeAtom);
+	const pauseUntilRef = useRef(0);
+	const lastActiveIndexRef = useRef<number>(-1);
+	const isProgrammaticScrollingRef = useRef(false);
+	const activeScrollCancelRef = useRef<(() => void) | null>(null);
+
+	const handleLocateTiming = useCallback(() => {
+		const cur = currentTime;
+		const activeIndex = sortedLines.findIndex((l) => cur >= l.startTime && cur <= l.endTime);
+		if (activeIndex === -1) return;
+
+		setSelectedLines(new Set());
+		pauseUntilRef.current = 0;
+		lastActiveIndexRef.current = -1;
+
+		const viewport = scrollRef.current;
+		if (!viewport) return;
+
+		let target = 0;
+		const el = viewport.querySelector(`[data-timing-line-index="${activeIndex}"]`) as HTMLElement | null;
+		if (el) {
+			target =
+				el.getBoundingClientRect().top -
+				viewport.getBoundingClientRect().top +
+				viewport.scrollTop -
+				viewport.clientHeight / 2 +
+				el.clientHeight / 2;
+		} else {
+			const totalItems = Math.max(1, sortedLines.length);
+			const avgHeight = Math.max(60, viewport.scrollHeight / totalItems);
+			target = activeIndex * avgHeight - viewport.clientHeight / 2 + avgHeight / 2;
+		}
+
+		activeScrollCancelRef.current?.();
+		activeScrollCancelRef.current = smoothScrollContainer(
+			viewport,
+			Math.max(0, target),
+			() => {
+				isProgrammaticScrollingRef.current = true;
+			},
+			() => {
+				isProgrammaticScrollingRef.current = false;
+				activeScrollCancelRef.current = null;
+			},
+		);
+	}, [currentTime, setSelectedLines, sortedLines]);
+
+	useKeyBindingAtom(keyLocateActiveLineAtom, handleLocateTiming, [handleLocateTiming]);
+
+	useEffect(() => {
+		const onUserInteraction = () => {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			isProgrammaticScrollingRef.current = false;
+			pauseUntilRef.current = performance.now() + 3500;
+			lastActiveIndexRef.current = -1;
+		};
+		const onScroll = () => {
+			if (isProgrammaticScrollingRef.current) return;
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			pauseUntilRef.current = performance.now() + 3500;
+			lastActiveIndexRef.current = -1;
+		};
+
+		const el = scrollRef.current;
+		el?.addEventListener("scroll", onScroll, { passive: true });
+		window.addEventListener("wheel", onUserInteraction, { capture: true, passive: true });
+		window.addEventListener("touchmove", onUserInteraction, { capture: true, passive: true });
+		window.addEventListener("touchstart", onUserInteraction, { capture: true, passive: true });
+		window.addEventListener("pointerdown", onUserInteraction, { capture: true, passive: true });
+		window.addEventListener("mousedown", onUserInteraction, { capture: true, passive: true });
+
+		return () => {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			el?.removeEventListener("scroll", onScroll);
+			window.removeEventListener("wheel", onUserInteraction, true);
+			window.removeEventListener("touchmove", onUserInteraction, true);
+			window.removeEventListener("touchstart", onUserInteraction, true);
+			window.removeEventListener("pointerdown", onUserInteraction, true);
+			window.removeEventListener("mousedown", onUserInteraction, true);
+		};
+	}, [sortedLines.length]);
+
+	useEffect(() => {
+		if (!autoScrollEnabled || !audioPlaying || selectedLines.size > 0) {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			lastActiveIndexRef.current = -1;
+			return;
+		}
+		if (previewMode !== PreviewModeType.Timing) {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			lastActiveIndexRef.current = -1;
+			return;
+		}
+		if (performance.now() < pauseUntilRef.current) return;
+
+		const activeIndex = sortedLines.findIndex((line) => currentTime >= line.startTime && currentTime <= line.endTime);
+		if (activeIndex === -1) {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			lastActiveIndexRef.current = -1;
+			return;
+		}
+
+		if (activeIndex === lastActiveIndexRef.current) return;
+		lastActiveIndexRef.current = activeIndex;
+
+		const viewport = scrollRef.current;
+		if (!viewport) return;
+
+		let target = 0;
+		const el = viewport.querySelector(`[data-timing-line-index="${activeIndex}"]`) as HTMLElement | null;
+		if (el) {
+			target =
+				el.getBoundingClientRect().top -
+				viewport.getBoundingClientRect().top +
+				viewport.scrollTop -
+				viewport.clientHeight / 2 +
+				el.clientHeight / 2;
+		} else {
+			const totalItems = Math.max(1, sortedLines.length);
+			const avgHeight = Math.max(60, viewport.scrollHeight / totalItems);
+			target = activeIndex * avgHeight - viewport.clientHeight / 2 + avgHeight / 2;
+		}
+
+		activeScrollCancelRef.current?.();
+		activeScrollCancelRef.current = smoothScrollContainer(
+			viewport,
+			Math.max(0, target),
+			() => {
+				isProgrammaticScrollingRef.current = true;
+			},
+			() => {
+				isProgrammaticScrollingRef.current = false;
+				activeScrollCancelRef.current = null;
+			},
+		);
+	}, [autoScrollEnabled, audioPlaying, selectedLines.size, previewMode, currentTime, sortedLines]);
 
 	const handleRowClick = useMemo(() => (line: any) => {
 		setCurrentTime(line.startTime);

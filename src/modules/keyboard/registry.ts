@@ -20,6 +20,7 @@ export function registerCommand(
 	defaultKeys: KeyBindingsConfig,
 	description: I18nKey,
 	category = "General",
+	fallback?: string,
 ) {
 	const commandAtom = atomWithKeybindingStorage(id, defaultKeys);
 
@@ -27,6 +28,7 @@ export function registerCommand(
 		id,
 		defaultKeys,
 		description,
+		fallback,
 		category,
 		atom: commandAtom,
 	};

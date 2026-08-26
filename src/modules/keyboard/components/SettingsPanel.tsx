@@ -15,7 +15,7 @@ const KeyBindingsEdit = ({ command }: { command: KeyBindingCommand }) => {
 	return (
 		<>
 			<Box style={{ display: "flex", alignItems: "center" }}>
-				{t(command.description)}
+				{t(command.description, command.fallback || command.description)}
 			</Box>
 
 			<Box>

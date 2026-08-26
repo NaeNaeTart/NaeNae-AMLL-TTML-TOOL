@@ -29,7 +29,10 @@ import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modul
 import { importLyricsChooserDialogAtom } from "$/states/dialogs";
 import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
-import { currentTimeAtom } from "$/modules/audio/states";
+import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
+import { editorAutoScrollEnabledAtom } from "$/modules/settings/states/preview";
+import { keyLocateActiveLineAtom } from "$/states/keybindings";
+import { useKeyBindingAtom } from "$/utils/keybindings";
 import {
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
@@ -68,6 +71,78 @@ import {
 	shouldAutoCenterSelection,
 } from "./selection-scroll";
 
+const easeInOutCubic = (x: number): number => {
+	return x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2;
+};
+
+const smoothScrollContainer = (
+	element: HTMLElement,
+	targetScrollTop: number,
+	onStart?: () => void,
+	onFinish?: () => void,
+): (() => void) => {
+	const start = element.scrollTop;
+	const distance = targetScrollTop - start;
+	if (Math.abs(distance) < 2) return () => {};
+
+	const duration = Math.min(750, Math.max(350, Math.abs(distance) * 0.45));
+	const startTime = performance.now();
+	let cancelled = false;
+	let animId = 0;
+
+	onStart?.();
+
+	const cancel = () => {
+		if (cancelled) return;
+		cancelled = true;
+		if (animId) cancelAnimationFrame(animId);
+		cleanup();
+		onFinish?.();
+	};
+
+	const cleanup = () => {
+		element.removeEventListener("wheel", cancel, true);
+		element.removeEventListener("touchmove", cancel, true);
+		element.removeEventListener("touchstart", cancel, true);
+		element.removeEventListener("pointerdown", cancel, true);
+		element.removeEventListener("mousedown", cancel, true);
+		window.removeEventListener("wheel", cancel, true);
+		window.removeEventListener("touchmove", cancel, true);
+		window.removeEventListener("touchstart", cancel, true);
+		window.removeEventListener("pointerdown", cancel, true);
+		window.removeEventListener("mousedown", cancel, true);
+	};
+
+	element.addEventListener("wheel", cancel, { capture: true, passive: true });
+	element.addEventListener("touchmove", cancel, { capture: true, passive: true });
+	element.addEventListener("touchstart", cancel, { capture: true, passive: true });
+	element.addEventListener("pointerdown", cancel, { capture: true, passive: true });
+	element.addEventListener("mousedown", cancel, { capture: true, passive: true });
+	window.addEventListener("wheel", cancel, { capture: true, passive: true });
+	window.addEventListener("touchmove", cancel, { capture: true, passive: true });
+	window.addEventListener("touchstart", cancel, { capture: true, passive: true });
+	window.addEventListener("pointerdown", cancel, { capture: true, passive: true });
+	window.addEventListener("mousedown", cancel, { capture: true, passive: true });
+
+	const step = (now: number) => {
+		if (cancelled) return;
+		const elapsed = now - startTime;
+		const progress = Math.min(1, elapsed / duration);
+		const ease = easeInOutCubic(progress);
+		element.scrollTop = start + distance * ease;
+
+		if (progress < 1) {
+			animId = requestAnimationFrame(step);
+		} else {
+			cleanup();
+			onFinish?.();
+		}
+	};
+
+	animId = requestAnimationFrame(step);
+	return cancel;
+};
+
 const lyricLinesOnlyAtom = splitAtom(
 	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
 );
@@ -104,6 +179,14 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const viewElRef = useRef<HTMLDivElement>(null);
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const toolMode = useAtomValue(toolModeAtom);
+	const currentTime = useAtomValue(currentTimeAtom);
+	const audioPlaying = useAtomValue(audioPlayingAtom);
+	const selectedLines = useAtomValue(selectedLinesAtom);
+	const autoScrollEnabled = useAtomValue(editorAutoScrollEnabledAtom);
+	const pauseUntilRef = useRef(0);
+	const lastActiveLineIndexRef = useRef<number>(-1);
+	const isProgrammaticScrollingRef = useRef(false);
+	const activeScrollCancelRef = useRef<(() => void) | null>(null);
 	const { t } = useTranslation();
 	const setGuideWelcome = useSetAtom(guideWelcomeOpenAtom);
 	const setGuidePanel = useSetAtom(guidePanelOpenAtom);
@@ -514,12 +597,147 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	}, [updateEditorAnchor]);
 
 	const handleLocate = useCallback(() => {
-		const currentTime = store.get(currentTimeAtom);
+		const cur = store.get(currentTimeAtom);
+		const lyricLines = store.get(lyricLinesAtom).lyricLines;
+		const index = findCurrentLineIndex(lyricLines, cur);
+		if (index === -1) return;
+
+		store.set(selectedLinesAtom, new Set());
+		pauseUntilRef.current = 0;
+		lastActiveLineIndexRef.current = -1;
+
+		const viewEl = viewElRef.current;
+		if (!viewEl) return;
+		const visibleIndex = visibleItems.findIndex((item) => item.sourceIndex === index);
+		if (visibleIndex === -1) return;
+
+		let target = 0;
+		const el = viewEl.querySelector(`[data-lyric-line-index="${index}"]`) as HTMLElement | null;
+		if (el) {
+			target =
+				el.getBoundingClientRect().top -
+				viewEl.getBoundingClientRect().top +
+				viewEl.scrollTop -
+				viewEl.clientHeight * 0.4 +
+				el.clientHeight / 2;
+		} else {
+			const totalItems = Math.max(1, visibleItems.length);
+			const avgHeight = Math.max(50, viewEl.scrollHeight / totalItems);
+			target = visibleIndex * avgHeight - viewEl.clientHeight * 0.4 + avgHeight / 2;
+		}
+
+		activeScrollCancelRef.current?.();
+		activeScrollCancelRef.current = smoothScrollContainer(
+			viewEl,
+			Math.max(0, target),
+			() => {
+				isProgrammaticScrollingRef.current = true;
+			},
+			() => {
+				isProgrammaticScrollingRef.current = false;
+				activeScrollCancelRef.current = null;
+			},
+		);
+	}, [store, visibleItems]);
+
+	useKeyBindingAtom(keyLocateActiveLineAtom, handleLocate, [handleLocate]);
+
+	useEffect(() => {
+		const onUserInteraction = () => {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			isProgrammaticScrollingRef.current = false;
+			pauseUntilRef.current = performance.now() + 3500;
+			lastActiveLineIndexRef.current = -1;
+		};
+		const onScroll = () => {
+			if (isProgrammaticScrollingRef.current) return;
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			pauseUntilRef.current = performance.now() + 3500;
+			lastActiveLineIndexRef.current = -1;
+		};
+
+		const el = viewElRef.current;
+		el?.addEventListener("scroll", onScroll, { passive: true });
+		window.addEventListener("wheel", onUserInteraction, { capture: true, passive: true });
+		window.addEventListener("touchmove", onUserInteraction, { capture: true, passive: true });
+		window.addEventListener("touchstart", onUserInteraction, { capture: true, passive: true });
+		window.addEventListener("pointerdown", onUserInteraction, { capture: true, passive: true });
+		window.addEventListener("mousedown", onUserInteraction, { capture: true, passive: true });
+
+		return () => {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			el?.removeEventListener("scroll", onScroll);
+			window.removeEventListener("wheel", onUserInteraction, true);
+			window.removeEventListener("touchmove", onUserInteraction, true);
+			window.removeEventListener("touchstart", onUserInteraction, true);
+			window.removeEventListener("pointerdown", onUserInteraction, true);
+			window.removeEventListener("mousedown", onUserInteraction, true);
+		};
+	}, [editLyric.length]);
+
+	useEffect(() => {
+		if (!autoScrollEnabled || !audioPlaying || selectedLines.size > 0) {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			lastActiveLineIndexRef.current = -1;
+			return;
+		}
+		if (toolMode !== ToolMode.Edit && toolMode !== ToolMode.Sync) {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			lastActiveLineIndexRef.current = -1;
+			return;
+		}
+		if (performance.now() < pauseUntilRef.current) return;
+
 		const lyricLines = store.get(lyricLinesAtom).lyricLines;
 		const index = findCurrentLineIndex(lyricLines, currentTime);
-		if (index === -1) return;
-		scrollToLineIndex(index);
-	}, [store, scrollToLineIndex]);
+		if (index === -1) {
+			activeScrollCancelRef.current?.();
+			activeScrollCancelRef.current = null;
+			lastActiveLineIndexRef.current = -1;
+			return;
+		}
+
+		if (index === lastActiveLineIndexRef.current) return;
+		lastActiveLineIndexRef.current = index;
+
+		const viewEl = viewElRef.current;
+		if (!viewEl) return;
+		const visibleIndex = visibleItems.findIndex((item) => item.sourceIndex === index);
+		if (visibleIndex === -1) return;
+
+		let target = 0;
+		const el = viewEl.querySelector(`[data-lyric-line-index="${index}"]`) as HTMLElement | null;
+		if (el) {
+			target =
+				el.getBoundingClientRect().top -
+				viewEl.getBoundingClientRect().top +
+				viewEl.scrollTop -
+				viewEl.clientHeight * 0.4 +
+				el.clientHeight / 2;
+		} else {
+			const totalItems = Math.max(1, visibleItems.length);
+			const avgHeight = Math.max(50, viewEl.scrollHeight / totalItems);
+			target = visibleIndex * avgHeight - viewEl.clientHeight * 0.4 + avgHeight / 2;
+		}
+
+		activeScrollCancelRef.current?.();
+		activeScrollCancelRef.current = smoothScrollContainer(
+			viewEl,
+			Math.max(0, target),
+			() => {
+				isProgrammaticScrollingRef.current = true;
+			},
+			() => {
+				isProgrammaticScrollingRef.current = false;
+				activeScrollCancelRef.current = null;
+			},
+		);
+	}, [autoScrollEnabled, audioPlaying, selectedLines.size, currentTime, toolMode, store, visibleItems]);
 
 	useImperativeHandle(ref, () => viewElRef.current as HTMLDivElement, []);
 
