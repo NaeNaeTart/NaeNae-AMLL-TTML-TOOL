@@ -34,6 +34,7 @@ import {
 	lyricsfileConverterDialogAtom,
 	metadataEditorDialogAtom,
 	publishToLRCLIBDialogAtom,
+	publishToUnisonDialogAtom,
 	settingsDialogAtom,
 	submitToAMLLDBDialogAtom,
 	spotMatchDialogAtom,
@@ -662,6 +663,10 @@ export const useTopMenuActions = () => {
 		store.set(publishToLRCLIBDialogAtom, true);
 	}, [store]);
 
+	const onPublishToUnison = useCallback(() => {
+		store.set(publishToUnisonDialogAtom, true);
+	}, [store]);
+
 	return {
 		newFileKey,
 		openFileKey,
@@ -683,6 +688,7 @@ export const useTopMenuActions = () => {
 		onSaveFileToClipboard,
 		onSubmitToAMLLDB,
 		onPublishToLRCLIB,
+		onPublishToUnison,
 		onUndo,
 		onRedo,
 		onSelectAll,

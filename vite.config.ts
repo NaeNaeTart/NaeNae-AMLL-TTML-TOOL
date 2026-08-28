@@ -169,6 +169,12 @@ export default defineConfig({
 				secure: true,
 				rewrite: (path) => path.replace(/^\/api\/lrclib/, "/api"),
 			},
+			"/api/unison": {
+				target: "https://unison.boidu.dev",
+				changeOrigin: true,
+				secure: true,
+				rewrite: (path) => path.replace(/^\/api\/unison/, ""),
+			},
 		},
 	},
 	envPrefix: ["VITE_", "TAURI_", "AMLL_", "SENTRY_"],

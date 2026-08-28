@@ -83,6 +83,11 @@ const FileMenuItems = () => {
 					发布到 LRCLIB...
 				</Trans>
 			</DropdownMenu.Item>
+			<DropdownMenu.Item onSelect={menu.onPublishToUnison}>
+				<Trans i18nKey="topBar.menu.publishToUnison">
+					发布到 Unison (Better Lyrics)...
+				</Trans>
+			</DropdownMenu.Item>
 		</>
 	);
 };

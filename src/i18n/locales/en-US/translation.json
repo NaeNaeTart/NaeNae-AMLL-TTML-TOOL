@@ -553,6 +553,7 @@
 			"saveLyricToClipboard": "Save TTML to clipboard",
 			"uploadToAMLLDB": "Upload to database (CN only)",
 			"publishToLRCLIB": "Publish to LRCLIB...",
+			"publishToUnison": "Publish to Unison (Better Lyrics)...",
 			"file": "File",
 			"helpDoc": "Documentation (CN)",
 			"help": "Help",
@@ -588,7 +589,8 @@
 				"toLrcfySylb": "Export to Lyricify Syllable",
 				"toASS": "Export to ASS subtitles",
 				"toLyricsfile": "Export to Lyricsfile (YAML) [BETA]",
-				"publishToLRCLIB": "Publish to LRCLIB..."
+				"publishToLRCLIB": "Publish to LRCLIB...",
+				"publishToUnison": "Publish to Unison (Better Lyrics)..."
 			}
 		}
 	},
@@ -1399,5 +1401,38 @@
 		"errorToast": "Failed to publish to LRCLIB: {{error}}",
 		"publishBtn": "Publish to LRCLIB",
 		"publishingBtn": "Publishing..."
+	},
+	"unison": {
+		"dialogTitle": "Publish to Unison (Better Lyrics)",
+		"dialogDescription": "Submit synchronized lyrics directly to the crowdsourced Unison database used by Better Lyrics and open media players.",
+		"identityKey": "Your Key ID:",
+		"exportKey": "Export Key",
+		"importKey": "Import Key",
+		"newKey": "New",
+		"identityExported": "Unison identity key exported successfully!",
+		"identityImported": "Unison identity key imported successfully!",
+		"invalidIdentityFile": "Invalid Unison identity key file.",
+		"confirmNewIdentity": "Generate a new identity keypair? Your existing key ID and reputation on Unison will be replaced locally unless backed up.",
+		"identityGenerated": "New Unison identity key generated.",
+		"fields": {
+			"song": "Song Title",
+			"artist": "Artist",
+			"album": "Album",
+			"duration": "Duration (s)",
+			"videoId": "YouTube Video ID or URL",
+			"isrc": "ISRC",
+			"language": "Language Code",
+			"format": "Lyrics Format"
+		},
+		"previewTab": "Lyrics Content Preview",
+		"infoTab": "About Unison",
+		"publishedSuccess": "Successfully published to Unison!",
+		"publishButton": "Publish to Unison",
+		"successToast": "Lyrics published to Unison successfully!",
+		"errors": {
+			"missingMetadata": "Song title and artist name are required.",
+			"missingDuration": "Please specify a valid track duration.",
+			"missingLyrics": "Lyrics content cannot be empty."
+		}
 	}
 }

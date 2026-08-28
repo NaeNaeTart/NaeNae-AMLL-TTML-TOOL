@@ -81,4 +81,5 @@ export const spotMatchDialogAtom = atom<
 
 export const lyricsfileConverterDialogAtom = atom(false);
 export const publishToLRCLIBDialogAtom = atom(false);
+export const publishToUnisonDialogAtom = atom(false);
 

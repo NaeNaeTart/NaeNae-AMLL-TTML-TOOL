@@ -520,6 +520,7 @@
 			"saveLyricToClipboard": "Zapisz TTML do schowka",
 			"uploadToAMLLDB": "Wyślij do bazy danych (tylko CN)",
 			"publishToLRCLIB": "Wyślij do LRCLIB...",
+			"publishToUnison": "Publikuj do Unison (Better Lyrics)...",
 			"file": "Plik",
 			"helpDoc": "Dokumentacja (CN)",
 			"help": "Pomoc",
@@ -555,7 +556,8 @@
 				"toLrcfySylb": "Eksportuj do Lyricify Syllable",
 				"toASS": "Eksportuj do napisów ASS",
 				"toLyricsfile": "Eksportuj do Lyricsfile (YAML) [BETA]",
-				"publishToLRCLIB": "Wyślij do LRCLIB..."
+				"publishToLRCLIB": "Wyślij do LRCLIB...",
+				"publishToUnison": "Publikuj do Unison (Better Lyrics)..."
 			}
 		}
 	},
@@ -1324,5 +1326,38 @@
 		"errorToast": "Błąd podczas publikacji w LRCLIB: {{error}}",
 		"publishBtn": "Wyślij do LRCLIB",
 		"publishingBtn": "Wysyłanie..."
+	},
+	"unison": {
+		"dialogTitle": "Publikuj do Unison (Better Lyrics)",
+		"dialogDescription": "Wyślij zsynchronizowany tekst bezpośrednio do otwartej bazy Unison używanej przez rozszerzenie Better Lyrics i odtwarzacze muzyki.",
+		"identityKey": "Twój identyfikator klucza (Key ID):",
+		"exportKey": "Eksportuj klucz",
+		"importKey": "Importuj klucz",
+		"newKey": "Nowy",
+		"identityExported": "Pomyślnie wyeksportowano klucz tożsamości Unison!",
+		"identityImported": "Pomyślnie zaimportowano klucz tożsamości Unison!",
+		"invalidIdentityFile": "Nieprawidłowy plik klucza tożsamości Unison.",
+		"confirmNewIdentity": "Czy na pewno chcesz wygenerować nową tożsamość? Twój obecny Key ID i reputacja w bazie Unison zostaną zastąpione, o ile nie utworzono kopii zapasowej.",
+		"identityGenerated": "Wygenerowano nowy klucz tożsamości Unison.",
+		"fields": {
+			"song": "Tytuł utworu",
+			"artist": "Wykonawca",
+			"album": "Album",
+			"duration": "Czas trwania (s)",
+			"videoId": "ID wideo YouTube lub adres URL",
+			"isrc": "ISRC",
+			"language": "Kod języka",
+			"format": "Format tekstu"
+		},
+		"previewTab": "Podgląd zawartości tekstu",
+		"infoTab": "O bazie Unison",
+		"publishedSuccess": "Pomyślnie opublikowano tekst w bazie Unison!",
+		"publishButton": "Publikuj do Unison",
+		"successToast": "Tekst piosenki został opublikowany w bazie Unison!",
+		"errors": {
+			"missingMetadata": "Tytuł utworu i wykonawca są wymagane.",
+			"missingDuration": "Wprowadź prawidłowy czas trwania utworu.",
+			"missingLyrics": "Treść tekstu piosenki nie może być pusta."
+		}
 	}
 }

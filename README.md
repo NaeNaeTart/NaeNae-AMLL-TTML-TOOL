@@ -40,6 +40,11 @@ A feature-rich, high-performance word-by-word lyrics editor designed for the [Sp
 - **Multi-Format Publishing** — Simultaneously publish Lyricsfile YAML, Synced LRC, and Plain Text with live tabbed payload previews and verification warnings.
 - **Proxy Support** — Integrated local dev proxy to eliminate browser CORS preflight restrictions on publish requests.
 
+### 🎶 Unison / Better Lyrics Publisher
+- **Native Unison Integration** — Direct submission of synchronized lyrics to the crowdsourced [Unison](https://unison.boidu.dev) database powering Better Lyrics (YouTube Music) and open media players.
+- **Cryptographic ECDSA P-256 Identity** — Authenticate securely without passwords using browser-generated ECDSA keypairs (RFC 7638 Key ID thumbprint), preserving contributor reputation with identity export and import support.
+- **Rich TTML & Multi-Format Support** — Publish full word-by-word TTML, Synced LRC, or Plain text along with YouTube Video ID, ISRC, and track metadata.
+
 ### 🔍 SpotMatch — Spotify Alternate Track Finder
 - **Alternate ID Discovery** — Deep search scanner for finding alternative Spotify track IDs, country-specific releases, and remastered editions.
 - **Preset Search Profiles** — Choose from 5 tailored matching profiles (*Quick, Balanced, Deep, Exhaustive, Custom*) with configurable artist discography scans and album searches.

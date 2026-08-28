@@ -28,6 +28,10 @@
 		{
 			"source": "/api/lrclib/(.*)",
 			"destination": "https://lrclib.net/api/$1"
+		},
+		{
+			"source": "/api/unison/(.*)",
+			"destination": "https://unison.boidu.dev/$1"
 		}
 	],
 	"headers": [

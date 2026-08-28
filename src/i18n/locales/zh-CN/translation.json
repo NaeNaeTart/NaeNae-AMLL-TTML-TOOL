@@ -520,6 +520,7 @@
 			"saveLyricToClipboard": "保存 TTML 到剪贴板",
 			"uploadToAMLLDB": "上传到数据库 (仅限 CN)",
 			"publishToLRCLIB": "发布到 LRCLIB...",
+			"publishToUnison": "发布到 Unison (Better Lyrics)...",
 			"file": "文件",
 			"helpDoc": "文档 (CN)",
 			"help": "帮助",
@@ -555,7 +556,8 @@
 				"toLrcfySylb": "导出到 Lyricify Syllable",
 				"toASS": "导出到 ASS 字幕",
 				"toLyricsfile": "导出到 Lyricsfile (YAML) [BETA]",
-				"publishToLRCLIB": "发布到 LRCLIB..."
+				"publishToLRCLIB": "发布到 LRCLIB...",
+				"publishToUnison": "发布到 Unison (Better Lyrics)..."
 			}
 		}
 	},
@@ -1321,5 +1323,38 @@
 		"errorToast": "发布到 LRCLIB 失败: {{error}}",
 		"publishBtn": "发布到 LRCLIB",
 		"publishingBtn": "正在发布..."
+	},
+	"unison": {
+		"dialogTitle": "发布到 Unison (Better Lyrics)",
+		"dialogDescription": "将同步歌词直接发布到供 Better Lyrics 扩展及开源播放器使用的 Unison 公开数据库。",
+		"identityKey": "您的身份密钥 ID (Key ID):",
+		"exportKey": "导出密钥",
+		"importKey": "导入密钥",
+		"newKey": "新建",
+		"identityExported": "已成功导出 Unison 身份密钥！",
+		"identityImported": "已成功导入 Unison 身份密钥！",
+		"invalidIdentityFile": "无效的 Unison 身份密钥文件。",
+		"confirmNewIdentity": "是否确定生成新的身份密钥？除非事先备份，否则您现有的 Key ID 和在 Unison 数据库中的信誉将被本地替换。",
+		"identityGenerated": "已生成新的 Unison 身份密钥。",
+		"fields": {
+			"song": "歌曲名称",
+			"artist": "歌手/艺人",
+			"album": "专辑名称",
+			"duration": "时长 (秒)",
+			"videoId": "YouTube 视频 ID 或 URL",
+			"isrc": "ISRC",
+			"language": "语言代码",
+			"format": "歌词格式"
+		},
+		"previewTab": "歌词内容预览",
+		"infoTab": "关于 Unison 数据库",
+		"publishedSuccess": "已成功发布歌词到 Unison 数据库！",
+		"publishButton": "发布到 Unison",
+		"successToast": "已成功发布歌词到 Unison！",
+		"errors": {
+			"missingMetadata": "歌曲名称和歌手为必填项。",
+			"missingDuration": "请输入有效的歌曲时长。",
+			"missingLyrics": "歌词内容不能为空。"
+		}
 	}
 }
