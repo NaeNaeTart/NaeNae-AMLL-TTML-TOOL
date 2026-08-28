@@ -37,6 +37,7 @@ import {
 	currentEmptyBeatAtom,
 	enableTimeModeDoubleClickEditAtom,
 	showTouchSyncPanelAtom,
+	spectrogramHoverSyncEnabledAtom,
 	syncLevelModeAtom,
 	syncTimeOffsetAtom,
 	syncCommitOffsetAtom,
@@ -123,6 +124,8 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		);
 		const [syncTimeOffset, setSyncTimeOffset] = useAtom(syncTimeOffsetAtom);
 		const [syncCommitOffset, setSyncCommitOffset] = useAtom(syncCommitOffsetAtom);
+		const [spectrogramHoverSyncEnabled, setSpectrogramHoverSyncEnabled] =
+			useAtom(spectrogramHoverSyncEnabledAtom);
 		const [syncLevelMode, setSyncLevelMode] = useAtom(syncLevelModeAtom);
 		const [instantFade, setInstantFade] = useAtom(instantHighlightFadeAtom);
 		const { t } = useTranslation();
@@ -307,6 +310,20 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Checkbox
 								checked={enableTimeModeDoubleClickEdit}
 								onCheckedChange={(v) => setEnableTimeModeDoubleClickEdit(!!v)}
+							/>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--ribbon-label-color)" }}
+							>
+								{t(
+									"ribbonBar.syncMode.spectrogramHoverSync",
+									"Sync to Spectrogram Cursor",
+								)}
+							</Text>
+							<Checkbox
+								checked={spectrogramHoverSyncEnabled}
+								onCheckedChange={(v) => setSpectrogramHoverSyncEnabled(!!v)}
 							/>
 						</Grid>
 					</RibbonSection>}

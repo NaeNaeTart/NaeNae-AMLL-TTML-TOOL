@@ -1,10 +1,11 @@
 import { Button, DropdownMenu } from "@radix-ui/themes";
+import { useAtom } from "jotai";
 import { Toolbar } from "radix-ui";
 import type { CSSProperties } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { useAtom } from "jotai";
-import { lyricLinesAtom } from "$/states/main";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
+import { spectrogramHoverSyncEnabledAtom } from "$/modules/settings/states/sync";
+import { lyricLinesAtom } from "$/states/main";
 import { useTopMenuActions } from "../useTopMenuActions";
 
 type ToolMenuProps = {
@@ -17,15 +18,21 @@ const ToolMenuItems = () => {
 	const { t } = useTranslation();
 	const menu = useTopMenuActions();
 	const [lyricLines, setLyricLines] = useAtom(lyricLinesAtom);
+	const [spectrogramHoverSyncEnabled, setSpectrogramHoverSyncEnabled] = useAtom(
+		spectrogramHoverSyncEnabledAtom,
+	);
 
 	const tools = pluginManager.getTools();
 
 	const onRunPluginTool = (pluginId: string) => async () => {
 		try {
-			const nextLines = await pluginManager.runTool(pluginId, lyricLines.lyricLines);
+			const nextLines = await pluginManager.runTool(
+				pluginId,
+				lyricLines.lyricLines,
+			);
 			setLyricLines((prev) => ({
 				...prev,
-				lyricLines: nextLines
+				lyricLines: nextLines,
 			}));
 		} catch (e) {
 			console.error(`Failed to run tool ${pluginId}:`, e);
@@ -56,6 +63,12 @@ const ToolMenuItems = () => {
 			<DropdownMenu.Item onSelect={menu.onSyncLineTimestamps}>
 				{t("topBar.menu.syncLineTimestamps", "同步行时间戳")}
 			</DropdownMenu.Item>
+			<DropdownMenu.CheckboxItem
+				checked={spectrogramHoverSyncEnabled}
+				onCheckedChange={setSpectrogramHoverSyncEnabled}
+			>
+				{t("topBar.menu.spectrogramHoverSync", "Sync to Spectrogram Cursor")}
+			</DropdownMenu.CheckboxItem>
 			<DropdownMenu.Item onSelect={menu.onOpenLatencyTest}>
 				{t("settingsDialog.common.latencyTest", "音频/输入延迟测试")}
 			</DropdownMenu.Item>
@@ -64,8 +77,11 @@ const ToolMenuItems = () => {
 			</DropdownMenu.Item>
 
 			{tools.length > 0 && <DropdownMenu.Separator />}
-			{tools.map(tool => (
-				<DropdownMenu.Item key={tool.metadata.id} onSelect={onRunPluginTool(tool.metadata.id)}>
+			{tools.map((tool) => (
+				<DropdownMenu.Item
+					key={tool.metadata.id}
+					onSelect={onRunPluginTool(tool.metadata.id)}
+				>
 					{tool.metadata.name}
 				</DropdownMenu.Item>
 			))}

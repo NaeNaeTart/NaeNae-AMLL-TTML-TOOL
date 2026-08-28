@@ -20,10 +20,15 @@ import {
 import {
 	currentEmptyBeatAtom,
 	smartFirstWordActiveIdAtom,
+	spectrogramHoverSyncEnabledAtom,
 	syncLevelModeAtom,
 	syncTimeOffsetAtom,
 	syncCommitOffsetAtom,
 } from "$/modules/settings/states/sync";
+import {
+	spectrogramHoverTimeMsAtom,
+	spectrogramIsHoveringAtom,
+} from "$/modules/spectrogram/states";
 import {
 	keyMoveFirstWordAndPlayAtom,
 	keyMoveLastWordAndPlayAtom,
@@ -128,6 +133,15 @@ export const SyncKeyBinding: FC = () => {
 
 	const calcJudgeTime = useCallback(
 		(evt: KeyBindingEvent) => {
+			const spectrogramHoverSync = store.get(spectrogramHoverSyncEnabledAtom);
+			const isSpectrogramHovering = store.get(spectrogramIsHoveringAtom);
+			if (spectrogramHoverSync && isSpectrogramHovering) {
+				const hoverTimeMs = Math.round(store.get(spectrogramHoverTimeMsAtom));
+				if (hoverTimeMs >= 0) {
+					return hoverTimeMs;
+				}
+			}
+
 			const syncTimeOffset = store.get(syncTimeOffsetAtom);
 			const processingDelay = performance.now() - evt.triggerTime;
 			const audioTimeNow =

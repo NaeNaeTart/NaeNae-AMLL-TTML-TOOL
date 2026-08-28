@@ -22,6 +22,10 @@ export const enableTimeModeDoubleClickEditAtom = atomWithStorage(
 );
 export const syncTimeOffsetAtom = atomWithStorage("syncTimeOffset", 0);
 export const syncCommitOffsetAtom = atomWithStorage("syncCommitOffset", 0);
+export const spectrogramHoverSyncEnabledAtom = atomWithStorage(
+	"spectrogramHoverSyncEnabled",
+	false,
+);
 
 export type SyncLevelMode = "word" | "line";
 export const syncLevelModeAtom = atomWithStorage<SyncLevelMode>(
