@@ -58,6 +58,7 @@ import {
 	spectrogramHoverPxAtom,
 	spectrogramHoverPyAtom,
 	spectrogramHoverTimeMsAtom,
+	spectrogramIsHoveringAtom,
 	spectrogramSelectionAtom,
 } from "$/modules/spectrogram/states";
 import { isDraggingAtom } from "$/modules/spectrogram/states/dnd.ts";
@@ -248,6 +249,7 @@ export const AudioSpectrogram: FC = memo(() => {
 	);
 
 	const [isHovering, setIsHovering] = useState(false);
+	const setSpectrogramIsHovering = useSetAtom(spectrogramIsHoveringAtom);
 	const hoverPx = useAtomValue(spectrogramHoverPxAtom);
 	const setHoverPx = useSetAtom(spectrogramHoverPxAtom);
 	const setHoverPy = useSetAtom(spectrogramHoverPyAtom);
@@ -424,8 +426,20 @@ export const AudioSpectrogram: FC = memo(() => {
 		return () => observer.disconnect();
 	}, [setContainerWidth, audioBuffer]);
 
-	const handleMouseEnter = () => setIsHovering(true);
-	const handleMouseLeave = () => setIsHovering(false);
+	useEffect(() => {
+		return () => {
+			setSpectrogramIsHovering(false);
+		};
+	}, [setSpectrogramIsHovering]);
+
+	const handleMouseEnter = () => {
+		setIsHovering(true);
+		setSpectrogramIsHovering(true);
+	};
+	const handleMouseLeave = () => {
+		setIsHovering(false);
+		setSpectrogramIsHovering(false);
+	};
 	const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
 		const rect = event.currentTarget.getBoundingClientRect();
 		const x = event.clientX - rect.left;
