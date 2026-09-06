@@ -1,8 +1,16 @@
 .dialogContent {
+	position: relative;
 	width: min(980px, calc(100vw - 32px));
 	height: min(760px, 88vh);
 	padding: 0;
 	overflow: hidden;
+}
+
+.closeButton {
+	position: absolute;
+	top: var(--space-3);
+	right: var(--space-3);
+	z-index: 2;
 }
 
 .settingsLayout {
@@ -22,8 +30,23 @@
 }
 
 .sidebarTitle {
-	margin: 0 var(--space-3) var(--space-3);
+	margin: 0;
 	font-size: var(--font-size-3);
+}
+
+.sidebarHeader {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	margin: 0 var(--space-2) var(--space-3);
+}
+
+.searchField {
+	width: 100%;
+}
+
+.noResults {
+	padding: var(--space-2) var(--space-3);
 }
 
 .navigation {
@@ -100,6 +123,34 @@
 	line-height: 1.2;
 }
 
+.searchHighlight {
+	position: relative;
+	outline: 2px solid var(--accent-9);
+	outline-offset: 3px;
+	border-radius: var(--radius-3);
+	background-color: var(--accent-a3);
+	box-shadow: 0 0 0 6px var(--accent-a3);
+	animation: search-highlight-pulse 900ms ease-out;
+}
+
+@keyframes search-highlight-pulse {
+	0% {
+		outline-color: var(--accent-11);
+		box-shadow: 0 0 0 12px var(--accent-a5);
+	}
+
+	100% {
+		outline-color: var(--accent-9);
+		box-shadow: 0 0 0 6px var(--accent-a3);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.searchHighlight {
+		animation: none;
+	}
+}
+
 @media (max-width: 720px) {
 	.settingsLayout {
 		grid-template-columns: 168px minmax(0, 1fr);
@@ -112,5 +163,54 @@
 
 	.contentPane {
 		padding: var(--space-3);
+	}
+}
+
+@media (max-width: 560px) {
+	.dialogContent {
+		width: calc(100vw - 16px);
+		height: calc(100vh - 16px);
+	}
+
+	.settingsLayout {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto minmax(0, 1fr);
+	}
+
+	.sidebar {
+		padding: var(--space-3) var(--space-2) var(--space-2);
+		border-right: 0;
+		border-bottom: 1px solid var(--gray-a5);
+	}
+
+	.sidebarHeader {
+		padding-right: 40px;
+		margin-bottom: var(--space-2);
+	}
+
+	.navigation {
+		flex-direction: row;
+		overflow-x: auto;
+		padding-bottom: var(--space-1);
+	}
+
+	.navigationItem {
+		width: auto;
+		min-width: max-content;
+		border-left: 0;
+		border-bottom: 3px solid transparent;
+	}
+
+	.navigationItem[data-state="active"] {
+		border-left-color: transparent;
+		border-bottom-color: var(--accent-9);
+	}
+
+	.contentPane {
+		padding: var(--space-4) var(--space-3);
+	}
+
+	.page :global(.rt-Flex[style*="justify-content: space-between"]) {
+		flex-wrap: wrap;
 	}
 }

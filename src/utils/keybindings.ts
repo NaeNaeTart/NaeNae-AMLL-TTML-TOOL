@@ -70,9 +70,21 @@ export function formatKeyBindings(cfg: KeyBindingsConfig): string {
 	});
 	return sorted
 		.map((key) => {
+			const keyLabels: Record<string, string> = {
+				ArrowDown: "↓",
+				ArrowLeft: "←",
+				ArrowRight: "→",
+				ArrowUp: "↑",
+				BracketLeft: "[",
+				BracketRight: "]",
+				Quote: "'",
+			};
+			if (keyLabels[key]) return keyLabels[key];
 			if (key.startsWith("Key")) return key.substring(3);
-			if (key.endsWith("Right")) return key.substring(0, key.length - 5);
-			if (key.endsWith("Left")) return key.substring(0, key.length - 4);
+			if (/^Digit\d$/.test(key)) return key.substring(5);
+			if (/^(Control|Alt|Shift|Meta)(Right|Left)$/.test(key)) {
+				return key.replace(/(Right|Left)$/, "");
+			}
 			if (navigator.userAgent.includes("Mac")) {
 				if (key === "Control") return "⌃";
 				if (key === "Alt") return "⌥";
@@ -98,7 +110,21 @@ export function formatKeyBindingsAsArray(cfg: KeyBindingsConfig): string[] {
 		return a.localeCompare(b);
 	});
 	return sorted.map((key) => {
+		const keyLabels: Record<string, string> = {
+			ArrowDown: "↓",
+			ArrowLeft: "←",
+			ArrowRight: "→",
+			ArrowUp: "↑",
+			BracketLeft: "[",
+			BracketRight: "]",
+			Quote: "'",
+		};
+		if (keyLabels[key]) return keyLabels[key];
 		if (key.startsWith("Key")) return key.substring(3);
+		if (/^Digit\d$/.test(key)) return key.substring(5);
+		if (/^(Control|Alt|Shift|Meta)(Right|Left)$/.test(key)) {
+			return key.replace(/(Right|Left)$/, "");
+		}
 		if (navigator.userAgent.includes("Mac")) {
 			if (key === "Control") return "⌃";
 			if (key === "Alt") return "⌥";

@@ -1,8 +1,23 @@
-import { Box, Flex, Grid, Heading, Switch, Text, TextField } from "@radix-ui/themes";
+import { ArrowReset24Regular, Search24Regular } from "@fluentui/react-icons";
+import {
+	Box,
+	Flex,
+	Grid,
+	Heading,
+	IconButton,
+	Switch,
+	Text,
+	TextField,
+	Tooltip,
+} from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { formatKeyBindings, recordShortcut } from "$/utils/keybindings";
+import {
+	formatKeyBindings,
+	recordShortcut,
+	RESET_KEYBINDING,
+} from "$/utils/keybindings";
 import { autoSegmentDoublePressAtom } from "../states";
 import { getAllCommands } from "../registry";
 import type { KeyBindingCommand } from "../types";
@@ -18,7 +33,7 @@ const KeyBindingsEdit = ({ command }: { command: KeyBindingCommand }) => {
 				{t(command.description)}
 			</Box>
 
-			<Box>
+			<Flex gap="2" align="center">
 				<TextField.Root
 					onClick={async () => {
 						try {
@@ -32,8 +47,16 @@ const KeyBindingsEdit = ({ command }: { command: KeyBindingCommand }) => {
 						}
 					}}
 					size="2"
-					value={listening ? "..." : formatKeyBindings(keys)}
+					value={
+						listening
+							? t(
+									"settingsDialog.keybindings.pressShortcut",
+									"Press a shortcut…",
+								)
+							: formatKeyBindings(keys)
+					}
 					readOnly
+					aria-label={t(command.description)}
 					variant="soft"
 					style={{
 						cursor: "pointer",
@@ -42,7 +65,19 @@ const KeyBindingsEdit = ({ command }: { command: KeyBindingCommand }) => {
 						color: listening ? "var(--accent-11)" : "var(--gray-12)",
 					}}
 				/>
-			</Box>
+				<Tooltip
+					content={t("settingsDialog.keybindings.reset", "Reset shortcut")}
+				>
+					<IconButton
+						variant="ghost"
+						color="gray"
+						onClick={() => setKeys(RESET_KEYBINDING)}
+						aria-label={t("settingsDialog.keybindings.reset", "Reset shortcut")}
+					>
+						<ArrowReset24Regular />
+					</IconButton>
+				</Tooltip>
+			</Flex>
 		</>
 	);
 };
@@ -52,9 +87,18 @@ export const AutoKeyBindingSettingsPanel = () => {
 	const [autoSegmentDoublePress, setAutoSegmentDoublePress] = useAtom(
 		autoSegmentDoublePressAtom,
 	);
+	const [searchQuery, setSearchQuery] = useState("");
 	const commands = getAllCommands();
+	const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+	const visibleCommands = normalizedQuery
+		? commands.filter((command) =>
+				`${t(command.description)} ${command.category}`
+					.toLocaleLowerCase()
+					.includes(normalizedQuery),
+			)
+		: commands;
 
-	const groupedCommands = commands.reduce(
+	const groupedCommands = visibleCommands.reduce(
 		(acc, cmd) => {
 			if (!acc[cmd.category]) {
 				acc[cmd.category] = [];
@@ -67,6 +111,22 @@ export const AutoKeyBindingSettingsPanel = () => {
 
 	return (
 		<Box>
+			<TextField.Root
+				value={searchQuery}
+				onChange={(event) => setSearchQuery(event.target.value)}
+				placeholder={t("settingsDialog.keybindings.search", "Search shortcuts")}
+				aria-label={t("settingsDialog.keybindings.search", "Search shortcuts")}
+				mb="4"
+			>
+				<TextField.Slot>
+					<Search24Regular />
+				</TextField.Slot>
+			</TextField.Root>
+			{visibleCommands.length === 0 && (
+				<Text color="gray">
+					{t("settingsDialog.keybindings.noResults", "No matching shortcuts")}
+				</Text>
+			)}
 			{Object.entries(groupedCommands).map(([category, cmds]) => (
 				<Box key={category} mb="5">
 					<Heading size="3" mb="3" color="gray">
@@ -86,7 +146,12 @@ export const AutoKeyBindingSettingsPanel = () => {
 				</Heading>
 				<Flex align="center" justify="between" gap="4">
 					<Box>
-						<Text>{t("settingsDialog.keybindings.autoSegmentDoublePress", "Require double press")}</Text>
+						<Text>
+							{t(
+								"settingsDialog.keybindings.autoSegmentDoublePress",
+								"Require double press",
+							)}
+						</Text>
 						<Text as="div" size="1" color="gray">
 							{t(
 								"settingsDialog.keybindings.autoSegmentDoublePressDesc",

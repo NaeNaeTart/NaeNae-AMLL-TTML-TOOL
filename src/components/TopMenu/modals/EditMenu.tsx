@@ -41,7 +41,7 @@ const EditMenuItems = () => {
 			</DropdownMenu.Item>
 			<DropdownMenu.Item
 				onSelect={menu.onUnselectAll}
-				shortcut={getShortcut(menu.selectAllLinesKey)}
+				shortcut={getShortcut(menu.unselectAllLinesKey)}
 			>
 				<Trans i18nKey="topBar.menu.unselectAllLines">取消选中所有歌词行</Trans>
 			</DropdownMenu.Item>

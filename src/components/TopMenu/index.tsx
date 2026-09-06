@@ -11,6 +11,7 @@ import {
 	keyRedoAtom,
 	keySaveFileAtom,
 	keySelectAllAtom,
+	keyUnselectAllAtom,
 	keySelectInvertedAtom,
 	keySelectWordsOfMatchedSelectionAtom,
 	keyUndoAtom,
@@ -77,7 +78,9 @@ export const TopMenu: FC = () => {
 			});
 		};
 	}, [menu.onRedo]);
-	useKeyBindingAtom(keySelectAllAtom, menu.onUnselectAll, [menu.onUnselectAll]);
+	useKeyBindingAtom(keyUnselectAllAtom, menu.onUnselectAll, [
+		menu.onUnselectAll,
+	]);
 	useKeyBindingAtom(keySelectAllAtom, menu.onSelectAll, [menu.onSelectAll]);
 	useKeyBindingAtom(keySelectInvertedAtom, menu.onSelectInverted, [
 		menu.onSelectInverted,
