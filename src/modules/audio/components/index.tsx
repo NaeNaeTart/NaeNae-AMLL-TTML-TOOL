@@ -18,6 +18,7 @@ import {
 } from "@fluentui/react-icons";
 import {
 	Card,
+	Button,
 	Flex,
 	Grid,
 	HoverCard,
@@ -215,9 +216,20 @@ export const AudioControls: FC = memo(() => {
 					<Flex align="center" px="2" gapX="2">
 						<HoverCard.Root>
 							<HoverCard.Trigger>
-								<IconButton my="2" variant="soft" onClick={onLoadMusic}>
+								<Button
+									my="2"
+									variant="soft"
+									onClick={onLoadMusic}
+									aria-label={t(
+										"audioPanel.loadAudio",
+										"Load audio",
+									)}
+								>
 									<MusicNote2Filled />
-								</IconButton>
+									{audioLoaded
+										? t("audioPanel.changeAudio", "Change Audio")
+										: t("audioPanel.loadAudio", "Load Audio")}
+								</Button>
 							</HoverCard.Trigger>
 							<HoverCard.Content>
 								<Flex direction="column" align="center">

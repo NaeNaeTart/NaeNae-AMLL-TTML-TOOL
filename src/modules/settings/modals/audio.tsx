@@ -114,7 +114,11 @@ export const AudioSettingsTab = () => {
 						{t("settings.audio.equalizer", "Audio Equalizer")}
 					</Text>
 					<Flex align="center" gap="2">
-						<Switch checked={enabled} onCheckedChange={handleToggle} />
+						<Switch
+							checked={enabled}
+							onCheckedChange={handleToggle}
+							aria-label={t("settings.audio.equalizer", "Audio Equalizer")}
+						/>
 						<Text size="2" color="gray">
 							{enabled
 								? t("settings.common.enabled", "Enabled")
@@ -130,135 +134,136 @@ export const AudioSettingsTab = () => {
 				</Text>
 			</Box>
 
-			<Flex
-				direction="column"
-				gap="3"
-				style={{
-					opacity: enabled ? 1 : 0.5,
-					pointerEvents: enabled ? "auto" : "none",
-				}}
-			>
-				<Flex align="center" gap="3" mb="2">
-					<Text size="2" weight="bold">
-						{t("settings.audio.preset", "Presets")}
-					</Text>
-					<Select.Root value={preset} onValueChange={handlePresetChange}>
-						<Select.Trigger />
-						<Select.Content>
-							<Select.Group>
-								<Select.Label>
-									{t("settings.audio.standardPresets", "Standard")}
-								</Select.Label>
-								<Select.Item value="Custom">
-									{t("settings.audio.presets.custom", "Manual")}
-								</Select.Item>
-								{Object.keys(EQ_PRESETS).map((p) => (
-									<Select.Item key={p} value={p}>
-										{p}
-									</Select.Item>
-								))}
-							</Select.Group>
-							{Object.keys(customPresets).length > 0 && (
+			{enabled && (
+				<Flex direction="column" gap="3">
+					<Flex align="center" gap="3" mb="2">
+						<Text size="2" weight="bold">
+							{t("settings.audio.preset", "Presets")}
+						</Text>
+						<Select.Root value={preset} onValueChange={handlePresetChange}>
+							<Select.Trigger />
+							<Select.Content>
 								<Select.Group>
 									<Select.Label>
-										{t("settings.audio.customPresets", "Custom")}
+										{t("settings.audio.standardPresets", "Standard")}
 									</Select.Label>
-									{Object.keys(customPresets).map((p) => (
+									<Select.Item value="Custom">
+										{t("settings.audio.presets.custom", "Manual")}
+									</Select.Item>
+									{Object.keys(EQ_PRESETS).map((p) => (
 										<Select.Item key={p} value={p}>
-											<Flex align="center" justify="between" width="100%">
-												{p}
-											</Flex>
+											{p}
 										</Select.Item>
 									))}
 								</Select.Group>
-							)}
-						</Select.Content>
-					</Select.Root>
+								{Object.keys(customPresets).length > 0 && (
+									<Select.Group>
+										<Select.Label>
+											{t("settings.audio.customPresets", "Custom")}
+										</Select.Label>
+										{Object.keys(customPresets).map((p) => (
+											<Select.Item key={p} value={p}>
+												<Flex align="center" justify="between" width="100%">
+													{p}
+												</Flex>
+											</Select.Item>
+										))}
+									</Select.Group>
+								)}
+							</Select.Content>
+						</Select.Root>
 
-					{customPresets[preset] && (
-						<IconButton
-							variant="ghost"
-							color="red"
-							size="1"
-							onClick={() => handleDeletePreset(preset)}
-						>
-							<DeleteRegular />
-						</IconButton>
-					)}
-
-					<Button
-						variant="soft"
-						size="1"
-						onClick={() => handlePresetChange("Flat")}
-					>
-						{t("settings.audio.reset", "Reset")}
-					</Button>
-				</Flex>
-
-				<Flex align="center" gap="2" mb="2">
-					<TextField.Root
-						placeholder={t("settings.audio.newPresetName", "New Preset Name")}
-						value={newPresetName}
-						onChange={(e) => setNewPresetName(e.target.value)}
-						size="1"
-						style={{ flexGrow: 1 }}
-					>
-						<TextField.Slot>
-							<ArchiveRegular />
-						</TextField.Slot>
-					</TextField.Root>
-					<Button
-						size="1"
-						onClick={handleSavePreset}
-						disabled={!newPresetName.trim()}
-					>
-						<SaveRegular fontSize="14" />
-						{t("settings.audio.save", "Save Preset")}
-					</Button>
-				</Flex>
-
-				<Grid
-					columns="10"
-					gap="2"
-					style={{ height: "200px", alignItems: "end" }}
-				>
-					{EQ_FREQUENCIES.map((freq, i) => (
-						<Flex
-							key={freq}
-							direction="column"
-							align="center"
-							gap="2"
-							height="100%"
-						>
-							<Flex
-								direction="column"
-								justify="end"
-								height="160px"
-								width="100%"
-								align="center"
-							>
-								<Slider
-									orientation="vertical"
-									value={[gains[i]]}
-									min={-12}
-									max={12}
-									step={1}
-									onValueChange={([val]) => handleGainChange(i, val)}
-								/>
-							</Flex>
-							<Text
+						{customPresets[preset] && (
+							<IconButton
+								variant="ghost"
+								color="red"
 								size="1"
-								style={{ fontSize: "9px", textAlign: "center", width: "100%" }}
+								onClick={() => handleDeletePreset(preset)}
+								aria-label={t("settings.audio.deletePreset", "Delete preset")}
 							>
-								{freq >= 1000 ? `${freq / 1000}k` : freq}
-							</Text>
-							<Text size="1" color="gray" style={{ fontSize: "9px" }}>
-								{gains[i] > 0 ? `+${gains[i]}` : gains[i]}dB
-							</Text>
-						</Flex>
-					))}
-				</Grid>
-			</Flex>
+								<DeleteRegular />
+							</IconButton>
+						)}
+
+						<Button
+							variant="soft"
+							size="1"
+							onClick={() => handlePresetChange("Flat")}
+						>
+							{t("settings.audio.reset", "Reset")}
+						</Button>
+					</Flex>
+
+					<Flex align="center" gap="2" mb="2">
+						<TextField.Root
+							placeholder={t("settings.audio.newPresetName", "New Preset Name")}
+							value={newPresetName}
+							onChange={(e) => setNewPresetName(e.target.value)}
+							size="1"
+							style={{ flexGrow: 1 }}
+						>
+							<TextField.Slot>
+								<ArchiveRegular />
+							</TextField.Slot>
+						</TextField.Root>
+						<Button
+							size="1"
+							onClick={handleSavePreset}
+							disabled={!newPresetName.trim()}
+						>
+							<SaveRegular fontSize="14" />
+							{t("settings.audio.save", "Save Preset")}
+						</Button>
+					</Flex>
+
+					<Grid
+						columns="10"
+						gap="2"
+						style={{ height: "200px", alignItems: "end" }}
+					>
+						{EQ_FREQUENCIES.map((freq, i) => (
+							<Flex
+								key={freq}
+								direction="column"
+								align="center"
+								gap="2"
+								height="100%"
+							>
+								<Flex
+									direction="column"
+									justify="end"
+									height="160px"
+									width="100%"
+									align="center"
+								>
+									<Slider
+										orientation="vertical"
+										value={[gains[i]]}
+										min={-12}
+										max={12}
+										step={1}
+										aria-label={`${freq} Hz`}
+										onValueChange={([val]) => handleGainChange(i, val)}
+									/>
+								</Flex>
+								<Text
+									size="1"
+									style={{
+										fontSize: "9px",
+										textAlign: "center",
+										width: "100%",
+									}}
+								>
+									{freq >= 1000 ? `${freq / 1000}k` : freq}
+								</Text>
+								<Text size="1" color="gray" style={{ fontSize: "9px" }}>
+									{gains[i] > 0 ? `+${gains[i]}` : gains[i]}dB
+								</Text>
+							</Flex>
+						))}
+					</Grid>
+				</Flex>
+			)}
 
 			<Card>
 				<Flex gap="3" align="center">
