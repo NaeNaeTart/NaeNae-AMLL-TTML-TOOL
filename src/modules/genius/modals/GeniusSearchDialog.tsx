@@ -306,7 +306,7 @@ export const GeniusSearchDialog = () => {
 						</Text>
 						<Text size="2">
 							<a
-								href={getGeniusKeyGuideUrl(i18n.resolvedLanguage)}
+								href={getGeniusKeyGuideUrl()}
 								target="_blank"
 								rel="noopener noreferrer"
 							>
