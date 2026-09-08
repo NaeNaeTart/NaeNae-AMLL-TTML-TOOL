@@ -16,7 +16,12 @@ export const TouchSyncPanel: FC = () => {
 	const store = useStore();
 	const { t } = useTranslation();
 	return (
-		<Card m="2" mt="0" style={{ flexShrink: "0" }}>
+		<Card
+			data-guide-target="touch-sync"
+			m="2"
+			mt="0"
+			style={{ flexShrink: "0" }}
+		>
 			<Grid rows="2" columns="6" gap="2" className={styles.syncButtons}>
 				<Button
 					variant="soft"
