@@ -790,16 +790,15 @@ export const AudioSpectrogram: FC = memo(() => {
 					</Tooltip>
 
 					<Popover.Root>
-						<Tooltip
-							content={t("spectrogram.settings", "频谱图设置")}
-							side="left"
-						>
-							<Popover.Trigger>
-								<IconButton variant="ghost" color="gray">
-									<SettingsFilled />
-								</IconButton>
-							</Popover.Trigger>
-						</Tooltip>
+						<Popover.Trigger>
+							<IconButton
+								variant="ghost"
+								color="gray"
+								title={t("spectrogram.settings", "频谱图设置")}
+							>
+								<SettingsFilled />
+							</IconButton>
+						</Popover.Trigger>
 						<Popover.Content side="left" align="end" style={{ width: 220 }}>
 							<Flex direction="column" gap="3">
 								<Text size="2" weight="bold">
