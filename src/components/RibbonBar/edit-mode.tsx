@@ -893,7 +893,9 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 			<RibbonFrame
 				ref={ref}
 				isSidebar={isSidebar}
-				reserveControlRows={3}
+				reserveControlRows={
+					selectedLines.size > 0 || selectedWords.size > 0 ? 3 : 1
+				}
 			>
 				<RibbonSection label={t("ribbonBar.editMode.new", "新建")} isSidebar={isSidebar}>
 					<Grid columns="1" gap="1" gapY="1" flexGrow="1" align="center">

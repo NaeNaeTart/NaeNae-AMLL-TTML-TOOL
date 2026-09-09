@@ -141,15 +141,8 @@ export const SettingsAppearanceTab = () => {
 	);
 	const isDarkTheme = useAtomValue(isDarkThemeAtom);
 	const customScale = useMemo(
-		() =>
-			generateRadixScale(
-				customAccentColor,
-				isDarkTheme,
-			),
-		[
-			customAccentColor,
-			isDarkTheme,
-		],
+		() => generateRadixScale(customAccentColor, isDarkTheme),
+		[customAccentColor, isDarkTheme],
 	);
 
 	const [backgroundMode, setBackgroundMode] = useAtom(backgroundModeAtom);
@@ -177,11 +170,19 @@ export const SettingsAppearanceTab = () => {
 	);
 	const [editorMode, setEditorMode] = useAtom(appearanceEditorModeAtom);
 	const [legacyDarkTheme, setLegacyDarkTheme] = useAtom(legacyDarkThemeAtom);
-	const [advWaveformColor, setAdvWaveformColor] = useAtom(advancedWaveformColorAtom);
-	const [advWaveformProgress, setAdvWaveformProgress] = useAtom(advancedWaveformProgressColorAtom);
-	const [advPrimaryText, setAdvPrimaryText] = useAtom(advancedPrimaryTextColorAtom);
-	const [advSecondaryText, setAdvSecondaryText] = useAtom(advancedSecondaryTextColorAtom);
-	
+	const [advWaveformColor, setAdvWaveformColor] = useAtom(
+		advancedWaveformColorAtom,
+	);
+	const [advWaveformProgress, setAdvWaveformProgress] = useAtom(
+		advancedWaveformProgressColorAtom,
+	);
+	const [advPrimaryText, setAdvPrimaryText] = useAtom(
+		advancedPrimaryTextColorAtom,
+	);
+	const [advSecondaryText, setAdvSecondaryText] = useAtom(
+		advancedSecondaryTextColorAtom,
+	);
+
 	const [vTitlebarBg, setVTitlebarBg] = useAtom(advTitlebarBgAtom);
 	const [vSidebarBg, setVSidebarBg] = useAtom(advSidebarBgAtom);
 	const [vSidebarActive, setVSidebarActive] = useAtom(advSidebarActiveAtom);
@@ -192,18 +193,26 @@ export const SettingsAppearanceTab = () => {
 	const [vChipRadius, setVChipRadius] = useAtom(advChipBorderRadiusAtom);
 	const [vChipGap, setVChipGap] = useAtom(advChipGapAtom);
 	const [vChipPaddingV, setVChipPaddingV] = useAtom(advChipPaddingVerticalAtom);
-	const [vChipPaddingH, setVChipPaddingH] = useAtom(advChipPaddingHorizontalAtom);
-	const [legacySpaceLabels, setLegacySpaceLabels] = useAtom(legacySpaceLabelsAtom);
+	const [vChipPaddingH, setVChipPaddingH] = useAtom(
+		advChipPaddingHorizontalAtom,
+	);
+	const [legacySpaceLabels, setLegacySpaceLabels] = useAtom(
+		legacySpaceLabelsAtom,
+	);
 	const [vRomanColor, setVRomanColor] = useAtom(advRomanizationColorAtom);
 	const [vTransColor, setVTransColor] = useAtom(advTranslationColorAtom);
-	const [vGeniusHeaderColor, setVGeniusHeaderColor] = useAtom(advGeniusHeaderColorAtom);
+	const [vGeniusHeaderColor, setVGeniusHeaderColor] = useAtom(
+		advGeniusHeaderColorAtom,
+	);
 	const [vAudioBarBg, setVAudioBarBg] = useAtom(advAudioBarBgAtom);
 	const [vAudioBarText, setVAudioBarText] = useAtom(advAudioBarTextAtom);
 	const [vScrollbar, setVScrollbar] = useAtom(advScrollbarColorAtom);
 	const [vDialogBg, setVDialogBg] = useAtom(advDialogBgAtom);
 	const [vDialogBorder, setVDialogBorder] = useAtom(advDialogBorderAtom);
 	const [vGlobalRadius, setVGlobalRadius] = useAtom(advGlobalBorderRadiusAtom);
-	const [vGlobalBorderWidth, setVGlobalBorderWidth] = useAtom(advGlobalBorderWidthAtom);
+	const [vGlobalBorderWidth, setVGlobalBorderWidth] = useAtom(
+		advGlobalBorderWidthAtom,
+	);
 	const [vShadow, setVShadow] = useAtom(advShadowIntensityAtom);
 	const [vSelection, setVSelection] = useAtom(advSelectionColorAtom);
 	const [vBackdrop, setVBackdrop] = useAtom(advBackdropBlurAtom);
@@ -215,7 +224,8 @@ export const SettingsAppearanceTab = () => {
 	const appFont = useAtomValue(appFontAtom);
 	const [glassBlur, setGlassBlur] = useAtom(glassmorphismBlurAtom);
 	const [interfaceScale, setInterfaceScale] = useAtom(interfaceScaleAtom);
-	const [interfaceScaleDraft, setInterfaceScaleDraft] = useState(interfaceScale);
+	const [interfaceScaleDraft, setInterfaceScaleDraft] =
+		useState(interfaceScale);
 
 	useEffect(() => {
 		setInterfaceScaleDraft(interfaceScale);
@@ -230,19 +240,53 @@ export const SettingsAppearanceTab = () => {
 			name: newPresetName,
 			settings: {
 				// Basic & General
-				accentColor, useCustomAccent, customAccentColor, glassBlur,
+				accentColor,
+				useCustomAccent,
+				customAccentColor,
+				glassBlur,
 				// Backgrounds
-				backgroundMode, selectedGradient, useCustomGradient, customGradientColors,
-				customGradientType, customGradientOpacity, customGradientCenter,
-				customGradientAngle, customGradientSize,
+				backgroundMode,
+				selectedGradient,
+				useCustomGradient,
+				customGradientColors,
+				customGradientType,
+				customGradientOpacity,
+				customGradientCenter,
+				customGradientAngle,
+				customGradientSize,
 				// Advanced
-				advWaveformColor, advWaveformProgress, advPrimaryText, advSecondaryText,
-				vTitlebarBg, vSidebarBg, vSidebarActive, vMenuHover, vEditorBg, vActiveLine, vLineHover, vSelection,
-				vChipRadius, vChipGap, vChipPaddingV, vChipPaddingH, vRomanColor, vTransColor, vGeniusHeaderColor,
-				vAudioBarBg, vAudioBarText, vScrollbar, vDialogBg, vDialogBorder,
-				vGlobalRadius, vGlobalBorderWidth, vShadow, vBackdrop,
-				layoutOrder, vRibbonPos, legacyDarkTheme
-			}
+				advWaveformColor,
+				advWaveformProgress,
+				advPrimaryText,
+				advSecondaryText,
+				vTitlebarBg,
+				vSidebarBg,
+				vSidebarActive,
+				vMenuHover,
+				vEditorBg,
+				vActiveLine,
+				vLineHover,
+				vSelection,
+				vChipRadius,
+				vChipGap,
+				vChipPaddingV,
+				vChipPaddingH,
+				vRomanColor,
+				vTransColor,
+				vGeniusHeaderColor,
+				vAudioBarBg,
+				vAudioBarText,
+				vScrollbar,
+				vDialogBg,
+				vDialogBorder,
+				vGlobalRadius,
+				vGlobalBorderWidth,
+				vShadow,
+				vBackdrop,
+				layoutOrder,
+				vRibbonPos,
+				legacyDarkTheme,
+			},
 		};
 		setPresets([...presets, newPreset]);
 		setNewPresetName("");
@@ -250,33 +294,47 @@ export const SettingsAppearanceTab = () => {
 
 	const handleLoadPreset = (p: AppearancePreset) => {
 		const s = p.settings;
-		
+
 		// Set a small loading indicator state
 		setLastLoaded(p.name);
 
 		// Basic & General
 		if (s.accentColor !== undefined) setAccentColor(s.accentColor);
-		if (s.useCustomAccent !== undefined) setUseCustomAccent(!!s.useCustomAccent);
-		if (s.customAccentColor !== undefined) setCustomAccentColor(s.customAccentColor);
+		if (s.useCustomAccent !== undefined)
+			setUseCustomAccent(!!s.useCustomAccent);
+		if (s.customAccentColor !== undefined)
+			setCustomAccentColor(s.customAccentColor);
 		if (s.glassBlur !== undefined) setGlassBlur(Number(s.glassBlur));
 
 		// Backgrounds
 		if (s.backgroundMode !== undefined) setBackgroundMode(s.backgroundMode);
-		if (s.selectedGradient !== undefined) setSelectedGradient(s.selectedGradient);
-		if (s.useCustomGradient !== undefined) setUseCustomGradient(!!s.useCustomGradient);
-		if (s.customGradientColors !== undefined) setCustomGradientColors(s.customGradientColors);
-		if (s.customGradientType !== undefined) setCustomGradientType(s.customGradientType);
-		if (s.customGradientOpacity !== undefined) setCustomGradientOpacity(Number(s.customGradientOpacity));
-		if (s.customGradientCenter !== undefined) setCustomGradientCenter(s.customGradientCenter);
-		if (s.customGradientAngle !== undefined) setCustomGradientAngle(Number(s.customGradientAngle));
-		if (s.customGradientSize !== undefined) setCustomGradientSize(Number(s.customGradientSize));
-		if (s.legacyDarkTheme !== undefined) setLegacyDarkTheme(!!s.legacyDarkTheme);
+		if (s.selectedGradient !== undefined)
+			setSelectedGradient(s.selectedGradient);
+		if (s.useCustomGradient !== undefined)
+			setUseCustomGradient(!!s.useCustomGradient);
+		if (s.customGradientColors !== undefined)
+			setCustomGradientColors(s.customGradientColors);
+		if (s.customGradientType !== undefined)
+			setCustomGradientType(s.customGradientType);
+		if (s.customGradientOpacity !== undefined)
+			setCustomGradientOpacity(Number(s.customGradientOpacity));
+		if (s.customGradientCenter !== undefined)
+			setCustomGradientCenter(s.customGradientCenter);
+		if (s.customGradientAngle !== undefined)
+			setCustomGradientAngle(Number(s.customGradientAngle));
+		if (s.customGradientSize !== undefined)
+			setCustomGradientSize(Number(s.customGradientSize));
+		if (s.legacyDarkTheme !== undefined)
+			setLegacyDarkTheme(!!s.legacyDarkTheme);
 
 		// Advanced
-		if (s.advWaveformColor !== undefined) setAdvWaveformColor(s.advWaveformColor);
-		if (s.advWaveformProgress !== undefined) setAdvWaveformProgress(s.advWaveformProgress);
+		if (s.advWaveformColor !== undefined)
+			setAdvWaveformColor(s.advWaveformColor);
+		if (s.advWaveformProgress !== undefined)
+			setAdvWaveformProgress(s.advWaveformProgress);
 		if (s.advPrimaryText !== undefined) setAdvPrimaryText(s.advPrimaryText);
-		if (s.advSecondaryText !== undefined) setAdvSecondaryText(s.advSecondaryText);
+		if (s.advSecondaryText !== undefined)
+			setAdvSecondaryText(s.advSecondaryText);
 		if (s.vTitlebarBg !== undefined) setVTitlebarBg(s.vTitlebarBg);
 		if (s.vSidebarBg !== undefined) setVSidebarBg(s.vSidebarBg);
 		if (s.vSidebarActive !== undefined) setVSidebarActive(s.vSidebarActive);
@@ -287,24 +345,29 @@ export const SettingsAppearanceTab = () => {
 		if (s.vSelection !== undefined) setVSelection(s.vSelection);
 		if (s.vChipRadius !== undefined) setVChipRadius(Number(s.vChipRadius));
 		if (s.vChipGap !== undefined) setVChipGap(Number(s.vChipGap));
-		if (s.vChipPaddingV !== undefined) setVChipPaddingV(Number(s.vChipPaddingV));
-		if (s.vChipPaddingH !== undefined) setVChipPaddingH(Number(s.vChipPaddingH));
+		if (s.vChipPaddingV !== undefined)
+			setVChipPaddingV(Number(s.vChipPaddingV));
+		if (s.vChipPaddingH !== undefined)
+			setVChipPaddingH(Number(s.vChipPaddingH));
 		if (s.vRomanColor !== undefined) setVRomanColor(s.vRomanColor);
 		if (s.vTransColor !== undefined) setVTransColor(s.vTransColor);
-		if (s.vGeniusHeaderColor !== undefined) setVGeniusHeaderColor(s.vGeniusHeaderColor);
+		if (s.vGeniusHeaderColor !== undefined)
+			setVGeniusHeaderColor(s.vGeniusHeaderColor);
 		if (s.vAudioBarBg !== undefined) setVAudioBarBg(s.vAudioBarBg);
 		if (s.vAudioBarText !== undefined) setVAudioBarText(s.vAudioBarText);
 		if (s.vScrollbar !== undefined) setVScrollbar(s.vScrollbar);
 		if (s.vDialogBg !== undefined) setVDialogBg(s.vDialogBg);
 		if (s.vDialogBorder !== undefined) setVDialogBorder(s.vDialogBorder);
-		if (s.vGlobalRadius !== undefined) setVGlobalRadius(Number(s.vGlobalRadius));
-		if (s.vGlobalBorderWidth !== undefined) setVGlobalBorderWidth(Number(s.vGlobalBorderWidth));
+		if (s.vGlobalRadius !== undefined)
+			setVGlobalRadius(Number(s.vGlobalRadius));
+		if (s.vGlobalBorderWidth !== undefined)
+			setVGlobalBorderWidth(Number(s.vGlobalBorderWidth));
 		if (s.vShadow !== undefined) setVShadow(Number(s.vShadow));
 		if (s.vBackdrop !== undefined) setVBackdrop(Number(s.vBackdrop));
 		if (s.layoutOrder !== undefined) setLayoutOrder(s.layoutOrder);
 		if (s.vRibbonPos !== undefined) setVRibbonPos(s.vRibbonPos);
 
-		// Small timeout to clear the flash of "active" state if desired, 
+		// Small timeout to clear the flash of "active" state if desired,
 		// but keeping it visible helps user know it worked.
 	};
 	const setIsFontSelectionOpen = useSetAtom(fontSelectionDialogAtom);
@@ -336,20 +399,33 @@ export const SettingsAppearanceTab = () => {
 				</SegmentedControl.Root>
 			</Flex>
 
-			<Flex direction="column" gap="3">
-				<Heading size="4"><Save24Regular /> {t("settings.appearance.presets.title", "Appearance Presets")}</Heading>
+			<details>
+				<summary style={{ cursor: "pointer", marginBottom: "var(--space-3)" }}>
+					<Text size="3" weight="bold">
+						<Save24Regular />{" "}
+						{t("settings.appearance.presets.title", "Appearance Presets")}
+					</Text>
+				</summary>
 				<Card>
 					<Flex direction="column" gap="3">
 						<Flex gap="3" align="center">
-							<TextField.Root 
-								placeholder={t("settings.appearance.presets.namePlaceholder", "Theme Name...")}
+							<TextField.Root
+								placeholder={t(
+									"settings.appearance.presets.namePlaceholder",
+									"Theme Name...",
+								)}
 								value={newPresetName}
 								onChange={(e) => setNewPresetName(e.target.value)}
 								style={{ flexGrow: 1 }}
 							>
-								<TextField.Slot><Save24Regular /></TextField.Slot>
+								<TextField.Slot>
+									<Save24Regular />
+								</TextField.Slot>
 							</TextField.Root>
-							<Button onClick={handleSavePreset} disabled={!newPresetName.trim()}>
+							<Button
+								onClick={handleSavePreset}
+								disabled={!newPresetName.trim()}
+							>
 								{t("settings.appearance.presets.save", "Save Current")}
 							</Button>
 						</Flex>
@@ -357,20 +433,60 @@ export const SettingsAppearanceTab = () => {
 						{presets.length > 0 ? (
 							<Grid columns="2" gap="2">
 								{presets.map((p) => (
-									<Card key={p.id} size="1" style={{ 
-										border: lastLoaded === p.name ? "1px solid var(--accent-9)" : undefined,
-										backgroundColor: lastLoaded === p.name ? "var(--accent-2)" : undefined
-									}}>
+									<Card
+										key={p.id}
+										size="1"
+										style={{
+											border:
+												lastLoaded === p.name
+													? "1px solid var(--accent-9)"
+													: undefined,
+											backgroundColor:
+												lastLoaded === p.name ? "var(--accent-2)" : undefined,
+										}}
+									>
 										<Flex align="center" justify="between">
 											<Box flexGrow="1" overflow="hidden">
-												<Text size="2" weight="bold" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</Text>
-												{lastLoaded === p.name && <Text size="1" color="accent" style={{ display: "block" }}>Active</Text>}
+												<Text
+													size="2"
+													weight="bold"
+													style={{
+														display: "block",
+														overflow: "hidden",
+														textOverflow: "ellipsis",
+														whiteSpace: "nowrap",
+													}}
+												>
+													{p.name}
+												</Text>
+												{lastLoaded === p.name && (
+													<Text
+														size="1"
+														color="accent"
+														style={{ display: "block" }}
+													>
+														Active
+													</Text>
+												)}
 											</Box>
 											<Flex gap="1">
-												<IconButton size="1" variant="soft" onClick={() => handleLoadPreset(p)} title="Load Preset">
+												<IconButton
+													size="1"
+													variant="soft"
+													onClick={() => handleLoadPreset(p)}
+													title="Load Preset"
+												>
 													<Timer24Regular />
 												</IconButton>
-												<IconButton size="1" variant="ghost" color="red" onClick={() => setPresets(presets.filter(pr => pr.id !== p.id))} title="Delete Preset">
+												<IconButton
+													size="1"
+													variant="ghost"
+													color="red"
+													onClick={() =>
+														setPresets(presets.filter((pr) => pr.id !== p.id))
+													}
+													title="Delete Preset"
+												>
 													<History24Regular />
 												</IconButton>
 											</Flex>
@@ -379,621 +495,703 @@ export const SettingsAppearanceTab = () => {
 								))}
 							</Grid>
 						) : (
-							<Text size="2" color="gray" align="center">{t("settings.appearance.presets.empty", "No saved presets yet.")}</Text>
+							<Text size="2" color="gray" align="center">
+								{t(
+									"settings.appearance.presets.empty",
+									"No saved presets yet.",
+								)}
+							</Text>
 						)}
 					</Flex>
 				</Card>
-			</Flex>
+			</details>
 
 			{editorMode === AppearanceEditorMode.Basic ? (
 				<>
 					<Flex direction="column" gap="2">
-				<Heading size="4">{t("settings.appearance.theme", "Theme")}</Heading>
+						<Heading size="4">
+							{t("settings.appearance.theme", "Theme")}
+						</Heading>
 
-				<Card>
-					<Flex direction="column" gap="4">
-						<Flex gap="3" align="start">
-							<Sparkle24Regular />
-							<Box flexGrow="1">
-								<Flex direction="column" gap="3">
-									<Flex align="center" justify="between">
-										<Flex direction="column" gap="1">
-											<Text>
-												{t(
-													"settings.appearance.useCustomAccent",
-													"Custom Accent Color",
-												)}
-											</Text>
-											<Text size="1" color="gray">
-												{t(
-													"settings.appearance.useCustomAccentDesc",
-													"Set Accent color",
-												)}
-											</Text>
-										</Flex>
-										<Switch
-											checked={useCustomAccent}
-											onCheckedChange={setUseCustomAccent}
-										/>
-									</Flex>
-
-									{useCustomAccent ? (
+						<Card>
+							<Flex direction="column" gap="4">
+								<Flex gap="3" align="start">
+									<Sparkle24Regular />
+									<Box flexGrow="1">
 										<Flex direction="column" gap="3">
-											<Flex align="center" gap="3">
-												<input
-													type="color"
-													value={customAccentColor}
-													onChange={(e) => {
-														const newColor = e.target.value;
-														setCustomAccentColor(newColor);
-													}}
-													style={{
-														width: "40px",
-														height: "40px",
-														padding: 0,
-														border: "none",
-														borderRadius: "var(--radius-3)",
-														cursor: "pointer",
-														backgroundColor: "transparent",
-													}}
-												/>
-												<Text size="2" weight="bold">
-													{customAccentColor.toUpperCase()}
-												</Text>
-											</Flex>
-											<Grid columns="12" gap="1">
-												{Array.from({ length: 12 }).map((_, i) => (
-													<Box
-														key={`shade-${i + 1}`}
-														style={{
-															height: "20px",
-															borderRadius: "var(--radius-1)",
-															backgroundColor: customScale[`--accent-${i + 1}`],
-														}}
-													/>
-												))}
-											</Grid>
-										</Flex>
-									) : (
-										<Grid columns="8" gap="2">
-											{accentColors.map((color) => (
-												<Tooltip key={color} content={color}>
-													<IconButton
-														size="2"
-														variant={accentColor === color ? "solid" : "soft"}
-														color={color}
-														style={{
-															borderRadius: "var(--radius-2)",
-															cursor: "pointer",
-														}}
-														onClick={() => setAccentColor(color)}
-													>
-														<Box
-															style={{
-																width: "12px",
-																height: "12px",
-																borderRadius: "50%",
-																backgroundColor: "currentColor",
-															}}
-														/>
-													</IconButton>
-												</Tooltip>
-											))}
-										</Grid>
-									)}
-								</Flex>
-							</Box>
-						</Flex>
-					</Flex>
-				</Card>
-
-				<Heading size="4" mt="4">{t("settings.appearance.glass", "Glassmorphism")}</Heading>
-				<Card>
-					<Flex direction="column" gap="4">
-						<Flex gap="3" align="start">
-							<Sparkle24Regular />
-							<Box flexGrow="1">
-								<Flex direction="column" gap="3">
-									<Flex align="center" justify="between">
-										<Flex direction="column" gap="1">
-											<Text>
-												{t("settings.appearance.glassBlur", "Glass Intensity")}
-											</Text>
-											<Text size="1" color="gray">
-												{t("settings.appearance.glassBlurDesc", "Adjust the background blur effect for glassmorphic elements.")}
-											</Text>
-										</Flex>
-										<Text size="1" weight="bold" color="accent">{glassBlur}px</Text>
-									</Flex>
-									<Slider 
-										min={0} 
-										max={64} 
-										step={1} 
-										value={[glassBlur]} 
-										onValueChange={(v) => setGlassBlur(v[0])} 
-									/>
-								</Flex>
-							</Box>
-						</Flex>
-					</Flex>
-				</Card>
-			</Flex>
-
-			<Flex direction="column" gap="3">
-				<Heading size="4">
-					{t("settings.appearance.background", "Background")}
-				</Heading>
-
-				<SegmentedControl.Root
-					value={backgroundMode}
-					onValueChange={(v) =>
-						setBackgroundMode(v as "none" | "image" | "gradient")
-					}
-				>
-					<SegmentedControl.Item value="none">
-						{t("settings.appearance.mode.none", "None")}
-					</SegmentedControl.Item>
-					<SegmentedControl.Item value="image">
-						{t("settings.appearance.mode.image", "Image")}
-					</SegmentedControl.Item>
-					<SegmentedControl.Item value="gradient">
-						{t("settings.appearance.mode.gradient", "Gradient")}
-					</SegmentedControl.Item>
-				</SegmentedControl.Root>
-
-				{backgroundMode === "image" && (
-					<SettingsCustomBackgroundCard
-						onOpen={() => setShowBackgroundSettings(true)}
-					/>
-				)}
-
-				{backgroundMode === "gradient" && (
-					<Card>
-						<Flex direction="column" gap="4">
-							<Flex gap="3" align="start">
-								<Sparkle24Regular />
-								<Box flexGrow="1">
-									<Flex direction="column" gap="3">
-										<Flex align="center" justify="between">
-											<Flex direction="column" gap="1">
-												<Text>
-													{t(
-														"settings.appearance.useCustomGradient",
-														"Custom Gradient Color",
-													)}
-												</Text>
-												<Text size="1" color="gray">
-													{t(
-														"settings.appearance.useCustomGradientDesc",
-														"Generate a gradient from a single color.",
-													)}
-												</Text>
-											</Flex>
-											<Switch
-												checked={useCustomGradient}
-												onCheckedChange={setUseCustomGradient}
-											/>
-										</Flex>
-
-										{useCustomGradient ? (
-											<Flex direction="column" gap="4">
-												<Flex align="center" justify="between">
+											<Flex align="center" justify="between">
+												<Flex direction="column" gap="1">
 													<Text>
 														{t(
-															"settings.appearance.syncGradientToAccent",
-															"Sync first color with Accent",
+															"settings.appearance.useCustomAccent",
+															"Custom Accent Color",
 														)}
 													</Text>
-													<Button
-														variant="soft"
-														onClick={() => {
-															const newGradientColors = [
-																...customGradientColors,
-															];
-															newGradientColors[0] = customAccentColor;
-															setCustomGradientColors(newGradientColors);
-														}}
-													>
-														{t("common.sync", "Sync")}
-													</Button>
+													<Text size="1" color="gray">
+														{t(
+															"settings.appearance.useCustomAccentDesc",
+															"Set Accent color",
+														)}
+													</Text>
 												</Flex>
-												<Flex align="center" gap="3" wrap="wrap">
-													{customGradientColors.map((color, idx) => (
-														// biome-ignore lint/suspicious/noArrayIndexKey: primitive array without unique IDs
-														<Flex key={idx} align="center" gap="2">
-															<input
-																type="color"
-																value={color}
-																onChange={(e) => {
-																	const newColor = e.target.value;
-																	const newColors = [...customGradientColors];
-																	newColors[idx] = newColor;
-																	setCustomGradientColors(newColors);
-																}}
+												<Switch
+													checked={useCustomAccent}
+													onCheckedChange={setUseCustomAccent}
+												/>
+											</Flex>
+
+											{useCustomAccent ? (
+												<Flex direction="column" gap="3">
+													<Flex align="center" gap="3">
+														<input
+															type="color"
+															value={customAccentColor}
+															onChange={(e) => {
+																const newColor = e.target.value;
+																setCustomAccentColor(newColor);
+															}}
+															style={{
+																width: "40px",
+																height: "40px",
+																padding: 0,
+																border: "none",
+																borderRadius: "var(--radius-3)",
+																cursor: "pointer",
+																backgroundColor: "transparent",
+															}}
+														/>
+														<Text size="2" weight="bold">
+															{customAccentColor.toUpperCase()}
+														</Text>
+													</Flex>
+													<Grid columns="12" gap="1">
+														{Array.from({ length: 12 }).map((_, i) => (
+															<Box
+																key={`shade-${i + 1}`}
 																style={{
-																	width: "40px",
-																	height: "40px",
-																	padding: 0,
-																	border: "none",
-																	borderRadius: "var(--radius-3)",
-																	cursor: "pointer",
-																	backgroundColor: "transparent",
+																	height: "20px",
+																	borderRadius: "var(--radius-1)",
+																	backgroundColor:
+																		customScale[`--accent-${i + 1}`],
 																}}
 															/>
-															{customGradientColors.length > 1 && (
+														))}
+													</Grid>
+												</Flex>
+											) : (
+												<Grid columns="8" gap="2">
+													{accentColors.map((color) => (
+														<Tooltip key={color} content={color}>
+															<IconButton
+																size="2"
+																variant={
+																	accentColor === color ? "solid" : "soft"
+																}
+																color={color}
+																aria-label={t(
+																	"settings.appearance.selectAccent",
+																	"Select {{color}} accent",
+																	{ color },
+																)}
+																style={{
+																	borderRadius: "var(--radius-2)",
+																	cursor: "pointer",
+																}}
+																onClick={() => setAccentColor(color)}
+															>
+																<Box
+																	style={{
+																		width: "12px",
+																		height: "12px",
+																		borderRadius: "50%",
+																		backgroundColor: "currentColor",
+																	}}
+																/>
+															</IconButton>
+														</Tooltip>
+													))}
+												</Grid>
+											)}
+										</Flex>
+									</Box>
+								</Flex>
+							</Flex>
+						</Card>
+
+						<Heading size="4" mt="4">
+							{t("settings.appearance.glass", "Background Blur")}
+						</Heading>
+						<Card>
+							<Flex direction="column" gap="4">
+								<Flex gap="3" align="start">
+									<Sparkle24Regular />
+									<Box flexGrow="1">
+										<Flex direction="column" gap="3">
+											<Flex align="center" justify="between">
+												<Flex direction="column" gap="1">
+													<Text>
+														{t(
+															"settings.appearance.glassBlur",
+															"Background Blur",
+														)}
+													</Text>
+													<Text size="1" color="gray">
+														{t(
+															"settings.appearance.glassBlurDesc",
+															"Adjust the background blur effect for glassmorphic elements.",
+														)}
+													</Text>
+												</Flex>
+												<Text size="1" weight="bold" color="accent">
+													{glassBlur}px
+												</Text>
+											</Flex>
+											<Slider
+												min={0}
+												max={64}
+												step={1}
+												value={[glassBlur]}
+												onValueChange={(v) => setGlassBlur(v[0])}
+											/>
+										</Flex>
+									</Box>
+								</Flex>
+							</Flex>
+						</Card>
+					</Flex>
+
+					<Flex direction="column" gap="3">
+						<Heading size="4">
+							{t("settings.appearance.background", "Background")}
+						</Heading>
+
+						<SegmentedControl.Root
+							value={backgroundMode}
+							onValueChange={(v) =>
+								setBackgroundMode(v as "none" | "image" | "gradient")
+							}
+						>
+							<SegmentedControl.Item value="none">
+								{t("settings.appearance.mode.none", "None")}
+							</SegmentedControl.Item>
+							<SegmentedControl.Item value="image">
+								{t("settings.appearance.mode.image", "Image")}
+							</SegmentedControl.Item>
+							<SegmentedControl.Item value="gradient">
+								{t("settings.appearance.mode.gradient", "Gradient")}
+							</SegmentedControl.Item>
+						</SegmentedControl.Root>
+
+						{backgroundMode === "image" && (
+							<SettingsCustomBackgroundCard
+								onOpen={() => setShowBackgroundSettings(true)}
+							/>
+						)}
+
+						{backgroundMode === "gradient" && (
+							<Card>
+								<Flex direction="column" gap="4">
+									<Flex gap="3" align="start">
+										<Sparkle24Regular />
+										<Box flexGrow="1">
+											<Flex direction="column" gap="3">
+												<Flex align="center" justify="between">
+													<Flex direction="column" gap="1">
+														<Text>
+															{t(
+																"settings.appearance.useCustomGradient",
+																"Custom Gradient Color",
+															)}
+														</Text>
+														<Text size="1" color="gray">
+															{t(
+																"settings.appearance.useCustomGradientDesc",
+																"Generate a gradient from a single color.",
+															)}
+														</Text>
+													</Flex>
+													<Switch
+														checked={useCustomGradient}
+														onCheckedChange={setUseCustomGradient}
+													/>
+												</Flex>
+
+												{useCustomGradient ? (
+													<Flex direction="column" gap="4">
+														<Flex align="center" justify="between">
+															<Text>
+																{t(
+																	"settings.appearance.syncGradientToAccent",
+																	"Sync first color with Accent",
+																)}
+															</Text>
+															<Button
+																variant="soft"
+																onClick={() => {
+																	const newGradientColors = [
+																		...customGradientColors,
+																	];
+																	newGradientColors[0] = customAccentColor;
+																	setCustomGradientColors(newGradientColors);
+																}}
+															>
+																{t("common.sync", "Sync")}
+															</Button>
+														</Flex>
+														<Flex align="center" gap="3" wrap="wrap">
+															{customGradientColors.map((color, idx) => (
+																// biome-ignore lint/suspicious/noArrayIndexKey: primitive array without unique IDs
+																<Flex key={idx} align="center" gap="2">
+																	<input
+																		type="color"
+																		value={color}
+																		onChange={(e) => {
+																			const newColor = e.target.value;
+																			const newColors = [
+																				...customGradientColors,
+																			];
+																			newColors[idx] = newColor;
+																			setCustomGradientColors(newColors);
+																		}}
+																		style={{
+																			width: "40px",
+																			height: "40px",
+																			padding: 0,
+																			border: "none",
+																			borderRadius: "var(--radius-3)",
+																			cursor: "pointer",
+																			backgroundColor: "transparent",
+																		}}
+																	/>
+																	{customGradientColors.length > 1 && (
+																		<Button
+																			variant="soft"
+																			color="red"
+																			size="1"
+																			onClick={() => {
+																				setCustomGradientColors(
+																					customGradientColors.filter(
+																						(_, i) => i !== idx,
+																					),
+																				);
+																			}}
+																		>
+																			{t("common.remove", "Remove")}
+																		</Button>
+																	)}
+																</Flex>
+															))}
+															{customGradientColors.length < 4 && (
 																<Button
-																	variant="soft"
-																	color="red"
-																	size="1"
+																	variant="outline"
 																	onClick={() => {
-																		setCustomGradientColors(
-																			customGradientColors.filter(
-																				(_, i) => i !== idx,
-																			),
-																		);
+																		setCustomGradientColors([
+																			...customGradientColors,
+																			"#ffffff",
+																		]);
 																	}}
 																>
-																	{t("common.remove", "Remove")}
+																	{t(
+																		"settings.appearance.addGradientColor",
+																		"Add Color",
+																	)}
 																</Button>
 															)}
 														</Flex>
-													))}
-													{customGradientColors.length < 4 && (
-														<Button
-															variant="outline"
-															onClick={() => {
-																setCustomGradientColors([
-																	...customGradientColors,
-																	"#ffffff",
-																]);
-															}}
-														>
-															{t(
-																"settings.appearance.addGradientColor",
-																"Add Color",
-															)}
-														</Button>
-													)}
-												</Flex>
-												<Flex align="center" justify="between">
-													<Text>
-														{t(
-															"settings.appearance.gradientType",
-															"Gradient Type",
-														)}
-													</Text>
-													<SegmentedControl.Root
-														value={customGradientType}
-														onValueChange={(v) =>
-															setCustomGradientType(
-																v as "linear" | "radial" | "conic",
-															)
-														}
-													>
-														<SegmentedControl.Item value="linear">
-															{t("settings.appearance.type.linear", "Linear")}
-														</SegmentedControl.Item>
-														<SegmentedControl.Item value="radial">
-															{t("settings.appearance.type.radial", "Radial")}
-														</SegmentedControl.Item>
-														<SegmentedControl.Item value="conic">
-															{t("settings.appearance.type.conic", "Conic")}
-														</SegmentedControl.Item>
-													</SegmentedControl.Root>
-												</Flex>
-												<Flex direction="column" gap="2">
-													<Flex align="center" justify="between">
-														<Text>
-															{t(
-																"settings.appearance.gradientOpacity",
-																"Gradient Opacity",
-															)}
-														</Text>
-														<Text wrap="nowrap" color="gray" size="1">
-															{Math.round(customGradientOpacity * 100)}%
-														</Text>
-													</Flex>
-													<Slider
-														min={0}
-														max={1}
-														step={0.01}
-														value={[customGradientOpacity]}
-														onValueChange={(v) =>
-															setCustomGradientOpacity(v[0])
-														}
-													/>
-												</Flex>
-												<Flex direction="column" gap="2">
-													<Flex align="center" justify="between">
-														<Text>
-															{t(
-																"settings.appearance.gradientSize",
-																"Gradient Scale",
-															)}
-														</Text>
-														<Text wrap="nowrap" color="gray" size="1">
-															{Math.round(customGradientSize * 100)}%
-														</Text>
-													</Flex>
-													<Slider
-														min={0.1}
-														max={3}
-														step={0.1}
-														value={[customGradientSize]}
-														onValueChange={(v) => setCustomGradientSize(v[0])}
-													/>
-												</Flex>
-												<Flex align="center" gap="2">
-													<Popover.Root>
-														<Popover.Trigger>
-															<Button variant="soft" style={{ flexGrow: 1 }}>
-																<Timer24Regular />
+														<Flex align="center" justify="between">
+															<Text>
 																{t(
-																	"settings.appearance.gradientPositionSettings",
-																	"Adjust Center & Angle",
+																	"settings.appearance.gradientType",
+																	"Gradient Type",
 																)}
-															</Button>
-														</Popover.Trigger>
-														<Popover.Content size="2" style={{ width: 300 }}>
-															<Flex direction="column" gap="3">
-																<Text weight="bold" size="2">
+															</Text>
+															<SegmentedControl.Root
+																value={customGradientType}
+																onValueChange={(v) =>
+																	setCustomGradientType(
+																		v as "linear" | "radial" | "conic",
+																	)
+																}
+															>
+																<SegmentedControl.Item value="linear">
 																	{t(
-																		"settings.appearance.gradientPositionSettings",
-																		"Center & Angle",
+																		"settings.appearance.type.linear",
+																		"Linear",
+																	)}
+																</SegmentedControl.Item>
+																<SegmentedControl.Item value="radial">
+																	{t(
+																		"settings.appearance.type.radial",
+																		"Radial",
+																	)}
+																</SegmentedControl.Item>
+																<SegmentedControl.Item value="conic">
+																	{t("settings.appearance.type.conic", "Conic")}
+																</SegmentedControl.Item>
+															</SegmentedControl.Root>
+														</Flex>
+														<Flex direction="column" gap="2">
+															<Flex align="center" justify="between">
+																<Text>
+																	{t(
+																		"settings.appearance.gradientOpacity",
+																		"Gradient Opacity",
 																	)}
 																</Text>
-
-																{customGradientType !== "linear" && (
-																	<>
-																		<Text size="1" color="gray">
-																			{t(
-																				"settings.appearance.gradientCenterX",
-																				"Center X (Horizontal)",
-																			)}
-																			: {customGradientCenter[0]}%
-																		</Text>
-																		<Slider
-																			min={0}
-																			max={100}
-																			step={1}
-																			value={[customGradientCenter[0]]}
-																			onValueChange={(v) =>
-																				setCustomGradientCenter([
-																					v[0],
-																					customGradientCenter[1],
-																				])
-																			}
-																		/>
-
-																		<Text size="1" color="gray">
-																			{t(
-																				"settings.appearance.gradientCenterY",
-																				"Center Y (Vertical)",
-																			)}
-																			: {customGradientCenter[1]}%
-																		</Text>
-																		<Slider
-																			min={0}
-																			max={100}
-																			step={1}
-																			value={[customGradientCenter[1]]}
-																			onValueChange={(v) =>
-																				setCustomGradientCenter([
-																					customGradientCenter[0],
-																					v[0],
-																				])
-																			}
-																		/>
-																	</>
-																)}
-
-																{customGradientType !== "radial" && (
-																	<>
-																		<Text size="1" color="gray">
-																			{t(
-																				"settings.appearance.gradientAngle",
-																				"Angle",
-																			)}
-																			: {customGradientAngle}°
-																		</Text>
-																		<Slider
-																			min={0}
-																			max={360}
-																			step={1}
-																			value={[customGradientAngle]}
-																			onValueChange={(v) =>
-																				setCustomGradientAngle(v[0])
-																			}
-																		/>
-																	</>
-																)}
+																<Text wrap="nowrap" color="gray" size="1">
+																	{Math.round(customGradientOpacity * 100)}%
+																</Text>
 															</Flex>
-														</Popover.Content>
-													</Popover.Root>
-													<IconButton
-														variant="outline"
-														onClick={() => {
-															setCustomGradientCenter([50, 50]);
-															setCustomGradientAngle(45);
-														}}
-													>
-														<History24Regular />
-													</IconButton>
-												</Flex>
-												<Box
-													style={{
-														height: "40px",
-														borderRadius: "var(--radius-2)",
-														background: generateGradient(
-															customGradientColors,
-															customGradientType,
-															customGradientCenter,
-															customGradientAngle,
-															customGradientSize,
-														),
-														marginTop: "var(--space-2)",
-													}}
-												/>
-											</Flex>
-										) : (
-											<Grid columns="4" gap="2">
-												{backgroundGradients.map((gradient) => (
-													<Tooltip key={gradient.id} content={gradient.name}>
+															<Slider
+																min={0}
+																max={1}
+																step={0.01}
+																value={[customGradientOpacity]}
+																onValueChange={(v) =>
+																	setCustomGradientOpacity(v[0])
+																}
+															/>
+														</Flex>
+														<Flex direction="column" gap="2">
+															<Flex align="center" justify="between">
+																<Text>
+																	{t(
+																		"settings.appearance.gradientSize",
+																		"Gradient Scale",
+																	)}
+																</Text>
+																<Text wrap="nowrap" color="gray" size="1">
+																	{Math.round(customGradientSize * 100)}%
+																</Text>
+															</Flex>
+															<Slider
+																min={0.1}
+																max={3}
+																step={0.1}
+																value={[customGradientSize]}
+																onValueChange={(v) =>
+																	setCustomGradientSize(v[0])
+																}
+															/>
+														</Flex>
+														<Flex align="center" gap="2">
+															<Popover.Root>
+																<Popover.Trigger>
+																	<Button
+																		variant="soft"
+																		style={{ flexGrow: 1 }}
+																	>
+																		<Timer24Regular />
+																		{t(
+																			"settings.appearance.gradientPositionSettings",
+																			"Adjust Center & Angle",
+																		)}
+																	</Button>
+																</Popover.Trigger>
+																<Popover.Content
+																	size="2"
+																	style={{ width: 300 }}
+																>
+																	<Flex direction="column" gap="3">
+																		<Text weight="bold" size="2">
+																			{t(
+																				"settings.appearance.gradientPositionSettings",
+																				"Center & Angle",
+																			)}
+																		</Text>
+
+																		{customGradientType !== "linear" && (
+																			<>
+																				<Text size="1" color="gray">
+																					{t(
+																						"settings.appearance.gradientCenterX",
+																						"Center X (Horizontal)",
+																					)}
+																					: {customGradientCenter[0]}%
+																				</Text>
+																				<Slider
+																					min={0}
+																					max={100}
+																					step={1}
+																					value={[customGradientCenter[0]]}
+																					onValueChange={(v) =>
+																						setCustomGradientCenter([
+																							v[0],
+																							customGradientCenter[1],
+																						])
+																					}
+																				/>
+
+																				<Text size="1" color="gray">
+																					{t(
+																						"settings.appearance.gradientCenterY",
+																						"Center Y (Vertical)",
+																					)}
+																					: {customGradientCenter[1]}%
+																				</Text>
+																				<Slider
+																					min={0}
+																					max={100}
+																					step={1}
+																					value={[customGradientCenter[1]]}
+																					onValueChange={(v) =>
+																						setCustomGradientCenter([
+																							customGradientCenter[0],
+																							v[0],
+																						])
+																					}
+																				/>
+																			</>
+																		)}
+
+																		{customGradientType !== "radial" && (
+																			<>
+																				<Text size="1" color="gray">
+																					{t(
+																						"settings.appearance.gradientAngle",
+																						"Angle",
+																					)}
+																					: {customGradientAngle}°
+																				</Text>
+																				<Slider
+																					min={0}
+																					max={360}
+																					step={1}
+																					value={[customGradientAngle]}
+																					onValueChange={(v) =>
+																						setCustomGradientAngle(v[0])
+																					}
+																				/>
+																			</>
+																		)}
+																	</Flex>
+																</Popover.Content>
+															</Popover.Root>
+															<IconButton
+																variant="outline"
+																onClick={() => {
+																	setCustomGradientCenter([50, 50]);
+																	setCustomGradientAngle(45);
+																}}
+															>
+																<History24Regular />
+															</IconButton>
+														</Flex>
 														<Box
 															style={{
 																height: "40px",
 																borderRadius: "var(--radius-2)",
-																background: gradient.css,
-																cursor: "pointer",
-																outline:
-																	selectedGradient === gradient.id
-																		? "2px solid var(--accent-9)"
-																		: "none",
-																outlineOffset: "2px",
+																background: generateGradient(
+																	customGradientColors,
+																	customGradientType,
+																	customGradientCenter,
+																	customGradientAngle,
+																	customGradientSize,
+																),
+																marginTop: "var(--space-2)",
 															}}
-															onClick={() => setSelectedGradient(gradient.id)}
 														/>
-													</Tooltip>
-												))}
-											</Grid>
-										)}
+													</Flex>
+												) : (
+													<Grid columns="4" gap="2">
+														{backgroundGradients.map((gradient) => (
+															<Tooltip
+																key={gradient.id}
+																content={gradient.name}
+															>
+																<Box
+																	style={{
+																		height: "40px",
+																		borderRadius: "var(--radius-2)",
+																		background: gradient.css,
+																		cursor: "pointer",
+																		outline:
+																			selectedGradient === gradient.id
+																				? "2px solid var(--accent-9)"
+																				: "none",
+																		outlineOffset: "2px",
+																	}}
+																	onClick={() =>
+																		setSelectedGradient(gradient.id)
+																	}
+																/>
+															</Tooltip>
+														))}
+													</Grid>
+												)}
+											</Flex>
+										</Box>
 									</Flex>
-								</Box>
-							</Flex>
+								</Flex>
+							</Card>
+						)}
+					</Flex>
+					{import.meta.env.TAURI_ENV_PLATFORM && (
+						<Flex direction="column" gap="3">
+							<Heading size="4">
+								{t("settings.appearance.interfaceScale", "Interface Scale")}
+							</Heading>
+							<Card>
+								<Flex direction="column" gap="3">
+									<Flex align="center" justify="between" gap="3">
+										<Flex direction="column" gap="1">
+											<Text size="2" weight="bold">
+												{Math.round(interfaceScaleDraft * 100)}%
+											</Text>
+											<Text size="1" color="gray">
+												{t(
+													"settings.appearance.interfaceScaleDesc",
+													"Choose a scale, then apply it. You can also use Ctrl/Cmd +, -, or 0.",
+												)}
+											</Text>
+										</Flex>
+										<Flex gap="2">
+											<Button
+												variant="soft"
+												disabled={
+													interfaceScaleDraft === DEFAULT_INTERFACE_SCALE
+												}
+												onClick={() =>
+													setInterfaceScaleDraft(DEFAULT_INTERFACE_SCALE)
+												}
+											>
+												{t("common.reset", "Reset")}
+											</Button>
+											<Button
+												disabled={interfaceScaleDraft === interfaceScale}
+												onClick={() => setInterfaceScale(interfaceScaleDraft)}
+											>
+												{t("common.apply", "Apply")}
+											</Button>
+										</Flex>
+									</Flex>
+									<Slider
+										min={MIN_INTERFACE_SCALE}
+										max={MAX_INTERFACE_SCALE}
+										step={0.05}
+										value={[interfaceScaleDraft]}
+										onValueChange={(value) => setInterfaceScaleDraft(value[0])}
+									/>
+								</Flex>
+							</Card>
 						</Flex>
-					</Card>
-				)}
+					)}
 
-
-			</Flex>
-			{import.meta.env.TAURI_ENV_PLATFORM && (
-			<Flex direction="column" gap="3">
-				<Heading size="4">
-					{t("settings.appearance.interfaceScale", "Interface Scale")}
-				</Heading>
-				<Card>
 					<Flex direction="column" gap="3">
-						<Flex align="center" justify="between" gap="3">
-							<Flex direction="column" gap="1">
-								<Text size="2" weight="bold">
-									{Math.round(interfaceScaleDraft * 100)}%
-								</Text>
-								<Text size="1" color="gray">
-									{t(
-										"settings.appearance.interfaceScaleDesc",
-										"Choose a scale, then apply it. You can also use Ctrl/Cmd +, -, or 0.",
-									)}
-								</Text>
-							</Flex>
-							<Flex gap="2">
+						<Heading size="4">
+							{t("settings.appearance.font", "Application Font")}
+						</Heading>
+						<Card>
+							<Flex direction="column" gap="3">
+								<Flex direction="column" gap="1">
+									<Text size="2" weight="bold">
+										{t("settings.appearance.currentFont", "Current Font")}
+									</Text>
+									<Text size="1" color="gray" style={{ fontFamily: appFont }}>
+										{appFont.split(",")[0].replace(/"/g, "")}
+									</Text>
+								</Flex>
 								<Button
 									variant="soft"
-									disabled={interfaceScaleDraft === DEFAULT_INTERFACE_SCALE}
-									onClick={() => setInterfaceScaleDraft(DEFAULT_INTERFACE_SCALE)}
+									style={{ cursor: "pointer" }}
+									onClick={() => setIsFontSelectionOpen(true)}
 								>
-									{t("common.reset", "Reset")}
-								</Button>
-								<Button
-									disabled={interfaceScaleDraft === interfaceScale}
-									onClick={() => setInterfaceScale(interfaceScaleDraft)}
-								>
-									{t("common.apply", "Apply")}
+									<TextT24Regular />
+									{t("settings.appearance.changeFont", "Change Font...")}
 								</Button>
 							</Flex>
-						</Flex>
-						<Slider
-							min={MIN_INTERFACE_SCALE}
-							max={MAX_INTERFACE_SCALE}
-							step={0.05}
-							value={[interfaceScaleDraft]}
-							onValueChange={(value) => setInterfaceScaleDraft(value[0])}
-						/>
+						</Card>
 					</Flex>
-				</Card>
-			</Flex>
-			)}
 
-			<Flex direction="column" gap="3">
-				<Heading size="4">
-					{t("settings.appearance.font", "Application Font")}
-				</Heading>
-				<Card>
 					<Flex direction="column" gap="3">
-						<Flex direction="column" gap="1">
-							<Text size="2" weight="bold">
-								{t("settings.appearance.currentFont", "Current Font")}
-							</Text>
-							<Text size="1" color="gray" style={{ fontFamily: appFont }}>
-								{appFont.split(",")[0].replace(/"/g, "")}
-							</Text>
-						</Flex>
-						<Button
-							variant="soft"
-							style={{ cursor: "pointer" }}
-							onClick={() => setIsFontSelectionOpen(true)}
-						>
-							<TextT24Regular />
-							{t("settings.appearance.changeFont", "Change Font...")}
-						</Button>
-					</Flex>
-				</Card>
-			</Flex>
+						<Heading size="4">
+							{t("settings.appearance.resetTitle", "Reset Theme")}
+						</Heading>
+						<Card>
+							<Flex direction="column" gap="2">
+								<Flex align="center" gap="2" color="gray">
+									<History24Regular />
+									<Text size="2">
+										{t(
+											"settings.appearance.resetDesc",
+											"Reset all colors, backgrounds, gradients, and custom overrides back to the default theme.",
+										)}
+									</Text>
+								</Flex>
+								<Button
+									variant="soft"
+									color="red"
+									onClick={() => {
+										setAccentColor("red");
+										setUseCustomAccent(false);
+										setCustomAccentColor("#e5484d");
+										setBackgroundMode("none");
+										setSelectedGradient("sunset");
+										setUseCustomGradient(false);
+										setCustomGradientColors(["#7028e4"]);
+										setCustomGradientType("linear");
+										setCustomGradientOpacity(1);
+										setCustomGradientCenter([50, 50]);
+										setCustomGradientAngle(45);
+										setCustomGradientSize(1);
+										setGlassBlur(24);
+										setLegacyDarkTheme(false);
 
-			<Flex direction="column" gap="3">
-				<Heading size="4">
-					{t("settings.appearance.resetTitle", "Reset Theme")}
-				</Heading>
-				<Card>
-					<Flex direction="column" gap="2">
-						<Flex align="center" gap="2" color="gray">
-							<History24Regular />
-							<Text size="2">
-								{t("settings.appearance.resetDesc", "Reset all colors, backgrounds, gradients, and custom overrides back to the default theme.")}
-							</Text>
-						</Flex>
-						<Button
-							variant="soft"
-							color="red"
-							onClick={() => {
-								setAccentColor("red");
-								setUseCustomAccent(false);
-								setCustomAccentColor("#e5484d");
-								setBackgroundMode("none");
-								setSelectedGradient("sunset");
-								setUseCustomGradient(false);
-								setCustomGradientColors(["#7028e4"]);
-								setCustomGradientType("linear");
-								setCustomGradientOpacity(1);
-								setCustomGradientCenter([50, 50]);
-								setCustomGradientAngle(45);
-								setCustomGradientSize(1);
-								setGlassBlur(24);
-								setLegacyDarkTheme(false);
-								
-								setAdvWaveformColor(""); setAdvWaveformProgress("");
-								setAdvPrimaryText(""); setAdvSecondaryText("");
-								setVTitlebarBg(""); setVSidebarBg(""); setVSidebarActive(""); setVMenuHover("");
-								setVEditorBg(""); setVActiveLine(""); setVLineHover(""); setVSelection("");
-								setVChipRadius(8); setVChipGap(8); setVChipPaddingV(4); setVChipPaddingH(12);
-								setVRomanColor(""); setVTransColor("");
-								setVAudioBarBg(""); setVAudioBarText("");
-								setVScrollbar(""); setVDialogBg(""); setVDialogBorder("");
-								setVGlobalRadius(12); setVGlobalBorderWidth(1); setVShadow(1); setVBackdrop(16);
-								setLayoutOrder(["titlebar", "ribbonbar", "editor", "audio-controls"]); setVRibbonPos("top");
-							}}
-						>
-							<History24Regular />
-							{t("settings.appearance.resetTheme", "Reset Theme to Default")}
-						</Button>
+										setAdvWaveformColor("");
+										setAdvWaveformProgress("");
+										setAdvPrimaryText("");
+										setAdvSecondaryText("");
+										setVTitlebarBg("");
+										setVSidebarBg("");
+										setVSidebarActive("");
+										setVMenuHover("");
+										setVEditorBg("");
+										setVActiveLine("");
+										setVLineHover("");
+										setVSelection("");
+										setVChipRadius(8);
+										setVChipGap(8);
+										setVChipPaddingV(4);
+										setVChipPaddingH(12);
+										setVRomanColor("");
+										setVTransColor("");
+										setVAudioBarBg("");
+										setVAudioBarText("");
+										setVScrollbar("");
+										setVDialogBg("");
+										setVDialogBorder("");
+										setVGlobalRadius(12);
+										setVGlobalBorderWidth(1);
+										setVShadow(1);
+										setVBackdrop(16);
+										setLayoutOrder([
+											"titlebar",
+											"ribbonbar",
+											"editor",
+											"audio-controls",
+										]);
+										setVRibbonPos("top");
+									}}
+								>
+									<History24Regular />
+									{t(
+										"settings.appearance.resetTheme",
+										"Reset Theme to Default",
+									)}
+								</Button>
+							</Flex>
+						</Card>
 					</Flex>
-				</Card>
-			</Flex>
 				</>
 			) : (
 				<Flex direction="column" gap="4">
-
 					<Flex direction="column" gap="3">
-						<Heading size="4">{t("settings.appearance.advanced.projectColors", "Project Colors")}</Heading>
+						<Heading size="4">
+							{t(
+								"settings.appearance.advanced.projectColors",
+								"Project Colors",
+							)}
+						</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Flex gap="3" align="start">
@@ -1002,18 +1200,48 @@ export const SettingsAppearanceTab = () => {
 										<Flex direction="column" gap="3">
 											<Flex align="center" justify="between">
 												<Flex direction="column" gap="1">
-													<Text>{t("settings.appearance.advanced.primaryText", "Primary Text Color")}</Text>
-													<Text size="1" color="gray">{t("settings.appearance.advanced.primaryTextDesc", "Global primary text override.")}</Text>
+													<Text>
+														{t(
+															"settings.appearance.advanced.primaryText",
+															"Primary Text Color",
+														)}
+													</Text>
+													<Text size="1" color="gray">
+														{t(
+															"settings.appearance.advanced.primaryTextDesc",
+															"Global primary text override.",
+														)}
+													</Text>
 												</Flex>
-												<input type="color" value={advPrimaryText || "#ffffff"} onChange={(e) => setAdvPrimaryText(e.target.value)} style={{ width: "32px", height: "32px" }} />
+												<input
+													type="color"
+													value={advPrimaryText || "#ffffff"}
+													onChange={(e) => setAdvPrimaryText(e.target.value)}
+													style={{ width: "32px", height: "32px" }}
+												/>
 											</Flex>
 
 											<Flex align="center" justify="between">
 												<Flex direction="column" gap="1">
-													<Text>{t("settings.appearance.advanced.secondaryText", "Secondary Text Color")}</Text>
-													<Text size="1" color="gray">{t("settings.appearance.secondaryDesc", "Translations & Metadata.")}</Text>
+													<Text>
+														{t(
+															"settings.appearance.advanced.secondaryText",
+															"Secondary Text Color",
+														)}
+													</Text>
+													<Text size="1" color="gray">
+														{t(
+															"settings.appearance.secondaryDesc",
+															"Translations & Metadata.",
+														)}
+													</Text>
 												</Flex>
-												<input type="color" value={advSecondaryText || "#888888"} onChange={(e) => setAdvSecondaryText(e.target.value)} style={{ width: "32px", height: "32px" }} />
+												<input
+													type="color"
+													value={advSecondaryText || "#888888"}
+													onChange={(e) => setAdvSecondaryText(e.target.value)}
+													style={{ width: "32px", height: "32px" }}
+												/>
 											</Flex>
 										</Flex>
 									</Box>
@@ -1023,106 +1251,389 @@ export const SettingsAppearanceTab = () => {
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><ContentView24Regular /> {t("settings.appearance.advanced.workspace", "Workspace Theme")}</Heading>
+						<Heading size="4">
+							<ContentView24Regular />{" "}
+							{t("settings.appearance.advanced.workspace", "Workspace Theme")}
+						</Heading>
 						<Card>
 							<Grid columns="2" gap="3">
-								<AdvancedColorItem label={t("settings.appearance.advanced.titlebarBackground", "Titlebar Background")} value={vTitlebarBg} onChange={setVTitlebarBg} />
-								<AdvancedColorItem label={t("settings.appearance.advanced.sidebarBackground", "Sidebar Background")} value={vSidebarBg} onChange={setVSidebarBg} />
-								<AdvancedColorItem label={t("settings.appearance.advanced.activeItemHighlight", "Active Item Highlight")} value={vSidebarActive} onChange={setVSidebarActive} />
-								<AdvancedColorItem label={t("settings.appearance.advanced.menuHoverColor", "Menu Hover Color")} value={vMenuHover} onChange={setVMenuHover} />
+								<AdvancedColorItem
+									label={t(
+										"settings.appearance.advanced.titlebarBackground",
+										"Titlebar Background",
+									)}
+									value={vTitlebarBg}
+									onChange={setVTitlebarBg}
+								/>
+								<AdvancedColorItem
+									label={t(
+										"settings.appearance.advanced.sidebarBackground",
+										"Sidebar Background",
+									)}
+									value={vSidebarBg}
+									onChange={setVSidebarBg}
+								/>
+								<AdvancedColorItem
+									label={t(
+										"settings.appearance.advanced.activeItemHighlight",
+										"Active Item Highlight",
+									)}
+									value={vSidebarActive}
+									onChange={setVSidebarActive}
+								/>
+								<AdvancedColorItem
+									label={t(
+										"settings.appearance.advanced.menuHoverColor",
+										"Menu Hover Color",
+									)}
+									value={vMenuHover}
+									onChange={setVMenuHover}
+								/>
 							</Grid>
 						</Card>
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><Stack24Regular /> {t("settings.appearance.advanced.editor", "Editor Layout")}</Heading>
+						<Heading size="4">
+							<Stack24Regular />{" "}
+							{t("settings.appearance.advanced.editor", "Editor Layout")}
+						</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Grid columns="2" gap="3">
-									<AdvancedColorItem label={t("settings.appearance.advanced.editorCanvas", "Editor Canvas")} value={vEditorBg} onChange={setVEditorBg} />
-									<AdvancedColorItem label={t("settings.appearance.advanced.activeLineHighlight", "Active Line Highlight")} value={vActiveLine} onChange={setVActiveLine} />
-									<AdvancedColorItem label={t("settings.appearance.advanced.lineHoverEffect", "Line Hover Effect")} value={vLineHover} onChange={setVLineHover} />
-									<AdvancedColorItem label={t("settings.appearance.advanced.selectionHighlight", "Selection Highlight")} value={vSelection} onChange={setVSelection} />
+									<AdvancedColorItem
+										label={t(
+											"settings.appearance.advanced.editorCanvas",
+											"Editor Canvas",
+										)}
+										value={vEditorBg}
+										onChange={setVEditorBg}
+									/>
+									<AdvancedColorItem
+										label={t(
+											"settings.appearance.advanced.activeLineHighlight",
+											"Active Line Highlight",
+										)}
+										value={vActiveLine}
+										onChange={setVActiveLine}
+									/>
+									<AdvancedColorItem
+										label={t(
+											"settings.appearance.advanced.lineHoverEffect",
+											"Line Hover Effect",
+										)}
+										value={vLineHover}
+										onChange={setVLineHover}
+									/>
+									<AdvancedColorItem
+										label={t(
+											"settings.appearance.advanced.selectionHighlight",
+											"Selection Highlight",
+										)}
+										value={vSelection}
+										onChange={setVSelection}
+									/>
 								</Grid>
-								<AdvancedSliderItem label={t("settings.appearance.advanced.chipBorderRadius", "Chip Border Radius")} icon={<Stack24Regular />} value={vChipRadius} min={0} max={32} onChange={setVChipRadius} unit="px" />
-								<AdvancedSliderItem label={t("settings.appearance.advanced.chipSpacing", "Chip Spacing (Gap)")} icon={<Stack24Regular />} value={vChipGap} min={0} max={32} onChange={setVChipGap} unit="px" />
-								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingVertical", "Chip Padding (V)")} icon={<PaddingLeft24Regular />} value={vChipPaddingV} min={0} max={32} onChange={setVChipPaddingV} unit="px" />
-								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingHorizontal", "Chip Padding (H)")} icon={<PaddingLeft24Regular />} value={vChipPaddingH} min={0} max={32} onChange={setVChipPaddingH} unit="px" />
+								<AdvancedSliderItem
+									label={t(
+										"settings.appearance.advanced.chipBorderRadius",
+										"Chip Border Radius",
+									)}
+									icon={<Stack24Regular />}
+									value={vChipRadius}
+									min={0}
+									max={32}
+									onChange={setVChipRadius}
+									unit="px"
+								/>
+								<AdvancedSliderItem
+									label={t(
+										"settings.appearance.advanced.chipSpacing",
+										"Chip Spacing (Gap)",
+									)}
+									icon={<Stack24Regular />}
+									value={vChipGap}
+									min={0}
+									max={32}
+									onChange={setVChipGap}
+									unit="px"
+								/>
+								<AdvancedSliderItem
+									label={t(
+										"settings.appearance.advanced.chipPaddingVertical",
+										"Chip Padding (V)",
+									)}
+									icon={<PaddingLeft24Regular />}
+									value={vChipPaddingV}
+									min={0}
+									max={32}
+									onChange={setVChipPaddingV}
+									unit="px"
+								/>
+								<AdvancedSliderItem
+									label={t(
+										"settings.appearance.advanced.chipPaddingHorizontal",
+										"Chip Padding (H)",
+									)}
+									icon={<PaddingLeft24Regular />}
+									value={vChipPaddingH}
+									min={0}
+									max={32}
+									onChange={setVChipPaddingH}
+									unit="px"
+								/>
 								<Flex align="center" justify="between" gap="3">
 									<Flex direction="column" gap="1">
-										<Text>{t("settings.appearance.advanced.legacySpaceLabels", "Legacy Space Labels")}</Text>
+										<Text>
+											{t(
+												"settings.appearance.advanced.legacySpaceLabels",
+												"Legacy Space Labels",
+											)}
+										</Text>
 										<Text size="1" color="gray">
-											{t("settings.appearance.advanced.legacySpaceLabelsDesc", "Show Space xN instead of compact empty space cells.")}
+											{t(
+												"settings.appearance.advanced.legacySpaceLabelsDesc",
+												"Show Space xN instead of compact empty space cells.",
+											)}
 										</Text>
 									</Flex>
-									<Switch checked={legacySpaceLabels} onCheckedChange={setLegacySpaceLabels} />
+									<Switch
+										checked={legacySpaceLabels}
+										onCheckedChange={setLegacySpaceLabels}
+									/>
 								</Flex>
 							</Flex>
 						</Card>
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><VideoBackgroundEffect24Regular /> {t("settings.appearance.advanced.audioVisuals", "Playback & Visuals")}</Heading>
+						<Heading size="4">
+							<VideoBackgroundEffect24Regular />{" "}
+							{t(
+								"settings.appearance.advanced.audioVisuals",
+								"Playback & Visuals",
+							)}
+						</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Grid columns="2" gap="3">
-									<AdvancedColorItem label={t("settings.appearance.advanced.audioBarColor", "Audio Bar Color")} value={vAudioBarBg} onChange={setVAudioBarBg} />
-									<AdvancedColorItem label={t("settings.appearance.advanced.audioBarText", "Audio Bar Text")} value={vAudioBarText} onChange={setVAudioBarText} />
-									<AdvancedColorItem label={t("settings.appearance.advanced.waveformInactive", "Waveform Inactive")} value={advWaveformColor} onChange={setAdvWaveformColor} />
-									<AdvancedColorItem label={t("settings.appearance.advanced.waveformProgress", "Waveform Progress")} value={advWaveformProgress} onChange={setAdvWaveformProgress} />
+									<AdvancedColorItem
+										label={t(
+											"settings.appearance.advanced.audioBarColor",
+											"Audio Bar Color",
+										)}
+										value={vAudioBarBg}
+										onChange={setVAudioBarBg}
+									/>
+									<AdvancedColorItem
+										label={t(
+											"settings.appearance.advanced.audioBarText",
+											"Audio Bar Text",
+										)}
+										value={vAudioBarText}
+										onChange={setVAudioBarText}
+									/>
+									<AdvancedColorItem
+										label={t(
+											"settings.appearance.advanced.waveformInactive",
+											"Waveform Inactive",
+										)}
+										value={advWaveformColor}
+										onChange={setAdvWaveformColor}
+									/>
+									<AdvancedColorItem
+										label={t(
+											"settings.appearance.advanced.waveformProgress",
+											"Waveform Progress",
+										)}
+										value={advWaveformProgress}
+										onChange={setAdvWaveformProgress}
+									/>
 								</Grid>
-								<AdvancedColorItem label="Romanization Text" value={vRomanColor} onChange={setVRomanColor} />
-								<AdvancedColorItem label="Translation Text" value={vTransColor} onChange={setVTransColor} />
-								<AdvancedColorItem label="Genius Header Color" value={vGeniusHeaderColor} onChange={setVGeniusHeaderColor} />
+								<AdvancedColorItem
+									label="Romanization Text"
+									value={vRomanColor}
+									onChange={setVRomanColor}
+								/>
+								<AdvancedColorItem
+									label="Translation Text"
+									value={vTransColor}
+									onChange={setVTransColor}
+								/>
+								<AdvancedColorItem
+									label="Genius Header Color"
+									value={vGeniusHeaderColor}
+									onChange={setVGeniusHeaderColor}
+								/>
 							</Flex>
 						</Card>
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><Sparkle24Regular /> {t("settings.appearance.advanced.global", "Global Design System")}</Heading>
+						<Heading size="4">
+							<Sparkle24Regular />{" "}
+							{t("settings.appearance.advanced.global", "Global Design System")}
+						</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Flex align="center" justify="between" gap="3">
 									<Flex direction="column" gap="1">
-										<Text>{t("settings.appearance.advanced.legacyDarkTheme", "Classic Dark Theme")}</Text>
-										<Text size="1" color="gray">{t("settings.appearance.advanced.legacyDarkThemeDesc", "Use the lighter dark palette from before the Intonated Black redesign.")}</Text>
+										<Text>
+											{t(
+												"settings.appearance.advanced.legacyDarkTheme",
+												"Classic Dark Theme",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.appearance.advanced.legacyDarkThemeDesc",
+												"Use the lighter dark palette from before the Intonated Black redesign.",
+											)}
+										</Text>
 									</Flex>
-									<Switch checked={legacyDarkTheme} onCheckedChange={setLegacyDarkTheme} />
+									<Switch
+										checked={legacyDarkTheme}
+										onCheckedChange={setLegacyDarkTheme}
+									/>
 								</Flex>
 								<Grid columns="2" gap="3">
-									<AdvancedColorItem label="Scrollbar Thumb" value={vScrollbar} onChange={setVScrollbar} />
-									<AdvancedColorItem label="Dialog Background" value={vDialogBg} onChange={setVDialogBg} />
-									<AdvancedColorItem label="Dialog Border" value={vDialogBorder} onChange={setVDialogBorder} />
+									<AdvancedColorItem
+										label="Scrollbar Thumb"
+										value={vScrollbar}
+										onChange={setVScrollbar}
+									/>
+									<AdvancedColorItem
+										label="Dialog Background"
+										value={vDialogBg}
+										onChange={setVDialogBg}
+									/>
+									<AdvancedColorItem
+										label="Dialog Border"
+										value={vDialogBorder}
+										onChange={setVDialogBorder}
+									/>
 								</Grid>
-								<AdvancedSliderItem label="Global Border Radius" icon={<Stack24Regular />} value={vGlobalRadius} min={0} max={40} onChange={setVGlobalRadius} unit="px" />
-								<AdvancedSliderItem label="Global Border Width" icon={<Timer24Regular />} value={vGlobalBorderWidth} min={0} max={8} onChange={setVGlobalBorderWidth} unit="px" />
-								<AdvancedSliderItem label="Shadow Intensity" icon={<VideoBackgroundEffect24Regular />} value={vShadow} min={0} max={10} step={0.1} onChange={setVShadow} unit="" />
-								<AdvancedSliderItem label="Backdrop Blur" icon={<Sparkle24Regular />} value={vBackdrop} min={0} max={100} onChange={setVBackdrop} unit="px" />
+								<AdvancedSliderItem
+									label="Global Border Radius"
+									icon={<Stack24Regular />}
+									value={vGlobalRadius}
+									min={0}
+									max={40}
+									onChange={setVGlobalRadius}
+									unit="px"
+								/>
+								<AdvancedSliderItem
+									label="Global Border Width"
+									icon={<Timer24Regular />}
+									value={vGlobalBorderWidth}
+									min={0}
+									max={8}
+									onChange={setVGlobalBorderWidth}
+									unit="px"
+								/>
+								<AdvancedSliderItem
+									label="Shadow Intensity"
+									icon={<VideoBackgroundEffect24Regular />}
+									value={vShadow}
+									min={0}
+									max={10}
+									step={0.1}
+									onChange={setVShadow}
+									unit=""
+								/>
+								<AdvancedSliderItem
+									label="Backdrop Blur"
+									icon={<Sparkle24Regular />}
+									value={vBackdrop}
+									min={0}
+									max={100}
+									onChange={setVBackdrop}
+									unit="px"
+								/>
 							</Flex>
 						</Card>
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><Stack24Regular /> {t("settings.appearance.layout.title", "Application Layout")}</Heading>
+						<Heading size="4">
+							<Stack24Regular />{" "}
+							{t("settings.appearance.layout.title", "Application Layout")}
+						</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Flex direction="column" gap="1">
-									<Text weight="bold">{t("settings.appearance.layout.order", "Element Order")}</Text>
-									<Text size="1" color="gray">{t("settings.appearance.layout.orderDesc", "Drag to reorder elements. Some positions may be limited by constraints.")}</Text>
+									<Text weight="bold">
+										{t("settings.appearance.layout.order", "Element Order")}
+									</Text>
+									<Text size="1" color="gray">
+										{t(
+											"settings.appearance.layout.orderDesc",
+											"Drag to reorder elements. Some positions may be limited by constraints.",
+										)}
+									</Text>
 								</Flex>
 
-								<Reorder.Group axis="y" values={layoutOrder} onReorder={setLayoutOrder} style={{ display: "flex", flexDirection: "column", gap: "8px", listStyle: "none", padding: 0 }}>
+								<Reorder.Group
+									axis="y"
+									values={layoutOrder}
+									onReorder={setLayoutOrder}
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										gap: "8px",
+										listStyle: "none",
+										padding: 0,
+									}}
+								>
 									{layoutOrder.map((item) => (
-										<Reorder.Item key={item} value={item} style={{ cursor: "grab" }}>
+										<Reorder.Item
+											key={item}
+											value={item}
+											style={{ cursor: "grab" }}
+										>
 											<Card size="1">
 												<Flex align="center" gap="3">
 													<Stack24Regular style={{ color: "var(--gray-8)" }} />
 													<Box flexGrow="1">
 														<Text size="2" weight="bold">
-														{item === "titlebar" && <><ContentView24Regular /> {t("settings.appearance.layout.titlebar", "Title Bar")}</>}
-														{item === "ribbonbar" && <><Stack24Regular style={{ transform: "rotate(180deg)" }} /> {t("settings.appearance.layout.ribbonbar", "Toolbar (Ribbon)")}</>}
-														{item === "editor" && <><TextT24Regular /> {t("settings.appearance.layout.editor", "Main Editor Area")}</>}
-														{item === "audio-controls" && <><Speaker224Regular /> {t("settings.appearance.layout.audio", "Audio Controls")}</>}
+															{item === "titlebar" && (
+																<>
+																	<ContentView24Regular />{" "}
+																	{t(
+																		"settings.appearance.layout.titlebar",
+																		"Title Bar",
+																	)}
+																</>
+															)}
+															{item === "ribbonbar" && (
+																<>
+																	<Stack24Regular
+																		style={{ transform: "rotate(180deg)" }}
+																	/>{" "}
+																	{t(
+																		"settings.appearance.layout.ribbonbar",
+																		"Toolbar (Ribbon)",
+																	)}
+																</>
+															)}
+															{item === "editor" && (
+																<>
+																	<TextT24Regular />{" "}
+																	{t(
+																		"settings.appearance.layout.editor",
+																		"Main Editor Area",
+																	)}
+																</>
+															)}
+															{item === "audio-controls" && (
+																<>
+																	<Speaker224Regular />{" "}
+																	{t(
+																		"settings.appearance.layout.audio",
+																		"Audio Controls",
+																	)}
+																</>
+															)}
 														</Text>
 													</Box>
 												</Flex>
@@ -1132,16 +1643,35 @@ export const SettingsAppearanceTab = () => {
 								</Reorder.Group>
 
 								<Flex direction="column" gap="2" mt="2">
-									<Text size="2" weight="bold">{t("settings.appearance.layout.ribbonPos", "Toolbar Orientation")}</Text>
-									<SegmentedControl.Root value={vRibbonPos} onValueChange={(v) => setVRibbonPos(v as any)}>
-										<SegmentedControl.Item value="top">{t("settings.appearance.layout.pos.top", "Top")}</SegmentedControl.Item>
-										<SegmentedControl.Item value="bottom">{t("settings.appearance.layout.pos.bottom", "Bottom")}</SegmentedControl.Item>
-										<SegmentedControl.Item value="left">{t("settings.appearance.layout.pos.left", "Left")}</SegmentedControl.Item>
-										<SegmentedControl.Item value="right">{t("settings.appearance.layout.pos.right", "Right")}</SegmentedControl.Item>
+									<Text size="2" weight="bold">
+										{t(
+											"settings.appearance.layout.ribbonPos",
+											"Toolbar Orientation",
+										)}
+									</Text>
+									<SegmentedControl.Root
+										value={vRibbonPos}
+										onValueChange={(v) => setVRibbonPos(v as any)}
+									>
+										<SegmentedControl.Item value="top">
+											{t("settings.appearance.layout.pos.top", "Top")}
+										</SegmentedControl.Item>
+										<SegmentedControl.Item value="bottom">
+											{t("settings.appearance.layout.pos.bottom", "Bottom")}
+										</SegmentedControl.Item>
+										<SegmentedControl.Item value="left">
+											{t("settings.appearance.layout.pos.left", "Left")}
+										</SegmentedControl.Item>
+										<SegmentedControl.Item value="right">
+											{t("settings.appearance.layout.pos.right", "Right")}
+										</SegmentedControl.Item>
 									</SegmentedControl.Root>
 									{(vRibbonPos === "left" || vRibbonPos === "right") && (
 										<Text size="1" color="amber">
-											{t("settings.appearance.layout.sidebarWarning", "Note: Sidebar mode is experimental and may look different.")}
+											{t(
+												"settings.appearance.layout.sidebarWarning",
+												"Note: Sidebar mode is experimental and may look different.",
+											)}
 										</Text>
 									)}
 								</Flex>
@@ -1153,23 +1683,59 @@ export const SettingsAppearanceTab = () => {
 						<Flex direction="column" gap="2">
 							<Flex align="center" gap="2" color="gray">
 								<Sparkle24Regular />
-								<Text size="2">{t("settings.appearance.advanced.masterResetNote", "This will reset all 20+ granular overrides.")}</Text>
+								<Text size="2">
+									{t(
+										"settings.appearance.advanced.masterResetNote",
+										"This will reset all 20+ granular overrides.",
+									)}
+								</Text>
 							</Flex>
-							<Button variant="soft" color="red" onClick={() => {
-								setAdvWaveformColor(""); setAdvWaveformProgress("");
-								setAdvPrimaryText(""); setAdvSecondaryText("");
-								setVTitlebarBg(""); setVSidebarBg(""); setVSidebarActive(""); setVMenuHover("");
-								setVEditorBg(""); setVActiveLine(""); setVLineHover(""); setVSelection("");
-								setVChipRadius(8); setVChipGap(8); setVChipPaddingV(4); setVChipPaddingH(12);
-								setVRomanColor(""); setVTransColor("");
-								setVAudioBarBg(""); setVAudioBarText("");
-								setVScrollbar(""); setVDialogBg(""); setVDialogBorder("");
-								setVGlobalRadius(12); setVGlobalBorderWidth(1); setVShadow(1); setVBackdrop(16);
-								setLegacyDarkTheme(false);
-								setLayoutOrder(["titlebar", "ribbonbar", "editor", "audio-controls"]); setVRibbonPos("top");
-							}}>
+							<Button
+								variant="soft"
+								color="red"
+								onClick={() => {
+									setAdvWaveformColor("");
+									setAdvWaveformProgress("");
+									setAdvPrimaryText("");
+									setAdvSecondaryText("");
+									setVTitlebarBg("");
+									setVSidebarBg("");
+									setVSidebarActive("");
+									setVMenuHover("");
+									setVEditorBg("");
+									setVActiveLine("");
+									setVLineHover("");
+									setVSelection("");
+									setVChipRadius(8);
+									setVChipGap(8);
+									setVChipPaddingV(4);
+									setVChipPaddingH(12);
+									setVRomanColor("");
+									setVTransColor("");
+									setVAudioBarBg("");
+									setVAudioBarText("");
+									setVScrollbar("");
+									setVDialogBg("");
+									setVDialogBorder("");
+									setVGlobalRadius(12);
+									setVGlobalBorderWidth(1);
+									setVShadow(1);
+									setVBackdrop(16);
+									setLegacyDarkTheme(false);
+									setLayoutOrder([
+										"titlebar",
+										"ribbonbar",
+										"editor",
+										"audio-controls",
+									]);
+									setVRibbonPos("top");
+								}}
+							>
 								<History24Regular />
-								{t("settings.appearance.advanced.resetMaster", "Master Reset Advanced Config")}
+								{t(
+									"settings.appearance.advanced.resetMaster",
+									"Master Reset Advanced Config",
+								)}
 							</Button>
 						</Flex>
 					</Card>
@@ -1181,34 +1747,80 @@ export const SettingsAppearanceTab = () => {
 
 // --- Helper Components for Advanced Editor ---
 
-const AdvancedColorItem = ({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) => (
+const AdvancedColorItem = ({
+	label,
+	value,
+	onChange,
+}: {
+	label: string;
+	value: string;
+	onChange: (v: string) => void;
+}) => (
 	<Flex direction="column" gap="1">
 		<Flex align="center" justify="between">
-			<Text size="1" color="gray" weight="bold">{label}</Text>
+			<Text size="1" color="gray" weight="bold">
+				{label}
+			</Text>
 			{value && (
 				<IconButton size="1" variant="ghost" onClick={() => onChange("")}>
 					<History24Regular />
 				</IconButton>
 			)}
 		</Flex>
-		<input 
-			type="color" 
-			value={value || "#000000"} 
-			onChange={(e) => onChange(e.target.value)} 
-			style={{ width: "100%", height: "24px", border: "1px solid var(--gray-5)", borderRadius: "4px", cursor: "pointer", padding: 0 }}
+		<input
+			type="color"
+			value={value || "#000000"}
+			onChange={(e) => onChange(e.target.value)}
+			style={{
+				width: "100%",
+				height: "24px",
+				border: "1px solid var(--gray-5)",
+				borderRadius: "4px",
+				cursor: "pointer",
+				padding: 0,
+			}}
 		/>
 	</Flex>
 );
 
-const AdvancedSliderItem = ({ label, icon, value, min, max, step = 1, onChange, unit }: { label: string, icon: React.ReactNode, value: number, min: number, max: number, step?: number, onChange: (v: number) => void, unit: string }) => (
+const AdvancedSliderItem = ({
+	label,
+	icon,
+	value,
+	min,
+	max,
+	step = 1,
+	onChange,
+	unit,
+}: {
+	label: string;
+	icon: React.ReactNode;
+	value: number;
+	min: number;
+	max: number;
+	step?: number;
+	onChange: (v: number) => void;
+	unit: string;
+}) => (
 	<Box>
 		<Flex align="center" justify="between" mb="1">
 			<Flex align="center" gap="2">
 				<Box color="accent">{icon}</Box>
-				<Text size="1" weight="bold">{label}</Text>
+				<Text size="1" weight="bold">
+					{label}
+				</Text>
 			</Flex>
-			<Text size="1" color="gray">{value}{unit}</Text>
+			<Text size="1" color="gray">
+				{value}
+				{unit}
+			</Text>
 		</Flex>
-		<Slider min={min} max={max} step={step} value={[value]} onValueChange={(v) => onChange(v[0])} />
+		<Slider
+			min={min}
+			max={max}
+			step={step}
+			value={[value]}
+			onValueChange={(v) => onChange(v[0])}
+		/>
 	</Box>
 );
