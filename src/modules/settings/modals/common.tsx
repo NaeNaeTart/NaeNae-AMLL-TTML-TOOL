@@ -47,6 +47,7 @@ import {
 } from "$/modules/settings/states";
 import {
 	enableUpcomingWordHighlightAtom,
+	spectrogramHoverSyncEnabledAtom,
 	syncAutoScrollAtom,
 	syncFocusMainLineAtom,
 	syncTimeOffsetAtom,
@@ -90,6 +91,8 @@ export const SettingsCommonTab = ({
 	);
 	const [syncTimeOffset, setSyncTimeOffset] = useAtom(syncTimeOffsetAtom);
 	const [syncCommitOffset, setSyncCommitOffset] = useAtom(syncCommitOffsetAtom);
+	const [spectrogramHoverSyncEnabled, setSpectrogramHoverSyncEnabled] =
+		useAtom(spectrogramHoverSyncEnabledAtom);
 
 	const [compactBGInSync, setCompactBGInSync] = useAtom(compactBGInSyncAtom);
 	const [normalizeApostrophesOnImport, setNormalizeApostrophesOnImport] =
@@ -512,6 +515,36 @@ export const SettingsCommonTab = ({
 									<Switch
 										checked={smartLastWord}
 										onCheckedChange={setSmartLastWord}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<ContentView24Regular />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t(
+												"settings.common.spectrogramHoverSync",
+												"Sync to Spectrogram Cursor",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.common.spectrogramHoverSyncDesc",
+												"When hovering over the spectrogram in Sync mode, trigger keys (F, G, H) record the hover position timestamp instead of the playback time.",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										checked={spectrogramHoverSyncEnabled}
+										onCheckedChange={setSpectrogramHoverSyncEnabled}
 									/>
 								</Flex>
 							</Box>
