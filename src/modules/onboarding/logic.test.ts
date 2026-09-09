@@ -69,27 +69,27 @@ describe("beginner guide navigation", () => {
 	});
 
 	it("builds URLs using the documentation's generated heading IDs", () => {
-		expect(getGuideUrl("intro")).toBe("https://docs.tx24.dev/guides/ttml.html");
+		expect(getGuideUrl("intro")).toBe("https://guides.spicylyrics.org/s/ttml");
 		expect(getGuideUrl("audio")).toBe(
-			"https://docs.tx24.dev/guides/ttml.html#_1-import-the-song",
+			"https://guides.spicylyrics.org/s/ttml/doc/1-import-the-song-iHfycCuOSU",
 		);
 		expect(getGuideUrl("lyrics")).toBe(
-			"https://docs.tx24.dev/guides/ttml.html#_2-import-the-lyrics",
+			"https://guides.spicylyrics.org/s/ttml/doc/2-import-the-lyrics-CK0YxRxPwp",
 		);
 		expect(getGuideUrl("review")).toBe(
-			"https://docs.tx24.dev/guides/ttml.html#_3-check-the-lyrics",
+			"https://guides.spicylyrics.org/s/ttml/doc/3-check-the-lyrics-ZHDMonddCz",
 		);
 		expect(getGuideUrl("sync")).toBe(
-			"https://docs.tx24.dev/guides/ttml.html#_4-sync-the-lyrics",
+			"https://guides.spicylyrics.org/s/ttml/doc/4-sync-the-lyrics-MJsQ3M0dIS",
 		);
 		expect(getGuideUrl("songwriters")).toBe(
-			"https://docs.tx24.dev/guides/ttml.html#_5-add-songwriters",
+			"https://guides.spicylyrics.org/s/ttml/doc/5-add-the-songwriters-cP7OWZhyKd",
 		);
 		expect(getGuideUrl("export")).toBe(
-			"https://docs.tx24.dev/guides/ttml.html#_6-export-and-test-the-ttml",
+			"https://guides.spicylyrics.org/s/ttml/doc/6-export-and-test-the-ttml-nzae0Py9JJ",
 		);
 		expect(getGuideUrl("test")).toBe(
-			"https://docs.tx24.dev/guides/ttml.html#test-locally",
+			"https://guides.spicylyrics.org/s/ttml/doc/6-export-and-test-the-ttml-nzae0Py9JJ#h-run-a-local-test",
 		);
 	});
 });

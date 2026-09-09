@@ -21,17 +21,17 @@ export const GUIDE_STEP_IDS: GuideStepId[] = [
 	"test",
 ];
 
-const DOCS_BASE = "https://docs.tx24.dev/guides/ttml.html";
+const DOCS_BASE = "https://guides.spicylyrics.org/s/ttml";
 
 const GUIDE_ANCHORS: Record<GuideStepId, string> = {
 	intro: "",
-	audio: "#_1-import-the-song",
-	lyrics: "#_2-import-the-lyrics",
-	review: "#_3-check-the-lyrics",
-	sync: "#_4-sync-the-lyrics",
-	songwriters: "#_5-add-songwriters",
-	export: "#_6-export-and-test-the-ttml",
-	test: "#test-locally",
+	audio: "/doc/1-import-the-song-iHfycCuOSU",
+	lyrics: "/doc/2-import-the-lyrics-CK0YxRxPwp",
+	review: "/doc/3-check-the-lyrics-ZHDMonddCz",
+	sync: "/doc/4-sync-the-lyrics-MJsQ3M0dIS",
+	songwriters: "/doc/5-add-the-songwriters-cP7OWZhyKd",
+	export: "/doc/6-export-and-test-the-ttml-nzae0Py9JJ",
+	test: "/doc/6-export-and-test-the-ttml-nzae0Py9JJ#h-run-a-local-test",
 };
 
 export const getGuideStepNumber = (step: number) => ({
