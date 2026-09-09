@@ -10,6 +10,7 @@ import {
 	Flex,
 	IconButton,
 	Popover,
+	SegmentedControl,
 	Select,
 	Slider,
 	Text,
@@ -810,29 +811,24 @@ export const AudioSpectrogram: FC = memo(() => {
 										{t("spectrogram.fftSize", "FFT Size")} (
 										{t("spectrogram.resolution", "解析度")})
 									</Text>
-									<Select.Root
+									<SegmentedControl.Root
+										size="1"
 										value={fftSize.toString()}
 										onValueChange={(v) => setFftSize(Number.parseInt(v))}
 									>
-										<Select.Trigger />
-										<Select.Content>
-											<Select.Item value="512">
-												{t("spectrogram.fftSizeOption.512", "512 (Fast)")}
-											</Select.Item>
-											<Select.Item value="1024">
-												{t("spectrogram.fftSizeOption.1024", "1024 (Normal)")}
-											</Select.Item>
-											<Select.Item value="2048">
-												{t(
-													"spectrogram.fftSizeOption.2048",
-													"2048 (Better Freq)",
-												)}
-											</Select.Item>
-											<Select.Item value="4096">
-												{t("spectrogram.fftSizeOption.4096", "4096 (High Res)")}
-											</Select.Item>
-										</Select.Content>
-									</Select.Root>
+										<SegmentedControl.Item value="512">
+											512
+										</SegmentedControl.Item>
+										<SegmentedControl.Item value="1024">
+											1024
+										</SegmentedControl.Item>
+										<SegmentedControl.Item value="2048">
+											2048
+										</SegmentedControl.Item>
+										<SegmentedControl.Item value="4096">
+											4096
+										</SegmentedControl.Item>
+									</SegmentedControl.Root>
 								</Flex>
 
 								<Flex align="center" gap="2">
