@@ -56,7 +56,7 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="crimson">
-								v0.9.12 Updates (Time Mode Playback Tracking)
+								v0.9.12 Updates (Time Mode Tracking &amp; Spectrogram Polish)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
@@ -69,25 +69,34 @@ export function ChangelogDialog() {
 								</Text>
 								<Text size="2">
 									<strong>Playback Auto-Scroll:</strong> While playing back in
-									the Time tab the editor now automatically scrolls to keep
-									the current lyric line centered. Auto-scroll can be toggled
-									from the Editor &amp; Sync settings and defaults to on.
+									the Time tab the editor automatically scrolls to keep the active
+									lyric line centered. Auto-scroll can be toggled from Editor &amp;
+									Sync settings and defaults to on.
 								</Text>
 								<Text size="2">
 									<strong>Main Vocal Focus Priority:</strong> When auto-scroll
 									is active the editor focuses on the main (v1) vocal line and
-									ignores background vocal lines unless no main vocal is
-									currently playing. This behavior can be toggled via the
-									"Focus Main Line During Playback" setting, which is greyed
-									out when auto-scroll is disabled.
+									disregards background vocals unless no main vocal is ongoing.
+									This can be toggled via "Focus Main Line During Playback", which
+									greys out when auto-scroll is disabled.
 								</Text>
 								<Text size="2">
-									<strong>User-Scroll Pause &amp; Resume:</strong> Scrolling
-									with the mouse wheel temporarily suspends auto-scroll for
-									one second. Once you stop scrolling, the editor immediately
-									smooth-scrolls back to the active line and resumes tracking.
-									Neither the resume nor the ongoing auto-scroll fires while
-									playback is paused.
+									<strong>User-Scroll Pause &amp; Resume:</strong> Scrolling with
+									the mouse wheel suspends auto-scroll for one second before
+									smoothly resuming to the active line. Auto-scroll and resume timers
+									remain inactive while playback is paused.
+								</Text>
+								<Text size="2">
+									<strong>Sync to Spectrogram Cursor:</strong> Added an opt-in
+									setting to record timing trigger keys (F, G, H) at the spectrogram
+									hover cursor position instead of the current audio playback time.
+								</Text>
+								<Text size="2">
+									<strong>Dynamic Spectrogram Height &amp; Dividers:</strong> The
+									spectrogram height slider now dynamically measures titlebar and playback
+									controls to prevent pushing UI controls offscreen. Word divider
+									dragging no longer imposes artificial zoom-dependent minimum duration
+									limits, and FFT resolution uses a clean inline selector.
 								</Text>
 							</Flex>
 						</Box>
