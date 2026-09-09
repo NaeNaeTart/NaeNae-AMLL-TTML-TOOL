@@ -29,7 +29,11 @@ import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modul
 import { importLyricsChooserDialogAtom } from "$/states/dialogs";
 import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
-import { currentTimeAtom } from "$/modules/audio/states";
+import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
+import {
+	syncAutoScrollAtom,
+	syncFocusMainLineAtom,
+} from "$/modules/settings/states/sync.ts";
 import {
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
@@ -74,27 +78,50 @@ const lyricLinesOnlyAtom = splitAtom(
 
 let editorAnchorLineIndex = -1;
 
-const findCurrentLineIndex = (lines: LyricLine[], currentTime: number) => {
-	const scan = (predicate?: (line: LyricLine) => boolean) => {
-		let previousIndex = -1;
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i];
-			if (predicate && !predicate(line)) continue;
-			if (line.endTime <= line.startTime) continue;
-			if (currentTime < line.startTime) {
-				return previousIndex !== -1 ? previousIndex : i;
-			}
-			if (currentTime >= line.startTime && currentTime <= line.endTime) {
-				return i;
-			}
-			previousIndex = i;
-		}
-		return previousIndex;
-	};
+const findCurrentLineIndex = (
+	lines: LyricLine[],
+	currentTime: number,
+	focusMainLine: boolean = true,
+) => {
+	const activeMainIndex = lines.findIndex(
+		(line) =>
+			!line.isBG &&
+			line.endTime > line.startTime &&
+			currentTime >= line.startTime &&
+			currentTime <= line.endTime,
+	);
+	const activeBGIndex = lines.findIndex(
+		(line) =>
+			line.isBG &&
+			line.endTime > line.startTime &&
+			currentTime >= line.startTime &&
+			currentTime <= line.endTime,
+	);
 
-	const mainIndex = scan((line) => !line.isBG);
-	if (mainIndex !== -1) return mainIndex;
-	return scan();
+	if (focusMainLine) {
+		// If a v1 (main) vocal is ongoing, DISREGARD background lyrics and focus on the main line
+		if (activeMainIndex !== -1) {
+			return activeMainIndex;
+		}
+		// If no main vocal is ongoing, scroll to background lyric if active
+		if (activeBGIndex !== -1) {
+			return activeBGIndex;
+		}
+	} else {
+		if (activeMainIndex !== -1) return activeMainIndex;
+		if (activeBGIndex !== -1) return activeBGIndex;
+	}
+
+	let previousIndex = -1;
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i];
+		if (line.endTime <= line.startTime) continue;
+		if (currentTime < line.startTime) {
+			return previousIndex !== -1 ? previousIndex : i;
+		}
+		previousIndex = i;
+	}
+	return previousIndex;
 };
 
 export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
@@ -412,9 +439,14 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	);
 
 	const scrollToLineIndex = useCallback(
-		(index: number) => {
+		(index: number, smooth = false) => {
 			const viewEl = viewElRef.current;
 			if (!viewEl) return;
+			const targetEl = viewEl.querySelector<HTMLElement>(`[data-lyric-line-index="${index}"]`);
+			if (targetEl && smooth) {
+				targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+				return;
+			}
 			const viewContainerEl = viewEl.parentElement;
 			if (!viewContainerEl) return;
 			const visibleIndex = visibleItems.findIndex(
@@ -425,6 +457,12 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				index: visibleIndex,
 				offset: viewContainerEl.clientHeight / -2 + 50,
 			});
+			if (smooth) {
+				requestAnimationFrame(() => {
+					const el = viewEl.querySelector<HTMLElement>(`[data-lyric-line-index="${index}"]`);
+					el?.scrollIntoView({ behavior: "smooth", block: "center" });
+				});
+			}
 		},
 		[visibleItems],
 	);
@@ -513,13 +551,63 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		};
 	}, [updateEditorAnchor]);
 
+	const syncAutoScroll = useAtomValue(syncAutoScrollAtom);
+	const syncFocusMainLine = useAtomValue(syncFocusMainLineAtom);
+	const userScrolledAtRef = useRef<number>(0);
+
 	const handleLocate = useCallback(() => {
 		const currentTime = store.get(currentTimeAtom);
 		const lyricLines = store.get(lyricLinesAtom).lyricLines;
-		const index = findCurrentLineIndex(lyricLines, currentTime);
+		const index = findCurrentLineIndex(lyricLines, currentTime, syncFocusMainLine);
 		if (index === -1) return;
-		scrollToLineIndex(index);
-	}, [store, scrollToLineIndex]);
+		scrollToLineIndex(index, true);
+	}, [store, syncFocusMainLine, scrollToLineIndex]);
+
+	// Pause auto-scroll for 1 second when the user manually scrolls with the wheel,
+	// then immediately resume by scrolling back to the current active line.
+	useEffect(() => {
+		if (toolMode !== ToolMode.Sync || !syncAutoScroll) return;
+		const viewEl = viewElRef.current;
+		if (!viewEl) return;
+		let resumeTimer: ReturnType<typeof setTimeout> | null = null;
+		const onWheel = () => {
+			userScrolledAtRef.current = Date.now();
+			if (resumeTimer !== null) clearTimeout(resumeTimer);
+			resumeTimer = setTimeout(() => {
+				resumeTimer = null;
+				// Only resume if playback is actually running
+				if (!store.get(audioPlayingAtom)) return;
+				const currentTime = store.get(currentTimeAtom);
+				const lines = store.get(lyricLinesAtom).lyricLines;
+				const index = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
+				if (index !== -1) {
+					lastScrolledIndexRef.current = index;
+					scrollToLineIndex(index, true);
+				}
+			}, 1000);
+		};
+		viewEl.addEventListener("wheel", onWheel, { passive: true });
+		return () => {
+			viewEl.removeEventListener("wheel", onWheel);
+			if (resumeTimer !== null) clearTimeout(resumeTimer);
+		};
+	}, [toolMode, syncAutoScroll, store, syncFocusMainLine, scrollToLineIndex]);
+
+	useEffect(() => {
+		if (toolMode !== ToolMode.Sync || !syncAutoScroll) return;
+		return store.sub(currentTimeAtom, () => {
+			// Skip if playback is paused or user scrolled within the last second
+			if (!store.get(audioPlayingAtom)) return;
+			if (Date.now() - userScrolledAtRef.current < 1000) return;
+			const currentTime = store.get(currentTimeAtom);
+			const lines = store.get(lyricLinesAtom).lyricLines;
+			const index = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
+			if (index !== -1 && index !== lastScrolledIndexRef.current) {
+				lastScrolledIndexRef.current = index;
+				scrollToLineIndex(index, true);
+			}
+		});
+	}, [store, toolMode, syncAutoScroll, syncFocusMainLine, scrollToLineIndex]);
 
 	useImperativeHandle(ref, () => viewElRef.current as HTMLDivElement, []);
 

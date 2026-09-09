@@ -8,7 +8,6 @@ import { lyricLinesAtom } from "$/states/main";
 import { globalStore } from "$/states/store.ts";
 import type { LyricLine, LyricWord } from "$/types/ttml";
 
-const MIN_DIVIDER_WIDTH_PX = 15;
 const MIN_WORD_DURATION_MS = 10;
 
 function fillRubyTimingFromWord(word: Draft<LyricWord>) {
@@ -41,37 +40,34 @@ export function getUpdatedLineForDivider(
 	 */
 	newTime: number,
 	isGapCreation: boolean,
-	zoom: number,
+	_zoom?: number,
 ): ProcessedLyricLine {
 	const segments = [...originalLine.segments];
 	let newStartTime = originalLine.startTime;
 	let newEndTime = originalLine.endTime;
-
-	const minVisualDurationMs = (MIN_DIVIDER_WIDTH_PX / zoom) * 1000;
-	const dynamicMinDurationMs = Math.max(
-		MIN_WORD_DURATION_MS,
-		minVisualDurationMs,
-	);
 
 	const leftSegment = segments[segmentIndex] || null;
 	const rightSegment = segments[segmentIndex + 1] || null;
 
 	const minTime =
 		leftSegment && leftSegment.type === "word"
-			? leftSegment.startTime + dynamicMinDurationMs
+			? leftSegment.startTime + MIN_WORD_DURATION_MS
 			: leftSegment
 				? leftSegment.startTime
 				: 0;
 
 	const maxTime =
 		rightSegment && rightSegment.type === "word"
-			? rightSegment.endTime - dynamicMinDurationMs
+			? rightSegment.endTime - MIN_WORD_DURATION_MS
 			: rightSegment
 				? rightSegment.endTime
 				: Infinity;
 
-	let clampedTime = Math.max(minTime, newTime);
-	clampedTime = Math.min(maxTime, clampedTime);
+	let clampedTime = newTime;
+	if (minTime <= maxTime) {
+		clampedTime = Math.max(minTime, clampedTime);
+		clampedTime = Math.min(maxTime, clampedTime);
+	}
 	clampedTime = Math.max(0, clampedTime);
 
 	const newSegments = [...segments];
@@ -80,7 +76,7 @@ export function getUpdatedLineForDivider(
 		if (rightSegment && rightSegment.type === "word") {
 			clampedTime = Math.min(
 				clampedTime,
-				rightSegment.endTime - dynamicMinDurationMs,
+				rightSegment.endTime - MIN_WORD_DURATION_MS,
 			);
 		}
 		newStartTime = clampedTime;
@@ -94,7 +90,7 @@ export function getUpdatedLineForDivider(
 		if (leftSegment && leftSegment.type === "word") {
 			clampedTime = Math.max(
 				clampedTime,
-				leftSegment.startTime + dynamicMinDurationMs,
+				leftSegment.startTime + MIN_WORD_DURATION_MS,
 			);
 		}
 		newEndTime = clampedTime;
@@ -223,7 +219,7 @@ export function getUpdatedLineForWordPan(
 	processedLine: ProcessedLyricLine,
 	wordId: string,
 	desiredNewStartMS: number,
-	zoom: number,
+	_zoom?: number,
 ): ProcessedLyricLine {
 	const segmentIndex = processedLine.segments.findIndex((s) => s.id === wordId);
 	if (segmentIndex === -1) return processedLine;
@@ -236,19 +232,13 @@ export function getUpdatedLineForWordPan(
 
 	const wordDurationMS = segment.endTime - segment.startTime;
 
-	const minVisualDurationMs = (MIN_DIVIDER_WIDTH_PX / zoom) * 1000;
-	const dynamicMinDurationMs = Math.max(
-		MIN_WORD_DURATION_MS,
-		minVisualDurationMs,
-	);
-
 	let minStartMS: number;
 	if (!leftSegment) {
 		minStartMS = processedLine.startTime;
 	} else if (leftSegment.type === "gap") {
 		minStartMS = leftSegment.startTime;
 	} else {
-		minStartMS = leftSegment.startTime + dynamicMinDurationMs;
+		minStartMS = leftSegment.startTime + MIN_WORD_DURATION_MS;
 	}
 
 	let maxStartMS: number;
@@ -257,7 +247,11 @@ export function getUpdatedLineForWordPan(
 	} else if (rightSegment.type === "gap") {
 		maxStartMS = rightSegment.endTime - wordDurationMS;
 	} else {
-		maxStartMS = rightSegment.endTime - dynamicMinDurationMs - wordDurationMS;
+		maxStartMS = rightSegment.endTime - MIN_WORD_DURATION_MS - wordDurationMS;
+	}
+
+	if (minStartMS > maxStartMS) {
+		minStartMS = Math.min(minStartMS, maxStartMS);
 	}
 
 	let newStartMS = Math.max(minStartMS, desiredNewStartMS);

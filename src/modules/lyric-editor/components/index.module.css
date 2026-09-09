@@ -50,7 +50,11 @@
 
 		transition:
 			box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			background-color 0.2s ease;
+			background-color 0.2s ease,
+			transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+			opacity 0.2s ease,
+			padding 0.2s ease;
+		animation: laneItemFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
 		&.hasInstantFade {
 			transition: none !important;
@@ -91,6 +95,17 @@
 	}
 }
 
+@keyframes laneItemFadeIn {
+	from {
+		opacity: 0;
+		transform: scale(0.95) translateY(-3px);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
 .wordGroup {
 	display: flex;
 	flex-direction: column;
@@ -98,6 +113,8 @@
 	flex-grow: 0;
 	flex-shrink: 0;
 	text-align: left;
+	transition: width 0.2s ease-in-out, margin 0.2s ease-in-out, opacity 0.2s ease-in-out, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), flex-basis 0.2s ease-in-out;
+	animation: laneItemFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
 	&.spaceGroup {
 		align-self: center;
@@ -182,6 +199,7 @@
 	position: relative;
 	display: inline-block;
 	min-width: 2ch;
+	transition: width 0.15s ease-out;
 }
 
 .autoSizeInputText {
@@ -236,6 +254,7 @@
 	font: inherit;
 	font-size: 1.5em;
 	text-align: center;
+	transition: width 0.15s ease-out, min-width 0.15s ease-out;
 }
 
 .syncWordInputMeasure {
@@ -302,9 +321,11 @@
 	display: flex;
 
 	transition:
-		opacity 0.1s ease-in-out,
-		background-color 0.1s ease,
-		box-shadow 0.1s ease;
+		opacity 0.15s ease-in-out,
+		background-color 0.15s ease,
+		box-shadow 0.15s ease,
+		height 0.2s ease-in-out,
+		padding 0.2s ease-in-out;
 
 	&.dropTop {
 		border-top: solid 3px var(--accent-a11);
@@ -409,6 +430,7 @@
 	flex-grow: 1;
 	display: flex;
 	flex-direction: column;
+	transition: padding 0.2s ease-in-out, height 0.2s ease-in-out;
 
 	&.sync {
 		padding: 0 var(--space-3);
@@ -422,6 +444,7 @@
 	flex-wrap: wrap;
 	align-items: baseline;
 	gap: var(--chip-gap, var(--space-2));
+	transition: gap 0.2s ease-in-out, padding 0.2s ease-in-out, row-gap 0.2s ease-in-out;
 
 	&.edit {
 		margin-bottom: var(--space-2);
@@ -438,6 +461,13 @@
 		gap: 0;
 		border-left: solid 1px var(--gray-a5);
 		border-right: solid 1px var(--gray-a5);
+
+		&.wrap {
+			flex-wrap: wrap;
+			overflow: visible;
+			row-gap: var(--space-2);
+			transition: row-gap 0.2s ease-in-out, gap 0.2s ease-in-out, padding 0.2s ease-in-out;
+		}
 
 		&.hideTimestamps {
 			border-left: none;

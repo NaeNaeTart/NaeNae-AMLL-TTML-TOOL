@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { audioBufferAtom } from "$/modules/audio/states/index.ts";
 import {
 	type ColorStop,
 	generateLutFromStops,
@@ -8,7 +9,6 @@ import {
 	getGreenColor,
 	getIcyBlueColor,
 } from "$/modules/spectrogram/utils/colors";
-import { audioBufferAtom } from "$/modules/audio/states/index.ts";
 
 export const spectrogramGainAtom = atomWithStorage(
 	"settings_spectrogramGain",
@@ -92,6 +92,7 @@ export const currentPaletteAtom = atom((get) => {
 
 export const spectrogramHoverPxAtom = atom(0);
 export const spectrogramHoverPyAtom = atom(0);
+export const spectrogramIsHoveringAtom = atom(false);
 
 export const spectrogramHoverTimeMsAtom = atom((get) => {
 	const hoverPx = get(spectrogramHoverPxAtom);
@@ -120,4 +121,7 @@ export const spectrogramHoverFrequencyAtom = atom((get) => {
 	return ratio * nyquist;
 });
 
-export const spectrogramSelectionAtom = atom<{ start: number; end: number } | null>(null);
+export const spectrogramSelectionAtom = atom<{
+	start: number;
+	end: number;
+} | null>(null);

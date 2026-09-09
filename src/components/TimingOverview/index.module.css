@@ -159,6 +159,12 @@
 	font-size: 12px;
 }
 
+.statItem {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
 .cell {
 	min-height: 40px;
 	display: flex;

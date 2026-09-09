@@ -55,6 +55,52 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="crimson">
+								v0.9.12 Updates (Time Mode Tracking &amp; Spectrogram Polish)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Word Wrap in Time Mode:</strong> Lyric word cards in
+									the Time tab now wrap onto multiple lines instead of
+									overflowing horizontally. Toggle "Wrap Words in Time Mode"
+									from the Display Options ribbon or the Editor &amp; Sync
+									settings. Wrapping is on by default and animates smoothly
+									with a fade-in reflow.
+								</Text>
+								<Text size="2">
+									<strong>Playback Auto-Scroll:</strong> While playing back in
+									the Time tab the editor automatically scrolls to keep the active
+									lyric line centered. Auto-scroll can be toggled from Editor &amp;
+									Sync settings and defaults to on.
+								</Text>
+								<Text size="2">
+									<strong>Main Vocal Focus Priority:</strong> When auto-scroll
+									is active the editor focuses on the main (v1) vocal line and
+									disregards background vocals unless no main vocal is ongoing.
+									This can be toggled via "Focus Main Line During Playback", which
+									greys out when auto-scroll is disabled.
+								</Text>
+								<Text size="2">
+									<strong>User-Scroll Pause &amp; Resume:</strong> Scrolling with
+									the mouse wheel suspends auto-scroll for one second before
+									smoothly resuming to the active line. Auto-scroll and resume timers
+									remain inactive while playback is paused.
+								</Text>
+								<Text size="2">
+									<strong>Sync to Spectrogram Cursor:</strong> Added an opt-in
+									setting to record timing trigger keys (F, G, H) at the spectrogram
+									hover cursor position instead of the current audio playback time.
+								</Text>
+								<Text size="2">
+									<strong>Dynamic Spectrogram Height &amp; Dividers:</strong> The
+									spectrogram height slider now dynamically measures titlebar and playback
+									controls to prevent pushing UI controls offscreen. Word divider
+									dragging no longer imposes artificial zoom-dependent minimum duration
+									limits, and FFT resolution uses a clean inline selector.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="blue">
 								v0.9.11 Updates (Scaling & Export Settings)
 							</Heading>

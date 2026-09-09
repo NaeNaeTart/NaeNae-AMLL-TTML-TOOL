@@ -73,7 +73,7 @@ const WordGroup = memo(({ words, currentTime }: { words: any[], currentTime: num
 	);
 }, (prev, next) => {
 	const wasAnyActive = prev.words.some(w => prev.currentTime >= w.startTime && prev.currentTime <= w.endTime);
-	const isAnyActive = next.words.some(w => next.currentTime >= w.startTime && next.currentTime <= w.endTime);
+	const isAnyActive = next.words.some(w => next.currentTime >= w.startTime && next.currentTime <= next.endTime);
 	
 	if (wasAnyActive || isAnyActive) return false;
 	if (prev.words.length !== next.words.length) return false;

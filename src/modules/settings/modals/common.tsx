@@ -9,6 +9,7 @@ import {
 	Save24Regular,
 	Speaker224Regular,
 	Stack24Regular,
+	TextWrap24Regular,
 	Timer24Regular,
 	TopSpeed24Regular,
 	VideoBackgroundEffect24Regular,
@@ -46,8 +47,12 @@ import {
 } from "$/modules/settings/states";
 import {
 	enableUpcomingWordHighlightAtom,
+	spectrogramHoverSyncEnabledAtom,
+	syncAutoScrollAtom,
+	syncFocusMainLineAtom,
 	syncTimeOffsetAtom,
 	syncCommitOffsetAtom,
+	syncWordWrapAtom,
 	upcomingWordHighlightColorAtom,
 	upcomingWordHighlightThresholdAtom,
 } from "$/modules/settings/states/sync";
@@ -86,6 +91,8 @@ export const SettingsCommonTab = ({
 	);
 	const [syncTimeOffset, setSyncTimeOffset] = useAtom(syncTimeOffsetAtom);
 	const [syncCommitOffset, setSyncCommitOffset] = useAtom(syncCommitOffsetAtom);
+	const [spectrogramHoverSyncEnabled, setSpectrogramHoverSyncEnabled] =
+		useAtom(spectrogramHoverSyncEnabledAtom);
 
 	const [compactBGInSync, setCompactBGInSync] = useAtom(compactBGInSyncAtom);
 	const [normalizeApostrophesOnImport, setNormalizeApostrophesOnImport] =
@@ -93,6 +100,11 @@ export const SettingsCommonTab = ({
 	const [normalizeCyrillicEsOnImport, setNormalizeCyrillicEsOnImport] =
 		useAtom(normalizeCyrillicEsOnImportAtom);
 	const [allowConsecutiveBackgroundLines, setAllowConsecutiveBackgroundLines] = useAtom(allowConsecutiveBackgroundLinesAtom);
+	const [syncWordWrap, setSyncWordWrap] = useAtom(syncWordWrapAtom);
+	const [syncFocusMainLine, setSyncFocusMainLine] = useAtom(
+		syncFocusMainLineAtom,
+	);
+	const [syncAutoScroll, setSyncAutoScroll] = useAtom(syncAutoScrollAtom);
 
 	const { t, i18n } = useTranslation();
 	const currentLanguage = i18n.resolvedLanguage || i18n.language;
@@ -509,11 +521,132 @@ export const SettingsCommonTab = ({
 						</Flex>
 					</Text>
 				</Card>
+
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<ContentView24Regular />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t(
+												"settings.common.spectrogramHoverSync",
+												"Sync to Spectrogram Cursor",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.common.spectrogramHoverSyncDesc",
+												"When hovering over the spectrogram in Sync mode, trigger keys (F, G, H) record the hover position timestamp instead of the playback time.",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										checked={spectrogramHoverSyncEnabled}
+										onCheckedChange={setSpectrogramHoverSyncEnabled}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
 			</Flex>
 			)}
 
 			{section === "editor" && (
 			<Flex direction="column" gap="3">
+				<Heading size="4">
+					{t("settings.group.syncWordWrap", "Time Mode / Sync Tab")}
+				</Heading>
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<TextWrap24Regular />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t(
+												"settings.common.syncWordWrap",
+												"Wrap Words in Time Mode",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.common.syncWordWrapDesc",
+												"Wraps word cards to the next line instead of showing a horizontal scrollbar in Time / Sync tab.",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										checked={syncWordWrap}
+										onCheckedChange={setSyncWordWrap}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<Timer24Regular />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t(
+												"settings.common.syncAutoScroll",
+												"Auto-Scroll to Active Line During Playback",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.common.syncAutoScrollDesc",
+												"Automatically scrolls the editor view to follow the currently active lyric line during playback in the Time tab.",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										checked={syncAutoScroll}
+										onCheckedChange={setSyncAutoScroll}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+				<Card style={{ opacity: syncAutoScroll ? 1 : 0.4, transition: "opacity 0.2s ease", pointerEvents: syncAutoScroll ? "auto" : "none" }}>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<Timer24Regular style={{ opacity: syncAutoScroll ? 1 : 0.5 }} />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text style={{ color: syncAutoScroll ? undefined : "var(--gray-9)" }}>
+											{t(
+												"settings.common.syncFocusMainLine",
+												"Focus Main Line During Playback",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.common.syncFocusMainLineDesc",
+												"When playing back in the Time tab, focuses on active main lines and ignores background lines unless no main line is active.",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										disabled={!syncAutoScroll}
+										checked={syncFocusMainLine}
+										onCheckedChange={setSyncFocusMainLine}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
 				<Heading size="4">
 					{t("settings.group.timingHighlight", "Visual Timing Cue (Sync)")}
 				</Heading>

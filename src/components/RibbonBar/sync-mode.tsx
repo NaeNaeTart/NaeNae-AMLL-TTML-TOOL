@@ -37,9 +37,11 @@ import {
 	currentEmptyBeatAtom,
 	enableTimeModeDoubleClickEditAtom,
 	showTouchSyncPanelAtom,
+	spectrogramHoverSyncEnabledAtom,
 	syncLevelModeAtom,
 	syncTimeOffsetAtom,
 	syncCommitOffsetAtom,
+	syncWordWrapAtom,
 	visualizeTimestampUpdateAtom,
 	type SyncLevelMode,
 } from "$/modules/settings/states/sync.ts";
@@ -123,6 +125,9 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		);
 		const [syncTimeOffset, setSyncTimeOffset] = useAtom(syncTimeOffsetAtom);
 		const [syncCommitOffset, setSyncCommitOffset] = useAtom(syncCommitOffsetAtom);
+		const [syncWordWrap, setSyncWordWrap] = useAtom(syncWordWrapAtom);
+		const [spectrogramHoverSyncEnabled, setSpectrogramHoverSyncEnabled] =
+			useAtom(spectrogramHoverSyncEnabledAtom);
 		const [syncLevelMode, setSyncLevelMode] = useAtom(syncLevelModeAtom);
 		const [instantFade, setInstantFade] = useAtom(instantHighlightFadeAtom);
 		const { t } = useTranslation();
@@ -308,6 +313,20 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								checked={enableTimeModeDoubleClickEdit}
 								onCheckedChange={(v) => setEnableTimeModeDoubleClickEdit(!!v)}
 							/>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--ribbon-label-color)" }}
+							>
+								{t(
+									"ribbonBar.syncMode.spectrogramHoverSync",
+									"Sync to Spectrogram Cursor",
+								)}
+							</Text>
+							<Checkbox
+								checked={spectrogramHoverSyncEnabled}
+								onCheckedChange={(v) => setSpectrogramHoverSyncEnabled(!!v)}
+							/>
 						</Grid>
 					</RibbonSection>}
 					{showAdvanced && <RibbonSection
@@ -321,6 +340,17 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							flexGrow="1"
 							align="center"
 						>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--ribbon-label-color)" }}
+							>
+								{t("ribbonBar.syncMode.wrapWords", "Wrap Words")}
+							</Text>
+							<Checkbox
+								checked={syncWordWrap}
+								onCheckedChange={(v) => setSyncWordWrap(!!v)}
+							/>
 							<Text
 								wrap="nowrap"
 								size="1"

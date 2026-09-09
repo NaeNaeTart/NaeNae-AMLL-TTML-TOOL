@@ -16,6 +16,7 @@ interface DividerSegmentProps {
 	lineStartTime: number;
 	segmentsLength: number;
 	isTouching: boolean;
+	virtual?: boolean;
 }
 
 const DIVIDER_WIDTH_PX = 15;
@@ -30,6 +31,7 @@ export const DividerSegment: FC<DividerSegmentProps> = ({
 	lineStartTime,
 	segmentsLength,
 	isTouching,
+	virtual = false,
 }) => {
 	const setTimelineDrag = useSetAtom(timelineDragAtom);
 	const processedLines = useAtomValue(processedLyricLinesAtom);
@@ -47,9 +49,10 @@ export const DividerSegment: FC<DividerSegmentProps> = ({
 				zoom: zoom,
 				startX: e.clientX,
 				isGapCreation: e.altKey,
+				virtual: virtual,
 			});
 		},
-		[lineId, segmentIndex, setTimelineDrag, zoom],
+		[lineId, segmentIndex, setTimelineDrag, zoom, virtual],
 	);
 
 	const handleKeyDown = useCallback(
@@ -121,6 +124,8 @@ export const DividerSegment: FC<DividerSegmentProps> = ({
 			aria-orientation="vertical"
 			aria-valuenow={timeMs}
 			onKeyDown={handleKeyDown}
-		/>
+		>
+			<div className={styles.dividerLine} />
+		</div>
 	);
 };
