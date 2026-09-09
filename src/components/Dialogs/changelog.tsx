@@ -55,6 +55,43 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="crimson">
+								v0.9.12 Updates (Time Mode Playback Tracking)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Word Wrap in Time Mode:</strong> Lyric word cards in
+									the Time tab now wrap onto multiple lines instead of
+									overflowing horizontally. Toggle "Wrap Words in Time Mode"
+									from the Display Options ribbon or the Editor &amp; Sync
+									settings. Wrapping is on by default and animates smoothly
+									with a fade-in reflow.
+								</Text>
+								<Text size="2">
+									<strong>Playback Auto-Scroll:</strong> While playing back in
+									the Time tab the editor now automatically scrolls to keep
+									the current lyric line centered. Auto-scroll can be toggled
+									from the Editor &amp; Sync settings and defaults to on.
+								</Text>
+								<Text size="2">
+									<strong>Main Vocal Focus Priority:</strong> When auto-scroll
+									is active the editor focuses on the main (v1) vocal line and
+									ignores background vocal lines unless no main vocal is
+									currently playing. This behavior can be toggled via the
+									"Focus Main Line During Playback" setting, which is greyed
+									out when auto-scroll is disabled.
+								</Text>
+								<Text size="2">
+									<strong>User-Scroll Pause &amp; Resume:</strong> Scrolling
+									with the mouse wheel temporarily suspends auto-scroll for
+									one second. Once you stop scrolling, the editor immediately
+									smooth-scrolls back to the active line and resumes tracking.
+									Neither the resume nor the ongoing auto-scroll fires while
+									playback is paused.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="blue">
 								v0.9.11 Updates (Scaling & Export Settings)
 							</Heading>

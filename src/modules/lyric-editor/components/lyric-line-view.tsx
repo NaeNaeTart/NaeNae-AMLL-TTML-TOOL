@@ -54,6 +54,7 @@ import {
 } from "$/modules/settings/states/index.ts";
 import {
 	syncLevelModeAtom,
+	syncWordWrapAtom,
 	visualizeTimestampUpdateAtom,
 } from "$/modules/settings/states/sync.ts";
 import {
@@ -509,6 +510,7 @@ export const LyricLineView: FC<{
 	const editingRomanWordIndex = useAtomValue(editingRomanWordIndexAtom);
 	const compactBGInSync = useAtomValue(compactBGInSyncAtom);
 	const legacySpaceLabels = useAtomValue(legacySpaceLabelsAtom);
+	const syncWordWrap = useAtomValue(syncWordWrapAtom);
 
 	const startTimeRef = useRef<HTMLDivElement>(null);
 	const endTimeRef = useRef<HTMLButtonElement>(null);
@@ -1037,6 +1039,7 @@ export const LyricLineView: FC<{
 										styles.lyricWordsContainer,
 										toolMode === ToolMode.Edit && styles.edit,
 										toolMode === ToolMode.Sync && styles.sync,
+										toolMode === ToolMode.Sync && syncWordWrap && styles.wrap,
 										!showTimestamps && styles.hideTimestamps,
 									)}
 									ref={wordsContainerRef}
