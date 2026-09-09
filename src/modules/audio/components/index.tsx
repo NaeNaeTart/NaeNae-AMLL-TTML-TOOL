@@ -212,7 +212,12 @@ export const AudioControls: FC = memo(() => {
 					<div style={{ display: spectrogramVisible ? "flex" : "none" }}>
 						<AudioSpectrogram />
 					</div>
-					<Flex align="center" px="2" gapX="2">
+					<Flex
+						align="center"
+						px="2"
+						gapX="2"
+						data-guide-target="audio-playback-bar"
+					>
 						<HoverCard.Root>
 							<HoverCard.Trigger>
 								<IconButton my="2" variant="soft" onClick={onLoadMusic}>

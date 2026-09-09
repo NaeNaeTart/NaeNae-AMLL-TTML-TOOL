@@ -116,7 +116,7 @@ export default function WindowControls(props: WindowControlsProps) {
 	})();
 
 	return (
-		<div className={styles.windowControls}>
+		<div className={styles.windowControls} data-guide-target="titlebar">
 			<div className={styles.leftSide}>
 				{placeLeft && systemControls}
 				<div className={styles.slot}>{props.startChildren}</div>

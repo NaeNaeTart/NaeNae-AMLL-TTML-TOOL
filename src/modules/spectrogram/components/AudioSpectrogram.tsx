@@ -230,7 +230,11 @@ export const AudioSpectrogram: FC = memo(() => {
 		}
 	}, [globalEnableInsert, store]);
 
-	const { height: uiHeight, resizeHandleProps } = useSpectrogramResize({
+	const {
+		height: uiHeight,
+		maxHeight: dynamicMaxHeight,
+		resizeHandleProps,
+	} = useSpectrogramResize({
 		initialHeight: dataHeight,
 		onCommit: setDataHeight,
 	});
@@ -825,12 +829,14 @@ export const AudioSpectrogram: FC = memo(() => {
 									<Slider
 										size="1"
 										min={100}
-										max={800}
+										max={dynamicMaxHeight}
 										step={10}
-										value={[dataHeight]}
+										value={[Math.min(dataHeight, dynamicMaxHeight)]}
 										onValueChange={(v) => setDataHeight(v[0])}
 									/>
-									<Text size="1">{dataHeight}px</Text>
+									<Text size="1">
+										{Math.min(dataHeight, dynamicMaxHeight)}px
+									</Text>
 								</Flex>
 							</Flex>
 						</Popover.Content>
