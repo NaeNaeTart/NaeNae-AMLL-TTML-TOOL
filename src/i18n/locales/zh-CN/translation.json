@@ -597,6 +597,7 @@
       "switchEditMode": "切换模式 - 编辑模式",
       "switchSyncMode": "切换模式 - 对齐模式",
       "switchPreviewMode": "切换模式 - 预览模式",
+      "locateActiveLine": "视图 - 定位活动行",
       "moveNextWord": "对齐 - 移动到下一个单词",
       "movePrevWord": "对齐 - 移动到上一个单词",
       "moveNextLine": "对齐 - 移动到下一行开始",

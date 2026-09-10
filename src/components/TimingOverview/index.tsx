@@ -1,162 +1,296 @@
-import { Box, Card, Flex, Text, Tooltip } from "@radix-ui/themes";
+import { Box, Card, Checkbox, Flex, Text, Tooltip } from "@radix-ui/themes";
 import classNames from "classnames";
-import { useAtomValue, useSetAtom } from "jotai";
-import { memo, useMemo, useRef } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ViewportList } from "react-viewport-list";
-import { currentTimeAtom } from "$/modules/audio/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
+import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
+import { timingOverviewAutoScrollAtom } from "$/modules/settings/states/sync.ts";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
+import {
+	type SmoothScrollController,
+	smoothScrollContainer,
+} from "$/utils/smooth-scroll.ts";
 import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
 
-const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTime: number, isGrouped?: boolean }) => {
-	const { t } = useTranslation();
-	const isWordActive = currentTime >= word.startTime && currentTime <= word.endTime;
-	const wordDur = word.endTime - word.startTime;
-	const isWhitespace = !word.word || word.word.trim() === "";
+const WordPill = memo(
+	({
+		word,
+		currentTime,
+		isGrouped,
+	}: {
+		word: any;
+		currentTime: number;
+		isGrouped?: boolean;
+	}) => {
+		const { t } = useTranslation();
+		const isWordActive =
+			currentTime >= word.startTime && currentTime <= word.endTime;
+		const wordDur = word.endTime - word.startTime;
+		const isWhitespace = !word.word || word.word.trim() === "";
 
-	if (isWhitespace && wordDur === 0 && word.emptyBeat === 0) {
-		return <div style={{ width: "4px" }} />;
-	}
-
-	const content = (
-		<div className={classNames(
-			styles.wordPill, 
-			isWordActive && styles.wordPillActive, 
-			isWhitespace && styles.whitespacePill,
-			isGrouped && styles.groupedWordPill
-		)}>
-			<Text className={styles.wordText}>
-				{isWhitespace ? (word.word || <span className={styles.emptyBeat}>∅</span>) : word.word}
-			</Text>
-			{(!isWhitespace || wordDur > 0) && (
-				<Text className={classNames(styles.wordTime, styles.monospaced)}>{wordDur}ms</Text>
-			)}
-		</div>
-	);
-
-	return (
-		<Tooltip
-			content={
-				<Flex direction="column" gap="1">
-					<Text size="1">{t("timingOverview.start", "Start")}: {msToTimestamp(word.startTime)}</Text>
-					<Text size="1">{t("timingOverview.end", "End")}: {msToTimestamp(word.endTime)}</Text>
-					<Text size="1">{t("timingOverview.duration", "Duration")}: {wordDur}ms</Text>
-					{word.emptyBeat > 0 && <Text size="1" color="orange">{t("timingOverview.emptyBeat", "Empty Beat")}: {word.emptyBeat}</Text>}
-					{word.romanWord && <Text size="1">{t("timingOverview.romanization", "Roman")}: {word.romanWord}</Text>}
-				</Flex>
-			}
-		>
-			{content}
-		</Tooltip>
-	);
-}, (prev, next) => {
-	const wasActive = prev.currentTime >= prev.word.startTime && prev.currentTime <= prev.word.endTime;
-	const isActive = next.currentTime >= next.word.startTime && next.currentTime <= next.word.endTime;
-	if (wasActive || isActive) return false;
-	return prev.word === next.word;
-});
-
-const WordGroup = memo(({ words, currentTime }: { words: any[], currentTime: number }) => {
-	const isActive = words.some(w => currentTime >= w.startTime && currentTime <= w.endTime);
-
-	return (
-		<div className={classNames(styles.wordGroup, isActive && styles.wordGroupActive)}>
-			{words.map((word, idx) => (
-				<div key={word.id || idx} style={{ display: "flex", alignItems: "center" }}>
-					<WordPill word={word} currentTime={currentTime} isGrouped={true} />
-					{idx < words.length - 1 && <div className={styles.wordDivider} />}
-				</div>
-			))}
-		</div>
-	);
-}, (prev, next) => {
-	const wasAnyActive = prev.words.some(w => prev.currentTime >= w.startTime && prev.currentTime <= w.endTime);
-	const isAnyActive = next.words.some(w => next.currentTime >= w.startTime && next.currentTime <= next.endTime);
-	
-	if (wasAnyActive || isAnyActive) return false;
-	if (prev.words.length !== next.words.length) return false;
-	for (let i = 0; i < prev.words.length; i++) {
-		if (prev.words[i] !== next.words[i]) return false;
-	}
-	return true;
-});
-
-const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: { 
-	line: any, 
-	index: number, 
-	currentTime: number, 
-	totalDuration: number,
-	onRowClick: (line: any) => void
-}) => {
-	const { t } = useTranslation();
-	const isActive = currentTime >= line.startTime && currentTime <= line.endTime;
-	const duration = line.endTime - line.startTime;
-	const durationPercent = totalDuration ? (duration / totalDuration) * 100 : 0;
-
-	const wordGroups = useMemo(() => {
-		const groups: { type: 'words' | 'whitespace', items?: any[], word?: any }[] = [];
-		let currentGroup: any[] = [];
-		
-		for (const word of line.words) {
-			const isWhitespace = !word.word || word.word.trim() === "";
-			if (isWhitespace) {
-				if (currentGroup.length > 0) {
-					groups.push({ type: 'words', items: currentGroup });
-					currentGroup = [];
-				}
-				groups.push({ type: 'whitespace', word });
-			} else {
-				currentGroup.push(word);
-			}
+		if (isWhitespace && wordDur === 0 && word.emptyBeat === 0) {
+			return <div style={{ width: "4px" }} />;
 		}
-		if (currentGroup.length > 0) {
-			groups.push({ type: 'words', items: currentGroup });
-		}
-		return groups;
-	}, [line.words]);
 
-	return (
-		<div
-			className={classNames(styles.row, isActive && styles.activeRow)}
-			onClick={() => onRowClick(line)}
-			style={{ display: "flex", borderBottom: "1px solid var(--gray-4)" }}
-		>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "40px", padding: "8px 12px" }}>{index + 1}</div>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.startTime)}</div>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.endTime)}</div>
-			<div className={styles.cell} style={{ width: "80px", padding: "8px 12px" }}>
-				<Flex direction="column" gap="1">
-					<Text size="1" className={styles.monospaced}>{(duration / 1000).toFixed(3)}s</Text>
-					<div className={styles.durationBar} style={{ width: `${Math.min(100, durationPercent * 10)}%` }} />
-				</Flex>
+		const content = (
+			<div
+				className={classNames(
+					styles.wordPill,
+					isWordActive && styles.wordPillActive,
+					isWhitespace && styles.whitespacePill,
+					isGrouped && styles.groupedWordPill,
+				)}
+			>
+				<Text className={styles.wordText}>
+					{isWhitespace
+						? word.word || <span className={styles.emptyBeat}>∅</span>
+						: word.word}
+				</Text>
+				{(!isWhitespace || wordDur > 0) && (
+					<Text className={classNames(styles.wordTime, styles.monospaced)}>
+						{wordDur}ms
+					</Text>
+				)}
 			</div>
-			<div className={styles.cell} style={{ flexGrow: 1, padding: "8px 12px", minWidth: 0 }}>
-				<Box>
-					<Flex align="center" gap="2" mb="1">
-						<Text className={styles.lineText}>{line.words.map((w: any) => w.word).join("")}</Text>
-						{line.isBG && <Text size="1" style={{ background: "var(--accent-9)", color: "white", padding: "0 4px", borderRadius: "2px", fontSize: "9px" }}>{t("timingOverview.backgroundVocal", "BG")}</Text>}
+		);
+
+		return (
+			<Tooltip
+				content={
+					<Flex direction="column" gap="1">
+						<Text size="1">
+							{t("timingOverview.start", "Start")}:{" "}
+							{msToTimestamp(word.startTime)}
+						</Text>
+						<Text size="1">
+							{t("timingOverview.end", "End")}: {msToTimestamp(word.endTime)}
+						</Text>
+						<Text size="1">
+							{t("timingOverview.duration", "Duration")}: {wordDur}ms
+						</Text>
+						{word.emptyBeat > 0 && (
+							<Text size="1" color="orange">
+								{t("timingOverview.emptyBeat", "Empty Beat")}: {word.emptyBeat}
+							</Text>
+						)}
+						{word.romanWord && (
+							<Text size="1">
+								{t("timingOverview.romanization", "Roman")}: {word.romanWord}
+							</Text>
+						)}
 					</Flex>
-					<div className={styles.wordPills}>
-						{wordGroups.map((group, gIdx) => (
-							group.type === 'words' ? (
-								<WordGroup key={`g-${gIdx}`} words={group.items!} currentTime={currentTime} />
-							) : (
-								<WordPill key={`w-${gIdx}`} word={group.word} currentTime={currentTime} />
-							)
-						))}
+				}
+			>
+				{content}
+			</Tooltip>
+		);
+	},
+	(prev, next) => {
+		const wasActive =
+			prev.currentTime >= prev.word.startTime &&
+			prev.currentTime <= prev.word.endTime;
+		const isActive =
+			next.currentTime >= next.word.startTime &&
+			next.currentTime <= next.word.endTime;
+		if (wasActive || isActive) return false;
+		return prev.word === next.word;
+	},
+);
+
+const WordGroup = memo(
+	({ words, currentTime }: { words: any[]; currentTime: number }) => {
+		const isActive = words.some(
+			(w) => currentTime >= w.startTime && currentTime <= w.endTime,
+		);
+
+		return (
+			<div
+				className={classNames(
+					styles.wordGroup,
+					isActive && styles.wordGroupActive,
+				)}
+			>
+				{words.map((word, idx) => (
+					<div
+						key={word.id || idx}
+						style={{ display: "flex", alignItems: "center" }}
+					>
+						<WordPill word={word} currentTime={currentTime} isGrouped={true} />
+						{idx < words.length - 1 && <div className={styles.wordDivider} />}
 					</div>
-				</Box>
+				))}
 			</div>
-		</div>
-	);
-}, (prev, next) => {
-	const wasActive = prev.currentTime >= prev.line.startTime && prev.currentTime <= prev.line.endTime;
-	const isActive = next.currentTime >= next.line.startTime && next.currentTime <= next.line.endTime;
-	if (wasActive || isActive) return false;
-	return prev.line === next.line && prev.totalDuration === next.totalDuration;
-});
+		);
+	},
+	(prev, next) => {
+		const wasAnyActive = prev.words.some(
+			(w) => prev.currentTime >= w.startTime && prev.currentTime <= w.endTime,
+		);
+		const isAnyActive = next.words.some(
+			(w) =>
+				next.currentTime >= w.startTime && next.currentTime <= next.endTime,
+		);
+
+		if (wasAnyActive || isAnyActive) return false;
+		if (prev.words.length !== next.words.length) return false;
+		for (let i = 0; i < prev.words.length; i++) {
+			if (prev.words[i] !== next.words[i]) return false;
+		}
+		return true;
+	},
+);
+
+const LineRow = memo(
+	({
+		line,
+		index,
+		currentTime,
+		totalDuration,
+		onRowClick,
+	}: {
+		line: any;
+		index: number;
+		currentTime: number;
+		totalDuration: number;
+		onRowClick: (line: any) => void;
+	}) => {
+		const { t } = useTranslation();
+		const isActive =
+			currentTime >= line.startTime && currentTime <= line.endTime;
+		const duration = line.endTime - line.startTime;
+		const durationPercent = totalDuration
+			? (duration / totalDuration) * 100
+			: 0;
+
+		const wordGroups = useMemo(() => {
+			const groups: {
+				type: "words" | "whitespace";
+				items?: any[];
+				word?: any;
+			}[] = [];
+			let currentGroup: any[] = [];
+
+			for (const word of line.words) {
+				const isWhitespace = !word.word || word.word.trim() === "";
+				if (isWhitespace) {
+					if (currentGroup.length > 0) {
+						groups.push({ type: "words", items: currentGroup });
+						currentGroup = [];
+					}
+					groups.push({ type: "whitespace", word });
+				} else {
+					currentGroup.push(word);
+				}
+			}
+			if (currentGroup.length > 0) {
+				groups.push({ type: "words", items: currentGroup });
+			}
+			return groups;
+		}, [line.words]);
+
+		return (
+			<div
+				className={classNames(styles.row, isActive && styles.activeRow)}
+				onClick={() => onRowClick(line)}
+				style={{ display: "flex", borderBottom: "1px solid var(--gray-4)" }}
+			>
+				<div
+					className={classNames(styles.monospaced, styles.cell)}
+					style={{ width: "40px", padding: "8px 12px" }}
+				>
+					{index + 1}
+				</div>
+				<div
+					className={classNames(styles.monospaced, styles.cell)}
+					style={{ width: "100px", padding: "8px 12px" }}
+				>
+					{msToTimestamp(line.startTime)}
+				</div>
+				<div
+					className={classNames(styles.monospaced, styles.cell)}
+					style={{ width: "100px", padding: "8px 12px" }}
+				>
+					{msToTimestamp(line.endTime)}
+				</div>
+				<div
+					className={styles.cell}
+					style={{ width: "80px", padding: "8px 12px" }}
+				>
+					<Flex direction="column" gap="1">
+						<Text size="1" className={styles.monospaced}>
+							{(duration / 1000).toFixed(3)}s
+						</Text>
+						<div
+							className={styles.durationBar}
+							style={{ width: `${Math.min(100, durationPercent * 10)}%` }}
+						/>
+					</Flex>
+				</div>
+				<div
+					className={styles.cell}
+					style={{ flexGrow: 1, padding: "8px 12px", minWidth: 0 }}
+				>
+					<Box>
+						<Flex align="center" gap="2" mb="1">
+							<Text className={styles.lineText}>
+								{line.words.map((w: any) => w.word).join("")}
+							</Text>
+							{line.isBG && (
+								<Text
+									size="1"
+									style={{
+										background: "var(--accent-9)",
+										color: "white",
+										padding: "0 4px",
+										borderRadius: "2px",
+										fontSize: "9px",
+									}}
+								>
+									{t("timingOverview.backgroundVocal", "BG")}
+								</Text>
+							)}
+						</Flex>
+						<div className={styles.wordPills}>
+							{wordGroups.map((group, gIdx) => {
+								const key =
+									group.type === "words"
+										? group.items?.[0]?.id ||
+											`group-${group.items?.[0]?.startTime || gIdx}`
+										: group.word?.id || `word-${group.word?.startTime || gIdx}`;
+								return group.type === "words" ? (
+									<WordGroup
+										key={key}
+										words={group.items!}
+										currentTime={currentTime}
+									/>
+								) : (
+									<WordPill
+										key={key}
+										word={group.word}
+										currentTime={currentTime}
+									/>
+								);
+							})}
+						</div>
+					</Box>
+				</div>
+			</div>
+		);
+	},
+	(prev, next) => {
+		const wasActive =
+			prev.currentTime >= prev.line.startTime &&
+			prev.currentTime <= prev.line.endTime;
+		const isActive =
+			next.currentTime >= next.line.startTime &&
+			next.currentTime <= next.line.endTime;
+		if (wasActive || isActive) return false;
+		return prev.line === next.line && prev.totalDuration === next.totalDuration;
+	},
+);
 
 export const TimingOverview = memo(() => {
 	const { t } = useTranslation();
@@ -172,57 +306,279 @@ export const TimingOverview = memo(() => {
 
 	const totalDuration = useMemo(() => {
 		if (sortedLines.length === 0) return 0;
-		return sortedLines[sortedLines.length - 1].endTime - sortedLines[0].startTime;
+		return (
+			sortedLines[sortedLines.length - 1].endTime - sortedLines[0].startTime
+		);
 	}, [sortedLines]);
 
 	const stats = useMemo(() => {
 		const lineCount = sortedLines.length;
-		const wordCount = sortedLines.reduce((acc, line) => acc + line.words.length, 0);
-		const totalMs = lineCount > 0 ? sortedLines[lineCount - 1].endTime - sortedLines[0].startTime : 0;
+		const wordCount = sortedLines.reduce(
+			(acc, line) => acc + line.words.length,
+			0,
+		);
+		const totalMs =
+			lineCount > 0
+				? sortedLines[lineCount - 1].endTime - sortedLines[0].startTime
+				: 0;
 		return { lineCount, wordCount, totalMs };
 	}, [sortedLines]);
 
-	const handleRowClick = useMemo(() => (line: any) => {
-		setCurrentTime(line.startTime);
-		setSelectedLines(new Set([line.id]));
-		audioEngine.seekMusic(line.startTime / 1000);
-	}, [setCurrentTime, setSelectedLines]);
+	const handleRowClick = useMemo(
+		() => (line: any) => {
+			setCurrentTime(line.startTime);
+			setSelectedLines(new Set([line.id]));
+			audioEngine.seekMusic(line.startTime / 1000);
+		},
+		[setCurrentTime, setSelectedLines],
+	);
+
+	const [autoScroll, setAutoScroll] = useAtom(timingOverviewAutoScrollAtom);
+	const audioPlaying = useAtomValue(audioPlayingAtom);
+	const pauseUntilRef = useRef(0);
+	const activeScrollControllerRef = useRef<SmoothScrollController | null>(null);
+	const isProgrammaticScrollingRef = useRef(false);
+	const lastActiveIndexRef = useRef<number | undefined>(undefined);
+
+	const calculateTargetScroll = useCallback((index: number) => {
+		const scrollEl = scrollRef.current;
+		if (!scrollEl) return null;
+		const rowEl = scrollEl.querySelector(
+			`.${styles.row}:nth-child(${index + 1})`,
+		) as HTMLElement | null;
+		if (rowEl) {
+			const containerRect = scrollEl.getBoundingClientRect();
+			const rowRect = rowEl.getBoundingClientRect();
+			const topInScroll = rowRect.top - containerRect.top + scrollEl.scrollTop;
+			const target = topInScroll - (scrollEl.clientHeight - rowRect.height) / 2;
+			return Math.max(0, Math.round(target));
+		}
+		const estimatedRowHeight = 55;
+		const headerHeight = 35;
+		const estimatedTop = headerHeight + index * estimatedRowHeight;
+		return Math.max(
+			0,
+			Math.round(
+				estimatedTop - (scrollEl.clientHeight - estimatedRowHeight) / 2,
+			),
+		);
+	}, []);
+
+	const scrollToRowIndex = useCallback(
+		(index: number) => {
+			const scrollEl = scrollRef.current;
+			if (!scrollEl) return;
+			const getTarget = () => {
+				const t = calculateTargetScroll(index);
+				return t !== null ? Math.max(0, t) : scrollEl.scrollTop;
+			};
+
+			activeScrollControllerRef.current?.cancel();
+			activeScrollControllerRef.current = smoothScrollContainer(
+				scrollEl,
+				getTarget,
+				() => {
+					isProgrammaticScrollingRef.current = true;
+				},
+				() => {
+					isProgrammaticScrollingRef.current = false;
+					activeScrollControllerRef.current = null;
+				},
+			);
+		},
+		[calculateTargetScroll],
+	);
+
+	useEffect(() => {
+		const scrollEl = scrollRef.current;
+		if (!scrollEl) return;
+
+		const onUserInteraction = () => {
+			activeScrollControllerRef.current?.cancel();
+			activeScrollControllerRef.current = null;
+			isProgrammaticScrollingRef.current = false;
+			pauseUntilRef.current = performance.now() + 3500;
+			lastActiveIndexRef.current = undefined;
+		};
+
+		const onScroll = () => {
+			if (isProgrammaticScrollingRef.current) return;
+			pauseUntilRef.current = performance.now() + 3500;
+			lastActiveIndexRef.current = undefined;
+		};
+
+		scrollEl.addEventListener("scroll", onScroll, { passive: true });
+		scrollEl.addEventListener("wheel", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+		scrollEl.addEventListener("touchmove", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+		scrollEl.addEventListener("touchstart", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+		scrollEl.addEventListener("pointerdown", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+		scrollEl.addEventListener("mousedown", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+
+		return () => {
+			activeScrollControllerRef.current?.cancel();
+			activeScrollControllerRef.current = null;
+			scrollEl.removeEventListener("scroll", onScroll);
+			scrollEl.removeEventListener("wheel", onUserInteraction, true);
+			scrollEl.removeEventListener("touchmove", onUserInteraction, true);
+			scrollEl.removeEventListener("touchstart", onUserInteraction, true);
+			scrollEl.removeEventListener("pointerdown", onUserInteraction, true);
+			scrollEl.removeEventListener("mousedown", onUserInteraction, true);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!autoScroll || !audioPlaying) {
+			activeScrollControllerRef.current?.cancel();
+			lastActiveIndexRef.current = undefined;
+			return;
+		}
+
+		if (performance.now() < pauseUntilRef.current) return;
+
+		const activeIdx = sortedLines.findIndex(
+			(l) => currentTime >= l.startTime && currentTime <= l.endTime,
+		);
+		if (activeIdx === -1 || activeIdx === lastActiveIndexRef.current) return;
+
+		lastActiveIndexRef.current = activeIdx;
+		scrollToRowIndex(activeIdx);
+	}, [autoScroll, audioPlaying, currentTime, sortedLines, scrollToRowIndex]);
 
 	return (
 		<Card className={styles.timingOverview}>
 			<div className={styles.header}>
-				<Text size="2" weight="bold">{t("timingOverview.title", "Technical Timing Overview")}</Text>
+				<Text size="2" weight="bold">
+					{t("timingOverview.title", "Technical Timing Overview")}
+				</Text>
 				<div className={styles.stats}>
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.lines", "Lines")}:</Text>
-						<Text size="1" weight="bold">{stats.lineCount}</Text>
+						<Text size="1" weight="bold">
+							{stats.lineCount}
+						</Text>
 					</div>
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.words", "Words")}:</Text>
-						<Text size="1" weight="bold">{stats.wordCount}</Text>
+						<Text size="1" weight="bold">
+							{stats.wordCount}
+						</Text>
 					</div>
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.duration", "Duration")}:</Text>
-						<Text size="1" weight="bold" className={styles.monospaced}>{msToTimestamp(stats.totalMs)}</Text>
+						<Text size="1" weight="bold" className={styles.monospaced}>
+							{msToTimestamp(stats.totalMs)}
+						</Text>
+					</div>
+					<div
+						className={styles.statItem}
+						style={{
+							marginLeft: "auto",
+							display: "flex",
+							alignItems: "center",
+							gap: "6px",
+						}}
+					>
+						<Text size="1">
+							{t("timingOverview.autoScroll", "Auto-Scroll")}:
+						</Text>
+						<Checkbox
+							checked={autoScroll}
+							onCheckedChange={(v) => setAutoScroll(Boolean(v))}
+						/>
 					</div>
 				</div>
 			</div>
 			<div className={styles.scrollArea} ref={scrollRef}>
 				<div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-					<div className={styles.tableHeader} style={{ display: "flex", borderBottom: "1px solid var(--gray-6)", background: "var(--gray-2)", position: "sticky", top: 0, zIndex: 10 }}>
-						<div style={{ width: "40px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>#</div>
-						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.start", "Start")}</div>
-						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.end", "End")}</div>
-						<div style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.duration", "Duration")}</div>
-						<div style={{ flexGrow: 1, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}</div>
+					<div
+						className={styles.tableHeader}
+						style={{
+							display: "flex",
+							borderBottom: "1px solid var(--gray-6)",
+							background: "var(--gray-2)",
+							position: "sticky",
+							top: 0,
+							zIndex: 10,
+						}}
+					>
+						<div
+							style={{
+								width: "40px",
+								padding: "8px 12px",
+								fontWeight: 500,
+								color: "var(--gray-11)",
+								fontSize: "12px",
+							}}
+						>
+							#
+						</div>
+						<div
+							style={{
+								width: "100px",
+								padding: "8px 12px",
+								fontWeight: 500,
+								color: "var(--gray-11)",
+								fontSize: "12px",
+							}}
+						>
+							{t("timingOverview.start", "Start")}
+						</div>
+						<div
+							style={{
+								width: "100px",
+								padding: "8px 12px",
+								fontWeight: 500,
+								color: "var(--gray-11)",
+								fontSize: "12px",
+							}}
+						>
+							{t("timingOverview.end", "End")}
+						</div>
+						<div
+							style={{
+								width: "80px",
+								padding: "8px 12px",
+								fontWeight: 500,
+								color: "var(--gray-11)",
+								fontSize: "12px",
+							}}
+						>
+							{t("timingOverview.duration", "Duration")}
+						</div>
+						<div
+							style={{
+								flexGrow: 1,
+								padding: "8px 12px",
+								fontWeight: 500,
+								color: "var(--gray-11)",
+								fontSize: "12px",
+							}}
+						>
+							{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}
+						</div>
 					</div>
 					<ViewportList items={sortedLines} viewportRef={scrollRef}>
 						{(line, index) => (
-							<LineRow 
-								key={line.id || index} 
-								line={line} 
-								index={index} 
-								currentTime={currentTime} 
+							<LineRow
+								key={line.id || index}
+								line={line}
+								index={index}
+								currentTime={currentTime}
 								totalDuration={totalDuration}
 								onRowClick={handleRowClick}
 							/>

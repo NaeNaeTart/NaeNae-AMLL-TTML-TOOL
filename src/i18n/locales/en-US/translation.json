@@ -635,6 +635,7 @@
       "switchEditMode": "Mode Switch - Switch to Edit Mode",
       "switchSyncMode": "Mode Switch - Switch to Timing Mode",
       "switchPreviewMode": "Mode Switch - Switch to Preview Mode",
+      "locateActiveLine": "View - Locate Active Line",
       "moveNextWord": "Timing - Move to next word",
       "movePrevWord": "Timing - Move to previous word",
       "moveNextLine": "Timing - Move to next line start",

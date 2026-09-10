@@ -25,20 +25,27 @@ import {
 	useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modules/onboarding/states";
-import { importLyricsChooserDialogAtom } from "$/states/dialogs";
-import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
+import { useFileOpener } from "$/hooks/useFileOpener";
 import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import {
-	syncAutoScrollAtom,
-	syncFocusMainLineAtom,
-} from "$/modules/settings/states/sync.ts";
+	guidePanelOpenAtom,
+	guideStepAtom,
+	guideWelcomeOpenAtom,
+} from "$/modules/onboarding/states";
 import {
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
 	geniusHeaderDetectionDialogShownAtom,
 } from "$/modules/settings/states/index.ts";
+import {
+	editAutoScrollAtom,
+	syncAutoScrollAtom,
+	syncFocusMainLineAtom,
+} from "$/modules/settings/states/sync.ts";
+import { isSpectrogramResizingAtom } from "$/modules/spectrogram/states/index.ts";
+import { importLyricsChooserDialogAtom } from "$/states/dialogs";
+import { keyLocateActiveLineAtom } from "$/states/keybindings.ts";
 import {
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
@@ -47,6 +54,11 @@ import {
 	toolModeAtom,
 } from "$/states/main.ts";
 import type { LyricLine } from "$/types/ttml.ts";
+import { useKeyBindingAtom } from "$/utils/keybindings.ts";
+import {
+	type SmoothScrollController,
+	smoothScrollContainer,
+} from "$/utils/smooth-scroll.ts";
 import { repairSectionIntegrity } from "../utils/section-system.ts";
 import {
 	clampScrollTop,
@@ -112,6 +124,18 @@ const findCurrentLineIndex = (
 		if (activeBGIndex !== -1) return activeBGIndex;
 	}
 
+	// If currentTime has passed the end of all timed lyric lines, the song's lyrics have finished
+	let maxEndTime = 0;
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i];
+		if (line.endTime > line.startTime && line.endTime > maxEndTime) {
+			maxEndTime = line.endTime;
+		}
+	}
+	if (maxEndTime > 0 && currentTime > maxEndTime) {
+		return -1;
+	}
+
 	let previousIndex = -1;
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
@@ -131,6 +155,14 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const viewElRef = useRef<HTMLDivElement>(null);
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const toolMode = useAtomValue(toolModeAtom);
+	const selectedLines = useAtomValue(selectedLinesAtom);
+	const audioPlaying = useAtomValue(audioPlayingAtom);
+	const currentTime = useAtomValue(currentTimeAtom);
+	const pauseUntilRef = useRef<number>(0);
+	const lastActiveLineIndexRef = useRef<number | undefined>(undefined);
+	const isProgrammaticScrollingRef = useRef<boolean>(false);
+	const activeScrollControllerRef = useRef<SmoothScrollController | null>(null);
+	const isSpectrogramResizing = useAtomValue(isSpectrogramResizingAtom);
 	const { t } = useTranslation();
 	const setGuideWelcome = useSetAtom(guideWelcomeOpenAtom);
 	const setGuidePanel = useSetAtom(guidePanelOpenAtom);
@@ -141,10 +173,14 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		const input = document.createElement("input");
 		input.type = "file";
 		input.accept = ".ttml,*/*";
-		input.addEventListener("change", () => {
-			const file = input.files?.[0];
-			if (file) openFile(file);
-		}, { once: true });
+		input.addEventListener(
+			"change",
+			() => {
+				const file = input.files?.[0];
+				if (file) openFile(file);
+			},
+			{ once: true },
+		);
 		input.click();
 	}, [openFile]);
 
@@ -438,33 +474,86 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		[editLyric, lyricLines, collapsedSections],
 	);
 
+	const calculateLineTargetScroll = useCallback(
+		(index: number) => {
+			const viewEl = viewElRef.current;
+			if (!viewEl) return null;
+			const visibleIndex = visibleItems.findIndex(
+				(item) => item.sourceIndex === index,
+			);
+			if (visibleIndex === -1) return null;
+
+			const targetEl = viewEl.querySelector<HTMLElement>(
+				`[data-lyric-line-index="${index}"]`,
+			);
+			if (targetEl) {
+				const viewRect = viewEl.getBoundingClientRect();
+				const wordsEl = targetEl.querySelector<HTMLElement>(
+					`.${styles.lyricWordsContainer}`,
+				);
+				const contentEl =
+					toolMode === ToolMode.Sync && wordsEl ? wordsEl : targetEl;
+				const contentRect = contentEl.getBoundingClientRect();
+				const contentTopInScroll =
+					contentRect.top - viewRect.top + viewEl.scrollTop;
+				const contentHeight = contentRect.height;
+				const viewHeight = viewEl.clientHeight;
+
+				return Math.max(
+					0,
+					Math.round(contentTopInScroll - (viewHeight - contentHeight) / 2),
+				);
+			}
+
+			// If targetEl is not mounted in DOM yet by ViewportList, use estimated position
+			const estimatedLineHeight = toolMode === ToolMode.Sync ? 65 : 44;
+			const pad =
+				toolMode === ToolMode.Sync && viewEl
+					? Number.parseFloat(getComputedStyle(viewEl).paddingTop) || 0
+					: 0;
+			const estimatedTop = pad + visibleIndex * estimatedLineHeight;
+			return Math.max(
+				0,
+				estimatedTop - (viewEl.clientHeight - estimatedLineHeight) / 2,
+			);
+		},
+		[visibleItems, toolMode],
+	);
+
 	const scrollToLineIndex = useCallback(
 		(index: number, smooth = false) => {
 			const viewEl = viewElRef.current;
 			if (!viewEl) return;
-			const targetEl = viewEl.querySelector<HTMLElement>(`[data-lyric-line-index="${index}"]`);
-			if (targetEl && smooth) {
-				targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
-				return;
-			}
-			const viewContainerEl = viewEl.parentElement;
-			if (!viewContainerEl) return;
-			const visibleIndex = visibleItems.findIndex(
-				(item) => item.sourceIndex === index,
-			);
-			if (visibleIndex === -1) return;
-			viewRef.current?.scrollToIndex({
-				index: visibleIndex,
-				offset: viewContainerEl.clientHeight / -2 + 50,
-			});
+			const getTarget = () => {
+				const target = calculateLineTargetScroll(index);
+				return target !== null ? Math.max(0, target) : viewEl.scrollTop;
+			};
+			const initialTarget = getTarget();
+
 			if (smooth) {
+				activeScrollControllerRef.current?.cancel();
+				activeScrollControllerRef.current = smoothScrollContainer(
+					viewEl,
+					getTarget,
+					() => {
+						isProgrammaticScrollingRef.current = true;
+					},
+					() => {
+						isProgrammaticScrollingRef.current = false;
+						activeScrollControllerRef.current = null;
+					},
+				);
+			} else {
+				activeScrollControllerRef.current?.cancel();
+				activeScrollControllerRef.current = null;
+				isProgrammaticScrollingRef.current = true;
+				viewEl.scrollTop = initialTarget;
 				requestAnimationFrame(() => {
-					const el = viewEl.querySelector<HTMLElement>(`[data-lyric-line-index="${index}"]`);
-					el?.scrollIntoView({ behavior: "smooth", block: "center" });
+					isProgrammaticScrollingRef.current = false;
 				});
 			}
 		},
-		[visibleItems],
+		[calculateLineTargetScroll],
 	);
 	const restoreEditorAnchorOnListReady = useCallback(
 		(instance: ViewportListRef | null) => {
@@ -552,62 +641,210 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	}, [updateEditorAnchor]);
 
 	const syncAutoScroll = useAtomValue(syncAutoScrollAtom);
+	const editAutoScroll = useAtomValue(editAutoScrollAtom);
 	const syncFocusMainLine = useAtomValue(syncFocusMainLineAtom);
-	const userScrolledAtRef = useRef<number>(0);
+	const isAutoScrollActive =
+		(toolMode === ToolMode.Sync && syncAutoScroll) ||
+		(toolMode === ToolMode.Edit && editAutoScroll);
 
 	const handleLocate = useCallback(() => {
-		const currentTime = store.get(currentTimeAtom);
+		const curTime = store.get(currentTimeAtom);
 		const lyricLines = store.get(lyricLinesAtom).lyricLines;
-		const index = findCurrentLineIndex(lyricLines, currentTime, syncFocusMainLine);
+		let index = findCurrentLineIndex(lyricLines, curTime, syncFocusMainLine);
+		if (index === -1 && lyricLines.length > 0) {
+			for (let i = lyricLines.length - 1; i >= 0; i--) {
+				if (lyricLines[i].endTime > lyricLines[i].startTime) {
+					index = i;
+					break;
+				}
+			}
+		}
+		if (index === -1 && lyricLines.length > 0) {
+			index = 0;
+		}
 		if (index === -1) return;
+
+		store.set(selectedLinesAtom, new Set());
+		pauseUntilRef.current = 0;
+		lastActiveLineIndexRef.current = index;
 		scrollToLineIndex(index, true);
 	}, [store, syncFocusMainLine, scrollToLineIndex]);
 
-	// Pause auto-scroll for 1 second when the user manually scrolls with the wheel,
-	// then immediately resume by scrolling back to the current active line.
-	useEffect(() => {
-		if (toolMode !== ToolMode.Sync || !syncAutoScroll) return;
-		const viewEl = viewElRef.current;
-		if (!viewEl) return;
-		let resumeTimer: ReturnType<typeof setTimeout> | null = null;
-		const onWheel = () => {
-			userScrolledAtRef.current = Date.now();
-			if (resumeTimer !== null) clearTimeout(resumeTimer);
-			resumeTimer = setTimeout(() => {
-				resumeTimer = null;
-				// Only resume if playback is actually running
-				if (!store.get(audioPlayingAtom)) return;
-				const currentTime = store.get(currentTimeAtom);
-				const lines = store.get(lyricLinesAtom).lyricLines;
-				const index = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
-				if (index !== -1) {
-					lastScrolledIndexRef.current = index;
-					scrollToLineIndex(index, true);
-				}
-			}, 1000);
-		};
-		viewEl.addEventListener("wheel", onWheel, { passive: true });
-		return () => {
-			viewEl.removeEventListener("wheel", onWheel);
-			if (resumeTimer !== null) clearTimeout(resumeTimer);
-		};
-	}, [toolMode, syncAutoScroll, store, syncFocusMainLine, scrollToLineIndex]);
+	useKeyBindingAtom(keyLocateActiveLineAtom, handleLocate, [handleLocate]);
 
 	useEffect(() => {
-		if (toolMode !== ToolMode.Sync || !syncAutoScroll) return;
-		return store.sub(currentTimeAtom, () => {
-			// Skip if playback is paused or user scrolled within the last second
-			if (!store.get(audioPlayingAtom)) return;
-			if (Date.now() - userScrolledAtRef.current < 1000) return;
-			const currentTime = store.get(currentTimeAtom);
-			const lines = store.get(lyricLinesAtom).lyricLines;
-			const index = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
-			if (index !== -1 && index !== lastScrolledIndexRef.current) {
-				lastScrolledIndexRef.current = index;
-				scrollToLineIndex(index, true);
+		const el = viewElRef.current;
+		if (!el) return;
+		let prevHeight = el.clientHeight;
+
+		const ro = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				const newHeight = entry.contentRect.height;
+				if (Math.abs(newHeight - prevHeight) > 3) {
+					prevHeight = newHeight;
+					// When spectrogram is being actively resized, do not fight or re-scroll on mouse jitter
+					if (store.get(isSpectrogramResizingAtom)) return;
+					if (store.get(selectedLinesAtom).size === 0) {
+						let targetLine = -1;
+						if (store.get(audioPlayingAtom)) {
+							const curTime = store.get(currentTimeAtom);
+							const lines = store.get(lyricLinesAtom).lyricLines;
+							targetLine = findCurrentLineIndex(
+								lines,
+								curTime,
+								syncFocusMainLine,
+							);
+						} else if (lastActiveLineIndexRef.current !== undefined) {
+							targetLine = lastActiveLineIndexRef.current;
+						}
+						if (targetLine !== -1) {
+							scrollToLineIndex(targetLine, false);
+						}
+					}
+				}
 			}
 		});
-	}, [store, toolMode, syncAutoScroll, syncFocusMainLine, scrollToLineIndex]);
+		ro.observe(el);
+		return () => ro.disconnect();
+	}, [syncFocusMainLine, scrollToLineIndex, store]);
+
+	useEffect(() => {
+		if (isSpectrogramResizing) return;
+		const viewEl = viewElRef.current;
+		if (!viewEl || store.get(selectedLinesAtom).size > 0) return;
+		let targetLine = -1;
+		if (store.get(audioPlayingAtom)) {
+			const curTime = store.get(currentTimeAtom);
+			const lines = store.get(lyricLinesAtom).lyricLines;
+			targetLine = findCurrentLineIndex(lines, curTime, syncFocusMainLine);
+		} else if (lastActiveLineIndexRef.current !== undefined) {
+			targetLine = lastActiveLineIndexRef.current;
+		}
+		if (targetLine !== -1) {
+			scrollToLineIndex(targetLine, false);
+		}
+	}, [isSpectrogramResizing, scrollToLineIndex, syncFocusMainLine, store]);
+
+	const verticalPadding = useMemo(() => {
+		if (toolMode !== ToolMode.Sync) return undefined;
+		return "clamp(24px, 12vh, 80px) 0";
+	}, [toolMode]);
+
+	useEffect(() => {
+		const onUserInteraction = () => {
+			activeScrollControllerRef.current?.cancel();
+			activeScrollControllerRef.current = null;
+			isProgrammaticScrollingRef.current = false;
+			pauseUntilRef.current = performance.now() + 3500;
+			lastActiveLineIndexRef.current = undefined;
+		};
+		const onScroll = () => {
+			const el = viewElRef.current;
+			if (!el) return;
+
+			// Do not treat programmatic animation or smooth transitions as user interruption
+			if (isProgrammaticScrollingRef.current) {
+				return;
+			}
+
+			// User scrolled via native scrollbar dragging, track click, or keyboard arrows
+			pauseUntilRef.current = performance.now() + 3500;
+			lastActiveLineIndexRef.current = undefined;
+		};
+
+		const el = viewElRef.current;
+		el?.addEventListener("scroll", onScroll, { passive: true });
+		window.addEventListener("wheel", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener("touchmove", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener("touchstart", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener("pointerdown", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener("mousedown", onUserInteraction, {
+			capture: true,
+			passive: true,
+		});
+
+		return () => {
+			activeScrollControllerRef.current?.cancel();
+			activeScrollControllerRef.current = null;
+			el?.removeEventListener("scroll", onScroll);
+			window.removeEventListener("wheel", onUserInteraction, true);
+			window.removeEventListener("touchmove", onUserInteraction, true);
+			window.removeEventListener("touchstart", onUserInteraction, true);
+			window.removeEventListener("pointerdown", onUserInteraction, true);
+			window.removeEventListener("mousedown", onUserInteraction, true);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!isAutoScrollActive || isSpectrogramResizing) {
+			lastActiveLineIndexRef.current = undefined;
+			return;
+		}
+
+		if (!audioPlaying || selectedLines.size > 0) {
+			activeScrollControllerRef.current?.cancel();
+			activeScrollControllerRef.current = null;
+			lastActiveLineIndexRef.current = undefined;
+			return;
+		}
+
+		const now = performance.now();
+		if (now < pauseUntilRef.current) {
+			const remaining = pauseUntilRef.current - now;
+			const timer = setTimeout(() => {
+				if (
+					!store.get(audioPlayingAtom) ||
+					store.get(selectedLinesAtom).size > 0
+				)
+					return;
+				const curTime = store.get(currentTimeAtom);
+				const lines = store.get(lyricLinesAtom).lyricLines;
+				const idx = findCurrentLineIndex(lines, curTime, syncFocusMainLine);
+				if (idx !== -1 && idx !== lastActiveLineIndexRef.current) {
+					lastActiveLineIndexRef.current = idx;
+					scrollToLineIndex(idx, true);
+				}
+			}, remaining);
+			return () => clearTimeout(timer);
+		}
+
+		const lyricLines = store.get(lyricLinesAtom).lyricLines;
+		const index = findCurrentLineIndex(
+			lyricLines,
+			currentTime,
+			syncFocusMainLine,
+		);
+		if (index === -1) {
+			activeScrollControllerRef.current?.cancel();
+			activeScrollControllerRef.current = null;
+			return;
+		}
+
+		if (index === lastActiveLineIndexRef.current) return;
+		lastActiveLineIndexRef.current = index;
+		scrollToLineIndex(index, true);
+	}, [
+		isAutoScrollActive,
+		isSpectrogramResizing,
+		audioPlaying,
+		selectedLines.size,
+		currentTime,
+		syncFocusMainLine,
+		store,
+		scrollToLineIndex,
+	]);
 
 	useImperativeHandle(ref, () => viewElRef.current as HTMLDivElement, []);
 
@@ -631,7 +868,13 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					)}
 				</Text>
 				<Flex gap="2" wrap="wrap" justify="center" mt="2">
-					<Button onClick={() => { setGuideStep(0); setGuidePanel(false); setGuideWelcome(true); }}>
+					<Button
+						onClick={() => {
+							setGuideStep(0);
+							setGuidePanel(false);
+							setGuideWelcome(true);
+						}}
+					>
 						{t("beginnerGuide.empty.start", "Start Guide")}
 					</Button>
 					<Button variant="soft" onClick={() => setImportChooser(true)}>
@@ -644,14 +887,19 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			</Flex>
 		);
 	return (
-		<Flex data-guide-target="editor" direction="column" flexGrow="1" className={styles.lyricLinesWrapper}>
+		<Flex
+			data-guide-target="editor"
+			direction="column"
+			flexGrow="1"
+			className={styles.lyricLinesWrapper}
+		>
 			<SectionMetadataDialog />
 			<SectionManagerDialog />
 			<CategorizeSelectionDialog />
 			<Box
 				flexGrow="1"
 				style={{
-					padding: toolMode === ToolMode.Sync ? "20vh 0" : undefined,
+					padding: verticalPadding,
 					height: "100%",
 					maxHeight: "100%",
 					overflowY: "auto",
@@ -660,7 +908,8 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				ref={viewElRef}
 			>
 				<ViewportList
-					overscan={10}
+					overscan={25}
+					itemSize={toolMode === ToolMode.Sync ? 65 : 44}
 					items={visibleItems}
 					ref={restoreEditorAnchorOnListReady}
 					viewportRef={viewElRef}
@@ -674,14 +923,16 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					)}
 				</ViewportList>
 			</Box>
-			<Button
-				className={styles.locateButton}
-				variant="soft"
-				onClick={handleLocate}
-				title={t("lyricEditor.locate", "定位")}
-			>
-				<MyLocation24Regular />
-			</Button>
+			{(toolMode === ToolMode.Sync || toolMode === ToolMode.Edit) && (
+				<Button
+					className={styles.locateButton}
+					variant="soft"
+					onClick={handleLocate}
+					title={t("lyricEditor.locate", "定位")}
+				>
+					<MyLocation24Regular />
+				</Button>
+			)}
 		</Flex>
 	);
 });

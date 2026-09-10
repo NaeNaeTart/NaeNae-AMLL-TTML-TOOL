@@ -28,6 +28,7 @@ export const spectrogramFftSizeAtom = atomWithStorage<number>(
 	"settings_spectrogramFftSize",
 	1024,
 );
+export const isSpectrogramResizingAtom = atom(false);
 
 const icyBluePalette = {
 	id: "icy_blue",

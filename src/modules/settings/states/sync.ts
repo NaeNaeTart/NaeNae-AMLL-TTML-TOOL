@@ -25,6 +25,15 @@ export const syncCommitOffsetAtom = atomWithStorage("syncCommitOffset", 0);
 export const syncWordWrapAtom = atomWithStorage("syncWordWrap", true);
 export const syncFocusMainLineAtom = atomWithStorage("syncFocusMainLine", true);
 export const syncAutoScrollAtom = atomWithStorage("syncAutoScroll", true);
+export const editAutoScrollAtom = atomWithStorage("editAutoScroll", false);
+export const editActiveLineHighlightAtom = atomWithStorage(
+	"editActiveLineHighlight",
+	false,
+);
+export const timingOverviewAutoScrollAtom = atomWithStorage(
+	"timingOverviewAutoScroll",
+	false,
+);
 export const spectrogramHoverSyncEnabledAtom = atomWithStorage(
 	"spectrogramHoverSyncEnabled",
 	false,

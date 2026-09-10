@@ -9,17 +9,7 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-import React, {
-	forwardRef,
-	useCallback,
-	useEffect,
-	useId,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-	type FC,
-} from "react";
+import { QuestionCircle16Regular } from "@fluentui/react-icons";
 import {
 	Button,
 	Checkbox,
@@ -34,13 +24,23 @@ import {
 	Text,
 	TextField,
 } from "@radix-ui/themes";
-import { QuestionCircle16Regular } from "@fluentui/react-icons";
 import { atom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
+import React, {
+	type FC,
+	forwardRef,
+	useCallback,
+	useEffect,
+	useId,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { Beaker24Regular } from "@fluentui/react-icons";
-
+import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
+import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
 import {
 	displayRomanizationInSyncAtom,
 	LayoutMode,
@@ -48,8 +48,11 @@ import {
 	showLineRomanizationAtom,
 	showLineTranslationAtom,
 	showWordRomanizationInputAtom,
-	experimentalFeaturesDialogOpenAtom,
 } from "$/modules/settings/states/index.ts";
+import {
+	editActiveLineHighlightAtom,
+	editAutoScrollAtom,
+} from "$/modules/settings/states/sync.ts";
 import {
 	editingTimeFieldAtom,
 	lyricLinesAtom,
@@ -57,17 +60,11 @@ import {
 	selectedLinesAtom,
 	selectedWordsAtom,
 	showEndTimeAsDurationAtom,
-	toolModeAtom,
 } from "$/states/main.ts";
-import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { type LyricLine, type LyricWord, newLyricLine } from "$/types/ttml";
+import { buildLineRomanization, getPhoneticSyllables } from "$/utils/phonetic";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
-import {
-	buildLineRomanization,
-	getPhoneticSyllables,
-} from "$/utils/phonetic";
 import { RibbonFrame, RibbonSection } from "./common";
-import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
 
 const GrammarCheckButton = () => {
 	const { t } = useTranslation();
@@ -407,7 +404,11 @@ function EditField<
 				<Button
 					size="1"
 					variant="ghost"
-					style={{ justifyContent: "flex-start", paddingLeft: "0px", marginLeft: 0 }}
+					style={{
+						justifyContent: "flex-start",
+						paddingLeft: "0px",
+						marginLeft: 0,
+					}}
 					onClick={() => setShowDurationInput((v) => !v)}
 				>
 					{showDurationInput
@@ -415,7 +416,11 @@ function EditField<
 						: label}
 				</Button>
 			) : (
-				<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+				<Text
+					wrap="nowrap"
+					size="1"
+					style={{ color: "var(--ribbon-label-color)" }}
+				>
 					{label}
 				</Text>
 			)}
@@ -522,7 +527,11 @@ function CheckboxField<
 
 	return (
 		<>
-			<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+			<Text
+				wrap="nowrap"
+				size="1"
+				style={{ color: "var(--ribbon-label-color)" }}
+			>
 				<label htmlFor={checkboxId}>{label}</label>
 			</Text>
 			<Checkbox
@@ -572,12 +581,20 @@ function EditModeField({
 			size="1"
 		>
 			<Flex gapY="3" direction="column">
-				<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+				<Text
+					wrap="nowrap"
+					size="1"
+					style={{ color: "var(--ribbon-label-color)" }}
+				>
 					<RadioGroup.Item value={LayoutMode.Simple}>
 						{simpleModeLabel}
 					</RadioGroup.Item>
 				</Text>
-				<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+				<Text
+					wrap="nowrap"
+					size="1"
+					style={{ color: "var(--ribbon-label-color)" }}
+				>
 					<RadioGroup.Item value={LayoutMode.Advance}>
 						{advanceModeLabel}
 					</RadioGroup.Item>
@@ -752,14 +769,18 @@ const PhoneticSection = () => {
 	const [loading, setLoading] = useState(false);
 	const [lang, setLang] = useState<"auto" | "ja" | "zh" | "ko">("auto");
 
-
 	const handleAutoFetch = useCallback(async () => {
 		setLoading(true);
 		try {
 			const { lyricLines: originalLines } = store.get(lyricLinesAtom);
-			
+
 			if (selectedLines.size === 0 && selectedWords.size === 0) {
-				toast.info(t("ribbonBar.editMode.phonetic.noSelection", "Please select lines or words first"));
+				toast.info(
+					t(
+						"ribbonBar.editMode.phonetic.noSelection",
+						"Please select lines or words first",
+					),
+				);
 				return;
 			}
 
@@ -772,9 +793,9 @@ const PhoneticSection = () => {
 				);
 				for (const line of targetLines) {
 					// Pass word arrays directly to ensure capsule-aware mapping
-					const capsuleTexts = line.words.map(w => w.word);
+					const capsuleTexts = line.words.map((w) => w.word);
 					if (capsuleTexts.join("").trim().length === 0) continue;
-					
+
 					// Get line-level phonetic data
 					const lineSyllables = await getPhoneticSyllables(capsuleTexts, lang);
 
@@ -786,10 +807,12 @@ const PhoneticSection = () => {
 					}
 				}
 			} else {
-				const targetLines = originalLines.filter((l) => selectedLines.has(l.id));
+				const targetLines = originalLines.filter((l) =>
+					selectedLines.has(l.id),
+				);
 				for (const line of targetLines) {
 					// Join for the line summary, but process capsules for word updates
-					const capsuleTexts = line.words.map(w => w.word);
+					const capsuleTexts = line.words.map((w) => w.word);
 					if (line.words.length > 0) {
 						// Distribute using capsule-aware mapping
 						const syllables = await getPhoneticSyllables(capsuleTexts, lang);
@@ -816,10 +839,17 @@ const PhoneticSection = () => {
 					}
 				}
 			});
-			toast.success(t("ribbonBar.editMode.phonetic.success", "Phonetics fetched successfully"));
+			toast.success(
+				t(
+					"ribbonBar.editMode.phonetic.success",
+					"Phonetics fetched successfully",
+				),
+			);
 		} catch (e) {
 			console.error(e);
-			toast.error(t("ribbonBar.editMode.phonetic.error", "Failed to fetch phonetics"));
+			toast.error(
+				t("ribbonBar.editMode.phonetic.error", "Failed to fetch phonetics"),
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -828,24 +858,39 @@ const PhoneticSection = () => {
 	const displayRomanization = useAtomValue(displayRomanizationInSyncAtom);
 
 	return (
-		<RibbonSection 
+		<RibbonSection
 			label={
 				<Flex gap="1" align="center">
 					{t("ribbonBar.editMode.romanization.section", "Romanization")}
 					<Popover.Root>
 						<Popover.Trigger>
-							<IconButton size="1" variant="ghost" style={{ cursor: "pointer" }}>
+							<IconButton
+								size="1"
+								variant="ghost"
+								style={{ cursor: "pointer" }}
+							>
 								<QuestionCircle16Regular />
 							</IconButton>
 						</Popover.Trigger>
 						<Popover.Content size="1" style={{ width: 300 }}>
 							<Flex direction="column" gap="2">
-								<Text size="2" weight="bold">{t("ribbonBar.editMode.romanization.info.title", "About Romanization")}</Text>
-								<Text size="1">
-									{t("ribbonBar.editMode.romanization.info.canDo", "✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!")}
+								<Text size="2" weight="bold">
+									{t(
+										"ribbonBar.editMode.romanization.info.title",
+										"About Romanization",
+									)}
 								</Text>
 								<Text size="1">
-									{t("ribbonBar.editMode.romanization.info.cannotDo", "✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur.")}
+									{t(
+										"ribbonBar.editMode.romanization.info.canDo",
+										"✓ Can do: Auto-generate Romaji (JA), Pinyin (ZH), and Romaji (KO). Supports Kanji!",
+									)}
+								</Text>
+								<Text size="1">
+									{t(
+										"ribbonBar.editMode.romanization.info.cannotDo",
+										"✗ Cannot do: 100% accuracy for rare Kanji or proper names. CJK only. Minor errors may occur.",
+									)}
 								</Text>
 							</Flex>
 						</Popover.Content>
@@ -854,25 +899,58 @@ const PhoneticSection = () => {
 			}
 		>
 			<Grid columns="2" gap="2" align="center">
-				<Select.Root value={lang} onValueChange={(v) => setLang(v as "auto" | "ja" | "zh" | "ko" | "yue")} size="1">
+				<Select.Root
+					value={lang}
+					onValueChange={(v) =>
+						setLang(v as "auto" | "ja" | "zh" | "ko" | "yue")
+					}
+					size="1"
+				>
 					<Select.Trigger />
 					<Select.Content>
-						<Select.Item value="auto">{t("common.autoDetect", "Auto Detect")}</Select.Item>
-						<Select.Item value="ja">{t("ribbonBar.editMode.romanization.ja", "Japanese (Romaji)")}</Select.Item>
-						<Select.Item value="zh">{t("ribbonBar.editMode.romanization.zh", "Chinese (Pinyin)")}</Select.Item>
-						<Select.Item value="yue">{t("ribbonBar.editMode.romanization.yue", "Cantonese (Jyutping)")}</Select.Item>
-						<Select.Item value="ko">{t("ribbonBar.editMode.romanization.ko", "Korean (Romaji)")}</Select.Item>
+						<Select.Item value="auto">
+							{t("common.autoDetect", "Auto Detect")}
+						</Select.Item>
+						<Select.Item value="ja">
+							{t("ribbonBar.editMode.romanization.ja", "Japanese (Romaji)")}
+						</Select.Item>
+						<Select.Item value="zh">
+							{t("ribbonBar.editMode.romanization.zh", "Chinese (Pinyin)")}
+						</Select.Item>
+						<Select.Item value="yue">
+							{t("ribbonBar.editMode.romanization.yue", "Cantonese (Jyutping)")}
+						</Select.Item>
+						<Select.Item value="ko">
+							{t("ribbonBar.editMode.romanization.ko", "Korean (Romaji)")}
+						</Select.Item>
 					</Select.Content>
 				</Select.Root>
-				<Button size="1" variant="soft" onClick={handleAutoFetch} disabled={loading}>
-					{loading ? <Spinner size="1" /> : t("ribbonBar.editMode.romanization.autoFetch", "Romanize")}
+				<Button
+					size="1"
+					variant="soft"
+					onClick={handleAutoFetch}
+					disabled={loading}
+				>
+					{loading ? (
+						<Spinner size="1" />
+					) : (
+						t("ribbonBar.editMode.romanization.autoFetch", "Romanize")
+					)}
 				</Button>
-				<Flex gap="2" align="center" style={{ gridColumn: "span 2", justifyContent: "center" }}>
-					<Text size="1" color="gray">{t("settings.common.enabled", "Enabled")}</Text>
-					<Switch 
-						size="1" 
-						checked={displayRomanization} 
-						onCheckedChange={(checked) => store.set(displayRomanizationInSyncAtom, checked)} 
+				<Flex
+					gap="2"
+					align="center"
+					style={{ gridColumn: "span 2", justifyContent: "center" }}
+				>
+					<Text size="1" color="gray">
+						{t("settings.common.enabled", "Enabled")}
+					</Text>
+					<Switch
+						size="1"
+						checked={displayRomanization}
+						onCheckedChange={(checked) =>
+							store.set(displayRomanizationInSyncAtom, checked)
+						}
 					/>
 				</Flex>
 			</Grid>
@@ -880,38 +958,87 @@ const PhoneticSection = () => {
 	);
 };
 
-export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDivElement, { isSidebar?: boolean }>(
-	({ isSidebar }, ref) => {
-		const store = useStore();
-		const editLyricLines = useSetImmerAtom(lyricLinesAtom);
-		const { t } = useTranslation();
-		const selectedLines = useAtomValue(selectedLinesAtom);
-		const selectedWords = useAtomValue(selectedWordsAtom);
-		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
+export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
+	HTMLDivElement,
+	{ isSidebar?: boolean }
+>(({ isSidebar }, ref) => {
+	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
+	const { t } = useTranslation();
+	const selectedLines = useAtomValue(selectedLinesAtom);
+	const selectedWords = useAtomValue(selectedWordsAtom);
+	const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
+	const [editAutoScroll, setEditAutoScroll] = useAtom(editAutoScrollAtom);
+	const [editActiveLineHighlight, setEditActiveLineHighlight] = useAtom(
+		editActiveLineHighlightAtom,
+	);
 
-		return (
-			<RibbonFrame
-				ref={ref}
+	return (
+		<RibbonFrame ref={ref} isSidebar={isSidebar} reserveControlRows={3}>
+			<RibbonSection
+				label={t("ribbonBar.editMode.new", "新建")}
 				isSidebar={isSidebar}
-				reserveControlRows={3}
 			>
-				<RibbonSection label={t("ribbonBar.editMode.new", "新建")} isSidebar={isSidebar}>
-					<Grid columns="1" gap="1" gapY="1" flexGrow="1" align="center">
-						<Button
-							size="1"
-							variant="soft"
-							onClick={() =>
-								editLyricLines((draft) => {
-									draft.lyricLines.push(newLyricLine());
-								})
-							}
-						>
-							{t("ribbonBar.editMode.lyricLine", "歌词行")}
-						</Button>
-					</Grid>
-				</RibbonSection>
-				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineTiming", "行时间戳")}>
-					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
+				<Grid columns="1" gap="1" gapY="1" flexGrow="1" align="center">
+					<Button
+						size="1"
+						variant="soft"
+						onClick={() =>
+							editLyricLines((draft) => {
+								draft.lyricLines.push(newLyricLine());
+							})
+						}
+					>
+						{t("ribbonBar.editMode.lyricLine", "歌词行")}
+					</Button>
+				</Grid>
+			</RibbonSection>
+			<RibbonSection
+				label={t("ribbonBar.editMode.playbackTracking", "Tracking")}
+				isSidebar={isSidebar}
+			>
+				<Grid
+					columns="max-content auto"
+					gap="2"
+					gapY="1"
+					flexGrow="1"
+					align="center"
+				>
+					<Text
+						wrap="nowrap"
+						size="1"
+						style={{ color: "var(--ribbon-label-color)" }}
+					>
+						{t("ribbonBar.editMode.autoScroll", "Auto-Scroll")}
+					</Text>
+					<Checkbox
+						checked={editAutoScroll}
+						onCheckedChange={(v) => setEditAutoScroll(Boolean(v))}
+					/>
+					<Text
+						wrap="nowrap"
+						size="1"
+						style={{ color: "var(--ribbon-label-color)" }}
+					>
+						{t("ribbonBar.editMode.highlightActiveLine", "Highlight Line")}
+					</Text>
+					<Checkbox
+						checked={editActiveLineHighlight}
+						onCheckedChange={(v) => setEditActiveLineHighlight(Boolean(v))}
+					/>
+				</Grid>
+			</RibbonSection>
+			{selectedLines.size > 0 && (
+				<RibbonSection
+					isSidebar={isSidebar}
+					label={t("ribbonBar.editMode.lineTiming", "行时间戳")}
+				>
+					<Grid
+						columns="max-content 1fr"
+						gap="2"
+						gapY="1"
+						flexGrow="1"
+						align="center"
+					>
 						<EditField
 							label={t("ribbonBar.editMode.startTime", "起始时间")}
 							fieldName="startTime"
@@ -925,9 +1052,20 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							formatter={msToTimestamp}
 						/>
 					</Grid>
-				</RibbonSection>}
-				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineProperties", "行属性")}>
-					<Grid columns="max-content max-content" gap="4" gapY="1" flexGrow="1" align="center">
+				</RibbonSection>
+			)}
+			{selectedLines.size > 0 && (
+				<RibbonSection
+					isSidebar={isSidebar}
+					label={t("ribbonBar.editMode.lineProperties", "行属性")}
+				>
+					<Grid
+						columns="max-content max-content"
+						gap="4"
+						gapY="1"
+						flexGrow="1"
+						align="center"
+					>
 						<CheckboxField
 							label={t("ribbonBar.editMode.bgLyric", "背景歌词")}
 							defaultValue={false}
@@ -947,10 +1085,23 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							defaultValue={false}
 						/>
 					</Grid>
-				</RibbonSection>}
-				{showAdvanced && (selectedLines.size > 0 || selectedWords.size > 0) && <PhoneticSection isSidebar={isSidebar} />}
-				{selectedWords.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.wordTiming", "词时间戳")}>
-					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
+				</RibbonSection>
+			)}
+			{showAdvanced && (selectedLines.size > 0 || selectedWords.size > 0) && (
+				<PhoneticSection isSidebar={isSidebar} />
+			)}
+			{selectedWords.size > 0 && (
+				<RibbonSection
+					isSidebar={isSidebar}
+					label={t("ribbonBar.editMode.wordTiming", "词时间戳")}
+				>
+					<Grid
+						columns="max-content 1fr"
+						gap="2"
+						gapY="1"
+						flexGrow="1"
+						align="center"
+					>
 						<EditField
 							label={t("ribbonBar.editMode.startTime", "起始时间")}
 							fieldName="startTime"
@@ -976,12 +1127,20 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							formatter={String}
 						/>
 					</Grid>
-				</RibbonSection>}
-				{selectedWords.size > 0 && <RibbonSection
+				</RibbonSection>
+			)}
+			{selectedWords.size > 0 && (
+				<RibbonSection
 					isSidebar={isSidebar}
 					label={t("ribbonBar.editMode.wordProperties", "单词属性")}
 				>
-					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
+					<Grid
+						columns="max-content 1fr"
+						gap="2"
+						gapY="1"
+						flexGrow="1"
+						align="center"
+					>
 						<EditField
 							label={t("ribbonBar.editMode.wordContent", "单词内容")}
 							fieldName="word"
@@ -1003,12 +1162,20 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							defaultValue={false}
 						/>
 					</Grid>
-				</RibbonSection>}
-				{showAdvanced && selectedLines.size > 0 && <RibbonSection
+				</RibbonSection>
+			)}
+			{showAdvanced && selectedLines.size > 0 && (
+				<RibbonSection
 					isSidebar={isSidebar}
 					label={t("ribbonBar.editMode.secondaryContent", "次要内容")}
 				>
-					<Grid columns="max-content 1fr" gap="2" gapY="1" flexGrow="1" align="center">
+					<Grid
+						columns="max-content 1fr"
+						gap="2"
+						gapY="1"
+						flexGrow="1"
+						align="center"
+					>
 						<EditField
 							label={t("ribbonBar.editMode.translatedLyric", "翻译歌词")}
 							fieldName="translatedLyric"
@@ -1024,8 +1191,13 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							textFieldStyle={{ width: "15em" }}
 						/>
 					</Grid>
-				</RibbonSection>}
-				{showAdvanced && <RibbonSection label={t("ribbonBar.editMode.layoutMode", "布局模式")} isSidebar={isSidebar}>
+				</RibbonSection>
+			)}
+			{showAdvanced && (
+				<RibbonSection
+					label={t("ribbonBar.editMode.layoutMode", "布局模式")}
+					isSidebar={isSidebar}
+				>
 					<EditModeField
 						simpleModeLabel={t(
 							"settings.common.layoutModeOptions.simple",
@@ -1036,24 +1208,34 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							"高级模式",
 						)}
 					/>
-				</RibbonSection>}
-				{showAdvanced && <RibbonSection
+				</RibbonSection>
+			)}
+			{showAdvanced && (
+				<RibbonSection
 					label={t("ribbonBar.editMode.auxiliaryLineDisplay", "辅助行显示")}
 					isSidebar={isSidebar}
 				>
 					<AuxiliaryDisplayField />
-				</RibbonSection>}
-				{showAdvanced && <RibbonSection label={t("ribbonBar.editMode.tools", "工具")} isSidebar={isSidebar}>
+				</RibbonSection>
+			)}
+			{showAdvanced && (
+				<RibbonSection
+					label={t("ribbonBar.editMode.tools", "工具")}
+					isSidebar={isSidebar}
+				>
 					<Flex gap="2" direction="column">
 						<GrammarCheckButton />
 					</Flex>
-				</RibbonSection>}
-				<RibbonSection label={t("ribbonBar.advanced", "Advanced")} isSidebar={isSidebar}>
-					<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
 				</RibbonSection>
-			</RibbonFrame>
-		);
-	},
-);
+			)}
+			<RibbonSection
+				label={t("ribbonBar.advanced", "Advanced")}
+				isSidebar={isSidebar}
+			>
+				<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+			</RibbonSection>
+		</RibbonFrame>
+	);
+});
 
 export default EditModeRibbonBar;

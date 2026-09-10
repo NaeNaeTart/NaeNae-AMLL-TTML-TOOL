@@ -30,7 +30,6 @@ export const cmdSaveFile = registerCommand(
 	"File",
 );
 
-
 // =========================================================================================
 //  编辑与选择
 // =========================================================================================
@@ -113,6 +112,13 @@ export const cmdSwitchPreviewMode = registerCommand(
 	"switchPreviewMode",
 	["Shift", "Digit3"],
 	t("settingsDialog.keybindings.switchPreviewMode"),
+	"View",
+);
+
+export const cmdLocateActiveLine = registerCommand(
+	"locateActiveLine",
+	[CONTROL_KEY, "Shift", "KeyL"],
+	t("settingsDialog.keybindings.locateActiveLine"),
 	"View",
 );
 
@@ -203,7 +209,6 @@ export const cmdUrbanDictionarySync = registerCommand(
 	t("settingsDialog.keybindings.urbanDictionarySync"),
 	"Sync",
 );
-
 
 export const cmdMoveFirstWordAndPlay = registerCommand(
 	"moveFirstWordAndPlay",

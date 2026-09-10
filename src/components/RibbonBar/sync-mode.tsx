@@ -39,6 +39,7 @@ import {
 	showTouchSyncPanelAtom,
 	spectrogramHoverSyncEnabledAtom,
 	syncLevelModeAtom,
+	syncAutoScrollAtom,
 	syncTimeOffsetAtom,
 	syncCommitOffsetAtom,
 	syncWordWrapAtom,
@@ -99,6 +100,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		);
 		const [showPreviewPanel, setShowPreviewPanel] =
 			useAtom(showPreviewPanelAtom);
+		const [syncAutoScroll, setSyncAutoScroll] = useAtom(syncAutoScrollAtom);
 		const [showTimestamps, setShowTimestamps] = useAtom(showTimestampsAtom);
 		const [highlightErrors, setHighlightErrors] = useAtom(highlightErrorsAtom);
 		const [highlightActiveWord, setHighlightActiveWord] = useAtom(
@@ -340,6 +342,17 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							flexGrow="1"
 							align="center"
 						>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--ribbon-label-color)" }}
+							>
+								{t("ribbonBar.syncMode.autoScroll", "Auto-Scroll")}
+							</Text>
+							<Checkbox
+								checked={syncAutoScroll}
+								onCheckedChange={(v) => setSyncAutoScroll(Boolean(v))}
+							/>
 							<Text
 								wrap="nowrap"
 								size="1"

@@ -1,4 +1,6 @@
+import { useSetAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { isSpectrogramResizingAtom } from "../states/index.ts";
 
 interface UseSpectrogramResizeProps {
 	initialHeight: number;
@@ -66,7 +68,7 @@ export const getAvailableSpectrogramMaxHeight = (
 		}
 	}
 
-	// Card border and safety margin
+	// Card border, resize handle margin and safety margin only
 	const safetyMargin = 4;
 	const bottomReserve =
 		playbackBarHeight + touchSyncHeight + bottomRibbonHeight + safetyMargin;
@@ -85,6 +87,7 @@ export const useSpectrogramResize = ({
 	maxHeight = 800,
 	onCommit,
 }: UseSpectrogramResizeProps) => {
+	const setIsSpectrogramResizing = useSetAtom(isSpectrogramResizingAtom);
 	const [dynamicMaxHeight, setDynamicMaxHeight] = useState(() =>
 		getAvailableSpectrogramMaxHeight(maxHeight, minHeight),
 	);
@@ -143,6 +146,7 @@ export const useSpectrogramResize = ({
 			e.stopPropagation();
 
 			setIsResizing(true);
+			setIsSpectrogramResizing(true);
 			const startY = e.clientY;
 			const startHeight = heightRef.current;
 			const currentMax = updateMaxHeight();
@@ -161,6 +165,7 @@ export const useSpectrogramResize = ({
 
 			const handleMouseUp = () => {
 				setIsResizing(false);
+				setIsSpectrogramResizing(false);
 
 				document.body.style.cursor = "";
 				document.body.style.userSelect = "";
@@ -173,15 +178,16 @@ export const useSpectrogramResize = ({
 			window.addEventListener("mousemove", handleMouseMove);
 			window.addEventListener("mouseup", handleMouseUp);
 		},
-		[minHeight, updateMaxHeight, onCommit],
+		[minHeight, updateMaxHeight, onCommit, setIsSpectrogramResizing],
 	);
 
 	useEffect(() => {
 		return () => {
 			document.body.style.cursor = "";
 			document.body.style.userSelect = "";
+			setIsSpectrogramResizing(false);
 		};
-	}, []);
+	}, [setIsSpectrogramResizing]);
 
 	return {
 		height,
