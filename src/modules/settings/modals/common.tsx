@@ -1,14 +1,18 @@
 import resources from "virtual:i18next-loader";
 import {
+	ArrowSortDownLines24Regular,
 	ContentView24Regular,
 	History24Regular,
 	Keyboard12324Regular,
 	LocalLanguage24Regular,
 	PaddingLeft24Regular,
 	PaddingRight24Regular,
+	PaintBrush24Regular,
 	Save24Regular,
 	Speaker224Regular,
+	Sparkle24Regular,
 	Stack24Regular,
+	Target24Regular,
 	TextWrap24Regular,
 	Timer24Regular,
 	TopSpeed24Regular,
@@ -591,7 +595,7 @@ export const SettingsCommonTab = ({
 				<Card>
 					<Text as="label">
 						<Flex gap="3" align="center">
-							<Timer24Regular />
+							<ArrowSortDownLines24Regular />
 							<Box flexGrow="1">
 								<Flex gap="2" align="center" justify="between">
 									<Flex direction="column" gap="1">
@@ -604,7 +608,7 @@ export const SettingsCommonTab = ({
 										<Text size="1" color="gray">
 											{t(
 												"settings.common.syncAutoScrollDesc",
-												"Automatically scrolls the editor view to follow the currently active lyric line during playback in the Time tab.",
+												"Automatically scrolls the editor view to follow the currently active lyric line during playback.",
 											)}
 										</Text>
 									</Flex>
@@ -620,7 +624,7 @@ export const SettingsCommonTab = ({
 				<Card style={{ opacity: syncAutoScroll ? 1 : 0.4, transition: "opacity 0.2s ease", pointerEvents: syncAutoScroll ? "auto" : "none" }}>
 					<Text as="label">
 						<Flex gap="3" align="center">
-							<Timer24Regular style={{ opacity: syncAutoScroll ? 1 : 0.5 }} />
+							<Target24Regular style={{ opacity: syncAutoScroll ? 1 : 0.5 }} />
 							<Box flexGrow="1">
 								<Flex gap="2" align="center" justify="between">
 									<Flex direction="column" gap="1">
@@ -633,7 +637,7 @@ export const SettingsCommonTab = ({
 										<Text size="1" color="gray">
 											{t(
 												"settings.common.syncFocusMainLineDesc",
-												"When playing back in the Time tab, focuses on active main lines and ignores background lines unless no main line is active.",
+												"When playing back, focuses on active main lines and ignores background lines unless no main line is active.",
 											)}
 										</Text>
 									</Flex>
@@ -653,7 +657,7 @@ export const SettingsCommonTab = ({
 				<Card>
 					<Text as="label">
 						<Flex gap="3" align="center">
-							<Timer24Regular />
+							<Sparkle24Regular />
 							<Box flexGrow="1">
 								<Flex gap="2" align="center" justify="between">
 									<Flex direction="column" gap="1">
@@ -706,7 +710,7 @@ export const SettingsCommonTab = ({
 				</Card>
 				<Card>
 					<Flex gap="3" align="center">
-						<ContentView24Regular />
+						<PaintBrush24Regular />
 						<Box flexGrow="1">
 							<Flex direction="column" gap="2" align="start">
 								<Text>

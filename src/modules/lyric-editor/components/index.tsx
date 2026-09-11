@@ -34,6 +34,8 @@ import {
 	syncAutoScrollAtom,
 	syncFocusMainLineAtom,
 } from "$/modules/settings/states/sync.ts";
+import { keyLocateActiveLineAtom } from "$/states/keybindings.ts";
+import { useKeyBindingAtom } from "$/utils/keybindings.ts";
 import {
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
@@ -416,7 +418,8 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		[toolMode],
 	);
 	const scrollToIndex = useAtomValue(scrollToIndexAtom);
-	const lastScrolledIndexRef = useRef<number | undefined>(undefined);
+	const lastSelectionScrolledIndexRef = useRef<number | undefined>(undefined);
+	const lastPlaybackScrolledIndexRef = useRef<number | undefined>(undefined);
 	const lyricLines = useAtomValue(lyricLinesAtom).lyricLines;
 	const collapsedSections = useAtomValue(collapsedSectionIdsAtom);
 	const visibleItems = useMemo(
@@ -439,12 +442,24 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	);
 
 	const scrollToLineIndex = useCallback(
-		(index: number, smooth = false) => {
+		(index: number, smooth = true) => {
 			const viewEl = viewElRef.current;
 			if (!viewEl) return;
-			const targetEl = viewEl.querySelector<HTMLElement>(`[data-lyric-line-index="${index}"]`);
-			if (targetEl && smooth) {
-				targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+			const targetEl = viewEl.querySelector<HTMLElement>(
+				`[data-lyric-line-index="${index}"]`,
+			);
+			if (targetEl) {
+				const targetRect = targetEl.getBoundingClientRect();
+				const viewRect = viewEl.getBoundingClientRect();
+				const targetTop =
+					viewEl.scrollTop +
+					(targetRect.top - viewRect.top) -
+					viewEl.clientHeight / 2 +
+					targetRect.height / 2;
+				viewEl.scrollTo({
+					top: Math.max(0, targetTop),
+					behavior: smooth ? "smooth" : "auto",
+				});
 				return;
 			}
 			const viewContainerEl = viewEl.parentElement;
@@ -459,8 +474,22 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			});
 			if (smooth) {
 				requestAnimationFrame(() => {
-					const el = viewEl.querySelector<HTMLElement>(`[data-lyric-line-index="${index}"]`);
-					el?.scrollIntoView({ behavior: "smooth", block: "center" });
+					const el = viewEl.querySelector<HTMLElement>(
+						`[data-lyric-line-index="${index}"]`,
+					);
+					if (el) {
+						const elRect = el.getBoundingClientRect();
+						const vRect = viewEl.getBoundingClientRect();
+						const targetTop =
+							viewEl.scrollTop +
+							(elRect.top - vRect.top) -
+							viewEl.clientHeight / 2 +
+							elRect.height / 2;
+						viewEl.scrollTo({
+							top: Math.max(0, targetTop),
+							behavior: "smooth",
+						});
+					}
 				});
 			}
 		},
@@ -516,11 +545,13 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	useEffect(() => {
 		if (
 			scrollToIndex === undefined ||
-			scrollToIndex === lastScrolledIndexRef.current
+			scrollToIndex === lastSelectionScrolledIndexRef.current
 		)
 			return;
-		lastScrolledIndexRef.current = scrollToIndex;
-		scrollToLineIndex(scrollToIndex);
+		lastSelectionScrolledIndexRef.current = scrollToIndex;
+		// Suspend playback auto-scroll briefly when selection/sync jumps to a line
+		userScrolledAtRef.current = Date.now();
+		scrollToLineIndex(scrollToIndex, true);
 	}, [scrollToIndex, scrollToLineIndex]);
 
 	const updateEditorAnchor = useCallback(() => {
@@ -553,61 +584,71 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 
 	const syncAutoScroll = useAtomValue(syncAutoScrollAtom);
 	const syncFocusMainLine = useAtomValue(syncFocusMainLineAtom);
-	const userScrolledAtRef = useRef<number>(0);
+	const userLockedRef = useRef(false);
+	const lastKnownTimeRef = useRef(0);
+
+	const isAutoScrollActive =
+		(toolMode === ToolMode.Sync || toolMode === ToolMode.Edit) &&
+		syncAutoScroll;
 
 	const handleLocate = useCallback(() => {
 		const currentTime = store.get(currentTimeAtom);
 		const lyricLines = store.get(lyricLinesAtom).lyricLines;
 		const index = findCurrentLineIndex(lyricLines, currentTime, syncFocusMainLine);
 		if (index === -1) return;
+		userLockedRef.current = false;
+		lastPlaybackScrolledIndexRef.current = index;
 		scrollToLineIndex(index, true);
 	}, [store, syncFocusMainLine, scrollToLineIndex]);
 
-	// Pause auto-scroll for 1 second when the user manually scrolls with the wheel,
-	// then immediately resume by scrolling back to the current active line.
+	useKeyBindingAtom(keyLocateActiveLineAtom, handleLocate, [handleLocate]);
+
+	// Lock auto-scroll when user manually scrolls or clicks/interacts inside the viewport
 	useEffect(() => {
-		if (toolMode !== ToolMode.Sync || !syncAutoScroll) return;
+		if (!isAutoScrollActive) return;
 		const viewEl = viewElRef.current;
 		if (!viewEl) return;
-		let resumeTimer: ReturnType<typeof setTimeout> | null = null;
-		const onWheel = () => {
-			userScrolledAtRef.current = Date.now();
-			if (resumeTimer !== null) clearTimeout(resumeTimer);
-			resumeTimer = setTimeout(() => {
-				resumeTimer = null;
-				// Only resume if playback is actually running
-				if (!store.get(audioPlayingAtom)) return;
-				const currentTime = store.get(currentTimeAtom);
-				const lines = store.get(lyricLinesAtom).lyricLines;
-				const index = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
-				if (index !== -1) {
-					lastScrolledIndexRef.current = index;
-					scrollToLineIndex(index, true);
-				}
-			}, 1000);
+
+		const onUserInteraction = (evt: Event) => {
+			if ((evt.target as HTMLElement | null)?.closest(`.${styles.locateButton}`))
+				return;
+			userLockedRef.current = true;
 		};
-		viewEl.addEventListener("wheel", onWheel, { passive: true });
+
+		viewEl.addEventListener("wheel", onUserInteraction, { passive: true });
+		viewEl.addEventListener("touchmove", onUserInteraction, { passive: true });
+		viewEl.addEventListener("pointerdown", onUserInteraction, { passive: true });
 		return () => {
-			viewEl.removeEventListener("wheel", onWheel);
-			if (resumeTimer !== null) clearTimeout(resumeTimer);
+			viewEl.removeEventListener("wheel", onUserInteraction);
+			viewEl.removeEventListener("touchmove", onUserInteraction);
+			viewEl.removeEventListener("pointerdown", onUserInteraction);
 		};
-	}, [toolMode, syncAutoScroll, store, syncFocusMainLine, scrollToLineIndex]);
+	}, [isAutoScrollActive]);
 
 	useEffect(() => {
-		if (toolMode !== ToolMode.Sync || !syncAutoScroll) return;
+		if (!isAutoScrollActive) return;
 		return store.sub(currentTimeAtom, () => {
-			// Skip if playback is paused or user scrolled within the last second
-			if (!store.get(audioPlayingAtom)) return;
-			if (Date.now() - userScrolledAtRef.current < 1000) return;
 			const currentTime = store.get(currentTimeAtom);
+			// If audio seek occurred (jumped > 1.5s), unlock auto-scroll and resume tracking
+			if (Math.abs(currentTime - lastKnownTimeRef.current) > 1500) {
+				userLockedRef.current = false;
+			}
+			lastKnownTimeRef.current = currentTime;
+
+			// Skip if playback is paused, user locked view to a line/scroll position, or an input is focused
+			if (!store.get(audioPlayingAtom)) return;
+			if (userLockedRef.current) return;
+			const activeTag = document.activeElement?.tagName;
+			if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
+
 			const lines = store.get(lyricLinesAtom).lyricLines;
 			const index = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
-			if (index !== -1 && index !== lastScrolledIndexRef.current) {
-				lastScrolledIndexRef.current = index;
+			if (index !== -1 && index !== lastPlaybackScrolledIndexRef.current) {
+				lastPlaybackScrolledIndexRef.current = index;
 				scrollToLineIndex(index, true);
 			}
 		});
-	}, [store, toolMode, syncAutoScroll, syncFocusMainLine, scrollToLineIndex]);
+	}, [store, isAutoScrollActive, syncFocusMainLine, scrollToLineIndex]);
 
 	useImperativeHandle(ref, () => viewElRef.current as HTMLDivElement, []);
 
@@ -651,7 +692,10 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			<Box
 				flexGrow="1"
 				style={{
-					padding: toolMode === ToolMode.Sync ? "20vh 0" : undefined,
+					padding:
+						toolMode === ToolMode.Sync
+							? "clamp(24px, 12vh, 80px) 0"
+							: undefined,
 					height: "100%",
 					maxHeight: "100%",
 					overflowY: "auto",
@@ -660,7 +704,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				ref={viewElRef}
 			>
 				<ViewportList
-					overscan={10}
+					overscan={25}
 					items={visibleItems}
 					ref={restoreEditorAnchorOnListReady}
 					viewportRef={viewElRef}
@@ -674,14 +718,16 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					)}
 				</ViewportList>
 			</Box>
-			<Button
-				className={styles.locateButton}
-				variant="soft"
-				onClick={handleLocate}
-				title={t("lyricEditor.locate", "定位")}
-			>
-				<MyLocation24Regular />
-			</Button>
+			{(toolMode === ToolMode.Sync || toolMode === ToolMode.Edit) && (
+				<Button
+					className={styles.locateButton}
+					variant="soft"
+					onClick={handleLocate}
+					title={t("lyricEditor.locate", "定位")}
+				>
+					<MyLocation24Regular />
+				</Button>
+			)}
 		</Flex>
 	);
 });

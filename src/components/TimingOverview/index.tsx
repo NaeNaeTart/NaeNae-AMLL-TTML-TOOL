@@ -1,11 +1,12 @@
-import { Box, Card, Flex, Text, Tooltip } from "@radix-ui/themes";
+import { Box, Card, Checkbox, Flex, Text, Tooltip } from "@radix-ui/themes";
 import classNames from "classnames";
-import { useAtomValue, useSetAtom } from "jotai";
-import { memo, useMemo, useRef } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { memo, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ViewportList } from "react-viewport-list";
-import { currentTimeAtom } from "$/modules/audio/states";
+import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
+import { timingOverviewAutoScrollAtom } from "$/modules/settings/states/sync.ts";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
 import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
@@ -120,6 +121,7 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 	return (
 		<div
 			className={classNames(styles.row, isActive && styles.activeRow)}
+			data-line-index={index}
 			onClick={() => onRowClick(line)}
 			style={{ display: "flex", borderBottom: "1px solid var(--gray-4)" }}
 		>
@@ -164,7 +166,11 @@ export const TimingOverview = memo(() => {
 	const currentTime = useAtomValue(currentTimeAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
+	const audioPlaying = useAtomValue(audioPlayingAtom);
+	const [autoScroll, setAutoScroll] = useAtom(timingOverviewAutoScrollAtom);
 	const scrollRef = useRef<HTMLDivElement>(null);
+	const userScrolledAtRef = useRef<number>(0);
+	const lastActiveIndexRef = useRef<number | undefined>(undefined);
 
 	const sortedLines = useMemo(() => {
 		return [...lyrics.lyricLines].sort((a, b) => a.startTime - b.startTime);
@@ -188,6 +194,50 @@ export const TimingOverview = memo(() => {
 		audioEngine.seekMusic(line.startTime / 1000);
 	}, [setCurrentTime, setSelectedLines]);
 
+	useEffect(() => {
+		const scrollEl = scrollRef.current;
+		if (!scrollEl) return;
+		const onUserScroll = () => {
+			userScrolledAtRef.current = Date.now();
+		};
+		scrollEl.addEventListener("wheel", onUserScroll, { passive: true });
+		scrollEl.addEventListener("touchmove", onUserScroll, { passive: true });
+		return () => {
+			scrollEl.removeEventListener("wheel", onUserScroll);
+			scrollEl.removeEventListener("touchmove", onUserScroll);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!autoScroll || !audioPlaying) return;
+		if (Date.now() - userScrolledAtRef.current < 2500) return;
+
+		const activeIndex = sortedLines.findIndex(
+			(l) => currentTime >= l.startTime && currentTime <= l.endTime,
+		);
+		if (activeIndex === -1 || activeIndex === lastActiveIndexRef.current) return;
+		lastActiveIndexRef.current = activeIndex;
+
+		const scrollEl = scrollRef.current;
+		if (!scrollEl) return;
+		const rowEl = scrollEl.querySelector<HTMLElement>(
+			`[data-line-index="${activeIndex}"]`,
+		);
+		if (rowEl) {
+			const rowRect = rowEl.getBoundingClientRect();
+			const scrollRect = scrollEl.getBoundingClientRect();
+			const targetTop =
+				scrollEl.scrollTop +
+				(rowRect.top - scrollRect.top) -
+				scrollEl.clientHeight / 2 +
+				rowRect.height / 2;
+			scrollEl.scrollTo({
+				top: Math.max(0, targetTop),
+				behavior: "smooth",
+			});
+		}
+	}, [autoScroll, audioPlaying, currentTime, sortedLines]);
+
 	return (
 		<Card className={styles.timingOverview}>
 			<div className={styles.header}>
@@ -204,6 +254,21 @@ export const TimingOverview = memo(() => {
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.duration", "Duration")}:</Text>
 						<Text size="1" weight="bold" className={styles.monospaced}>{msToTimestamp(stats.totalMs)}</Text>
+					</div>
+					<div
+						className={styles.statItem}
+						style={{
+							marginLeft: "auto",
+							display: "flex",
+							alignItems: "center",
+							gap: "6px",
+						}}
+					>
+						<Text size="1">{t("timingOverview.autoScroll", "Auto-Scroll")}:</Text>
+						<Checkbox
+							checked={autoScroll}
+							onCheckedChange={(v) => setAutoScroll(Boolean(v))}
+						/>
 					</div>
 				</div>
 			</div>

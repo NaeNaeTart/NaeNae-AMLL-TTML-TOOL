@@ -1,7 +1,7 @@
 import { ToolMode } from "$/states/main.ts";
 
 export const shouldAutoCenterSelection = (toolMode: ToolMode) =>
-	toolMode === ToolMode.Sync;
+	toolMode === ToolMode.Sync || toolMode === ToolMode.Edit;
 
 export interface RenderedLinePosition {
 	index: number;
