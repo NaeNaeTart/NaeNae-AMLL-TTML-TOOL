@@ -901,35 +901,50 @@ const LyricSyncWordView: FC<{
 	// Keep mutable refs for active-highlight settings to avoid re-subscribing on every settings change
 	const highlightActiveWordRef = useRef(highlightActiveWord);
 	const enableSyncGlowAnimationRef = useRef(enableSyncGlowAnimation);
-	useEffect(() => { highlightActiveWordRef.current = highlightActiveWord; }, [highlightActiveWord]);
-	useEffect(() => { enableSyncGlowAnimationRef.current = enableSyncGlowAnimation; }, [enableSyncGlowAnimation]);
 
-	// ── PERF FIX: Drive the active/animated classes imperatively via store.sub
+	const updateActive = useCallback(() => {
+		const el = wordContainerRef.current;
+		if (!el) return;
+		const currentTime = store.get(currentTimeAtom);
+		const isActive = currentTime >= startTime && currentTime < endTime;
+		if (isActive) {
+			if (highlightActiveWordRef.current) {
+				el.classList.add(styles.active);
+				if (enableSyncGlowAnimationRef.current) {
+					el.classList.add(styles.animated);
+				} else {
+					el.classList.remove(styles.animated);
+				}
+			}
+		} else {
+			el.classList.remove(styles.active);
+			el.classList.remove(styles.animated);
+		}
+	}, [store, startTime, endTime]);
+
+	useEffect(() => {
+		highlightActiveWordRef.current = highlightActiveWord;
+		updateActive();
+	}, [highlightActiveWord, updateActive]);
+
+	useEffect(() => {
+		enableSyncGlowAnimationRef.current = enableSyncGlowAnimation;
+		updateActive();
+	}, [enableSyncGlowAnimation, updateActive]);
+
+	// Re-apply active/animated classes synchronously on every React reconciliation
+	// pass so React updating className on the DOM element does not wipe out imperative classes.
+	useLayoutEffect(() => {
+		updateActive();
+	});
+
+	// Drive the active/animated classes imperatively via store.sub
 	// instead of subscribing to currentTimeAtom inside React (which causes ~60fps
 	// re-renders of every visible word).
 	useEffect(() => {
-		const updateActive = () => {
-			const el = wordContainerRef.current;
-			if (!el) return;
-			const currentTime = store.get(currentTimeAtom);
-			const isActive = currentTime >= startTime && currentTime < endTime;
-			if (isActive) {
-				if (highlightActiveWordRef.current) {
-					el.classList.add(styles.active);
-					if (enableSyncGlowAnimationRef.current) {
-						el.classList.add(styles.animated);
-					} else {
-						el.classList.remove(styles.animated);
-					}
-				}
-			} else {
-				el.classList.remove(styles.active);
-				el.classList.remove(styles.animated);
-			}
-		};
 		updateActive();
 		return store.sub(currentTimeAtom, updateActive);
-	}, [store, startTime, endTime]);
+	}, [store, updateActive]);
 
 	// Inline timestamp editing state: null = not editing, "start" | "end" = editing that field
 	const [editingTime, setEditingTime] = useState<"start" | "end" | null>(null);
@@ -1021,8 +1036,13 @@ const LyricSyncWordView: FC<{
 
 	// Optimized render loop for pre-playback word ambient highlighting
 	useEffect(() => {
-		if (!enableUpcomingWordHighlight || !ambientHighlightRef.current) return;
+		if (!ambientHighlightRef.current) return;
+		if (!enableUpcomingWordHighlight) {
+			ambientHighlightRef.current.style.opacity = "0";
+			return;
+		}
 
+		const el = ambientHighlightRef.current;
 		const updateHighlight = () => {
 			if (!ambientHighlightRef.current) return;
 			const currentTime = store.get(currentTimeAtom);
@@ -1057,7 +1077,13 @@ const LyricSyncWordView: FC<{
 		// Run immediately to establish initial state without waiting for playback
 		updateHighlight();
 
-		return store.sub(currentTimeAtom, updateHighlight);
+		const unsub = store.sub(currentTimeAtom, updateHighlight);
+		return () => {
+			unsub();
+			if (el) {
+				el.style.opacity = "0";
+			}
+		};
 	}, [
 		enableUpcomingWordHighlight,
 		upcomingWordHighlightColor,

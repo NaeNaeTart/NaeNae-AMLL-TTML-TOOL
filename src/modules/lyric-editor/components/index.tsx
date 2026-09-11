@@ -73,6 +73,8 @@ import {
 } from "./SectionActions";
 import {
 	AUTO_SCROLL_PAUSE_MS,
+	calculateScrollDuration,
+	easeInOutSine,
 	findClosestLineToViewportCenter,
 	shouldAutoCenterSelection,
 } from "./selection-scroll";
@@ -450,6 +452,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	);
 
 	const scrollRafRef = useRef<number | null>(null);
+	const isProgrammaticScrollRef = useRef(false);
 	const lastProgrammaticScrollTimeRef = useRef<number>(0);
 
 	const cancelScrollAnimation = useCallback(() => {
@@ -457,34 +460,61 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			cancelAnimationFrame(scrollRafRef.current);
 			scrollRafRef.current = null;
 		}
+		isProgrammaticScrollRef.current = false;
 	}, []);
 
+	const updateEditorAnchor = useCallback(() => {
+		const viewEl = viewElRef.current;
+		if (!viewEl) return;
+		const viewRect = viewEl.getBoundingClientRect();
+		const positions = Array.from(
+			viewEl.querySelectorAll<HTMLElement>("[data-lyric-line-index]"),
+		).flatMap((element) => {
+			const index = Number(element.dataset.lyricLineIndex);
+			if (!Number.isFinite(index)) return [];
+			const rect = element.getBoundingClientRect();
+			return [{ index, top: rect.top, height: rect.height }];
+		});
+		const closest = findClosestLineToViewportCenter(
+			viewRect.top + viewRect.height / 2,
+			positions,
+		);
+		if (closest !== -1) {
+			modeAnchorLines[toolMode] = closest;
+			sharedAnchorLineIndex = closest;
+		}
+	}, [toolMode]);
+
 	const smoothScrollTo = useCallback(
-		(viewEl: HTMLElement, targetTop: number, duration = 350) => {
+		(viewEl: HTMLElement, targetTop: number, duration?: number) => {
 			cancelScrollAnimation();
 			const startTop = viewEl.scrollTop;
 			const distance = targetTop - startTop;
 			if (Math.abs(distance) < 2) return;
 
+			const animDuration = calculateScrollDuration(distance, duration);
+			isProgrammaticScrollRef.current = true;
+			lastProgrammaticScrollTimeRef.current = performance.now();
 			const startTime = performance.now();
-			const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 			const step = (now: number) => {
 				const elapsed = now - startTime;
-				const progress = Math.min(elapsed / duration, 1);
+				const progress = Math.min(elapsed / animDuration, 1);
 				lastProgrammaticScrollTimeRef.current = performance.now();
-				viewEl.scrollTop = startTop + distance * easeOutCubic(progress);
+				viewEl.scrollTop = startTop + distance * easeInOutSine(progress);
 
 				if (progress < 1) {
 					scrollRafRef.current = requestAnimationFrame(step);
 				} else {
 					scrollRafRef.current = null;
+					isProgrammaticScrollRef.current = false;
+					updateEditorAnchor();
 				}
 			};
 
 			scrollRafRef.current = requestAnimationFrame(step);
 		},
-		[cancelScrollAnimation],
+		[cancelScrollAnimation, updateEditorAnchor],
 	);
 
 	useEffect(() => {
@@ -511,11 +541,16 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 						targetRect.height / 2,
 				);
 				if (smooth) {
-					smoothScrollTo(viewEl, targetTop, 350);
+					smoothScrollTo(viewEl, targetTop);
 				} else {
 					cancelScrollAnimation();
+					isProgrammaticScrollRef.current = true;
 					lastProgrammaticScrollTimeRef.current = performance.now();
 					viewEl.scrollTop = targetTop;
+					requestAnimationFrame(() => {
+						isProgrammaticScrollRef.current = false;
+						updateEditorAnchor();
+					});
 				}
 				return;
 			}
@@ -525,10 +560,11 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				(item) => item.sourceIndex === index,
 			);
 			if (visibleIndex === -1) return;
+			isProgrammaticScrollRef.current = true;
 			lastProgrammaticScrollTimeRef.current = performance.now();
 			viewRef.current?.scrollToIndex({
 				index: visibleIndex,
-				offset: viewContainerEl.clientHeight / -2 + 50,
+				offset: viewContainerEl.clientHeight / -2,
 			});
 			if (smooth) {
 				requestAnimationFrame(() => {
@@ -545,12 +581,20 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 								viewEl.clientHeight / 2 +
 								elRect.height / 2,
 						);
-						smoothScrollTo(viewEl, targetTop, 350);
+						smoothScrollTo(viewEl, targetTop);
+					} else {
+						isProgrammaticScrollRef.current = false;
+						updateEditorAnchor();
 					}
+				});
+			} else {
+				requestAnimationFrame(() => {
+					isProgrammaticScrollRef.current = false;
+					updateEditorAnchor();
 				});
 			}
 		},
-		[visibleItems, smoothScrollTo, cancelScrollAnimation],
+		[visibleItems, smoothScrollTo, cancelScrollAnimation, updateEditorAnchor],
 	);
 	const syncTabPosition = useAtomValue(syncTabPositionAtom);
 
@@ -724,12 +768,11 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	);
 
 	useEffect(() => {
-		if (
-			scrollToIndex === undefined ||
-			Number.isNaN(scrollToIndex) ||
-			scrollToIndex === lastSelectionScrolledIndexRef.current
-		)
+		if (scrollToIndex === undefined || Number.isNaN(scrollToIndex)) {
+			lastSelectionScrolledIndexRef.current = undefined;
 			return;
+		}
+		if (scrollToIndex === lastSelectionScrolledIndexRef.current) return;
 		lastSelectionScrolledIndexRef.current = scrollToIndex;
 		cancelScrollAnimation();
 		cancelResumeTimer();
@@ -737,32 +780,13 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		scrollToLineIndex(scrollToIndex, true);
 	}, [scrollToIndex, scrollToLineIndex, cancelResumeTimer, cancelScrollAnimation]);
 
-	const updateEditorAnchor = useCallback(() => {
-		const viewEl = viewElRef.current;
-		if (!viewEl) return;
-		const viewRect = viewEl.getBoundingClientRect();
-		const positions = Array.from(
-			viewEl.querySelectorAll<HTMLElement>("[data-lyric-line-index]"),
-		).flatMap((element) => {
-			const index = Number(element.dataset.lyricLineIndex);
-			if (!Number.isFinite(index)) return [];
-			const rect = element.getBoundingClientRect();
-			return [{ index, top: rect.top, height: rect.height }];
-		});
-		const closest = findClosestLineToViewportCenter(
-			viewRect.top + viewRect.height / 2,
-			positions,
-		);
-		if (closest !== -1) {
-			modeAnchorLines[toolMode] = closest;
-			sharedAnchorLineIndex = closest;
-		}
-	}, [toolMode]);
-
 	const handleScroll = useCallback(() => {
+		if (scrollRafRef.current !== null || isProgrammaticScrollRef.current) {
+			return;
+		}
 		updateEditorAnchor();
 		if (!isAutoScrollActive) return;
-		if (performance.now() - lastProgrammaticScrollTimeRef.current < 50) {
+		if (performance.now() - lastProgrammaticScrollTimeRef.current < 100) {
 			return;
 		}
 		cancelScrollAnimation();
@@ -831,7 +855,9 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			}
 		};
 
-		const onKeyDown = () => {
+		const onKeyDown = (evt: KeyboardEvent) => {
+			if (evt.ctrlKey || evt.altKey || evt.metaKey) return;
+			if (["Control", "Shift", "Alt", "Meta"].includes(evt.key)) return;
 			userScrolledAtRef.current = Date.now();
 			if (store.get(selectedLinesAtom).size === 0) {
 				scheduleResume(AUTO_SCROLL_PAUSE_MS);

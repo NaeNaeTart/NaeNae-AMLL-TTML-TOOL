@@ -482,6 +482,14 @@
 			& > :first-child .lyricWord.sync {
 				border-left: solid 1px var(--gray-a5);
 			}
+
+			&.wrap {
+				border-left: solid 1px var(--gray-a5);
+
+				& > :first-child .lyricWord.sync {
+					border-left: none;
+				}
+			}
 		}
 
 		&::-webkit-scrollbar {
