@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { ToolMode } from "$/states/main.ts";
 import {
+	AUTO_SCROLL_PAUSE_MS,
 	findClosestLineToViewportCenter,
 	shouldAutoCenterSelection,
 } from "./selection-scroll";
+
+describe("AUTO_SCROLL_PAUSE_MS", () => {
+	it("pauses auto-scroll for 3.5 seconds on user interaction", () => {
+		expect(AUTO_SCROLL_PAUSE_MS).toBe(3500);
+	});
+});
 
 describe("shouldAutoCenterSelection", () => {
 	it("keeps direct Edit-mode selections stationary", () => {

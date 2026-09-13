@@ -1,7 +1,9 @@
 import { ToolMode } from "$/states/main.ts";
 
+export const AUTO_SCROLL_PAUSE_MS = 3500;
+
 export const shouldAutoCenterSelection = (toolMode: ToolMode) =>
-	toolMode === ToolMode.Sync || toolMode === ToolMode.Edit;
+	toolMode === ToolMode.Sync;
 
 export interface RenderedLinePosition {
 	index: number;

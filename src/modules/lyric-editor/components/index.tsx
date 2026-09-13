@@ -70,6 +70,7 @@ import {
 	SectionMetadataDialog,
 } from "./SectionActions";
 import {
+	AUTO_SCROLL_PAUSE_MS,
 	findClosestLineToViewportCenter,
 	shouldAutoCenterSelection,
 } from "./selection-scroll";
@@ -408,12 +409,12 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const scrollToIndexAtom = useMemo(
 		() =>
 			atom((get) => {
-				if (!shouldAutoCenterSelection(toolMode)) return;
+				if (!shouldAutoCenterSelection(toolMode)) return undefined;
 				const selectedLines = get(selectedLinesAtom);
-				if (selectedLines.size === 0) return Number.NaN;
+				if (selectedLines.size === 0) return undefined;
 				const lyrics = get(lyricLinesAtom).lyricLines;
 				const index = lyrics.findIndex((l) => selectedLines.has(l.id));
-				return index === -1 ? Number.NaN : index;
+				return index === -1 ? undefined : index;
 			}),
 		[toolMode],
 	);
@@ -441,8 +442,52 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		[editLyric, lyricLines, collapsedSections],
 	);
 
+	const scrollRafRef = useRef<number | null>(null);
+	const lastProgrammaticScrollTimeRef = useRef<number>(0);
+
+	const cancelScrollAnimation = useCallback(() => {
+		if (scrollRafRef.current !== null) {
+			cancelAnimationFrame(scrollRafRef.current);
+			scrollRafRef.current = null;
+		}
+	}, []);
+
+	const smoothScrollTo = useCallback(
+		(viewEl: HTMLElement, targetTop: number, duration = 350) => {
+			cancelScrollAnimation();
+			const startTop = viewEl.scrollTop;
+			const distance = targetTop - startTop;
+			if (Math.abs(distance) < 2) return;
+
+			const startTime = performance.now();
+			const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+			const step = (now: number) => {
+				const elapsed = now - startTime;
+				const progress = Math.min(elapsed / duration, 1);
+				lastProgrammaticScrollTimeRef.current = performance.now();
+				viewEl.scrollTop = startTop + distance * easeOutCubic(progress);
+
+				if (progress < 1) {
+					scrollRafRef.current = requestAnimationFrame(step);
+				} else {
+					scrollRafRef.current = null;
+				}
+			};
+
+			scrollRafRef.current = requestAnimationFrame(step);
+		},
+		[cancelScrollAnimation],
+	);
+
+	useEffect(() => {
+		return () => {
+			cancelScrollAnimation();
+		};
+	}, [cancelScrollAnimation]);
+
 	const scrollToLineIndex = useCallback(
-		(index: number, smooth = true) => {
+		(index: number, smooth = false) => {
 			const viewEl = viewElRef.current;
 			if (!viewEl) return;
 			const targetEl = viewEl.querySelector<HTMLElement>(
@@ -451,15 +496,20 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			if (targetEl) {
 				const targetRect = targetEl.getBoundingClientRect();
 				const viewRect = viewEl.getBoundingClientRect();
-				const targetTop =
+				const targetTop = Math.max(
+					0,
 					viewEl.scrollTop +
-					(targetRect.top - viewRect.top) -
-					viewEl.clientHeight / 2 +
-					targetRect.height / 2;
-				viewEl.scrollTo({
-					top: Math.max(0, targetTop),
-					behavior: smooth ? "smooth" : "auto",
-				});
+						(targetRect.top - viewRect.top) -
+						viewEl.clientHeight / 2 +
+						targetRect.height / 2,
+				);
+				if (smooth) {
+					smoothScrollTo(viewEl, targetTop, 350);
+				} else {
+					cancelScrollAnimation();
+					lastProgrammaticScrollTimeRef.current = performance.now();
+					viewEl.scrollTop = targetTop;
+				}
 				return;
 			}
 			const viewContainerEl = viewEl.parentElement;
@@ -468,6 +518,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				(item) => item.sourceIndex === index,
 			);
 			if (visibleIndex === -1) return;
+			lastProgrammaticScrollTimeRef.current = performance.now();
 			viewRef.current?.scrollToIndex({
 				index: visibleIndex,
 				offset: viewContainerEl.clientHeight / -2 + 50,
@@ -480,20 +531,19 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					if (el) {
 						const elRect = el.getBoundingClientRect();
 						const vRect = viewEl.getBoundingClientRect();
-						const targetTop =
+						const targetTop = Math.max(
+							0,
 							viewEl.scrollTop +
-							(elRect.top - vRect.top) -
-							viewEl.clientHeight / 2 +
-							elRect.height / 2;
-						viewEl.scrollTo({
-							top: Math.max(0, targetTop),
-							behavior: "smooth",
-						});
+								(elRect.top - vRect.top) -
+								viewEl.clientHeight / 2 +
+								elRect.height / 2,
+						);
+						smoothScrollTo(viewEl, targetTop, 350);
 					}
 				});
 			}
 		},
-		[visibleItems],
+		[visibleItems, smoothScrollTo, cancelScrollAnimation],
 	);
 	const restoreEditorAnchorOnListReady = useCallback(
 		(instance: ViewportListRef | null) => {
@@ -542,17 +592,69 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		setDetectionDialogOpen,
 	]);
 
+	const syncAutoScroll = useAtomValue(syncAutoScrollAtom);
+	const syncFocusMainLine = useAtomValue(syncFocusMainLineAtom);
+	const userScrolledAtRef = useRef<number>(0);
+	const lastKnownTimeRef = useRef(0);
+	const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const isPointerDownRef = useRef(false);
+
+	const isAutoScrollActive =
+		(toolMode === ToolMode.Sync || toolMode === ToolMode.Edit) &&
+		syncAutoScroll;
+
+	const cancelResumeTimer = useCallback(() => {
+		if (resumeTimerRef.current !== null) {
+			clearTimeout(resumeTimerRef.current);
+			resumeTimerRef.current = null;
+		}
+	}, []);
+
+	const scheduleResume = useCallback(
+		(durationMs = AUTO_SCROLL_PAUSE_MS) => {
+			cancelResumeTimer();
+			if (!isAutoScrollActive) return;
+			if (store.get(selectedLinesAtom).size > 0) return;
+			if (isPointerDownRef.current) return;
+
+			resumeTimerRef.current = setTimeout(() => {
+				resumeTimerRef.current = null;
+				if (!store.get(audioPlayingAtom)) return;
+				if (store.get(selectedLinesAtom).size > 0) return;
+				if (isPointerDownRef.current) return;
+
+				const currentTime = store.get(currentTimeAtom);
+				const lines = store.get(lyricLinesAtom).lyricLines;
+				const index = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
+				if (index !== -1) {
+					lastPlaybackScrolledIndexRef.current = index;
+					scrollToLineIndex(index, true);
+				}
+			}, durationMs);
+		},
+		[
+			cancelResumeTimer,
+			isAutoScrollActive,
+			store,
+			syncFocusMainLine,
+			scrollToLineIndex,
+		],
+	);
+
 	useEffect(() => {
 		if (
 			scrollToIndex === undefined ||
+			Number.isNaN(scrollToIndex) ||
 			scrollToIndex === lastSelectionScrolledIndexRef.current
 		)
 			return;
 		lastSelectionScrolledIndexRef.current = scrollToIndex;
-		// Suspend playback auto-scroll briefly when selection/sync jumps to a line
+		cancelScrollAnimation();
+		cancelResumeTimer();
 		userScrolledAtRef.current = Date.now();
 		scrollToLineIndex(scrollToIndex, true);
-	}, [scrollToIndex, scrollToLineIndex]);
+	}, [scrollToIndex, scrollToLineIndex, cancelResumeTimer, cancelScrollAnimation]);
 
 	const updateEditorAnchor = useCallback(() => {
 		const viewEl = viewElRef.current;
@@ -572,72 +674,141 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		);
 	}, []);
 
+	const handleScroll = useCallback(() => {
+		updateEditorAnchor();
+		if (!isAutoScrollActive) return;
+		if (performance.now() - lastProgrammaticScrollTimeRef.current < 50) {
+			return;
+		}
+		cancelScrollAnimation();
+		userScrolledAtRef.current = Date.now();
+		if (!isPointerDownRef.current && store.get(selectedLinesAtom).size === 0) {
+			scheduleResume(AUTO_SCROLL_PAUSE_MS);
+		}
+	}, [updateEditorAnchor, isAutoScrollActive, cancelScrollAnimation, scheduleResume, store]);
+
 	useEffect(() => {
 		const viewEl = viewElRef.current;
 		if (!viewEl) return;
-		viewEl.addEventListener("scroll", updateEditorAnchor, { passive: true });
+		viewEl.addEventListener("scroll", handleScroll, { passive: true });
 		return () => {
 			updateEditorAnchor();
-			viewEl.removeEventListener("scroll", updateEditorAnchor);
+			viewEl.removeEventListener("scroll", handleScroll);
 		};
-	}, [updateEditorAnchor]);
-
-	const syncAutoScroll = useAtomValue(syncAutoScrollAtom);
-	const syncFocusMainLine = useAtomValue(syncFocusMainLineAtom);
-	const userLockedRef = useRef(false);
-	const lastKnownTimeRef = useRef(0);
-
-	const isAutoScrollActive =
-		(toolMode === ToolMode.Sync || toolMode === ToolMode.Edit) &&
-		syncAutoScroll;
+	}, [handleScroll, updateEditorAnchor]);
 
 	const handleLocate = useCallback(() => {
+		cancelResumeTimer();
+		if (store.get(selectedLinesAtom).size > 0) {
+			store.set(selectedLinesAtom, new Set());
+		}
+		userScrolledAtRef.current = 0;
 		const currentTime = store.get(currentTimeAtom);
 		const lyricLines = store.get(lyricLinesAtom).lyricLines;
 		const index = findCurrentLineIndex(lyricLines, currentTime, syncFocusMainLine);
-		if (index === -1) return;
-		userLockedRef.current = false;
-		lastPlaybackScrolledIndexRef.current = index;
-		scrollToLineIndex(index, true);
-	}, [store, syncFocusMainLine, scrollToLineIndex]);
+		if (index !== -1) {
+			lastPlaybackScrolledIndexRef.current = index;
+			scrollToLineIndex(index, true);
+		}
+	}, [store, syncFocusMainLine, scrollToLineIndex, cancelResumeTimer]);
 
 	useKeyBindingAtom(keyLocateActiveLineAtom, handleLocate, [handleLocate]);
 
-	// Lock auto-scroll when user manually scrolls or clicks/interacts inside the viewport
+	// Track pointer hold state, wheel, touch, and keyboard interactions
 	useEffect(() => {
 		if (!isAutoScrollActive) return;
 		const viewEl = viewElRef.current;
 		if (!viewEl) return;
 
-		const onUserInteraction = (evt: Event) => {
+		const onPointerDown = (evt: Event) => {
 			if ((evt.target as HTMLElement | null)?.closest(`.${styles.locateButton}`))
 				return;
-			userLockedRef.current = true;
+			isPointerDownRef.current = true;
+			cancelScrollAnimation();
+			cancelResumeTimer();
+			userScrolledAtRef.current = Date.now();
 		};
 
-		viewEl.addEventListener("wheel", onUserInteraction, { passive: true });
-		viewEl.addEventListener("touchmove", onUserInteraction, { passive: true });
-		viewEl.addEventListener("pointerdown", onUserInteraction, { passive: true });
-		return () => {
-			viewEl.removeEventListener("wheel", onUserInteraction);
-			viewEl.removeEventListener("touchmove", onUserInteraction);
-			viewEl.removeEventListener("pointerdown", onUserInteraction);
+		const onPointerUp = () => {
+			if (!isPointerDownRef.current) return;
+			isPointerDownRef.current = false;
+			userScrolledAtRef.current = Date.now();
+			if (store.get(selectedLinesAtom).size === 0) {
+				scheduleResume(AUTO_SCROLL_PAUSE_MS);
+			}
 		};
-	}, [isAutoScrollActive]);
+
+		const onWheel = () => {
+			cancelScrollAnimation();
+			userScrolledAtRef.current = Date.now();
+			if (store.get(selectedLinesAtom).size === 0) {
+				scheduleResume(AUTO_SCROLL_PAUSE_MS);
+			}
+		};
+
+		const onKeyDown = () => {
+			userScrolledAtRef.current = Date.now();
+			if (store.get(selectedLinesAtom).size === 0) {
+				scheduleResume(AUTO_SCROLL_PAUSE_MS);
+			}
+		};
+
+		viewEl.addEventListener("pointerdown", onPointerDown, { capture: true, passive: true });
+		window.addEventListener("pointerup", onPointerUp, { capture: true, passive: true });
+		window.addEventListener("pointercancel", onPointerUp, { capture: true, passive: true });
+		viewEl.addEventListener("touchmove", onPointerDown, { capture: true, passive: true });
+		viewEl.addEventListener("wheel", onWheel, { capture: true, passive: true });
+		viewEl.addEventListener("keydown", onKeyDown, { capture: true, passive: true });
+
+		return () => {
+			viewEl.removeEventListener("pointerdown", onPointerDown, { capture: true });
+			window.removeEventListener("pointerup", onPointerUp, { capture: true });
+			window.removeEventListener("pointercancel", onPointerUp, { capture: true });
+			viewEl.removeEventListener("touchmove", onPointerDown, { capture: true });
+			viewEl.removeEventListener("wheel", onWheel, { capture: true });
+			viewEl.removeEventListener("keydown", onKeyDown, { capture: true });
+			cancelResumeTimer();
+		};
+	}, [isAutoScrollActive, scheduleResume, cancelResumeTimer, cancelScrollAnimation, store]);
+
+	// When a line is selected, cancel auto-scroll resume so it stays locked forever
+	useEffect(() => {
+		if (!isAutoScrollActive) return;
+		return store.sub(selectedLinesAtom, () => {
+			const selected = store.get(selectedLinesAtom);
+			if (selected.size > 0) {
+				cancelResumeTimer();
+				cancelScrollAnimation();
+				userScrolledAtRef.current = Date.now();
+			}
+		});
+	}, [isAutoScrollActive, store, cancelResumeTimer, cancelScrollAnimation]);
 
 	useEffect(() => {
 		if (!isAutoScrollActive) return;
 		return store.sub(currentTimeAtom, () => {
 			const currentTime = store.get(currentTimeAtom);
-			// If audio seek occurred (jumped > 1.5s), unlock auto-scroll and resume tracking
-			if (Math.abs(currentTime - lastKnownTimeRef.current) > 1500) {
-				userLockedRef.current = false;
+			if (Math.abs(currentTime - lastKnownTimeRef.current) > AUTO_SCROLL_PAUSE_MS) {
+				if (
+					Date.now() - userScrolledAtRef.current > 500 &&
+					!isPointerDownRef.current &&
+					store.get(selectedLinesAtom).size === 0
+				) {
+					userScrolledAtRef.current = 0;
+					cancelResumeTimer();
+				}
 			}
 			lastKnownTimeRef.current = currentTime;
 
-			// Skip if playback is paused, user locked view to a line/scroll position, or an input is focused
+			// Skip if playback is paused
 			if (!store.get(audioPlayingAtom)) return;
-			if (userLockedRef.current) return;
+			// Skip if pointer is currently held down (user dragging or holding scrollbar)
+			if (isPointerDownRef.current) return;
+			// Skip if any line is selected (stays locked forever until deselected or locate triggered)
+			if (store.get(selectedLinesAtom).size > 0) return;
+			// Skip if user interacted/scrolled within last 3.5s
+			if (Date.now() - userScrolledAtRef.current < AUTO_SCROLL_PAUSE_MS) return;
+			// Skip if an input or textarea is focused
 			const activeTag = document.activeElement?.tagName;
 			if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
 
@@ -648,7 +819,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				scrollToLineIndex(index, true);
 			}
 		});
-	}, [store, isAutoScrollActive, syncFocusMainLine, scrollToLineIndex]);
+	}, [store, isAutoScrollActive, syncFocusMainLine, scrollToLineIndex, cancelResumeTimer]);
 
 	useImperativeHandle(ref, () => viewElRef.current as HTMLDivElement, []);
 
@@ -723,7 +894,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					className={styles.locateButton}
 					variant="soft"
 					onClick={handleLocate}
-					title={t("lyricEditor.locate", "定位")}
+					title={t("lyricEditor.locate", "Centrar línea activa (Ctrl+Shift+L)")}
 				>
 					<MyLocation24Regular />
 				</Button>

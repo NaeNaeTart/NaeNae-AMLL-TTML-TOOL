@@ -1,12 +1,13 @@
 import { Box, Card, Checkbox, Flex, Text, Tooltip } from "@radix-ui/themes";
 import classNames from "classnames";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { memo, useEffect, useMemo, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ViewportList } from "react-viewport-list";
 import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { timingOverviewAutoScrollAtom } from "$/modules/settings/states/sync.ts";
+import { AUTO_SCROLL_PAUSE_MS } from "$/modules/lyric-editor/components/selection-scroll";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
 import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
@@ -165,6 +166,7 @@ export const TimingOverview = memo(() => {
 	const lyrics = useAtomValue(lyricLinesAtom);
 	const currentTime = useAtomValue(currentTimeAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
+	const selectedLines = useAtomValue(selectedLinesAtom);
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
 	const audioPlaying = useAtomValue(audioPlayingAtom);
 	const [autoScroll, setAutoScroll] = useAtom(timingOverviewAutoScrollAtom);
@@ -189,28 +191,96 @@ export const TimingOverview = memo(() => {
 	}, [sortedLines]);
 
 	const handleRowClick = useMemo(() => (line: any) => {
+		userScrolledAtRef.current = Date.now();
 		setCurrentTime(line.startTime);
 		setSelectedLines(new Set([line.id]));
 		audioEngine.seekMusic(line.startTime / 1000);
 	}, [setCurrentTime, setSelectedLines]);
 
+	const scrollRafRef = useRef<number | null>(null);
+	const lastProgrammaticScrollTimeRef = useRef<number>(0);
+	const isPointerDownRef = useRef<boolean>(false);
+
+	const cancelScrollAnimation = useCallback(() => {
+		if (scrollRafRef.current !== null) {
+			cancelAnimationFrame(scrollRafRef.current);
+			scrollRafRef.current = null;
+		}
+	}, []);
+
+	const smoothScrollTo = useCallback(
+		(element: HTMLElement, targetTop: number, duration = 300) => {
+			cancelScrollAnimation();
+			const startTop = element.scrollTop;
+			const distance = targetTop - startTop;
+			if (Math.abs(distance) < 2) return;
+
+			const startTime = performance.now();
+			const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+			const step = (now: number) => {
+				const elapsed = now - startTime;
+				const progress = Math.min(elapsed / duration, 1);
+				lastProgrammaticScrollTimeRef.current = performance.now();
+				element.scrollTop = startTop + distance * easeOutCubic(progress);
+
+				if (progress < 1) {
+					scrollRafRef.current = requestAnimationFrame(step);
+				} else {
+					scrollRafRef.current = null;
+				}
+			};
+
+			scrollRafRef.current = requestAnimationFrame(step);
+		},
+		[cancelScrollAnimation],
+	);
+
+	useEffect(() => {
+		return () => {
+			cancelScrollAnimation();
+		};
+	}, [cancelScrollAnimation]);
+
 	useEffect(() => {
 		const scrollEl = scrollRef.current;
 		if (!scrollEl) return;
-		const onUserScroll = () => {
+		const onPointerDown = () => {
+			isPointerDownRef.current = true;
+			cancelScrollAnimation();
 			userScrolledAtRef.current = Date.now();
 		};
-		scrollEl.addEventListener("wheel", onUserScroll, { passive: true });
-		scrollEl.addEventListener("touchmove", onUserScroll, { passive: true });
-		return () => {
-			scrollEl.removeEventListener("wheel", onUserScroll);
-			scrollEl.removeEventListener("touchmove", onUserScroll);
+		const onPointerUp = () => {
+			if (!isPointerDownRef.current) return;
+			isPointerDownRef.current = false;
+			userScrolledAtRef.current = Date.now();
 		};
-	}, []);
+		const onScroll = () => {
+			if (performance.now() - lastProgrammaticScrollTimeRef.current < 50) return;
+			cancelScrollAnimation();
+			userScrolledAtRef.current = Date.now();
+		};
+		scrollEl.addEventListener("wheel", onPointerDown, { capture: true, passive: true });
+		scrollEl.addEventListener("touchmove", onPointerDown, { capture: true, passive: true });
+		scrollEl.addEventListener("pointerdown", onPointerDown, { capture: true, passive: true });
+		window.addEventListener("pointerup", onPointerUp, { capture: true, passive: true });
+		window.addEventListener("pointercancel", onPointerUp, { capture: true, passive: true });
+		scrollEl.addEventListener("scroll", onScroll, { passive: true });
+		return () => {
+			scrollEl.removeEventListener("wheel", onPointerDown, { capture: true });
+			scrollEl.removeEventListener("touchmove", onPointerDown, { capture: true });
+			scrollEl.removeEventListener("pointerdown", onPointerDown, { capture: true });
+			window.removeEventListener("pointerup", onPointerUp, { capture: true });
+			window.removeEventListener("pointercancel", onPointerUp, { capture: true });
+			scrollEl.removeEventListener("scroll", onScroll);
+		};
+	}, [cancelScrollAnimation]);
 
 	useEffect(() => {
 		if (!autoScroll || !audioPlaying) return;
-		if (Date.now() - userScrolledAtRef.current < 2500) return;
+		if (isPointerDownRef.current) return;
+		if (selectedLines.size > 0) return;
+		if (Date.now() - userScrolledAtRef.current < AUTO_SCROLL_PAUSE_MS) return;
 
 		const activeIndex = sortedLines.findIndex(
 			(l) => currentTime >= l.startTime && currentTime <= l.endTime,
@@ -231,12 +301,9 @@ export const TimingOverview = memo(() => {
 				(rowRect.top - scrollRect.top) -
 				scrollEl.clientHeight / 2 +
 				rowRect.height / 2;
-			scrollEl.scrollTo({
-				top: Math.max(0, targetTop),
-				behavior: "smooth",
-			});
+			smoothScrollTo(scrollEl, Math.max(0, targetTop), 300);
 		}
-	}, [autoScroll, audioPlaying, currentTime, sortedLines]);
+	}, [autoScroll, audioPlaying, currentTime, sortedLines, smoothScrollTo, selectedLines]);
 
 	return (
 		<Card className={styles.timingOverview}>

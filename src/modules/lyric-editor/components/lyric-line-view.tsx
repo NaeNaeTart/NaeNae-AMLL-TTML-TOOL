@@ -812,7 +812,7 @@ export const LyricLineView: FC<{
 							lineSelected && styles.selected,
 							editActiveLineHighlight &&
 								isPlaybackActive &&
-								toolMode === ToolMode.Edit &&
+								(toolMode === ToolMode.Edit || toolMode === ToolMode.Sync) &&
 								styles.activePlayback,
 							toolMode === ToolMode.Sync && styles.sync,
 							toolMode === ToolMode.Edit && styles.edit,
