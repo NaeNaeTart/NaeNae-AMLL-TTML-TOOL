@@ -38,9 +38,11 @@ import {
 	enableTimeModeDoubleClickEditAtom,
 	showTouchSyncPanelAtom,
 	spectrogramHoverSyncEnabledAtom,
+	editActiveLineHighlightAtom,
+	syncAutoScrollAtom,
+	syncCommitOffsetAtom,
 	syncLevelModeAtom,
 	syncTimeOffsetAtom,
-	syncCommitOffsetAtom,
 	syncWordWrapAtom,
 	visualizeTimestampUpdateAtom,
 	type SyncLevelMode,
@@ -130,6 +132,10 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 			useAtom(spectrogramHoverSyncEnabledAtom);
 		const [syncLevelMode, setSyncLevelMode] = useAtom(syncLevelModeAtom);
 		const [instantFade, setInstantFade] = useAtom(instantHighlightFadeAtom);
+		const [syncAutoScroll, setSyncAutoScroll] = useAtom(syncAutoScrollAtom);
+		const [syncActiveLineHighlight, setSyncActiveLineHighlight] = useAtom(
+			editActiveLineHighlightAtom,
+		);
 		const { t } = useTranslation();
 		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
 
@@ -232,6 +238,41 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 								</SegmentedControl.Item>
 							</SegmentedControl.Root>
 						</Flex>
+					</RibbonSection>
+					<RibbonSection
+						isSidebar={isSidebar}
+						label={t("ribbonBar.syncMode.playbackTracking", "Tracking")}
+					>
+						<Grid
+							columns="max-content auto"
+							gap="2"
+							gapY="1"
+							flexGrow="1"
+							align="center"
+						>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--ribbon-label-color)" }}
+							>
+								{t("ribbonBar.syncMode.autoScroll", "Auto-Scroll")}
+							</Text>
+							<Checkbox
+								checked={syncAutoScroll}
+								onCheckedChange={(v) => setSyncAutoScroll(Boolean(v))}
+							/>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--ribbon-label-color)" }}
+							>
+								{t("ribbonBar.syncMode.highlightActiveLine", "Highlight Line")}
+							</Text>
+							<Checkbox
+								checked={syncActiveLineHighlight}
+								onCheckedChange={(v) => setSyncActiveLineHighlight(Boolean(v))}
+							/>
+						</Grid>
 					</RibbonSection>
 					{showAdvanced && <RibbonSection
 						isSidebar={isSidebar}
