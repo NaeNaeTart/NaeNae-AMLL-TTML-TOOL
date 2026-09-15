@@ -27,3 +27,13 @@
 	border-style: dashed;
 	z-index: 5;
 }
+
+.touchingStart {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.touchingEnd {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
