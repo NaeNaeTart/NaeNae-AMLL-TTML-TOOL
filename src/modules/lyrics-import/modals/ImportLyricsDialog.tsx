@@ -84,7 +84,7 @@ export const ImportLyricsDialog = ({
 }: {
 	source?: ImportSource;
 }) => {
-	const { t, i18n } = useTranslation();
+	const { t } = useTranslation();
 	const store = useStore();
 
 	const dialogAtom =
@@ -610,7 +610,7 @@ export const ImportLyricsDialog = ({
 						</Text>
 						<Text size="2">
 							<a
-								href={getGeniusKeyGuideUrl(i18n.resolvedLanguage)}
+								href={getGeniusKeyGuideUrl()}
 								target="_blank"
 								rel="noopener noreferrer"
 							>

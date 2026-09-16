@@ -25,7 +25,7 @@ import { getBetterGeniusCoverArt } from "../utils/image";
 import styles from "./GeniusSearchDialog.module.css";
 
 export const GeniusSearchDialog = () => {
-	const { t, i18n } = useTranslation();
+	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useAtom(geniusSearchDialogAtom);
 	const [lyricLines, setLyricLines] = useImmerAtom(lyricLinesAtom);
 
@@ -306,7 +306,7 @@ export const GeniusSearchDialog = () => {
 						</Text>
 						<Text size="2">
 							<a
-								href={getGeniusKeyGuideUrl(i18n.resolvedLanguage)}
+								href={getGeniusKeyGuideUrl()}
 								target="_blank"
 								rel="noopener noreferrer"
 							>

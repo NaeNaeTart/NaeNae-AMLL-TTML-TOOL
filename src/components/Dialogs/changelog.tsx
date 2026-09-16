@@ -55,6 +55,18 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="violet">
+								v0.9.13 Updates (Guide Links)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Updated Beginner Guide Links:</strong> In-app onboarding and
+									Genius token help now open the current Spicy Lyrics guides instead
+									of the retired documentation site.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="crimson">
 								v0.9.12 Updates (Time Mode Tracking &amp; Spectrogram Polish)
 							</Heading>
