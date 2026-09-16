@@ -38,6 +38,7 @@ export const spectrogramHoverSyncEnabledAtom = atomWithStorage(
 	"spectrogramHoverSyncEnabled",
 	false,
 );
+export const syncTabPositionAtom = atomWithStorage("syncTabPosition", true);
 
 export type SyncLevelMode = "word" | "line";
 export const syncLevelModeAtom = atomWithStorage<SyncLevelMode>(

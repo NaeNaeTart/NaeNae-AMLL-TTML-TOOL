@@ -179,7 +179,8 @@
       "previewPanel": "Preview Panel",
       "playbackTracking": "Tracking",
       "autoScroll": "Auto-Scroll",
-      "highlightActiveLine": "Highlight Line"
+      "highlightActiveLine": "Highlight Line",
+      "syncTab": "Sync Tab"
     },
     "previewMode": {
       "mode": "Mode",
@@ -237,7 +238,8 @@
       },
       "playbackTracking": "Tracking",
       "autoScroll": "Auto-Scroll",
-      "highlightActiveLine": "Highlight Line"
+      "highlightActiveLine": "Highlight Line",
+      "syncTab": "Sync Tab"
     },
     "experimentalFeatures": "Experimental Features",
     "loading": "Loading panel..."
@@ -286,6 +288,8 @@
       "enableUpcomingWordHighlightDesc": "Fades in a highlight color shortly before a word plays during Sync mode to improve precision.",
       "upcomingWordHighlightThreshold": "Pre-Highlight Time Threshold (ms)",
       "upcomingWordHighlightColor": "Highlight Color (CSS Value)",
+      "syncTabPosition": "Sync Position Across Tabs",
+      "syncTabPositionDesc": "Maintains song playback and centers the active lyric line when switching between Edit, Time, and Preview tabs.",
       "volume": "Music Volume",
       "playbackRate": "Playback Speed",
       "autosave": {

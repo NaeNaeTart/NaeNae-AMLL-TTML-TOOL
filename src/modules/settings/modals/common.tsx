@@ -1,6 +1,7 @@
 import resources from "virtual:i18next-loader";
 import {
 	ArrowSortDownLines24Regular,
+	ArrowSync24Regular,
 	ContentView24Regular,
 	Highlight24Regular,
 	History24Regular,
@@ -58,6 +59,7 @@ import {
 	syncFocusMainLineAtom,
 	syncTimeOffsetAtom,
 	syncCommitOffsetAtom,
+	syncTabPositionAtom,
 	syncWordWrapAtom,
 	upcomingWordHighlightColorAtom,
 	upcomingWordHighlightThresholdAtom,
@@ -114,6 +116,7 @@ export const SettingsCommonTab = ({
 	const [editActiveLineHighlight, setEditActiveLineHighlight] = useAtom(
 		editActiveLineHighlightAtom,
 	);
+	const [syncTabPosition, setSyncTabPosition] = useAtom(syncTabPositionAtom);
 
 	const { t, i18n } = useTranslation();
 	const currentLanguage = i18n.resolvedLanguage || i18n.language;
@@ -679,6 +682,35 @@ export const SettingsCommonTab = ({
 									<Switch
 										checked={editActiveLineHighlight}
 										onCheckedChange={setEditActiveLineHighlight}
+									/>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<ArrowSync24Regular />
+							<Box flexGrow="1">
+								<Flex gap="2" align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t(
+												"settings.common.syncTabPosition",
+												"Sync Position Across Tabs",
+											)}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.common.syncTabPositionDesc",
+												"Maintain song playback and center the active lyric line when switching between Edit, Time, and Preview tabs.",
+											)}
+										</Text>
+									</Flex>
+									<Switch
+										checked={syncTabPosition}
+										onCheckedChange={setSyncTabPosition}
 									/>
 								</Flex>
 							</Box>
