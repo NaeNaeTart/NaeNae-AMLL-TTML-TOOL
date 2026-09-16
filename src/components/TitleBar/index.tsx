@@ -12,6 +12,7 @@ import {
 	keySwitchSyncModeAtom,
 } from "$/states/keybindings.ts";
 import {
+	previousToolModeAtom,
 	selectedLinesAtom,
 	selectedWordsAtom,
 	ToolMode,
@@ -23,6 +24,7 @@ import styles from "./index.module.css";
 
 export const TitleBar: FC = () => {
 	const [toolMode, setToolMode] = useAtom(toolModeAtom);
+	const setPreviousToolMode = useSetAtom(previousToolModeAtom);
 	const setSelectedLines = useSetImmerAtom(selectedLinesAtom);
 	const setSelectedWords = useSetImmerAtom(selectedWordsAtom);
 	const { t } = useTranslation();
@@ -36,15 +38,24 @@ export const TitleBar: FC = () => {
 	const isUnlocked = !isApp || boykisserUnlocked;
 	const setExperimentalDialogOpen = useSetAtom(experimentalFeaturesDialogOpenAtom);
 
+	const switchMode = useCallback(
+		(targetMode: ToolMode) => {
+			if (targetMode === toolMode) return;
+			setPreviousToolMode(toolMode);
+			setToolMode(targetMode);
+		},
+		[toolMode, setToolMode, setPreviousToolMode],
+	);
+
 	const onSwitchEditMode = useCallback(() => {
-		setToolMode(ToolMode.Edit);
-	}, [setToolMode]);
+		switchMode(ToolMode.Edit);
+	}, [switchMode]);
 	const onSwitchSyncMode = useCallback(() => {
-		setToolMode(ToolMode.Sync);
-	}, [setToolMode]);
+		switchMode(ToolMode.Sync);
+	}, [switchMode]);
 	const onSwitchPreviewMode = useCallback(() => {
-		setToolMode(ToolMode.Preview);
-	}, [setToolMode]);
+		switchMode(ToolMode.Preview);
+	}, [switchMode]);
 
 	useKeyBindingAtom(keySwitchEditModeAtom, onSwitchEditMode);
 	useKeyBindingAtom(keySwitchSyncModeAtom, onSwitchSyncMode);
@@ -56,7 +67,7 @@ export const TitleBar: FC = () => {
 			titleChildren={
 				<SegmentedControl.Root
 					value={toolMode}
-					onValueChange={(v) => setToolMode(v as ToolMode)}
+					onValueChange={(v) => switchMode(v as ToolMode)}
 					// size="1"
 				>
 					<SegmentedControl.Item value={ToolMode.Edit}>

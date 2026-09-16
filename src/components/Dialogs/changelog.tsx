@@ -64,6 +64,12 @@ export function ChangelogDialog() {
 									Genius token help now open the current Spicy Lyrics guides instead
 									of the retired documentation site.
 								</Text>
+								<Text size="2">
+									<strong>Timing Overview Syllable Seeking:</strong> Clicking any syllable or word in the Technical Timing Overview now seeks directly to that word's timestamp and displays its active frame, while table auto-scroll smoothly follows playback without getting stuck.
+								</Text>
+								<Text size="2">
+									<strong>Cross-Tab Position Sync:</strong> Switching between Edit, Time, and Preview tabs maintains playback position and keeps the active line centered.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

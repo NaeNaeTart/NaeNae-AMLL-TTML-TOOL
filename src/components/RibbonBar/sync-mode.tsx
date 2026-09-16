@@ -42,6 +42,7 @@ import {
 	syncAutoScrollAtom,
 	syncCommitOffsetAtom,
 	syncLevelModeAtom,
+	syncTabPositionAtom,
 	syncTimeOffsetAtom,
 	syncWordWrapAtom,
 	visualizeTimestampUpdateAtom,
@@ -136,6 +137,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const [syncActiveLineHighlight, setSyncActiveLineHighlight] = useAtom(
 			editActiveLineHighlightAtom,
 		);
+		const [syncTabPosition, setSyncTabPosition] = useAtom(syncTabPositionAtom);
 		const { t } = useTranslation();
 		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
 
@@ -271,6 +273,17 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 							<Checkbox
 								checked={syncActiveLineHighlight}
 								onCheckedChange={(v) => setSyncActiveLineHighlight(Boolean(v))}
+							/>
+							<Text
+								wrap="nowrap"
+								size="1"
+								style={{ color: "var(--ribbon-label-color)" }}
+							>
+								{t("ribbonBar.syncMode.syncTab", "Sync Tab")}
+							</Text>
+							<Checkbox
+								checked={syncTabPosition}
+								onCheckedChange={(v) => setSyncTabPosition(Boolean(v))}
 							/>
 						</Grid>
 					</RibbonSection>

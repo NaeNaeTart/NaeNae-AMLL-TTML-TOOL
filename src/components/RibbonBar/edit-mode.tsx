@@ -53,6 +53,7 @@ import {
 import {
 	editActiveLineHighlightAtom,
 	editAutoScrollAtom,
+	syncTabPositionAtom,
 } from "$/modules/settings/states/sync.ts";
 import {
 	editingTimeFieldAtom,
@@ -896,6 +897,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const [editActiveLineHighlight, setEditActiveLineHighlight] = useAtom(
 			editActiveLineHighlightAtom,
 		);
+		const [syncTabPosition, setSyncTabPosition] = useAtom(syncTabPositionAtom);
 
 		return (
 			<RibbonFrame
@@ -950,6 +952,17 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 						<Checkbox
 							checked={editActiveLineHighlight}
 							onCheckedChange={(v) => setEditActiveLineHighlight(Boolean(v))}
+						/>
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
+							{t("ribbonBar.editMode.syncTab", "Sync Tab")}
+						</Text>
+						<Checkbox
+							checked={syncTabPosition}
+							onCheckedChange={(v) => setSyncTabPosition(Boolean(v))}
 						/>
 					</Grid>
 				</RibbonSection>
