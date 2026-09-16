@@ -98,6 +98,11 @@ export function ChangelogDialog() {
 									dragging no longer imposes artificial zoom-dependent minimum duration
 									limits, and FFT resolution uses a clean inline selector.
 								</Text>
+								<Text size="2">
+									<strong>Updated Beginner Guide Links:</strong> In-app onboarding and
+									Genius token help now open the current Spicy Lyrics guides instead
+									of the retired documentation site.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

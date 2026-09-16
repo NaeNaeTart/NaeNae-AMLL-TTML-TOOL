@@ -25,7 +25,7 @@ import { getBetterGeniusCoverArt } from "../utils/image";
 import styles from "./GeniusSearchDialog.module.css";
 
 export const GeniusSearchDialog = () => {
-	const { t, i18n } = useTranslation();
+	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useAtom(geniusSearchDialogAtom);
 	const [lyricLines, setLyricLines] = useImmerAtom(lyricLinesAtom);
 

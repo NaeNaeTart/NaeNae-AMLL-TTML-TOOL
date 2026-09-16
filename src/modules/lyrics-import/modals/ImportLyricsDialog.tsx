@@ -84,7 +84,7 @@ export const ImportLyricsDialog = ({
 }: {
 	source?: ImportSource;
 }) => {
-	const { t, i18n } = useTranslation();
+	const { t } = useTranslation();
 	const store = useStore();
 
 	const dialogAtom =
