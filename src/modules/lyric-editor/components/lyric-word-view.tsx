@@ -907,14 +907,12 @@ const LyricSyncWordView: FC<{
 		if (!el) return;
 		const currentTime = store.get(currentTimeAtom);
 		const isActive = currentTime >= startTime && currentTime < endTime;
-		if (isActive) {
-			if (highlightActiveWordRef.current) {
-				el.classList.add(styles.active);
-				if (enableSyncGlowAnimationRef.current) {
-					el.classList.add(styles.animated);
-				} else {
-					el.classList.remove(styles.animated);
-				}
+		if (isActive && highlightActiveWordRef.current) {
+			el.classList.add(styles.active);
+			if (enableSyncGlowAnimationRef.current) {
+				el.classList.add(styles.animated);
+			} else {
+				el.classList.remove(styles.animated);
 			}
 		} else {
 			el.classList.remove(styles.active);
