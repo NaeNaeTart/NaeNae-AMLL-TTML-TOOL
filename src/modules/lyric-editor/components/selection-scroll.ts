@@ -26,3 +26,17 @@ export const findClosestLineToViewportCenter = (
 	}
 	return closestIndex;
 };
+
+export const calculateScrollDuration = (
+	distance: number,
+	explicitDuration?: number,
+): number => {
+	if (explicitDuration !== undefined) return explicitDuration;
+	const absDistance = Math.abs(distance);
+	return Math.round(
+		Math.min(750, Math.max(280, 240 + Math.sqrt(absDistance) * 8)),
+	);
+};
+
+export const easeInOutSine = (t: number): number =>
+	-(Math.cos(Math.PI * t) - 1) / 2;
