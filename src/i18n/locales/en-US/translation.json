@@ -537,7 +537,10 @@
     "title": "Technical Timing Overview",
     "lines": "Lines",
     "words": "Words",
-    "lyricsAndTimings": "Lyrics & Word Timings"
+    "lyricsAndTimings": "Lyrics & Word Timings",
+    "autoScroll": "Auto-Scroll",
+    "orderChronological": "Chronological",
+    "orderTextual": "Textual"
   },
   "topBar": {
     "modeBtns": {

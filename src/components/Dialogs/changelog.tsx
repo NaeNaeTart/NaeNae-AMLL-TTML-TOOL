@@ -73,6 +73,9 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Wrapped Line Borders &amp; Highlight Persistence:</strong> Wrapped lyric rows without timestamps now display their left border indicator, active syllable highlights remain synchronized across selection and pause states, and auto-scroll easing uses a smooth sine curve with proportional duration.
 								</Text>
+								<Text size="2">
+									<strong>Timing Overview Order Mode:</strong> Added a toggle in the Technical Timing Overview between chronological order and natural textual document order, keeping unsynchronized lines in their original lyrical sequence.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

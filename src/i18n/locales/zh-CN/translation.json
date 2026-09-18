@@ -492,7 +492,10 @@
     "title": "Technical Timing Overview",
     "lines": "Lines",
     "words": "Words",
-    "lyricsAndTimings": "Lyrics & Word Timings"
+    "lyricsAndTimings": "Lyrics & Word Timings",
+    "autoScroll": "自动滚动",
+    "orderChronological": "按时间顺序",
+    "orderTextual": "按文本顺序"
   },
   "topBar": {
     "modeBtns": {

@@ -1,4 +1,4 @@
-import { Box, Card, Checkbox, Flex, Text, Tooltip } from "@radix-ui/themes";
+import { Box, Card, Checkbox, Flex, SegmentedControl, Text, Tooltip } from "@radix-ui/themes";
 import classNames from "classnames";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
@@ -7,10 +7,18 @@ import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import { AUTO_SCROLL_PAUSE_MS } from "$/modules/lyric-editor/components/selection-scroll";
-import { timingOverviewAutoScrollAtom } from "$/modules/settings/states/sync.ts";
+import {
+	timingOverviewAutoScrollAtom,
+	timingOverviewOrderModeAtom,
+	type TimingOverviewOrderMode,
+} from "$/modules/settings/states/sync.ts";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
 import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
+import {
+	calculateTimingOverviewStats,
+	getDisplayedTimingLines,
+} from "./timing-order.ts";
 import { areWordGroupPropsEqual } from "./word-group-memo.ts";
 
 const WordPill = memo(({ word, currentTime, isGrouped, onWordClick }: { word: any, currentTime: number, isGrouped?: boolean, onWordClick?: (word: any) => void }) => {
@@ -156,7 +164,7 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick, onW
 	const wasActive = prev.currentTime >= prev.line.startTime && prev.currentTime <= prev.line.endTime;
 	const isActive = next.currentTime >= next.line.startTime && next.currentTime <= next.line.endTime;
 	if (wasActive || isActive) return false;
-	return prev.line === next.line && prev.totalDuration === next.totalDuration;
+	return prev.line === next.line && prev.totalDuration === next.totalDuration && prev.index === next.index;
 });
 
 export const TimingOverview = memo(() => {
@@ -167,27 +175,22 @@ export const TimingOverview = memo(() => {
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
 	const audioPlaying = useAtomValue(audioPlayingAtom);
 	const [autoScroll, setAutoScroll] = useAtom(timingOverviewAutoScrollAtom);
+	const [orderMode, setOrderMode] = useAtom(timingOverviewOrderModeAtom);
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const viewportListRef = useRef<ViewportListRef>(null);
 	const userScrolledAtRef = useRef<number>(0);
 	const lastActiveIndexRef = useRef<number | undefined>(undefined);
 	const lastKnownTimeRef = useRef(0);
 
-	const sortedLines = useMemo(() => {
-		return [...lyrics.lyricLines].sort((a, b) => a.startTime - b.startTime);
-	}, [lyrics.lyricLines]);
-
-	const totalDuration = useMemo(() => {
-		if (sortedLines.length === 0) return 0;
-		return sortedLines[sortedLines.length - 1].endTime - sortedLines[0].startTime;
-	}, [sortedLines]);
+	const displayedLines = useMemo(() => {
+		return getDisplayedTimingLines(lyrics.lyricLines, orderMode);
+	}, [lyrics.lyricLines, orderMode]);
 
 	const stats = useMemo(() => {
-		const lineCount = sortedLines.length;
-		const wordCount = sortedLines.reduce((acc, line) => acc + line.words.length, 0);
-		const totalMs = lineCount > 0 ? sortedLines[lineCount - 1].endTime - sortedLines[0].startTime : 0;
-		return { lineCount, wordCount, totalMs };
-	}, [sortedLines]);
+		return calculateTimingOverviewStats(lyrics.lyricLines);
+	}, [lyrics.lyricLines]);
+
+	const totalDuration = stats.totalMs;
 
 	const handleRowClick = useMemo(() => (line: any) => {
 		userScrolledAtRef.current = Date.now();
@@ -287,17 +290,27 @@ export const TimingOverview = memo(() => {
 		if (isPointerDownRef.current) return;
 		if (Date.now() - userScrolledAtRef.current < AUTO_SCROLL_PAUSE_MS) return;
 
-		let activeIndex = sortedLines.findIndex(
-			(l) => currentTime >= l.startTime && currentTime <= l.endTime,
+		let activeIndex = displayedLines.findIndex(
+			(l) =>
+				currentTime >= l.startTime &&
+				currentTime <= l.endTime &&
+				(l.startTime > 0 || l.endTime > 0),
 		);
 		if (activeIndex === -1 && currentTime > 0) {
-			const upcoming = sortedLines.findIndex((l) => l.startTime >= currentTime);
+			const upcoming = displayedLines.findIndex(
+				(l) => (l.startTime > 0 || l.endTime > 0) && l.startTime >= currentTime,
+			);
 			if (upcoming !== -1) {
 				activeIndex = upcoming;
 			} else {
-				const lastLine = sortedLines[sortedLines.length - 1];
-				if (lastLine && currentTime <= lastLine.endTime) {
-					activeIndex = sortedLines.length - 1;
+				for (let i = displayedLines.length - 1; i >= 0; i--) {
+					const line = displayedLines[i];
+					if (line.startTime > 0 || line.endTime > 0) {
+						if (currentTime <= line.endTime) {
+							activeIndex = i;
+						}
+						break;
+					}
 				}
 			}
 		}
@@ -347,13 +360,13 @@ export const TimingOverview = memo(() => {
 				});
 			});
 		}
-	}, [autoScroll, audioPlaying, currentTime, sortedLines, smoothScrollTo]);
+	}, [autoScroll, audioPlaying, currentTime, displayedLines, smoothScrollTo]);
 
 	return (
 		<Card className={styles.timingOverview}>
 			<div className={styles.header}>
 				<Text size="2" weight="bold">{t("timingOverview.title", "Technical Timing Overview")}</Text>
-				<div className={styles.stats}>
+				<div className={styles.stats} style={{ alignItems: "center" }}>
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.lines", "Lines")}:</Text>
 						<Text size="1" weight="bold">{stats.lineCount}</Text>
@@ -365,6 +378,23 @@ export const TimingOverview = memo(() => {
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.duration", "Duration")}:</Text>
 						<Text size="1" weight="bold" className={styles.monospaced}>{msToTimestamp(stats.totalMs)}</Text>
+					</div>
+					<div className={styles.statItem}>
+						<SegmentedControl.Root
+							value={orderMode}
+							onValueChange={(v) => {
+								lastActiveIndexRef.current = undefined;
+								setOrderMode(v as TimingOverviewOrderMode);
+							}}
+							size="1"
+						>
+							<SegmentedControl.Item value="chronological">
+								{t("timingOverview.orderChronological", "Chronological")}
+							</SegmentedControl.Item>
+							<SegmentedControl.Item value="textual">
+								{t("timingOverview.orderTextual", "Textual")}
+							</SegmentedControl.Item>
+						</SegmentedControl.Root>
 					</div>
 					<div
 						className={styles.statItem}
@@ -392,7 +422,7 @@ export const TimingOverview = memo(() => {
 						<div style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.duration", "Duration")}</div>
 						<div style={{ flexGrow: 1, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}</div>
 					</div>
-					<ViewportList ref={viewportListRef} items={sortedLines} viewportRef={scrollRef}>
+					<ViewportList ref={viewportListRef} items={displayedLines} viewportRef={scrollRef}>
 						{(line, index) => (
 							<LineRow 
 								key={line.id || index} 
