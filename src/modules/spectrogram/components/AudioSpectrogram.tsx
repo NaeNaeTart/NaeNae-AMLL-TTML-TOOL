@@ -42,6 +42,7 @@ import {
 	draggingIdAtom,
 	globalEnableInsertAtom,
 } from "$/modules/lyric-editor/components/lyric-line-view-states.ts";
+import { useScrubbing } from "$/modules/spectrogram/hooks/useScrubbing.ts";
 import { useSpectrogramInteraction } from "$/modules/spectrogram/hooks/useSpectrogramInteraction.ts";
 import { useSpectrogramResize } from "$/modules/spectrogram/hooks/useSpectrogramResize.ts";
 import { useSpectrogramSelection } from "$/modules/spectrogram/hooks/useSpectrogramSelection.ts";
