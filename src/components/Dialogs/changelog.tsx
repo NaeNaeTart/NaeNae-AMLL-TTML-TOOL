@@ -76,6 +76,9 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Timing Overview Order Mode:</strong> Added a toggle in the Technical Timing Overview between chronological order and natural textual document order, keeping unsynchronized lines in their original lyrical sequence.
 								</Text>
+								<Text size="2">
+									<strong>Test Runner &amp; Spectrogram Optimization:</strong> Configured standard test runner scripts for Vitest and full-suite runs, eliminated redundant spectrogram tile re-renders during resizing, and removed unused dependencies across spectrogram components.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

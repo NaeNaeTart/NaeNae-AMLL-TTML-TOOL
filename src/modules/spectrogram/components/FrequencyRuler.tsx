@@ -1,12 +1,10 @@
-import type { FC } from "react";
+import { Text } from "@radix-ui/themes";
 import { useAtomValue } from "jotai";
+import type { FC } from "react";
 import { audioBufferAtom } from "$/modules/audio/states";
-import { spectrogramHeightAtom } from "$/modules/spectrogram/states";
-import { Flex, Text } from "@radix-ui/themes";
 
 export const FrequencyRuler: FC = () => {
 	const audioBuffer = useAtomValue(audioBufferAtom);
-	const height = useAtomValue(spectrogramHeightAtom);
 
 	if (!audioBuffer) return null;
 
