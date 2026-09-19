@@ -34,6 +34,12 @@ export const timingOverviewAutoScrollAtom = atomWithStorage(
 	"timingOverviewAutoScroll",
 	false,
 );
+export type TimingOverviewOrderMode = "chronological" | "textual";
+export const timingOverviewOrderModeAtom =
+	atomWithStorage<TimingOverviewOrderMode>(
+		"timingOverviewOrderMode",
+		"chronological",
+	);
 export const spectrogramHoverSyncEnabledAtom = atomWithStorage(
 	"spectrogramHoverSyncEnabled",
 	false,
