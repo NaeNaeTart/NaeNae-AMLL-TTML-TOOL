@@ -8,15 +8,16 @@ import { audioEngine } from "$/modules/audio/audio-engine";
 import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import { AUTO_SCROLL_PAUSE_MS } from "$/modules/lyric-editor/components/selection-scroll";
 import {
+	type TimingOverviewOrderMode,
 	timingOverviewAutoScrollAtom,
 	timingOverviewOrderModeAtom,
-	type TimingOverviewOrderMode,
 } from "$/modules/settings/states/sync.ts";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
 import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
 import {
 	calculateTimingOverviewStats,
+	findActiveTimingLineIndex,
 	getDisplayedTimingLines,
 } from "./timing-order.ts";
 import { areWordGroupPropsEqual } from "./word-group-memo.ts";
@@ -290,30 +291,7 @@ export const TimingOverview = memo(() => {
 		if (isPointerDownRef.current) return;
 		if (Date.now() - userScrolledAtRef.current < AUTO_SCROLL_PAUSE_MS) return;
 
-		let activeIndex = displayedLines.findIndex(
-			(l) =>
-				currentTime >= l.startTime &&
-				currentTime <= l.endTime &&
-				(l.startTime > 0 || l.endTime > 0),
-		);
-		if (activeIndex === -1 && currentTime > 0) {
-			const upcoming = displayedLines.findIndex(
-				(l) => (l.startTime > 0 || l.endTime > 0) && l.startTime >= currentTime,
-			);
-			if (upcoming !== -1) {
-				activeIndex = upcoming;
-			} else {
-				for (let i = displayedLines.length - 1; i >= 0; i--) {
-					const line = displayedLines[i];
-					if (line.startTime > 0 || line.endTime > 0) {
-						if (currentTime <= line.endTime) {
-							activeIndex = i;
-						}
-						break;
-					}
-				}
-			}
-		}
+		const activeIndex = findActiveTimingLineIndex(displayedLines, currentTime);
 		if (activeIndex === -1 || activeIndex === lastActiveIndexRef.current) return;
 
 		if (!audioPlaying && lastActiveIndexRef.current !== -1) {
