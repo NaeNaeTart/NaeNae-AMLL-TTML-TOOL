@@ -60,6 +60,9 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Themed Glassmorphic Toast Notifications:</strong> Toast notifications now feature glassmorphic translucent styling with background blur, follow the app's global radius, and synchronize icon and progress bar colors with the active theme accent.
+								</Text>
+								<Text size="2">
 									<strong>Updated Beginner Guide Links:</strong> In-app onboarding and
 									Genius token help now open the current Spicy Lyrics guides instead
 									of the retired documentation site.
