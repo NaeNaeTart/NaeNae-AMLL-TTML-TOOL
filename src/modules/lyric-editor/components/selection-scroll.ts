@@ -40,3 +40,63 @@ export const calculateScrollDuration = (
 
 export const easeInOutSine = (t: number): number =>
 	-(Math.cos(Math.PI * t) - 1) / 2;
+
+export interface ResolveAnchorParams {
+	syncTabPosition: boolean;
+	toolMode: ToolMode;
+	modeAnchor: number;
+	sharedAnchor: number;
+	selectedLineIds: Set<string>;
+	currentTime: number;
+	lines: any[];
+	previousMode: ToolMode;
+	syncFocusMainLine: boolean;
+	findCurrentLineIndex: (
+		lines: any[],
+		currentTime: number,
+		focusMainLine: boolean,
+	) => number;
+}
+
+export const resolveAnchorLineIndex = ({
+	syncTabPosition,
+	modeAnchor,
+	sharedAnchor,
+	selectedLineIds,
+	currentTime,
+	lines,
+	previousMode,
+	syncFocusMainLine,
+	findCurrentLineIndex,
+}: ResolveAnchorParams): number => {
+	if (!syncTabPosition) {
+		return modeAnchor;
+	}
+
+	let targetLineIndex = -1;
+	if (previousMode === ToolMode.Preview && currentTime > 0) {
+		targetLineIndex = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
+		if (targetLineIndex === -1) {
+			const upcoming = lines.findIndex((l) => l.startTime >= currentTime);
+			if (upcoming !== -1) targetLineIndex = upcoming;
+		}
+	} else {
+		if (selectedLineIds.size > 0) {
+			targetLineIndex = lines.findIndex((l) => selectedLineIds.has(l.id));
+		}
+		if (targetLineIndex === -1 && currentTime > 0) {
+			targetLineIndex = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
+			if (targetLineIndex === -1) {
+				const upcoming = lines.findIndex((l) => l.startTime >= currentTime);
+				if (upcoming !== -1) targetLineIndex = upcoming;
+			}
+		}
+	}
+
+	if (targetLineIndex === -1) {
+		targetLineIndex = sharedAnchor;
+	}
+
+	return targetLineIndex;
+};
+

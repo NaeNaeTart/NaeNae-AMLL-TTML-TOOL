@@ -71,7 +71,7 @@ export function ChangelogDialog() {
 									<strong>Timing Overview Syllable Seeking:</strong> Clicking any syllable or word in the Technical Timing Overview now seeks directly to that word's timestamp and displays its active frame, while table auto-scroll smoothly follows playback without getting stuck.
 								</Text>
 								<Text size="2">
-									<strong>Cross-Tab Position Sync:</strong> Switching between Edit, Time, and Preview tabs maintains playback position and keeps the active line centered.
+									<strong>Cross-Tab Position Sync:</strong> Switching between Edit, Time, and Preview tabs maintains playback position and keeps the active line centered, with anchor restoration scoped to tab mounting to prevent view jitter during word and line synchronization.
 								</Text>
 								<Text size="2">
 									<strong>Wrapped Line Borders &amp; Highlight Persistence:</strong> Wrapped lyric rows without timestamps now display their left border indicator, active syllable highlights remain synchronized across selection and pause states, and auto-scroll easing uses a smooth sine curve with proportional duration.
