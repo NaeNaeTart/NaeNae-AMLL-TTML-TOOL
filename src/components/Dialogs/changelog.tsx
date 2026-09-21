@@ -55,6 +55,39 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="iris">
+								Unreleased Updates
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Backup Contents Preview:</strong> Added an expandable
+									preview dropdown before exporting settings and data backups,
+									displaying category counts, item lists, and estimated total file
+									size.
+								</Text>
+								<Text size="2">
+									<strong>Backup Assets:</strong> Appearance presets and the custom font
+									are now exported and restored with the Assets category.
+								</Text>
+								<Text size="2">
+									<strong>Backup Safety:</strong> API keys (Genius and AI
+									Sidebar) now have their own opt-in "API keys" category, off by
+									default, and are never included with Settings. The last workspace
+									folder and recent project paths are not exported because they only
+									make sense on the original device.
+								</Text>
+								<Text size="2">
+									<strong>Backup Coverage:</strong> Show End Time as Duration and
+									Ignore Background Lyrics in Sync are now remembered between sessions
+									and included in backups.
+								</Text>
+								<Text size="2">
+									<strong>Backup Tab Translation:</strong> The Backup settings tab is
+									now fully translated to Spanish.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.10.2 Updates (Windows Install Fix)
 							</Heading>

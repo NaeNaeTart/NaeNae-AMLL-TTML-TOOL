@@ -487,15 +487,20 @@
         "keybindings": "Keybindings",
         "assets": "Appearance assets",
         "projects": "Projects & history",
-        "plugins": "Plugins"
+        "plugins": "Plugins",
+        "apiKeys": "API keys"
       },
       "hint": {
         "settings": "{count} stored values",
         "keybindings": "{count} keybindings",
         "assetsSet": "Custom background image set",
-        "assetsNone": "No custom background image",
+        "assetsNone": "No custom assets",
+        "presetsCount": "{count} presets",
+        "backgroundSet": "Custom background",
+        "fontSet": "Custom font",
         "projects": "{count} projects",
-        "plugins": "{count} plugins"
+        "plugins": "{count} plugins",
+        "apiKeys": "{count} keys"
       },
       "exportSuccess": "Backup exported",
       "exportFailed": "Failed to export backup",
@@ -506,6 +511,13 @@
       "exportTitle": "Export",
       "exportDesc": "Save your settings and data to a file you can restore later or move to another device.",
       "exportButton": "Export backup",
+      "previewToggle": "Preview contents",
+      "previewLoading": "Loading preview…",
+      "previewEmpty": "Nothing selected to preview",
+      "previewCategoryEmpty": "Nothing to export in this category",
+      "previewMore": "+{count} more",
+      "previewTotal": "Estimated total size",
+      "apiKeysWarning": "API keys are saved as plain text in the backup file. Keep it private.",
       "importTitle": "Import",
       "importDesc": "Restore settings and data from a backup file. Existing values will be replaced.",
       "importButton": "Choose backup file…",

@@ -1,28 +1,20 @@
+import type { WASMPlugin } from "$/modules/plugins/types";
 import type {
 	ProjectInfo,
 	ProjectVersion,
 } from "$/modules/project/autosave/autosave";
-import type { WASMPlugin } from "$/modules/plugins/types";
 
-/**
- * @description 备份文件的应用标识，用于拒绝非本应用的文件
- */
 export const BACKUP_APP_ID = "amll-ttml-tool";
 
-/**
- * @description 备份文件格式版本。导入比此版本更新的文件时会拒绝并提示。
- */
 export const BACKUP_FORMAT_VERSION = 1;
 
-/**
- * @description 可选的备份分类
- */
 export type BackupCategoryId =
 	| "settings"
 	| "keybindings"
 	| "assets"
 	| "projects"
-	| "plugins";
+	| "plugins"
+	| "apiKeys";
 
 export const BACKUP_CATEGORY_IDS: BackupCategoryId[] = [
 	"settings",
@@ -30,28 +22,25 @@ export const BACKUP_CATEGORY_IDS: BackupCategoryId[] = [
 	"assets",
 	"projects",
 	"plugins",
+	"apiKeys",
 ];
 
-/**
- * @description 序列化后的自定义背景图片资源
- */
 export interface BackupBackgroundImage {
 	mime: string;
 	dataBase64: string;
 	updatedAt: number;
 }
 
-/**
- * @description 序列化后的 WASM 插件（二进制以 base64 存储）
- */
 export type BackupPlugin = Omit<WASMPlugin, "blob"> & {
 	blobBase64: string;
 	blobMime: string;
 };
 
-/**
- * @description 备份文件的完整结构
- */
+export interface BackupCustomFont {
+	name: string;
+	data: string;
+}
+
 export interface BackupFile {
 	app: typeof BACKUP_APP_ID;
 	formatVersion: number;
@@ -60,7 +49,12 @@ export interface BackupFile {
 	categories: {
 		settings?: { localStorage: Record<string, string> };
 		keybindings?: { localStorage: Record<string, string> };
-		assets?: { backgroundImage: BackupBackgroundImage | null };
+		apiKeys?: { localStorage: Record<string, string> };
+		assets?: {
+			backgroundImage: BackupBackgroundImage | null;
+			appearancePresets?: unknown[];
+			customFont?: BackupCustomFont | null;
+		};
 		projects?: {
 			projects: ProjectInfo[];
 			versions: Omit<ProjectVersion, "id">[];
@@ -69,9 +63,6 @@ export interface BackupFile {
 	};
 }
 
-/**
- * @description 校验失败的原因代码，用于映射到 i18n 文案
- */
 export type BackupValidationReason =
 	| "notObject"
 	| "notBackupFile"
@@ -94,9 +85,6 @@ function isStringRecord(value: unknown): value is Record<string, string> {
 	return Object.values(value).every((v) => typeof v === "string");
 }
 
-/**
- * @description 校验任意解析出的数据是否为合法的备份文件，非法时抛出 {@link BackupValidationError}
- */
 export function validateBackupFile(data: unknown): asserts data is BackupFile {
 	if (!isPlainObject(data)) {
 		throw new BackupValidationError("notObject");
@@ -134,16 +122,39 @@ export function validateBackupFile(data: unknown): asserts data is BackupFile {
 		}
 	}
 
+	if (categories.apiKeys !== undefined) {
+		if (
+			!isPlainObject(categories.apiKeys) ||
+			!isStringRecord(categories.apiKeys.localStorage)
+		) {
+			throw new BackupValidationError("malformedCategories");
+		}
+	}
+
 	if (categories.assets !== undefined) {
 		if (!isPlainObject(categories.assets)) {
 			throw new BackupValidationError("malformedCategories");
 		}
 		const bg = categories.assets.backgroundImage;
-		if (bg !== null) {
+		if (bg !== null && bg !== undefined) {
 			if (
 				!isPlainObject(bg) ||
 				typeof bg.mime !== "string" ||
 				typeof bg.dataBase64 !== "string"
+			) {
+				throw new BackupValidationError("malformedCategories");
+			}
+		}
+		const presets = categories.assets.appearancePresets;
+		if (presets !== undefined && !Array.isArray(presets)) {
+			throw new BackupValidationError("malformedCategories");
+		}
+		const font = categories.assets.customFont;
+		if (font !== null && font !== undefined) {
+			if (
+				!isPlainObject(font) ||
+				typeof font.name !== "string" ||
+				typeof font.data !== "string"
 			) {
 				throw new BackupValidationError("malformedCategories");
 			}

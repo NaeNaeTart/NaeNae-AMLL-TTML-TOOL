@@ -1,6 +1,7 @@
 import {
 	ArrowDownload24Regular,
 	ArrowUpload24Regular,
+	ChevronDownRegular,
 } from "@fluentui/react-icons";
 import {
 	Box,
@@ -15,6 +16,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import {
+	type BackupAssetsCounts,
 	type BackupCounts,
 	exportBackup,
 	getBackupCounts,
@@ -25,6 +27,12 @@ import {
 	getPresentCategories,
 	parseBackupFile,
 } from "$/modules/settings/backup/import";
+import {
+	EXPORT_PREVIEW_ITEM_LIMIT,
+	type ExportPreview,
+	formatPreviewBytes,
+	previewExportBackup,
+} from "$/modules/settings/backup/preview";
 import {
 	BACKUP_CATEGORY_IDS,
 	type BackupCategoryId,
@@ -40,6 +48,7 @@ function useCategoryLabels() {
 		assets: t("settings.backup.category.assets", "Appearance assets"),
 		projects: t("settings.backup.category.projects", "Projects & history"),
 		plugins: t("settings.backup.category.plugins", "Plugins"),
+		apiKeys: t("settings.backup.category.apiKeys", "API keys"),
 	} satisfies Record<BackupCategoryId, string>;
 }
 
@@ -50,9 +59,14 @@ export const SettingsBackupTab = memo(() => {
 
 	const [counts, setCounts] = useState<BackupCounts | null>(null);
 	const [exportSelected, setExportSelected] = useState<Set<BackupCategoryId>>(
-		() => new Set(BACKUP_CATEGORY_IDS),
+		() => new Set(BACKUP_CATEGORY_IDS.filter((id) => id !== "apiKeys")),
 	);
 	const [exporting, setExporting] = useState(false);
+	const [expanded, setExpanded] = useState<Set<BackupCategoryId>>(
+		() => new Set(),
+	);
+	const [preview, setPreview] = useState<ExportPreview | null>(null);
+	const [previewLoading, setPreviewLoading] = useState(true);
 
 	const [pendingImport, setPendingImport] = useState<BackupFile | null>(null);
 	const [importSelected, setImportSelected] = useState<Set<BackupCategoryId>>(
@@ -64,6 +78,23 @@ export const SettingsBackupTab = memo(() => {
 		getBackupCounts()
 			.then(setCounts)
 			.catch(() => setCounts(null));
+	}, []);
+
+	useEffect(() => {
+		let cancelled = false;
+		previewExportBackup(new Set(BACKUP_CATEGORY_IDS))
+			.then((next) => {
+				if (!cancelled) setPreview(next);
+			})
+			.catch(() => {
+				if (!cancelled) setPreview(null);
+			})
+			.finally(() => {
+				if (!cancelled) setPreviewLoading(false);
+			});
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	const toggle = useCallback(
@@ -82,6 +113,32 @@ export const SettingsBackupTab = memo(() => {
 		[],
 	);
 
+	const formatAssetsHint = useCallback(
+		(assets: BackupAssetsCounts): string => {
+			const parts: string[] = [];
+			if (assets.presets > 0) {
+				parts.push(
+					t("settings.backup.hint.presetsCount", "{count} presets", {
+						count: assets.presets,
+					}),
+				);
+			}
+			if (assets.background) {
+				parts.push(
+					t("settings.backup.hint.backgroundSet", "Custom background"),
+				);
+			}
+			if (assets.font) {
+				parts.push(t("settings.backup.hint.fontSet", "Custom font"));
+			}
+			if (parts.length > 0) {
+				return parts.join(" • ");
+			}
+			return t("settings.backup.hint.assetsNone", "No custom assets");
+		},
+		[t],
+	);
+
 	const exportHint = useCallback(
 		(id: BackupCategoryId): string => {
 			if (!counts) return "";
@@ -95,9 +152,7 @@ export const SettingsBackupTab = memo(() => {
 						count: counts.keybindings,
 					});
 				case "assets":
-					return counts.assets
-						? t("settings.backup.hint.assetsSet", "Custom background image set")
-						: t("settings.backup.hint.assetsNone", "No custom background image");
+					return formatAssetsHint(counts.assets);
 				case "projects":
 					return t("settings.backup.hint.projects", "{count} projects", {
 						count: counts.projects,
@@ -106,9 +161,13 @@ export const SettingsBackupTab = memo(() => {
 					return t("settings.backup.hint.plugins", "{count} plugins", {
 						count: counts.plugins,
 					});
+				case "apiKeys":
+					return t("settings.backup.hint.apiKeys", "{count} keys", {
+						count: counts.apiKeys,
+					});
 			}
 		},
-		[counts, t],
+		[counts, formatAssetsHint, t],
 	);
 
 	const handleExport = useCallback(async () => {
@@ -135,7 +194,7 @@ export const SettingsBackupTab = memo(() => {
 				const parsed = parseBackupFile(await file.text());
 				const present = getPresentCategories(parsed);
 				setPendingImport(parsed);
-				setImportSelected(new Set(present));
+				setImportSelected(new Set(present.filter((id) => id !== "apiKeys")));
 			} catch (err) {
 				if (
 					err instanceof BackupValidationError &&
@@ -149,7 +208,10 @@ export const SettingsBackupTab = memo(() => {
 					);
 				} else {
 					toast.error(
-						t("settings.backup.invalidFile", "Invalid or corrupted backup file"),
+						t(
+							"settings.backup.invalidFile",
+							"Invalid or corrupted backup file",
+						),
 					);
 				}
 			}
@@ -182,9 +244,12 @@ export const SettingsBackupTab = memo(() => {
 		const value = importDescription[id];
 		if (value === undefined) return "";
 		if (id === "assets") {
+			if (typeof value === "object" && value !== null) {
+				return formatAssetsHint(value as BackupAssetsCounts);
+			}
 			return value
-				? t("settings.backup.hint.assetsSet", "Custom background image set")
-				: t("settings.backup.hint.assetsNone", "No custom background image");
+				? t("settings.backup.hint.backgroundSet", "Custom background")
+				: t("settings.backup.hint.assetsNone", "No custom assets");
 		}
 		return String(value);
 	};
@@ -203,23 +268,117 @@ export const SettingsBackupTab = memo(() => {
 				</Text>
 				<Card variant="surface">
 					<Flex direction="column" gap="3">
-						{BACKUP_CATEGORY_IDS.map((id) => (
-							<Flex key={id} align="center" gap="3">
-								<Checkbox
-									checked={exportSelected.has(id)}
-									onCheckedChange={(v) =>
-										toggle(setExportSelected, id, v === true)
-									}
-								/>
-								<Flex direction="column">
-									<Text size="2">{labels[id]}</Text>
-									<Text size="1" color="gray">
-										{exportHint(id)}
-									</Text>
-								</Flex>
-							</Flex>
-						))}
-						<Flex justify="end">
+						{BACKUP_CATEGORY_IDS.map((id) => {
+							const category = preview?.categories.find((c) => c.id === id);
+							const open = expanded.has(id);
+							return (
+								<Box key={id}>
+									<Flex align="center" gap="3">
+										<Checkbox
+											checked={exportSelected.has(id)}
+											onCheckedChange={(v) =>
+												toggle(setExportSelected, id, v === true)
+											}
+										/>
+										<Flex direction="column" flexGrow="1">
+											<Text size="2">{labels[id]}</Text>
+											<Text size="1" color="gray">
+												{exportHint(id)}
+											</Text>
+										</Flex>
+										<Button
+											variant="ghost"
+											color="gray"
+											size="1"
+											onClick={() => toggle(setExpanded, id, !open)}
+											aria-expanded={open}
+										>
+											<ChevronDownRegular
+												style={{
+													transform: open ? "rotate(180deg)" : undefined,
+													transition: "transform 0.15s ease",
+												}}
+											/>
+											{category ? formatPreviewBytes(category.bytes) : null}
+										</Button>
+									</Flex>
+									{open && (
+										<Box
+											ml="6"
+											mt="1"
+											style={{ maxHeight: 160, overflowY: "auto" }}
+										>
+											{previewLoading ? (
+												<Text size="1" color="gray">
+													{t(
+														"settings.backup.previewLoading",
+														"Loading preview…",
+													)}
+												</Text>
+											) : !category || category.items.length === 0 ? (
+												<Text size="1" color="gray">
+													{t(
+														"settings.backup.previewCategoryEmpty",
+														"Nothing to export in this category",
+													)}
+												</Text>
+											) : (
+												<Flex direction="column" gap="1">
+													{category.items
+														.slice(0, EXPORT_PREVIEW_ITEM_LIMIT)
+														.map((item) => (
+															<Flex
+																key={item.label}
+																align="center"
+																justify="between"
+																gap="2"
+															>
+																<Text size="1" truncate>
+																	{item.label}
+																</Text>
+																<Text size="1" color="gray" wrap="nowrap">
+																	{item.detail}
+																</Text>
+															</Flex>
+														))}
+													{category.items.length >
+														EXPORT_PREVIEW_ITEM_LIMIT && (
+														<Text size="1" color="gray">
+															{t(
+																"settings.backup.previewMore",
+																"+{count} more",
+																{
+																	count:
+																		category.items.length -
+																		EXPORT_PREVIEW_ITEM_LIMIT,
+																},
+															)}
+														</Text>
+													)}
+												</Flex>
+											)}
+										</Box>
+									)}
+								</Box>
+							);
+						})}
+						{exportSelected.has("apiKeys") && (
+							<Text size="1" color="orange">
+								{t(
+									"settings.backup.apiKeysWarning",
+									"API keys are saved as plain text in the backup file. Keep it private.",
+								)}
+							</Text>
+						)}
+						<Flex justify="between" align="center">
+							<Text size="2" weight="bold">
+								{t("settings.backup.previewTotal", "Estimated total size")}:{" "}
+								{formatPreviewBytes(
+									(preview?.categories ?? [])
+										.filter((c) => exportSelected.has(c.id))
+										.reduce((sum, c) => sum + c.bytes, 0),
+								)}
+							</Text>
 							<Button
 								onClick={handleExport}
 								disabled={exportSelected.size === 0}
