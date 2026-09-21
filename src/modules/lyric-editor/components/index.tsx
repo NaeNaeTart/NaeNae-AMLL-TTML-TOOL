@@ -76,6 +76,7 @@ import {
 	calculateScrollDuration,
 	easeInOutSine,
 	findClosestLineToViewportCenter,
+	resolveAnchorLineIndex,
 	shouldAutoCenterSelection,
 } from "./selection-scroll";
 
@@ -598,18 +599,41 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	);
 	const syncTabPosition = useAtomValue(syncTabPositionAtom);
 
+	const visibleItemsRef = useRef(visibleItems);
+	visibleItemsRef.current = visibleItems;
+	const hasRestoredAnchorRef = useRef(false);
+
 	const restoreEditorAnchorOnListReady = useCallback(
 		(instance: ViewportListRef | null) => {
 			viewRef.current = instance;
-			if (!instance) return;
+			if (!instance || hasRestoredAnchorRef.current) return;
+
+			const targetLineIndex = resolveAnchorLineIndex({
+				syncTabPosition,
+				toolMode,
+				modeAnchor: modeAnchorLines[toolMode],
+				sharedAnchor: sharedAnchorLineIndex,
+				selectedLineIds: store.get(selectedLinesAtom),
+				currentTime: store.get(currentTimeAtom),
+				lines: store.get(lyricLinesAtom).lyricLines,
+				previousMode: store.get(previousToolModeAtom),
+				syncFocusMainLine: store.get(syncFocusMainLineAtom),
+				findCurrentLineIndex,
+			});
+
+			if (targetLineIndex === -1) {
+				hasRestoredAnchorRef.current = true;
+				return;
+			}
+
+			const visibleIndex = visibleItemsRef.current.findIndex(
+				(item) => item.sourceIndex === targetLineIndex,
+			);
+			if (visibleIndex === -1) return;
+
+			hasRestoredAnchorRef.current = true;
 
 			if (!syncTabPosition) {
-				const ownAnchor = modeAnchorLines[toolMode];
-				if (ownAnchor === -1) return;
-				const visibleIndex = visibleItems.findIndex(
-					(item) => item.sourceIndex === ownAnchor,
-				);
-				if (visibleIndex === -1) return;
 				requestAnimationFrame(() => {
 					const viewEl = viewElRef.current;
 					if (!viewEl?.parentElement) return;
@@ -618,42 +642,6 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				});
 				return;
 			}
-
-			let targetLineIndex = -1;
-			const selected = store.get(selectedLinesAtom);
-			const currentTime = store.get(currentTimeAtom);
-			const lines = store.get(lyricLinesAtom).lyricLines;
-			const previousMode = store.get(previousToolModeAtom);
-			const syncFocusMainLine = store.get(syncFocusMainLineAtom);
-
-			if (previousMode === ToolMode.Preview && currentTime > 0) {
-				targetLineIndex = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
-				if (targetLineIndex === -1) {
-					const upcoming = lines.findIndex((l) => l.startTime >= currentTime);
-					if (upcoming !== -1) targetLineIndex = upcoming;
-				}
-			} else {
-				if (selected.size > 0) {
-					targetLineIndex = lines.findIndex((l) => selected.has(l.id));
-				}
-				if (targetLineIndex === -1 && currentTime > 0) {
-					targetLineIndex = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
-					if (targetLineIndex === -1) {
-						const upcoming = lines.findIndex((l) => l.startTime >= currentTime);
-						if (upcoming !== -1) targetLineIndex = upcoming;
-					}
-				}
-			}
-
-			if (targetLineIndex === -1) {
-				targetLineIndex = sharedAnchorLineIndex;
-			}
-			if (targetLineIndex === -1) return;
-
-			const visibleIndex = visibleItems.findIndex(
-				(item) => item.sourceIndex === targetLineIndex,
-			);
-			if (visibleIndex === -1) return;
 
 			requestAnimationFrame(() => {
 				const viewEl = viewElRef.current;
@@ -689,7 +677,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				}
 			});
 		},
-		[visibleItems, syncTabPosition, store, toolMode],
+		[syncTabPosition, store, toolMode],
 	);
 
 	const geniusCategorizationEnabled = useAtomValue(

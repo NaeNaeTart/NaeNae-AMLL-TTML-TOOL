@@ -5,6 +5,7 @@ import {
 	calculateScrollDuration,
 	easeInOutSine,
 	findClosestLineToViewportCenter,
+	resolveAnchorLineIndex,
 	shouldAutoCenterSelection,
 } from "./selection-scroll";
 
@@ -77,3 +78,120 @@ describe("easeInOutSine", () => {
 		expect(easeInOutSine(0.25) + easeInOutSine(0.75)).toBeCloseTo(1, 5);
 	});
 });
+
+describe("resolveAnchorLineIndex", () => {
+	const sampleLines = [
+		{ id: "line-1", startTime: 1000, endTime: 2000, isBG: false, words: [] },
+		{ id: "line-2", startTime: 3000, endTime: 4000, isBG: false, words: [] },
+		{ id: "line-3", startTime: 5000, endTime: 6000, isBG: false, words: [] },
+	] as any[];
+
+	const mockFindCurrentLineIndex = (
+		lines: any[],
+		currentTime: number,
+		_focusMainLine: boolean,
+	) => lines.findIndex((l) => currentTime >= l.startTime && currentTime <= l.endTime);
+
+	it("returns modeAnchor when syncTabPosition is disabled", () => {
+		expect(
+			resolveAnchorLineIndex({
+				syncTabPosition: false,
+				toolMode: ToolMode.Sync,
+				modeAnchor: 2,
+				sharedAnchor: 1,
+				selectedLineIds: new Set(["line-1"]),
+				currentTime: 3500,
+				lines: sampleLines,
+				previousMode: ToolMode.Edit,
+				syncFocusMainLine: true,
+				findCurrentLineIndex: mockFindCurrentLineIndex,
+			}),
+		).toBe(2);
+	});
+
+	it("resolves active playback line when transitioning from Preview with playback active", () => {
+		expect(
+			resolveAnchorLineIndex({
+				syncTabPosition: true,
+				toolMode: ToolMode.Sync,
+				modeAnchor: -1,
+				sharedAnchor: -1,
+				selectedLineIds: new Set(),
+				currentTime: 3500,
+				lines: sampleLines,
+				previousMode: ToolMode.Preview,
+				syncFocusMainLine: true,
+				findCurrentLineIndex: mockFindCurrentLineIndex,
+			}),
+		).toBe(1);
+	});
+
+	it("resolves upcoming line when transitioning from Preview between lines", () => {
+		expect(
+			resolveAnchorLineIndex({
+				syncTabPosition: true,
+				toolMode: ToolMode.Sync,
+				modeAnchor: -1,
+				sharedAnchor: -1,
+				selectedLineIds: new Set(),
+				currentTime: 2500,
+				lines: sampleLines,
+				previousMode: ToolMode.Preview,
+				syncFocusMainLine: true,
+				findCurrentLineIndex: mockFindCurrentLineIndex,
+			}),
+		).toBe(1);
+	});
+
+	it("prioritizes selected line when switching tabs with active selection", () => {
+		expect(
+			resolveAnchorLineIndex({
+				syncTabPosition: true,
+				toolMode: ToolMode.Sync,
+				modeAnchor: -1,
+				sharedAnchor: 0,
+				selectedLineIds: new Set(["line-3"]),
+				currentTime: 1500,
+				lines: sampleLines,
+				previousMode: ToolMode.Edit,
+				syncFocusMainLine: true,
+				findCurrentLineIndex: mockFindCurrentLineIndex,
+			}),
+		).toBe(2);
+	});
+
+	it("falls back to shared anchor when no line is selected and audio is not playing", () => {
+		expect(
+			resolveAnchorLineIndex({
+				syncTabPosition: true,
+				toolMode: ToolMode.Sync,
+				modeAnchor: -1,
+				sharedAnchor: 2,
+				selectedLineIds: new Set(),
+				currentTime: 0,
+				lines: sampleLines,
+				previousMode: ToolMode.Edit,
+				syncFocusMainLine: true,
+				findCurrentLineIndex: mockFindCurrentLineIndex,
+			}),
+		).toBe(2);
+	});
+
+	it("returns -1 when no valid anchors or active lines exist", () => {
+		expect(
+			resolveAnchorLineIndex({
+				syncTabPosition: true,
+				toolMode: ToolMode.Sync,
+				modeAnchor: -1,
+				sharedAnchor: -1,
+				selectedLineIds: new Set(),
+				currentTime: 0,
+				lines: sampleLines,
+				previousMode: ToolMode.Edit,
+				syncFocusMainLine: true,
+				findCurrentLineIndex: mockFindCurrentLineIndex,
+			}),
+		).toBe(-1);
+	});
+});
+

@@ -434,11 +434,19 @@ function App() {
 		${customFontFace}
 		:root {
 			--default-font-family: ${appFont} !important;
+			--glass-blur: ${glassmorphismBlur}px !important;
+			--backdrop-blur: ${glassmorphismBlur}px !important;
+			--custom-backdrop-blur: ${glassmorphismBlur}px !important;
 		}
-		.radix-themes {
+		.radix-themes,
+		.radix-themes:is(.dark, .dark-theme),
+		.radix-themes:is(.light, .light-theme),
+		.radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"]) {
 			--default-font-family: ${appFont} !important;
 			--glass-blur: ${glassmorphismBlur}px !important;
 			--backdrop-blur: ${glassmorphismBlur}px !important;
+			--backdrop-filter-panel: blur(${glassmorphismBlur}px) saturate(160%) !important;
+			--custom-backdrop-blur: ${glassmorphismBlur}px !important;
 			${advPrimaryText ? `--gray-12: ${advPrimaryText} !important;` : ""}
 			${advSecondaryText ? `--gray-11: ${advSecondaryText} !important;` : ""}
 			${advWaveformColor ? `--adv-waveform-color: ${advWaveformColor} !important;` : ""}
@@ -552,9 +560,9 @@ function App() {
 	useEffect(() => {
 		setHasBackground(
 			backgroundMode !== "none" &&
-				!!(customBackgroundImage || selectedGradient),
+				!!(customBackgroundImage || selectedGradient || useCustomGradient),
 		);
-	}, [backgroundMode, customBackgroundImage, selectedGradient]);
+	}, [backgroundMode, customBackgroundImage, selectedGradient, useCustomGradient]);
 	const { checkUpdate, status, update } = useAppUpdate();
 	const hasNotifiedRef = useRef(false);
 	const setSettingsOpen = useSetAtom(settingsDialogAtom);
@@ -731,15 +739,17 @@ function App() {
 								backgroundImage:
 									backgroundMode === "image"
 										? `url(${customBackgroundImage})`
-										: useCustomGradient
-											? generateGradient(
-													customGradientColors,
-													customGradientType,
-													customGradientCenter,
-													customGradientAngle,
-													customGradientSize,
-												)
-											: selectedGradient?.css,
+										: backgroundMode === "gradient"
+											? useCustomGradient
+												? generateGradient(
+														customGradientColors,
+														customGradientType,
+														customGradientCenter,
+														customGradientAngle,
+														customGradientSize,
+													)
+												: selectedGradient?.css
+											: undefined,
 								opacity:
 									backgroundMode === "gradient"
 										? customGradientOpacity
