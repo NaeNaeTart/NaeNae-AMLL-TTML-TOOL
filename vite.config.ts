@@ -1,6 +1,6 @@
 import { exec } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import jotaiDebugLabel from "jotai/babel/plugin-debug-label";
@@ -11,6 +11,7 @@ import i18nextLoader from "vite-plugin-i18next-loader";
 import { VitePWA } from "vite-plugin-pwa";
 import wasm from "vite-plugin-wasm";
 import svgLoader from "vite-svg-loader";
+import { configDefaults } from "vitest/config";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -176,5 +177,8 @@ export default defineConfig({
 	},
 	define: {
 		global: "globalThis",
+	},
+	test: {
+		exclude: [...configDefaults.exclude, "scripts/version-utils.test.mjs"],
 	},
 });

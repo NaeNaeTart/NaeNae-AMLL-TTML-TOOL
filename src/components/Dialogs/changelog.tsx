@@ -55,6 +55,42 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="violet">
+								v0.9.13 Updates (Social Embeds, Branding &amp; Guide Links)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Link Embeds:</strong> Added short link embeds for Discord, Google, social sharing, and search previews.
+								</Text>
+								<Text size="2">
+									<strong>Red Logo:</strong> Changed default logo color to red.
+								</Text>
+								<Text size="2">
+									<strong>Themed Glassmorphic Toast Notifications:</strong> Toast notifications now feature glassmorphic translucent styling with background blur, follow the app's global radius, and synchronize icon and progress bar colors with the active theme accent.
+								</Text>
+								<Text size="2">
+									<strong>Updated Beginner Guide Links:</strong> In-app onboarding and
+									Genius token help now open the current Spicy Lyrics guides instead
+									of the retired documentation site.
+								</Text>
+								<Text size="2">
+									<strong>Timing Overview Syllable Seeking:</strong> Clicking any syllable or word in the Technical Timing Overview now seeks directly to that word's timestamp and displays its active frame, while table auto-scroll smoothly follows playback without getting stuck.
+								</Text>
+								<Text size="2">
+									<strong>Cross-Tab Position Sync:</strong> Switching between Edit, Time, and Preview tabs maintains playback position and keeps the active line centered, with anchor restoration scoped to tab mounting to prevent view jitter during word and line synchronization.
+								</Text>
+								<Text size="2">
+									<strong>Wrapped Line Borders &amp; Highlight Persistence:</strong> Wrapped lyric rows without timestamps now display their left border indicator, active syllable highlights remain synchronized across selection and pause states, and auto-scroll easing uses a smooth sine curve with proportional duration.
+								</Text>
+								<Text size="2">
+									<strong>Timing Overview Order Mode:</strong> Added a toggle in the Technical Timing Overview between chronological order and natural textual document order, keeping unsynchronized lines in their original lyrical sequence.
+								</Text>
+								<Text size="2">
+									<strong>Test Runner &amp; Spectrogram Optimization:</strong> Configured standard test runner scripts for Vitest and full-suite runs, eliminated redundant spectrogram tile re-renders during resizing, and removed unused dependencies across spectrogram components.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="crimson">
 								v0.9.12 Updates (Time Mode Tracking &amp; Spectrogram Polish)
 							</Heading>

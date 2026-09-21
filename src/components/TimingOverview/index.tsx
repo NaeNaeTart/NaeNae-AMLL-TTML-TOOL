@@ -1,16 +1,28 @@
-import { Box, Card, Flex, Text, Tooltip } from "@radix-ui/themes";
+import { Box, Card, Checkbox, Flex, SegmentedControl, Text, Tooltip } from "@radix-ui/themes";
 import classNames from "classnames";
-import { useAtomValue, useSetAtom } from "jotai";
-import { memo, useMemo, useRef } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { ViewportList } from "react-viewport-list";
-import { currentTimeAtom } from "$/modules/audio/states";
+import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { audioEngine } from "$/modules/audio/audio-engine";
+import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
+import { AUTO_SCROLL_PAUSE_MS } from "$/modules/lyric-editor/components/selection-scroll";
+import {
+	type TimingOverviewOrderMode,
+	timingOverviewAutoScrollAtom,
+	timingOverviewOrderModeAtom,
+} from "$/modules/settings/states/sync.ts";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
 import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
+import {
+	calculateTimingOverviewStats,
+	findActiveTimingLineIndex,
+	getDisplayedTimingLines,
+} from "./timing-order.ts";
+import { areWordGroupPropsEqual } from "./word-group-memo.ts";
 
-const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTime: number, isGrouped?: boolean }) => {
+const WordPill = memo(({ word, currentTime, isGrouped, onWordClick }: { word: any, currentTime: number, isGrouped?: boolean, onWordClick?: (word: any) => void }) => {
 	const { t } = useTranslation();
 	const isWordActive = currentTime >= word.startTime && currentTime <= word.endTime;
 	const wordDur = word.endTime - word.startTime;
@@ -21,12 +33,18 @@ const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTim
 	}
 
 	const content = (
-		<div className={classNames(
-			styles.wordPill, 
-			isWordActive && styles.wordPillActive, 
-			isWhitespace && styles.whitespacePill,
-			isGrouped && styles.groupedWordPill
-		)}>
+		<div
+			className={classNames(
+				styles.wordPill,
+				isWordActive && styles.wordPillActive,
+				isWhitespace && styles.whitespacePill,
+				isGrouped && styles.groupedWordPill
+			)}
+			onClick={onWordClick && (!isWhitespace || wordDur > 0) ? (e) => {
+				e.stopPropagation();
+				onWordClick(word);
+			} : undefined}
+		>
 			<Text className={styles.wordText}>
 				{isWhitespace ? (word.word || <span className={styles.emptyBeat}>∅</span>) : word.word}
 			</Text>
@@ -58,37 +76,28 @@ const WordPill = memo(({ word, currentTime, isGrouped }: { word: any, currentTim
 	return prev.word === next.word;
 });
 
-const WordGroup = memo(({ words, currentTime }: { words: any[], currentTime: number }) => {
+const WordGroup = memo(({ words, currentTime, onWordClick }: { words: any[], currentTime: number, onWordClick?: (word: any) => void }) => {
 	const isActive = words.some(w => currentTime >= w.startTime && currentTime <= w.endTime);
 
 	return (
 		<div className={classNames(styles.wordGroup, isActive && styles.wordGroupActive)}>
 			{words.map((word, idx) => (
 				<div key={word.id || idx} style={{ display: "flex", alignItems: "center" }}>
-					<WordPill word={word} currentTime={currentTime} isGrouped={true} />
+					<WordPill word={word} currentTime={currentTime} isGrouped={true} onWordClick={onWordClick} />
 					{idx < words.length - 1 && <div className={styles.wordDivider} />}
 				</div>
 			))}
 		</div>
 	);
-}, (prev, next) => {
-	const wasAnyActive = prev.words.some(w => prev.currentTime >= w.startTime && prev.currentTime <= w.endTime);
-	const isAnyActive = next.words.some(w => next.currentTime >= w.startTime && next.currentTime <= next.endTime);
-	
-	if (wasAnyActive || isAnyActive) return false;
-	if (prev.words.length !== next.words.length) return false;
-	for (let i = 0; i < prev.words.length; i++) {
-		if (prev.words[i] !== next.words[i]) return false;
-	}
-	return true;
-});
+}, areWordGroupPropsEqual);
 
-const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: { 
+const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick, onWordClick }: {
 	line: any, 
 	index: number, 
 	currentTime: number, 
 	totalDuration: number,
-	onRowClick: (line: any) => void
+	onRowClick: (line: any) => void,
+	onWordClick: (word: any, line: any) => void,
 }) => {
 	const { t } = useTranslation();
 	const isActive = currentTime >= line.startTime && currentTime <= line.endTime;
@@ -120,6 +129,7 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 	return (
 		<div
 			className={classNames(styles.row, isActive && styles.activeRow)}
+			data-line-index={index}
 			onClick={() => onRowClick(line)}
 			style={{ display: "flex", borderBottom: "1px solid var(--gray-4)" }}
 		>
@@ -141,9 +151,9 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 					<div className={styles.wordPills}>
 						{wordGroups.map((group, gIdx) => (
 							group.type === 'words' ? (
-								<WordGroup key={`g-${gIdx}`} words={group.items!} currentTime={currentTime} />
+								<WordGroup key={group.items?.[0]?.id || `g-${gIdx}`} words={group.items!} currentTime={currentTime} onWordClick={(word) => onWordClick(word, line)} />
 							) : (
-								<WordPill key={`w-${gIdx}`} word={group.word} currentTime={currentTime} />
+								<WordPill key={group.word?.id || `w-${gIdx}`} word={group.word} currentTime={currentTime} onWordClick={(word) => onWordClick(word, line)} />
 							)
 						))}
 					</div>
@@ -155,7 +165,7 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick }: {
 	const wasActive = prev.currentTime >= prev.line.startTime && prev.currentTime <= prev.line.endTime;
 	const isActive = next.currentTime >= next.line.startTime && next.currentTime <= next.line.endTime;
 	if (wasActive || isActive) return false;
-	return prev.line === next.line && prev.totalDuration === next.totalDuration;
+	return prev.line === next.line && prev.totalDuration === next.totalDuration && prev.index === next.index;
 });
 
 export const TimingOverview = memo(() => {
@@ -164,35 +174,177 @@ export const TimingOverview = memo(() => {
 	const currentTime = useAtomValue(currentTimeAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
+	const audioPlaying = useAtomValue(audioPlayingAtom);
+	const [autoScroll, setAutoScroll] = useAtom(timingOverviewAutoScrollAtom);
+	const [orderMode, setOrderMode] = useAtom(timingOverviewOrderModeAtom);
 	const scrollRef = useRef<HTMLDivElement>(null);
+	const viewportListRef = useRef<ViewportListRef>(null);
+	const userScrolledAtRef = useRef<number>(0);
+	const lastActiveIndexRef = useRef<number | undefined>(undefined);
+	const lastKnownTimeRef = useRef(0);
 
-	const sortedLines = useMemo(() => {
-		return [...lyrics.lyricLines].sort((a, b) => a.startTime - b.startTime);
-	}, [lyrics.lyricLines]);
-
-	const totalDuration = useMemo(() => {
-		if (sortedLines.length === 0) return 0;
-		return sortedLines[sortedLines.length - 1].endTime - sortedLines[0].startTime;
-	}, [sortedLines]);
+	const displayedLines = useMemo(() => {
+		return getDisplayedTimingLines(lyrics.lyricLines, orderMode);
+	}, [lyrics.lyricLines, orderMode]);
 
 	const stats = useMemo(() => {
-		const lineCount = sortedLines.length;
-		const wordCount = sortedLines.reduce((acc, line) => acc + line.words.length, 0);
-		const totalMs = lineCount > 0 ? sortedLines[lineCount - 1].endTime - sortedLines[0].startTime : 0;
-		return { lineCount, wordCount, totalMs };
-	}, [sortedLines]);
+		return calculateTimingOverviewStats(lyrics.lyricLines);
+	}, [lyrics.lyricLines]);
+
+	const totalDuration = stats.totalMs;
 
 	const handleRowClick = useMemo(() => (line: any) => {
+		userScrolledAtRef.current = Date.now();
 		setCurrentTime(line.startTime);
 		setSelectedLines(new Set([line.id]));
 		audioEngine.seekMusic(line.startTime / 1000);
 	}, [setCurrentTime, setSelectedLines]);
 
+	const handleWordClick = useCallback((word: any, line: any) => {
+		const targetTime = typeof word.startTime === "number" && word.startTime >= 0 ? word.startTime : line.startTime;
+		setCurrentTime(targetTime);
+		setSelectedLines(new Set([line.id]));
+		audioEngine.seekMusic(targetTime / 1000);
+	}, [setCurrentTime, setSelectedLines]);
+
+	const scrollRafRef = useRef<number | null>(null);
+	const lastProgrammaticScrollTimeRef = useRef<number>(0);
+	const isPointerDownRef = useRef<boolean>(false);
+
+	const cancelScrollAnimation = useCallback(() => {
+		if (scrollRafRef.current !== null) {
+			cancelAnimationFrame(scrollRafRef.current);
+			scrollRafRef.current = null;
+		}
+	}, []);
+
+	const smoothScrollTo = useCallback(
+		(element: HTMLElement, targetTop: number, duration = 300) => {
+			cancelScrollAnimation();
+			const startTop = element.scrollTop;
+			const distance = targetTop - startTop;
+			if (Math.abs(distance) < 2) return;
+
+			const startTime = performance.now();
+			const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+			const step = (now: number) => {
+				const elapsed = now - startTime;
+				const progress = Math.min(elapsed / duration, 1);
+				lastProgrammaticScrollTimeRef.current = performance.now();
+				element.scrollTop = startTop + distance * easeOutCubic(progress);
+
+				if (progress < 1) {
+					scrollRafRef.current = requestAnimationFrame(step);
+				} else {
+					scrollRafRef.current = null;
+				}
+			};
+
+			scrollRafRef.current = requestAnimationFrame(step);
+		},
+		[cancelScrollAnimation],
+	);
+
+	useEffect(() => {
+		return () => {
+			cancelScrollAnimation();
+		};
+	}, [cancelScrollAnimation]);
+
+	useEffect(() => {
+		const scrollEl = scrollRef.current;
+		if (!scrollEl) return;
+		const onPointerDown = () => {
+			isPointerDownRef.current = true;
+			cancelScrollAnimation();
+			userScrolledAtRef.current = Date.now();
+		};
+		const onPointerUp = () => {
+			if (!isPointerDownRef.current) return;
+			isPointerDownRef.current = false;
+			userScrolledAtRef.current = Date.now();
+		};
+		const onScroll = () => {
+			if (performance.now() - lastProgrammaticScrollTimeRef.current < 50) return;
+			cancelScrollAnimation();
+			userScrolledAtRef.current = Date.now();
+		};
+		scrollEl.addEventListener("wheel", onPointerDown, { capture: true, passive: true });
+		scrollEl.addEventListener("touchmove", onPointerDown, { capture: true, passive: true });
+		scrollEl.addEventListener("pointerdown", onPointerDown, { capture: true, passive: true });
+		window.addEventListener("pointerup", onPointerUp, { capture: true, passive: true });
+		window.addEventListener("pointercancel", onPointerUp, { capture: true, passive: true });
+		scrollEl.addEventListener("scroll", onScroll, { passive: true });
+		return () => {
+			scrollEl.removeEventListener("wheel", onPointerDown, { capture: true });
+			scrollEl.removeEventListener("touchmove", onPointerDown, { capture: true });
+			scrollEl.removeEventListener("pointerdown", onPointerDown, { capture: true });
+			window.removeEventListener("pointerup", onPointerUp, { capture: true });
+			window.removeEventListener("pointercancel", onPointerUp, { capture: true });
+			scrollEl.removeEventListener("scroll", onScroll);
+		};
+	}, [cancelScrollAnimation]);
+
+	useEffect(() => {
+		if (!autoScroll) return;
+		if (isPointerDownRef.current) return;
+		if (Date.now() - userScrolledAtRef.current < AUTO_SCROLL_PAUSE_MS) return;
+
+		const activeIndex = findActiveTimingLineIndex(displayedLines, currentTime);
+		if (activeIndex === -1 || activeIndex === lastActiveIndexRef.current) return;
+
+		if (!audioPlaying && lastActiveIndexRef.current !== -1) {
+			const timeDiff = Math.abs(currentTime - lastKnownTimeRef.current);
+			if (timeDiff < 500) return;
+		}
+		lastKnownTimeRef.current = currentTime;
+		lastActiveIndexRef.current = activeIndex;
+
+		const scrollEl = scrollRef.current;
+		if (!scrollEl) return;
+		const rowEl = scrollEl.querySelector<HTMLElement>(
+			`[data-line-index="${activeIndex}"]`,
+		);
+		if (rowEl) {
+			const rowRect = rowEl.getBoundingClientRect();
+			const scrollRect = scrollEl.getBoundingClientRect();
+			const targetTop =
+				scrollEl.scrollTop +
+				(rowRect.top - scrollRect.top) -
+				scrollEl.clientHeight / 2 +
+				rowRect.height / 2;
+			smoothScrollTo(scrollEl, Math.max(0, targetTop), 300);
+		} else {
+			viewportListRef.current?.scrollToIndex({
+				index: activeIndex,
+				offset: scrollEl.clientHeight / -2,
+			});
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					const renderedRowEl = scrollEl.querySelector<HTMLElement>(
+						`[data-line-index="${activeIndex}"]`,
+					);
+					if (renderedRowEl) {
+						const rowRect = renderedRowEl.getBoundingClientRect();
+						const scrollRect = scrollEl.getBoundingClientRect();
+						const targetTop =
+							scrollEl.scrollTop +
+							(rowRect.top - scrollRect.top) -
+							scrollEl.clientHeight / 2 +
+							rowRect.height / 2;
+						smoothScrollTo(scrollEl, Math.max(0, targetTop), 300);
+					}
+				});
+			});
+		}
+	}, [autoScroll, audioPlaying, currentTime, displayedLines, smoothScrollTo]);
+
 	return (
 		<Card className={styles.timingOverview}>
 			<div className={styles.header}>
 				<Text size="2" weight="bold">{t("timingOverview.title", "Technical Timing Overview")}</Text>
-				<div className={styles.stats}>
+				<div className={styles.stats} style={{ alignItems: "center" }}>
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.lines", "Lines")}:</Text>
 						<Text size="1" weight="bold">{stats.lineCount}</Text>
@@ -205,6 +357,38 @@ export const TimingOverview = memo(() => {
 						<Text size="1">{t("timingOverview.duration", "Duration")}:</Text>
 						<Text size="1" weight="bold" className={styles.monospaced}>{msToTimestamp(stats.totalMs)}</Text>
 					</div>
+					<div className={styles.statItem}>
+						<SegmentedControl.Root
+							value={orderMode}
+							onValueChange={(v) => {
+								lastActiveIndexRef.current = undefined;
+								setOrderMode(v as TimingOverviewOrderMode);
+							}}
+							size="1"
+						>
+							<SegmentedControl.Item value="chronological">
+								{t("timingOverview.orderChronological", "Chronological")}
+							</SegmentedControl.Item>
+							<SegmentedControl.Item value="textual">
+								{t("timingOverview.orderTextual", "Textual")}
+							</SegmentedControl.Item>
+						</SegmentedControl.Root>
+					</div>
+					<div
+						className={styles.statItem}
+						style={{
+							marginLeft: "auto",
+							display: "flex",
+							alignItems: "center",
+							gap: "6px",
+						}}
+					>
+						<Text size="1">{t("timingOverview.autoScroll", "Auto-Scroll")}:</Text>
+						<Checkbox
+							checked={autoScroll}
+							onCheckedChange={(v) => setAutoScroll(Boolean(v))}
+						/>
+					</div>
 				</div>
 			</div>
 			<div className={styles.scrollArea} ref={scrollRef}>
@@ -216,7 +400,7 @@ export const TimingOverview = memo(() => {
 						<div style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.duration", "Duration")}</div>
 						<div style={{ flexGrow: 1, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}</div>
 					</div>
-					<ViewportList items={sortedLines} viewportRef={scrollRef}>
+					<ViewportList ref={viewportListRef} items={displayedLines} viewportRef={scrollRef}>
 						{(line, index) => (
 							<LineRow 
 								key={line.id || index} 
@@ -225,6 +409,7 @@ export const TimingOverview = memo(() => {
 								currentTime={currentTime} 
 								totalDuration={totalDuration}
 								onRowClick={handleRowClick}
+								onWordClick={handleWordClick}
 							/>
 						)}
 					</ViewportList>

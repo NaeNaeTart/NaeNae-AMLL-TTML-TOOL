@@ -176,7 +176,11 @@
       "layoutMode": "Layout",
       "auxiliaryLineDisplay": "Auxiliary Line Display",
       "tools": "Check",
-      "previewPanel": "Preview Panel"
+      "previewPanel": "Preview Panel",
+      "playbackTracking": "Tracking",
+      "autoScroll": "Auto-Scroll",
+      "highlightActiveLine": "Highlight Line",
+      "syncTab": "Sync Tab"
     },
     "previewMode": {
       "mode": "Mode",
@@ -231,7 +235,11 @@
         "title": "Manage Quick Fix Exclusions",
         "description": "Add words to ignore in quick fixes.",
         "placeholder": "Enter word to ignore"
-      }
+      },
+      "playbackTracking": "Tracking",
+      "autoScroll": "Auto-Scroll",
+      "highlightActiveLine": "Highlight Line",
+      "syncTab": "Sync Tab"
     },
     "experimentalFeatures": "Experimental Features",
     "loading": "Loading panel..."
@@ -280,6 +288,8 @@
       "enableUpcomingWordHighlightDesc": "Fades in a highlight color shortly before a word plays during Sync mode to improve precision.",
       "upcomingWordHighlightThreshold": "Pre-Highlight Time Threshold (ms)",
       "upcomingWordHighlightColor": "Highlight Color (CSS Value)",
+      "syncTabPosition": "Sync Position Across Tabs",
+      "syncTabPositionDesc": "Maintains song playback and centers the active lyric line when switching between Edit, Time, and Preview tabs.",
       "volume": "Music Volume",
       "playbackRate": "Playback Speed",
       "autosave": {
@@ -391,9 +401,11 @@
         "syncWordWrap": "Wrap Words in Time Mode",
         "syncWordWrapDesc": "Wraps word cards to the next line instead of showing a horizontal scrollbar in Time / Sync tab.",
         "syncAutoScroll": "Auto-Scroll to Active Line During Playback",
-        "syncAutoScrollDesc": "Automatically scrolls the editor view to follow the currently active lyric line during playback in the Time tab.",
+        "syncAutoScrollDesc": "Automatically scrolls the editor view to follow the currently active lyric line during playback.",
         "syncFocusMainLine": "Focus Main Line During Playback",
-        "syncFocusMainLineDesc": "When playing back in the Time tab, focuses on active main lines and ignores background lines unless no main line is active.",
+        "syncFocusMainLineDesc": "When playing back, focuses on active main lines and ignores background lines unless no main line is active.",
+        "highlightActiveLine": "Highlight Active Line During Playback",
+        "highlightActiveLineDesc": "Visually highlights the lyric line currently being played in both Edit and Time modes.",
         "order": "Element Order",
         "orderDesc": "Drag to reorder elements. Some positions may be limited by constraints.",
         "titlebar": "Title Bar",
@@ -525,7 +537,10 @@
     "title": "Technical Timing Overview",
     "lines": "Lines",
     "words": "Words",
-    "lyricsAndTimings": "Lyrics & Word Timings"
+    "lyricsAndTimings": "Lyrics & Word Timings",
+    "autoScroll": "Auto-Scroll",
+    "orderChronological": "Chronological",
+    "orderTextual": "Textual"
   },
   "topBar": {
     "modeBtns": {
@@ -635,6 +650,7 @@
       "switchEditMode": "Mode Switch - Switch to Edit Mode",
       "switchSyncMode": "Mode Switch - Switch to Timing Mode",
       "switchPreviewMode": "Mode Switch - Switch to Preview Mode",
+      "locateActiveLine": "View - Locate Active Line",
       "moveNextWord": "Timing - Move to next word",
       "movePrevWord": "Timing - Move to previous word",
       "moveNextLine": "Timing - Move to next line start",

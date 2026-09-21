@@ -364,7 +364,7 @@ export const SettingsAppearanceTab = () => {
 										<Flex align="center" justify="between">
 											<Box flexGrow="1" overflow="hidden">
 												<Text size="2" weight="bold" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</Text>
-												{lastLoaded === p.name && <Text size="1" color="accent" style={{ display: "block" }}>Active</Text>}
+												{lastLoaded === p.name && <Text size="1" style={{ display: "block", color: "var(--accent-9)" }}>Active</Text>}
 											</Box>
 											<Flex gap="1">
 												<IconButton size="1" variant="soft" onClick={() => handleLoadPreset(p)} title="Load Preset">
@@ -503,14 +503,17 @@ export const SettingsAppearanceTab = () => {
 												{t("settings.appearance.glassBlurDesc", "Adjust the background blur effect for glassmorphic elements.")}
 											</Text>
 										</Flex>
-										<Text size="1" weight="bold" color="accent">{glassBlur}px</Text>
+										<Text size="1" weight="bold" style={{ color: "var(--accent-9)" }}>{glassBlur}px</Text>
 									</Flex>
 									<Slider 
 										min={0} 
 										max={64} 
 										step={1} 
 										value={[glassBlur]} 
-										onValueChange={(v) => setGlassBlur(v[0])} 
+										onValueChange={(v) => {
+											setGlassBlur(v[0]);
+											setVBackdrop(v[0]);
+										}}
 									/>
 								</Flex>
 							</Box>
@@ -1097,7 +1100,7 @@ export const SettingsAppearanceTab = () => {
 								<AdvancedSliderItem label="Global Border Radius" icon={<Stack24Regular />} value={vGlobalRadius} min={0} max={40} onChange={setVGlobalRadius} unit="px" />
 								<AdvancedSliderItem label="Global Border Width" icon={<Timer24Regular />} value={vGlobalBorderWidth} min={0} max={8} onChange={setVGlobalBorderWidth} unit="px" />
 								<AdvancedSliderItem label="Shadow Intensity" icon={<VideoBackgroundEffect24Regular />} value={vShadow} min={0} max={10} step={0.1} onChange={setVShadow} unit="" />
-								<AdvancedSliderItem label="Backdrop Blur" icon={<Sparkle24Regular />} value={vBackdrop} min={0} max={100} onChange={setVBackdrop} unit="px" />
+								<AdvancedSliderItem label="Backdrop Blur" icon={<Sparkle24Regular />} value={vBackdrop} min={0} max={100} onChange={(v) => { setVBackdrop(v); setGlassBlur(v); }} unit="px" />
 							</Flex>
 						</Card>
 					</Flex>

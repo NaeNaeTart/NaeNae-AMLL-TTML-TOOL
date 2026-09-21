@@ -25,10 +25,26 @@ export const syncCommitOffsetAtom = atomWithStorage("syncCommitOffset", 0);
 export const syncWordWrapAtom = atomWithStorage("syncWordWrap", true);
 export const syncFocusMainLineAtom = atomWithStorage("syncFocusMainLine", true);
 export const syncAutoScrollAtom = atomWithStorage("syncAutoScroll", true);
+export const editAutoScrollAtom = syncAutoScrollAtom;
+export const editActiveLineHighlightAtom = atomWithStorage(
+	"editActiveLineHighlight",
+	false,
+);
+export const timingOverviewAutoScrollAtom = atomWithStorage(
+	"timingOverviewAutoScroll",
+	false,
+);
+export type TimingOverviewOrderMode = "chronological" | "textual";
+export const timingOverviewOrderModeAtom =
+	atomWithStorage<TimingOverviewOrderMode>(
+		"timingOverviewOrderMode",
+		"chronological",
+	);
 export const spectrogramHoverSyncEnabledAtom = atomWithStorage(
 	"spectrogramHoverSyncEnabled",
 	false,
 );
+export const syncTabPositionAtom = atomWithStorage("syncTabPosition", true);
 
 export type SyncLevelMode = "word" | "line";
 export const syncLevelModeAtom = atomWithStorage<SyncLevelMode>(

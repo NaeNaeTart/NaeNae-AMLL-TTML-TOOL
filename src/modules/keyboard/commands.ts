@@ -116,6 +116,13 @@ export const cmdSwitchPreviewMode = registerCommand(
 	"View",
 );
 
+export const cmdLocateActiveLine = registerCommand(
+	"locateActiveLine",
+	[CONTROL_KEY, "Shift", "KeyL"],
+	t("settingsDialog.keybindings.locateActiveLine"),
+	"View",
+);
+
 // =========================================================================================
 //  打轴操作
 // =========================================================================================

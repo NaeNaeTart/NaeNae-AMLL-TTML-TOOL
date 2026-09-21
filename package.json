@@ -1,12 +1,14 @@
 {
 	"name": "amll-ttml-tool",
 	"private": true,
-	"version": "0.9.12",
+	"version": "0.9.13",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
 		"build:tsc": "tsc -b && vite build",
 		"build": "vite build",
+		"test": "vitest run",
+		"test:all": "vitest run && pnpm run test:versioning",
 		"version:bump": "node scripts/bump-version.mjs",
 		"test:versioning": "node --test scripts/version-utils.test.mjs",
 		"lint": "biome lint",

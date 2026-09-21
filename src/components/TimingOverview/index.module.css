@@ -98,6 +98,13 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1px;
+	cursor: pointer;
+	user-select: none;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.wordPill:hover {
+	border-color: var(--accent-8);
 }
 
 .wordPillActive {
@@ -116,11 +123,18 @@
 	border: 1px solid var(--gray-5);
 	border-radius: 4px;
 	overflow: hidden;
+	cursor: pointer;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.wordGroupActive {
+.wordGroup:hover {
+	border-color: var(--accent-8);
+}
+
+.wordGroup.wordGroupActive {
 	border-color: var(--accent-10);
-	box-shadow: 0 0 5px var(--accent-8);
+	box-shadow: 0 0 6px var(--accent-8), inset 0 0 3px var(--accent-4);
+	background-color: var(--accent-a3);
 }
 
 .wordDivider {
@@ -130,10 +144,10 @@
 	align-self: center;
 }
 
-.groupedWordPill {
-	background-color: transparent !important;
-	border-color: transparent !important;
-	border-radius: 0 !important;
+.wordPill.groupedWordPill {
+	background-color: transparent;
+	border-color: transparent;
+	border-radius: 0;
 }
 
 .whitespacePill {

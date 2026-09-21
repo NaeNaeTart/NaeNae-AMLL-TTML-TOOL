@@ -51,6 +51,11 @@ import {
 	experimentalFeaturesDialogOpenAtom,
 } from "$/modules/settings/states/index.ts";
 import {
+	editActiveLineHighlightAtom,
+	editAutoScrollAtom,
+	syncTabPositionAtom,
+} from "$/modules/settings/states/sync.ts";
+import {
 	editingTimeFieldAtom,
 	lyricLinesAtom,
 	requestFocusAtom,
@@ -888,6 +893,11 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 		const selectedLines = useAtomValue(selectedLinesAtom);
 		const selectedWords = useAtomValue(selectedWordsAtom);
 		const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
+		const [editAutoScroll, setEditAutoScroll] = useAtom(editAutoScrollAtom);
+		const [editActiveLineHighlight, setEditActiveLineHighlight] = useAtom(
+			editActiveLineHighlightAtom,
+		);
+		const [syncTabPosition, setSyncTabPosition] = useAtom(syncTabPositionAtom);
 
 		return (
 			<RibbonFrame
@@ -908,6 +918,52 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<HTMLDiv
 						>
 							{t("ribbonBar.editMode.lyricLine", "歌词行")}
 						</Button>
+					</Grid>
+				</RibbonSection>
+				<RibbonSection
+					label={t("ribbonBar.editMode.playbackTracking", "Tracking")}
+					isSidebar={isSidebar}
+				>
+					<Grid
+						columns="max-content auto"
+						gap="2"
+						gapY="1"
+						flexGrow="1"
+						align="center"
+					>
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
+							{t("ribbonBar.editMode.autoScroll", "Auto-Scroll")}
+						</Text>
+						<Checkbox
+							checked={editAutoScroll}
+							onCheckedChange={(v) => setEditAutoScroll(Boolean(v))}
+						/>
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
+							{t("ribbonBar.editMode.highlightActiveLine", "Highlight Line")}
+						</Text>
+						<Checkbox
+							checked={editActiveLineHighlight}
+							onCheckedChange={(v) => setEditActiveLineHighlight(Boolean(v))}
+						/>
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
+							{t("ribbonBar.editMode.syncTab", "Sync Tab")}
+						</Text>
+						<Checkbox
+							checked={syncTabPosition}
+							onCheckedChange={(v) => setSyncTabPosition(Boolean(v))}
+						/>
 					</Grid>
 				</RibbonSection>
 				{selectedLines.size > 0 && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.editMode.lineTiming", "行时间戳")}>

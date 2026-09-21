@@ -1,42 +1,40 @@
 import {
-	SubtractRegular,
 	AddRegular,
-	CheckmarkRegular,
-	DismissRegular,
-	CopyRegular,
 	ArrowRightRegular,
+	CheckmarkRegular,
+	CopyRegular,
+	DismissRegular,
 	RecordRegular,
-	PlayFilled,
+	SubtractRegular,
 } from "@fluentui/react-icons";
 import {
+	Box,
 	Button,
 	Flex,
 	IconButton,
+	SegmentedControl,
+	Select,
 	Slider,
 	Text,
-	Box,
-	Theme,
-	Select,
 	TextField,
-	SegmentedControl,
+	Theme,
 	Tooltip,
 } from "@radix-ui/themes";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
-import { type FC, useEffect, useRef, useState, useCallback } from "react";
+import { type FC, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { uid } from "uid";
+import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import {
-	timeShiftPreviewOffsetAtom,
-	timeShiftPreviewActiveAtom,
-	timeShiftPreviewScopeAtom,
-	timeShiftPreviewCustomRangeAtom,
 	timeShiftDialogAtom,
+	timeShiftPreviewActiveAtom,
+	timeShiftPreviewCustomRangeAtom,
+	timeShiftPreviewOffsetAtom,
+	timeShiftPreviewScopeAtom,
 } from "$/states/dialogs.ts";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
-import { currentTimeAtom } from "$/modules/audio/states/index.ts";
-import { audioEngine } from "$/modules/audio/audio-engine.ts";
 import styles from "./TimeShiftToolbar.module.css";
-import { uid } from "uid";
 
 export const TimeShiftToolbar: FC = () => {
 	const { t } = useTranslation();

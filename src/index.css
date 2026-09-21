@@ -16,6 +16,19 @@
 	--default-font-family:
 		"MiSans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	--ribbon-label-color: var(--accent-11);
+
+	--toastify-color-success: var(--accent-9, #30a46c);
+	--toastify-color-progress-success: var(--accent-9, #30a46c);
+	--toastify-icon-color-success: var(--accent-9, #30a46c);
+	--toastify-color-info: var(--accent-9, #3e63dd);
+	--toastify-color-progress-info: var(--accent-9, #3e63dd);
+	--toastify-icon-color-info: var(--accent-9, #3e63dd);
+	--toastify-color-warning: var(--amber-9, #ffc53d);
+	--toastify-color-progress-warning: var(--amber-9, #ffc53d);
+	--toastify-icon-color-warning: var(--amber-9, #ffc53d);
+	--toastify-color-error: var(--red-9, #e5484d);
+	--toastify-color-progress-error: var(--red-9, #e5484d);
+	--toastify-icon-color-error: var(--red-9, #e5484d);
 }
 
 .radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"]) {
@@ -45,13 +58,13 @@
 	--gray-a11: rgba(255, 255, 255, 0.72) !important;
 	--gray-a12: rgba(255, 255, 255, 0.95) !important;
 
-	--color-background: #090c0e !important;
-	--editor-bg: #0e1316 !important;
-	--titlebar-bg: #13181d !important;
-	--ribbon-bg: #1d252b !important;
-	--audio-bar-bg: #0d1215 !important;
-	--color-panel-solid: #14191e !important;
-	--color-panel-translucent: rgba(20, 25, 30, 0.96) !important;
+	--color-background: #090c0e;
+	--editor-bg: #0e1316;
+	--titlebar-bg: #13181d;
+	--ribbon-bg: #1d252b;
+	--audio-bar-bg: #0d1215;
+	--color-panel-solid: #14191e;
+	--color-panel-translucent: rgba(20, 25, 30, 0.96);
 	--editor-line-bg: #12171c;
 	--editor-line-border: rgba(255, 255, 255, 0.065);
 	--editor-line-hover: rgba(255, 255, 255, 0.025);
@@ -83,11 +96,12 @@
 
 .radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
 	.rt-BaseMenuContent {
-	background-color: #1f2a31 !important;
+	background-color: var(--base-menu-bg, #1f2a31) !important;
 	box-shadow:
 		0 8px 32px rgba(0, 0, 0, 0.7),
 		0 2px 8px rgba(0, 0, 0, 0.5) !important;
-	backdrop-filter: blur(20px) saturate(150%) !important;
+	backdrop-filter: blur(var(--glass-blur, 20px)) saturate(150%) !important;
+	-webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(150%) !important;
 }
 
 .radix-themes:is(.dark, .dark-theme):not([data-legacy-dark-theme="true"])
@@ -173,4 +187,85 @@
 
 .ribbon-scrollbar::-webkit-scrollbar-thumb:hover {
 	background-color: var(--gray-a9);
+}
+
+.Toastify__toast {
+	font-family: var(--default-font-family, inherit) !important;
+	border-radius: var(--global-radius, 12px) !important;
+	border: 1px solid var(--gray-a5, rgba(255, 255, 255, 0.14)) !important;
+	box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+	backdrop-filter: blur(var(--glass-blur, 20px)) saturate(160%) !important;
+	-webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(160%) !important;
+	overflow: hidden !important;
+}
+
+.Toastify__toast-theme--dark {
+	background-color: rgba(18, 24, 30, 0.75) !important;
+	color: var(--gray-12, #ffffff) !important;
+}
+
+.Toastify__toast-theme--light {
+	background-color: rgba(255, 255, 255, 0.8) !important;
+	color: var(--gray-12, #111827) !important;
+}
+
+.Toastify__progress-bar-theme--dark,
+.Toastify__progress-bar-theme--light {
+	height: 3px !important;
+}
+
+.Toastify__progress-bar--wrp {
+	height: 3px !important;
+}
+
+.Toastify__progress-bar {
+	height: 3px !important;
+}
+
+.Toastify__toast--success .Toastify__toast-icon svg {
+	fill: var(--accent-9, #30a46c) !important;
+}
+
+.Toastify__progress-bar--success {
+	background: var(--accent-9, #30a46c) !important;
+}
+
+.Toastify__toast--info .Toastify__toast-icon svg {
+	fill: var(--accent-9, #3e63dd) !important;
+}
+
+.Toastify__progress-bar--info {
+	background: var(--accent-9, #3e63dd) !important;
+}
+
+.Toastify__toast--warning .Toastify__toast-icon svg {
+	fill: var(--amber-9, #ffc53d) !important;
+}
+
+.Toastify__progress-bar--warning {
+	background: var(--amber-9, #ffc53d) !important;
+}
+
+.Toastify__toast--error .Toastify__toast-icon svg {
+	fill: var(--red-9, #e5484d) !important;
+}
+
+.Toastify__progress-bar--error {
+	background: var(--red-9, #e5484d) !important;
+}
+
+.Toastify__close-button--dark {
+	color: var(--gray-11, #8f9ba5) !important;
+}
+
+.Toastify__close-button--dark:hover {
+	color: var(--gray-12, #ffffff) !important;
+}
+
+.Toastify__close-button--light {
+	color: var(--gray-11, #646464) !important;
+}
+
+.Toastify__close-button--light:hover {
+	color: var(--gray-12, #1c2024) !important;
 }
