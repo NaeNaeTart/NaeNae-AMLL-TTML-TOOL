@@ -56,9 +56,15 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="violet">
-								v0.9.13 Updates (Guide Links)
+								v0.9.13 Updates (Social Embeds, Branding &amp; Guide Links)
 							</Heading>
 							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Link Embeds:</strong> Added short link embeds for Discord, Google, social sharing, and search previews.
+								</Text>
+								<Text size="2">
+									<strong>Red Logo:</strong> Changed default logo color to red.
+								</Text>
 								<Text size="2">
 									<strong>Themed Glassmorphic Toast Notifications:</strong> Toast notifications now feature glassmorphic translucent styling with background blur, follow the app's global radius, and synchronize icon and progress bar colors with the active theme accent.
 								</Text>
