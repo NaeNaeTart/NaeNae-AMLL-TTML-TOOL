@@ -9,15 +9,17 @@ import {
 	parseQrc,
 	parseYrc,
 } from "@applemusic-like-lyrics/lyric";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
+import { RESET } from "jotai-history";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { uid } from "uid";
-
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { convertMp3ToFlac } from "$/modules/audio/utils/mp3-converter";
 import { getProjectList } from "$/modules/project/autosave/autosave";
+import { maybePromptCreateProject } from "$/modules/project/folder-project/project-create";
+import { pendingAudioFileAtom } from "$/modules/project/folder-project/state";
 import { getSuggestedTtmlFileName } from "$/modules/project/logic/metadata-filename";
 import { isProjectMatch } from "$/modules/project/logic/project-match";
 import { parseLyric as parseTTML } from "$/modules/project/logic/ttml-parser";
@@ -27,23 +29,21 @@ import {
 	normalizeApostrophesOnImportAtom,
 	normalizeCyrillicEsOnImportAtom,
 } from "$/modules/settings/states";
-import {
-	confirmDialogAtom,
-	mp3ConversionDialogAtom,
-} from "$/states/dialogs";
+import { confirmDialogAtom, mp3ConversionDialogAtom } from "$/states/dialogs";
 import {
 	isDirtyAtom,
 	newLyricLinesAtom,
 	projectIdAtom,
 	saveFileNameAtom,
+	undoableLyricLinesAtom,
 } from "$/states/main";
 import type { TTMLLyric } from "$/types/ttml";
-import { error as logError, log } from "$/utils/logging";
-import { parseLrc } from "$/utils/parse-lrc";
 import {
 	normalizeImportedLyricApostrophes,
 	normalizeImportedLyricCyrillicEs,
 } from "$/utils/apostrophe-normalization";
+import { log, error as logError } from "$/utils/logging";
+import { parseLrc } from "$/utils/parse-lrc";
 
 const LYRIC_PARSERS: Record<string, (text: string) => LyricLine[]> = {
 	lrc: parseLrc,
@@ -70,6 +70,7 @@ const AUDIO_EXTENSIONS = new Set([
 ]);
 
 export const useFileOpener = () => {
+	const store = useStore();
 	const setNewLyricLines = useSetAtom(newLyricLinesAtom);
 	const setProjectId = useSetAtom(projectIdAtom);
 	const setSaveFileName = useSetAtom(saveFileNameAtom);
@@ -106,7 +107,7 @@ export const useFileOpener = () => {
 		[],
 	);
 
-	const performOpenFile = useCallback(
+	const performOpenFileInner = useCallback(
 		async (file: File, forceExt?: string) => {
 			const rawExt = file.name.split(".").pop()?.toLowerCase() || "";
 			const ext = forceExt ? forceExt.toLowerCase() : rawExt;
@@ -137,6 +138,7 @@ export const useFileOpener = () => {
 										type: "audio/flac",
 									},
 								);
+								store.set(pendingAudioFileAtom, flacFile);
 								await audioEngine.loadMusic(flacFile);
 								toast.success(t("dialog.mp3Conversion.success", "转换成功"));
 								return;
@@ -188,6 +190,7 @@ export const useFileOpener = () => {
 										type: "audio/flac",
 									},
 								);
+								store.set(pendingAudioFileAtom, flacFile);
 								await audioEngine.loadMusic(flacFile);
 								toast.success(t("dialog.mp3Conversion.success", "转换成功"));
 								return;
@@ -261,6 +264,7 @@ export const useFileOpener = () => {
 
 				setProjectId(resolvedProjectId);
 				setNewLyricLines(lyricData);
+				store.set(undoableLyricLinesAtom, RESET);
 				const suggestedFile = getSuggestedTtmlFileName(lyricData.metadata);
 				const nextFileName =
 					ext === "ttml" ? file.name : (suggestedFile?.fileName ?? file.name);
@@ -280,7 +284,19 @@ export const useFileOpener = () => {
 			normalizeApostrophesOnImport,
 			normalizeCyrillicEsOnImport,
 			setMp3ConversionDialog,
+			store,
 		],
+	);
+
+	const performOpenFile = useCallback(
+		async (file: File, forceExt?: string) => {
+			const rawExt = file.name.split(".").pop()?.toLowerCase() || "";
+			const ext = forceExt ? forceExt.toLowerCase() : rawExt;
+			if (AUDIO_EXTENSIONS.has(ext)) store.set(pendingAudioFileAtom, file);
+			await performOpenFileInner(file, forceExt);
+			maybePromptCreateProject(store);
+		},
+		[store, performOpenFileInner],
 	);
 
 	const openFile = useCallback(

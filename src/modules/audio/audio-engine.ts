@@ -358,6 +358,29 @@ class AudioEngine extends EventTarget {
 		this.dispatchEvent(new Event("music-pause"));
 	}
 
+	unloadMusic() {
+		this.coverArtRequest++;
+		try {
+			this.pauseMusic();
+		} catch {}
+		this.stopAudition();
+		this.musicBuffer = null;
+		globalStore.set(audioBufferAtom, null);
+		globalStore.set(loadedAudioAtom, new Blob([]));
+		this.setEmbeddedCoverArt(null);
+		if (this._audioEl) {
+			try {
+				this._audioEl.pause();
+			} catch {}
+			this._audioEl.removeAttribute("src");
+			this._audioEl.src = "";
+			try {
+				this._audioEl.load();
+			} catch {}
+		}
+		this.dispatchEvent(new Event("music-unload"));
+	}
+
 	/**
 	 * 试听一个音频片段
 	 *

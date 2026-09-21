@@ -26,7 +26,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modules/onboarding/states";
-import { importLyricsChooserDialogAtom } from "$/states/dialogs";
+import { importLyricsChooserDialogAtom, projectsDialogAtom } from "$/states/dialogs";
 import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
@@ -38,6 +38,7 @@ import {
 import { keyLocateActiveLineAtom } from "$/states/keybindings.ts";
 import { useKeyBindingAtom } from "$/utils/keybindings.ts";
 import {
+	folderProjectsEnabledAtom,
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
 	geniusHeaderDetectionDialogShownAtom,
@@ -149,6 +150,8 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const setGuidePanel = useSetAtom(guidePanelOpenAtom);
 	const setGuideStep = useSetAtom(guideStepAtom);
 	const setImportChooser = useSetAtom(importLyricsChooserDialogAtom);
+	const setProjectsDialog = useSetAtom(projectsDialogAtom);
+	const folderProjectsEnabled = useAtomValue(folderProjectsEnabledAtom);
 	const { openFile } = useFileOpener();
 	const openExistingTtml = useCallback(() => {
 		const input = document.createElement("input");
@@ -951,6 +954,14 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					<Button variant="outline" onClick={openExistingTtml}>
 						{t("beginnerGuide.empty.open", "Open TTML")}
 					</Button>
+					{folderProjectsEnabled && (
+						<Button
+							variant="outline"
+							onClick={() => setProjectsDialog(true)}
+						>
+							{t("topBar.menu.projects", "Projects")}
+						</Button>
+					)}
 				</Flex>
 			</Flex>
 		);
