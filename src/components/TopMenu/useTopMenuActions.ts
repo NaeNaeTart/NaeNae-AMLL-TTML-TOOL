@@ -1,5 +1,6 @@
 import { open } from "@tauri-apps/plugin-shell";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
+import { RESET } from "jotai-history";
 import { useSetImmerAtom, withImmer } from "jotai-immer";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +11,11 @@ import { audioEngine } from "$/modules/audio/audio-engine";
 import { currentTimeAtom } from "$/modules/audio/states/index.ts";
 import { getSynchronizableUnits } from "$/modules/lyric-editor/utils/lyric-states.ts";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system.ts";
+import {
+	activeProjectDirAtom,
+	activeProjectManifestAtom,
+} from "$/modules/project/folder-project/state";
+import { useFolderProject } from "$/modules/project/folder-project/useFolderProject";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
 	segmentationEngineAtom,
@@ -22,7 +28,11 @@ import {
 } from "$/modules/segmentation/utils/segmentation";
 import { SYLLABIFICATION_ENGINES } from "$/modules/segmentation/utils/syllabification-engines";
 import { useSegmentationConfig } from "$/modules/segmentation/utils/useSegmentationConfig";
-import { allowConsecutiveBackgroundLinesAtom, lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
+import {
+	allowConsecutiveBackgroundLinesAtom,
+	folderProjectsEnabledAtom,
+	lyricTextNormalizationOptionsAtom,
+} from "$/modules/settings/states";
 import {
 	advancedSegmentationDialogAtom,
 	autoSegmentDialogAtom,
@@ -31,6 +41,7 @@ import {
 	latencyTestDialogAtom,
 	learnedSplitsDialogAtom,
 	metadataEditorDialogAtom,
+	projectsDialogAtom,
 	settingsDialogAtom,
 	submitToAMLLDBDialogAtom,
 	timeShiftDialogAtom,
@@ -78,6 +89,9 @@ export const useTopMenuActions = () => {
 	const isDirty = useAtomValue(isDirtyAtom);
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 	const setHistoryRestoreDialog = useSetAtom(historyRestoreDialogAtom);
+	const setProjectsDialog = useSetAtom(projectsDialogAtom);
+	const folderProjectsEnabled = useAtomValue(folderProjectsEnabledAtom);
+	const { saveLyricsOnly: saveFolderLyricsOnly } = useFolderProject();
 	const setAdvancedSegmentationDialog = useSetAtom(
 		advancedSegmentationDialogAtom,
 	);
@@ -139,6 +153,7 @@ export const useTopMenuActions = () => {
 	const onNewFile = useCallback(() => {
 		const action = () => {
 			newLyricLine();
+			store.set(undoableLyricLinesAtom, RESET);
 			setProjectId(uid());
 			setSaveFileName("lyric.ttml");
 		};
@@ -163,6 +178,7 @@ export const useTopMenuActions = () => {
 		t,
 		setProjectId,
 		setSaveFileName,
+		store,
 	]);
 
 	const onOpenFile = useCallback(async () => {
@@ -206,6 +222,15 @@ export const useTopMenuActions = () => {
 	}, [openFile]);
 
 	const onSaveFile = useCallback(async () => {
+		if (folderProjectsEnabled) {
+			const hasActiveProject = Boolean(
+				store.get(activeProjectDirAtom) && store.get(activeProjectManifestAtom),
+			);
+			if (hasActiveProject) {
+				const shouldFallback = await saveFolderLyricsOnly();
+				if (!shouldFallback) return;
+			}
+		}
 		const action = async () => {
 			try {
 				const currentLyrics = store.get(lyricLinesAtom);
@@ -229,7 +254,10 @@ export const useTopMenuActions = () => {
 						},
 					],
 				});
-				if (savedName) setSaveFileName(savedName);
+				if (savedName) {
+					setSaveFileName(savedName);
+					store.set(undoableLyricLinesAtom, RESET);
+				}
 			} catch (e) {
 				error("Failed to save TTML file", e);
 			}
@@ -283,7 +311,19 @@ export const useTopMenuActions = () => {
 		} else {
 			action();
 		}
-	}, [saveFileName, store, setSaveFileName, setConfirmDialog, t]);
+	}, [
+		saveFileName,
+		store,
+		setSaveFileName,
+		setConfirmDialog,
+		t,
+		folderProjectsEnabled,
+		saveFolderLyricsOnly,
+	]);
+
+	const onOpenProjects = useCallback(() => {
+		setProjectsDialog(true);
+	}, [setProjectsDialog]);
 
 	const onOpenHistoryRestore = useCallback(() => {
 		setHistoryRestoreDialog(true);
@@ -621,6 +661,7 @@ export const useTopMenuActions = () => {
 		onOpenFileFromClipboard,
 		onSaveFile,
 		onOpenHistoryRestore,
+		onOpenProjects,
 		onSaveFileToClipboard,
 		onSubmitToAMLLDB,
 		onUndo,

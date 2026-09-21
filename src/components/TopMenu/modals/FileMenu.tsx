@@ -1,8 +1,10 @@
 import { Button, DropdownMenu } from "@radix-ui/themes";
+import { useAtomValue } from "jotai";
 import { Toolbar } from "radix-ui";
 import type { CSSProperties } from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { ImportExportLyric } from "$/modules/project/modals/ImportExportLyric";
+import { folderProjectsEnabledAtom } from "$/modules/settings/states";
 import { formatKeyBindings } from "$/utils/keybindings";
 import { useTopMenuActions } from "../useTopMenuActions";
 
@@ -13,6 +15,8 @@ type FileMenuProps = {
 
 const FileMenuItems = () => {
 	const menu = useTopMenuActions();
+	const { t } = useTranslation();
+	const folderProjectsEnabled = useAtomValue(folderProjectsEnabledAtom);
 
 	const getShortcut = (key: string[] | undefined) =>
 		key ? formatKeyBindings(key) : undefined;
@@ -43,6 +47,11 @@ const FileMenuItems = () => {
 				<Trans i18nKey="topBar.menu.saveLyric">保存 TTML 文件</Trans>
 			</DropdownMenu.Item>
 			<DropdownMenu.Separator />
+			{folderProjectsEnabled && (
+				<DropdownMenu.Item onSelect={menu.onOpenProjects}>
+					{t("topBar.menu.projects", "Projects")}
+				</DropdownMenu.Item>
+			)}
 			<DropdownMenu.Item onSelect={menu.onOpenHistoryRestore}>
 				<Trans i18nKey="topBar.menu.restoreFromHistory">
 					从历史记录恢复...

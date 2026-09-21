@@ -55,6 +55,31 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="cyan">
+								v0.9.14 Updates (Folder Projects)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Folder Projects (Opt-In):</strong> Open, save, and organize lyrics as project folders from the File menu (Projects), with a project.json manifest, recent projects, and workspace scanning. Enable it under Files &amp; Storage settings; it stays off by default and the app behaves exactly as before while disabled.
+								</Text>
+								<Text size="2">
+									<strong>Create Project Prompt:</strong> Loading a lyric file together with audio now offers to create a project. Choosing Create asks for a location and builds a folder named after the song, or Untitled Song-1, Untitled Song-2, and so on when no name is available.
+								</Text>
+								<Text size="2">
+									<strong>Automatic Folder Naming:</strong> The project folder follows the song metadata when you save. Folders you rename yourself are never touched, and existing folders are never renamed unless the app created them.
+								</Text>
+								<Text size="2">
+									<strong>Project-Wide Saving:</strong> Ctrl+S inside a project saves the project instead of exporting standalone TTML, without prompting when nothing changed, and unsaved changes still trigger a warning before opening another file or project.
+								</Text>
+								<Text size="2">
+									<strong>Resilient Project Manifest:</strong> project.json now carries a project identifier and a song fingerprint, so the lyric and audio files are found again after being renamed outside the app. Older manifests keep working.
+								</Text>
+								<Text size="2">
+									<strong>Safe File Access:</strong> All project paths are validated against traversal and reserved names, file sizes are capped, and the feature only runs in the desktop app.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="violet">
 								v0.9.13 Updates (Social Embeds, Branding &amp; Guide Links)
 							</Heading>

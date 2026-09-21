@@ -2,6 +2,7 @@ import resources from "virtual:i18next-loader";
 import {
 	ArrowSortDownLines24Regular,
 	ArrowSync24Regular,
+	Briefcase24Regular,
 	ContentView24Regular,
 	Highlight24Regular,
 	History24Regular,
@@ -41,6 +42,8 @@ import {
 	autosaveEnabledAtom,
 	autosaveIntervalAtom,
 	autosaveLimitAtom,
+	folderProjectsAutosaveAtom,
+	folderProjectsEnabledAtom,
 	LayoutMode,
 	layoutModeAtom,
 	SyncJudgeMode,
@@ -89,6 +92,12 @@ export const SettingsCommonTab = ({
 	const [autosaveEnabled, setAutosaveEnabled] = useAtom(autosaveEnabledAtom);
 	const [autosaveInterval, setAutosaveInterval] = useAtom(autosaveIntervalAtom);
 	const [autosaveLimit, setAutosaveLimit] = useAtom(autosaveLimitAtom);
+	const [folderProjectsAutosave, setFolderProjectsAutosave] = useAtom(
+		folderProjectsAutosaveAtom,
+	);
+	const [folderProjectsEnabled, setFolderProjectsEnabled] = useAtom(
+		folderProjectsEnabledAtom,
+	);
 	const [enableUpcomingWordHighlight, setEnableUpcomingWordHighlight] = useAtom(
 		enableUpcomingWordHighlightAtom,
 	);
@@ -883,6 +892,73 @@ export const SettingsCommonTab = ({
 										<Switch checked={allowConsecutiveBackgroundLines} onCheckedChange={setAllowConsecutiveBackgroundLines} />
 									</Flex>
 									<Text size="1" color="gray">{t("settings.common.allowConsecutiveBackgroundLinesDesc", "Export consecutive background vocals together and preserve standalone background vocals for Spicy Lyrics compatibility. Other players may not support this structure.")}</Text>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+			</Flex>
+			)}
+
+			{section === "files" && (
+			<Flex direction="column" gap="2">
+				<Heading size="4">{t("settings.group.projects", "Projects")}</Heading>
+
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<Briefcase24Regular />
+							<Box flexGrow="1">
+								<Flex direction="column" gap="1">
+									<Flex align="center" justify="between" gap="4">
+										<Text>
+											{t(
+												"settings.files.folderProjects",
+												"Folder projects",
+											)}
+										</Text>
+										<Switch
+											checked={folderProjectsEnabled}
+											onCheckedChange={setFolderProjectsEnabled}
+										/>
+									</Flex>
+									<Text size="1" color="gray">
+										{t(
+											"settings.files.folderProjectsDesc",
+											"Open, save, and organize lyrics as project folders with a project.json manifest.",
+										)}
+									</Text>
+								</Flex>
+							</Box>
+						</Flex>
+					</Text>
+				</Card>
+
+				<Card>
+					<Text as="label">
+						<Flex gap="3" align="center">
+							<Save24Regular />
+							<Box flexGrow="1">
+								<Flex direction="column" gap="1">
+									<Flex align="center" justify="between" gap="4">
+										<Text>
+											{t(
+												"settings.files.folderProjectsAutosave",
+												"Save project file on auto save",
+											)}
+										</Text>
+										<Switch
+											checked={folderProjectsAutosave}
+											onCheckedChange={setFolderProjectsAutosave}
+											disabled={!folderProjectsEnabled}
+										/>
+									</Flex>
+									<Text size="1" color="gray">
+										{t(
+											"settings.files.folderProjectsAutosaveDesc",
+											"Write the open project lyric file to disk on every auto save.",
+										)}
+									</Text>
 								</Flex>
 							</Box>
 						</Flex>

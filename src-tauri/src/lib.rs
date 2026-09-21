@@ -3,6 +3,7 @@ use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
 use discord_rich_presence::{DiscordIpc, DiscordIpcClient, activity};
+use tauri_plugin_fs::FsExt;
 
 const DISCORD_CLIENT_ID: &str = "1250551199862624349";
 const DISCORD_LOGO_URL: &str = "https://tool.community.spicylyrics.org/logo.png";
@@ -227,6 +228,49 @@ fn get_open_file_data() -> Option<OpenFileData> {
     None
 }
 
+#[tauri::command]
+fn grant_project_workspace_scope(
+    project_dir: String,
+    window: tauri::Window,
+) -> Result<(), String> {
+    let project_path = std::path::PathBuf::from(&project_dir);
+    if !project_path.is_absolute() {
+        return Err("project path must be absolute".to_string());
+    }
+    if !project_path.join("project.json").is_file() {
+        return Err("not a project folder".to_string());
+    }
+    let parent = project_path.parent().filter(|p| !p.as_os_str().is_empty());
+    let Some(parent) = parent else {
+        return Err("project folder has no parent directory".to_string());
+    };
+    let scope = window
+        .try_fs_scope()
+        .ok_or_else(|| "filesystem scope is unavailable".to_string())?;
+    scope
+        .allow_directory(parent, true)
+        .map_err(|e| format!("failed to extend filesystem scope: {e}"))?;
+    Ok(())
+}
+
+#[tauri::command]
+fn grant_workspace_scope(workspace_dir: String, window: tauri::Window) -> Result<(), String> {
+    let workspace_path = std::path::PathBuf::from(&workspace_dir);
+    if !workspace_path.is_absolute() {
+        return Err("workspace path must be absolute".to_string());
+    }
+    if !workspace_path.is_dir() {
+        return Err("not a workspace folder".to_string());
+    }
+    let scope = window
+        .try_fs_scope()
+        .ok_or_else(|| "filesystem scope is unavailable".to_string())?;
+    scope
+        .allow_directory(workspace_path, true)
+        .map_err(|e| format!("failed to extend filesystem scope: {e}"))?;
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[allow(clippy::missing_panics_doc)]
 pub fn run() {
@@ -236,6 +280,7 @@ pub fn run() {
         .plugin(tauri_plugin_decorum::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_process::init());
 
     #[cfg(any(target_os = "macos", windows, target_os = "linux"))]
@@ -291,6 +336,8 @@ pub fn run() {
             convert_audio_mp3_to_flac,
             set_discord_activity,
             clear_discord_activity,
+            grant_project_workspace_scope,
+            grant_workspace_scope,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
