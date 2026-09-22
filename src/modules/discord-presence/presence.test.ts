@@ -246,7 +246,7 @@ describe("Discord presence", () => {
 			remaining: "0:23",
 			playbackRate: "1.25×",
 			projectElapsed: "2h 14m",
-			appName: "AMLL TTML Tool",
+			appName: "NaeNae's AMLL TTML Tool Fork",
 		});
 	});
 
@@ -390,7 +390,7 @@ describe("Discord presence", () => {
 
 	it("uses a generic private payload while inactive", () => {
 		expect(createInactiveDiscordActivity()).toEqual({
-			details: "AMLL TTML Tool",
+			details: "NaeNae's AMLL TTML Tool Fork",
 			state: "Inactive",
 			playing: false,
 			showRepositoryButton: false,

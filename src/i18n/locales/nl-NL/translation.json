@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "Oeps, er is een fout opgetreden!",
-      "description": "Er is een fout opgetreden tijdens het uitvoeren van AMLL TTML Tools",
+      "description": "Er is een fout opgetreden tijdens het uitvoeren van AMLL TTML Tool",
       "checkDevTools": "Details zijn te vinden in de ontwikkelaarshulpmiddelen",
       "saveLyrics": "Probeer de huidige songteksten op te slaan",
       "tryRestart": "Probeer de app opnieuw te laden",
@@ -494,7 +494,7 @@
       "preview": "Voorvertoning"
     },
     "boykisser": "jongen",
-    "appName": "Apple Music-achtige songteksten TTML Tool",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Herstel",
       "redo": "Opnieuw",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Apple Music-achtige songteksten TTML Tool",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Een Word-by-Word TTML Bewerking- en Tijdlijn Tool voor Apple Music-achtige songteksten",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

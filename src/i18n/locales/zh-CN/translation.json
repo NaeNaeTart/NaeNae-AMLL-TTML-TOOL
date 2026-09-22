@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "诶呀，出错了！",
-      "description": "AMLL TTML Tools 在运行时出现了错误",
+      "description": "AMLL TTML Tool 在运行时出现了错误",
       "checkDevTools": "具体错误详情可以在开发者工具中查询",
       "saveLyrics": "尝试保存当前歌词",
       "tryRestart": "尝试重新进入程序",
@@ -504,7 +504,7 @@
       "preview": "预览"
     },
     "boykisser": "boykisser",
-    "appName": "Apple Music-like Lyrics TTML 工具",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "撤销",
       "redo": "重做",
@@ -1163,7 +1163,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Apple Music-like lyrics TTML Tools",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "一个用于 Apple Music-like lyrics 生态的逐词歌词 TTML 编辑和时间轴工具",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

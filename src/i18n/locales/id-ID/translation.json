@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "Aduh, terjadi kesalahan!",
-      "description": "AMLL TTML Tools mengalami kesalahan saat dijalankan",
+      "description": "AMLL TTML Tool mengalami kesalahan saat dijalankan",
       "checkDevTools": "Detail kesalahan dapat diperiksa di alat pengembang (DevTools)",
       "saveLyrics": "Coba simpan lirik saat ini",
       "tryRestart": "Coba masuk kembali ke aplikasi",
@@ -494,7 +494,7 @@
       "preview": "Pratinjau"
     },
     "boykisser": "boykisser",
-    "appName": "Apple Music-like Lyrics TTML Tool",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Urungkan",
       "redo": "Ulangi",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Apple Music-like lyrics TTML Tools",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Alat pengeditan dan penyelarasan waktu lirik TTML untuk ekosistem lirik bergaya Apple Music",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

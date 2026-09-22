@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "Ojoj, vyskytla sa chyba!",
-      "description": "Pri behu AMLL TTML Tools sa vyskytla chyba",
+      "description": "Pri behu AMLL TTML Tool sa vyskytla chyba",
       "checkDevTools": "Podrobnosti nájdete v Nástrojoch pre vývojárov",
       "saveLyrics": "Skúste uložiť aktuálne texty",
       "tryRestart": "Skúste aplikáciu znovu načítať",
@@ -494,7 +494,7 @@
       "preview": "Náhľad"
     },
     "boykisser": "boykisser",
-    "appName": "Nástroj TTML pre texty v štýle Apple Music",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Späť",
       "redo": "Znovu",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Nástroj TTML pre texty v štýle Apple Music",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Nástroj pre úpravu a časovanie TTML po slovách pre texty v štýle Apple Music",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

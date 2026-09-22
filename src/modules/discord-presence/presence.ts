@@ -3,7 +3,8 @@ import type { TTMLLyric } from "$/types/ttml";
 
 export const PRESENCE_BRIDGE_VERSION = 1;
 export const PRESENCE_META_NAME = "amll-discord-presence";
-export const DISCORD_LOGO_URL = "https://i.imgur.com/78zp1Xo.png";
+export const DISCORD_LOGO_URL =
+	"https://tool.community.spicylyrics.org/logo.png";
 export const REPOSITORY_URL =
 	"https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL";
 export const DEFAULT_DISCORD_DETAILS_TEMPLATE = "{{mode}} {{title}}";
@@ -297,7 +298,7 @@ export function createDiscordTemplateContext({
 				: "",
 		playbackRate: `${Number(snapshot.playbackRate.toFixed(2))}×`,
 		projectElapsed: formatElapsed(snapshot.projectElapsedSeconds ?? 0),
-		appName: "AMLL TTML Tool",
+		appName: "NaeNae's AMLL TTML Tool Fork",
 	};
 }
 
@@ -347,7 +348,7 @@ export function formatNativeDiscordActivity(
 
 export function createInactiveDiscordActivity(): DiscordActivityPayload {
 	return {
-		details: "AMLL TTML Tool",
+		details: "NaeNae's AMLL TTML Tool Fork",
 		state: "Inactive",
 		playing: false,
 		showRepositoryButton: false,

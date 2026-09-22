@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "Ups, a apărut o eroare!",
-      "description": "A apărut o eroare la rularea AMLL TTML Tools",
+      "description": "A apărut o eroare la rularea AMLL TTML Tool",
       "checkDevTools": "Detalii pot fi găsite în Developer Tools",
       "saveLyrics": "Încercați să salvați Lyric-urile curente",
       "tryRestart": "Încercați să reîncărcați aplicația",
@@ -494,7 +494,7 @@
       "preview": "Previzualizare"
     },
     "boykisser": "Poponar",
-    "appName": "Unealta TTML cu versuri asemănătoare cu Apple",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Anulează",
       "redo": "Reface",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Unealta TTML cu versuri asemănătoare cu Apple",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Un text cu cuvânt TTML Editarea și Timeline Tool pentru versuri asemănătoare Apple",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

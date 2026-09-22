@@ -149,7 +149,7 @@ const AppErrorPage = ({
 			<Flex direction="column" align="start" justify="center" gap="2">
 				<Heading>{t("app.error.title", "诶呀，出错了！")}</Heading>
 				<Text>
-					{t("app.error.description", "AMLL TTML Tools 在运行时出现了错误")}
+					{t("app.error.description", "AMLL TTML Tool 在运行时出现了错误")}
 				</Text>
 				<Text>
 					{t("app.error.checkDevTools", "具体错误详情可以在开发者工具中查询")}

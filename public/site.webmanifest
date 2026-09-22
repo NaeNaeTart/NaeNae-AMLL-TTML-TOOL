@@ -1,6 +1,6 @@
 {
-  "name": "AMLL TTML Tools",
-  "short_name": "AMLL TTML Tools",
+  "name": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
+  "short_name": "NaeNae's AMLL TTML Tool Fork",
   "icons": [
     {
       "src": "/pwa-256x256.png",
@@ -31,5 +31,5 @@
   "display": "standalone",
   "background_color": "#101211",
   "theme_color": "#FFFFFF",
-  "description": "A brand new syllable lyric editor made for AMLL!"
+  "description": "A word-by-word TTML lyric editor and timeline tool for Apple Music-like Lyrics."
 }

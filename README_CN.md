@@ -2,7 +2,7 @@
 
 <img src="./public/logo.svg" align="center" width="256">
 
-# Apple Music-like Lyrics TTML Tool
+# NaeNae's Apple Music-like Lyrics TTML Tool Fork
 
 一个全新的逐词歌词编辑器！针对 [Apple Music-like Lyrics 生态](https://github.com/amll-dev/applemusic-like-lyrics)制作！
 

@@ -1,10 +1,10 @@
-# AMLL TTML Tools Plugin Overview / Development Guide (WIP)
+# NaeNae's AMLL TTML Tool Fork Plugin Overview / Development Guide (WIP)
 
-Due to growing diverse requirements and to keep the tool itself from becoming too bloated and complex while satisfying special needs in more scenarios, a set of lyric tool plugin interface specifications for AMLL TTML Tools has been established to meet the special needs of lyric creators as much as possible.
+Due to growing diverse requirements and to keep the tool itself from becoming too bloated and complex while satisfying special needs in more scenarios, a set of lyric tool plugin interface specifications for NaeNae's AMLL TTML Tool Fork has been established to meet the special needs of lyric creators as much as possible.
 
 ## Overview
 
-Plugins are implemented based on the Extism plugin framework, allowing development in multiple languages and compiled to WASM for use by AMLL TTML Tools. For details, refer to the [Extism official website](https://extism.org/).
+Plugins are implemented based on the Extism plugin framework, allowing development in multiple languages and compiled to WASM for use by NaeNae's AMLL TTML Tool Fork. For details, refer to the [Extism official website](https://extism.org/).
 
 The following features are expected to be available:
 
@@ -44,7 +44,7 @@ All of the following functions must be defined:
 
 ### Plugin Event Functions
 
-The following functions are optional. AMLL TTML Tools will automatically call them based on whether the function definition is registered.
+The following functions are optional. NaeNae's AMLL TTML Tool Fork will automatically call them based on whether the function definition is registered.
 
 | Function Prototype                             | Required | Description                                                                                                   |
 | ---------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------- |
