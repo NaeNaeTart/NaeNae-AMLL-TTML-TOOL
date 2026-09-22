@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "Ups, wystąpił błąd!",
-      "description": "Wystąpił błąd podczas działania AMLL TTML Tools",
+      "description": "Wystąpił błąd podczas działania AMLL TTML Tool",
       "checkDevTools": "Szczegóły można znaleźć w Narzędziach deweloperskich",
       "saveLyrics": "Spróbuj zapisać aktualny tekst",
       "tryRestart": "Spróbuj ponownie załadować aplikację",
@@ -494,7 +494,7 @@
       "preview": "Podgląd"
     },
     "boykisser": "boykisser",
-    "appName": "Narzędzie TTML dla tekstów w stylu Apple Music",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Cofnij",
       "redo": "Ponów",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Narzędzie TTML dla tekstów w stylu Apple Music",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Narzędzie do edycji i tworzenia osi czasu TTML słowo po słowie dla tekstów w stylu Apple Music",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

@@ -2,7 +2,7 @@
 Categories=AudioVideo;Audio;AudioVideoEditing;
 Exec=amll-ttml-tool %U
 Icon=amll-ttml-tool
-Name=AMLL TTML Tool
+Name=NaeNae's AMLL TTML Tool Fork
 Comment=Syllable lyric editor for Apple Music-like lyrics
 Terminal=false
 Type=Application

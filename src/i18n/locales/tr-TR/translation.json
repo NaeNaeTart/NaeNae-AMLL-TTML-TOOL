@@ -494,7 +494,7 @@
       "preview": "Ön İzleme"
     },
     "boykisser": "boykisser",
-    "appName": "Apple Music-benzeri Şarkı Sözü TTML Aracı",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Geri al",
       "redo": "İleri al",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Apple Music-benzeri Şarkı Sözü TTML Aracı",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Apple Music Benzeri Şarkı Sözleri için Kelime Kelime TTML Düzenleme ve Zaman Çizelgesi Aracı",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

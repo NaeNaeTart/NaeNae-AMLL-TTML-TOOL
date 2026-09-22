@@ -3,7 +3,7 @@
 	"app": {
 		"windows": [
 			{
-				"title": "AMLL TTML Tools",
+				"title": "NaeNae's AMLL TTML Tool Fork",
 				"label": "main",
 				"width": 800,
 				"height": 600,

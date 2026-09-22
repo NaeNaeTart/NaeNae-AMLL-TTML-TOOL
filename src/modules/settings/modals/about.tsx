@@ -68,7 +68,10 @@ export const SettingsAboutTab = () => {
 		<Flex direction="column" gap="4">
 			<Flex direction="column" gap="1">
 				<Heading size="4">
-					{t("aboutModal.appName", "Apple Music-like lyrics TTML Tools")}
+					{t(
+						"aboutModal.appName",
+						"NaeNae's Apple Music-like Lyrics TTML Tool Fork",
+					)}
 				</Heading>
 				<Text as="div" size="2" color="gray">
 					{t(

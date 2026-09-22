@@ -494,7 +494,7 @@
       "preview": "Anteprima"
     },
     "boykisser": "boykisser",
-    "appName": "Strumento TTML per Testi tipo Apple Music",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Ripristina",
       "redo": "Ripeti",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Strumento TTML per Testi tipo Apple Music",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Uno Strumento per Modificare gli TTML a Parola per Parola e per la Linea Temporale per Testi tipo Apple Music",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "Oops, an error occurred!",
-      "description": "An error occurred while running AMLL TTML Tools",
+      "description": "An error occurred while running AMLL TTML Tool",
       "checkDevTools": "Details can be found in Developer Tools",
       "saveLyrics": "Try saving current lyrics",
       "tryRestart": "Try reloading the app",
@@ -549,7 +549,7 @@
       "preview": "Preview"
     },
     "boykisser": "boykisser",
-    "appName": "Apple Music-like Lyrics TTML Tool",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Undo",
       "redo": "Redo",
@@ -1252,7 +1252,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Apple Music-like Lyrics TTML Tool",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "A Word-by-Word TTML Editing and Timeline Tool for Apple Music-like Lyrics",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

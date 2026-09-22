@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "Ups, der opstod en fejl!",
-      "description": "Der opstod en fejl under kørsel af AMLL TTML Tools",
+      "description": "Der opstod en fejl under kørsel af AMLL TTML Tool",
       "checkDevTools": "Detaljer kan findes i Udviklerværktøjer",
       "saveLyrics": "Prøv at gemme de aktuelle sangtekster",
       "tryRestart": "Prøv at genindlæse appen",
@@ -494,7 +494,7 @@
       "preview": "Forhåndsvis"
     },
     "boykisser": "boykisser",
-    "appName": "Apple Music-lignende Sangtekst TTML Værktøj",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Fortryd",
       "redo": "Gentag",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Apple Music-lignende Sangtekst TTML Værktøj",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Et ord-for-ord TTML redigerings- og tidslinjeværktøj til Apple Music-lignende sangtekster",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

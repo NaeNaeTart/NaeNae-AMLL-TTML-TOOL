@@ -124,11 +124,8 @@ export const TitleBar: FC = () => {
 								size="2"
 							>
 								<span className={styles.title}>
-									{t("topBar.appName", "Apple Music-like Lyrics TTML Tool")}
+									{t("topBar.appName", "NaeNae's AMLL TTML Tool Fork")}
 								</span>
-							</Text>
-							<Text size="1" color="gray" style={{ opacity: 0.7 }}>
-								Forked by NaeNae
 							</Text>
 						</Flex>
 					</Flex>

@@ -80,20 +80,20 @@ const plugins: Plugin[] = [
 			navigateFallbackDenylist: [/^\/migration(?:\/|$)/],
 		},
 		manifest: {
-			name: "Apple Music-like lyrics TTML Tool",
+			name: "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
 			id: "amll-ttml-tool",
-			short_name: "AMLL TTML Tool",
+			short_name: "NaeNae's AMLL TTML Tool Fork",
 			description: "一个用于 Apple Music 的逐词歌词 TTML 编辑和时间轴工具",
 			theme_color: "#18a058",
 			icons: [
 				{
-					src: "./icons/Square30x30Logo.png",
-					sizes: "30x30",
+					src: "./pwa-256x256.png",
+					sizes: "256x256",
 					type: "image/png",
 				},
 				{
 					src: "./logo.png",
-					sizes: "1024x1024",
+					sizes: "512x512",
 					type: "image/png",
 				},
 			],

@@ -2,7 +2,7 @@
   "app": {
     "error": {
       "title": "Jejda, došlo k chybě!",
-      "description": "Při běhu AMLL TTML Tools došlo k chybě",
+      "description": "Při běhu AMLL TTML Tool došlo k chybě",
       "checkDevTools": "Podrobnosti najdete v Nástrojích pro vývojáře",
       "saveLyrics": "Zkuste uložit aktuální titulky",
       "tryRestart": "Zkuste aplikaci znovu načíst",
@@ -494,7 +494,7 @@
       "preview": "Náhled"
     },
     "boykisser": "boykisser",
-    "appName": "Nástroj TTML pro titulky ve stylu Apple Music",
+    "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Zpět",
       "redo": "Znovu",
@@ -1153,7 +1153,7 @@
     "noSuggestions": "No automated split suggestions available for this content."
   },
   "aboutModal": {
-    "appName": "Nástroj TTML pro titulky ve stylu Apple Music",
+    "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "Nástroj pro úpravu a časování TTML po slovech pro titulky ve stylu Apple Music",
     "maintainers": "Fork Maintainers",
     "maintainersDesc": "This fork is maintained and developed by:",

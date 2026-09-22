@@ -63,7 +63,11 @@ export function ChangelogDialog() {
 									<strong>Link Embeds:</strong> Added short link embeds for Discord, Google, social sharing, and search previews.
 								</Text>
 								<Text size="2">
-									<strong>Red Logo:</strong> Changed default logo color to red.
+									<strong>New App Logo &amp; Naming:</strong> Replaced the red icon
+									across the website, PWA, desktop, and mobile assets with the new
+									multicolor logo, using platform-specific padding and masks. The
+									app now consistently uses NaeNae&apos;s AMLL TTML Tool Fork, with
+									the full Apple Music-like Lyrics name where space permits.
 								</Text>
 								<Text size="2">
 									<strong>Themed Glassmorphic Toast Notifications:</strong> Toast notifications now feature glassmorphic translucent styling with background blur, follow the app's global radius, and synchronize icon and progress bar colors with the active theme accent.
