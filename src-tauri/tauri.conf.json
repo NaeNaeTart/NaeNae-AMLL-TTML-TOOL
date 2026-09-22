@@ -1,6 +1,6 @@
 {
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-	"productName": "NaeNae's AMLL TTML Tool Fork",
+	"productName": "NaeNae AMLL TTML Tool Fork",
 	"version": "0.9.13",
 	"identifier": "meow.naenaetart.amll-ttml-tool",
 	"build": {
