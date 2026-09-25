@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { LatencyTestDialog } from "$/modules/audio/modals/LatencyTest.tsx";
 import { GeniusImportLyricsDialog } from "$/modules/genius/modals/GeniusImportLyricsDialog.tsx";
 import { GeniusSearchDialog } from "$/modules/genius/modals/GeniusSearchDialog.tsx";
@@ -15,6 +16,13 @@ import { ImportFromText } from "$/modules/project/modals/ImportFromText.tsx";
 import { MetadataEditor } from "$/modules/project/modals/MetadataEditor.tsx";
 import { SubmitToAMLLDBDialog } from "$/modules/project/modals/SubmitToAmll.tsx";
 import { AdvancedSegmentationDialog } from "$/modules/segmentation/components/AdvancedSegmentation.tsx";
+
+const ProjectsDialog = lazy(() =>
+	import("$/modules/project/modals/ProjectsDialog").then((m) => ({
+		default: m.ProjectsDialog,
+	})),
+);
+
 import { AutoSegmentDialog } from "$/modules/segmentation/components/AutoSegmentDialog.tsx";
 import { LearnedSplitsDialog } from "$/modules/segmentation/components/LearnedSplits.tsx";
 import { SuggestedSplitsDialog } from "$/modules/segmentation/components/SuggestedSplits.tsx";
@@ -24,12 +32,13 @@ import { SettingsDialog } from "$/modules/settings/modals/index.tsx";
 import { TTMLChecklistDialog } from "$/modules/ttml-checklist/TTMLChecklistDialog.tsx";
 import { ChangelogDialog } from "./changelog.tsx";
 import { ConfirmationDialog } from "./confirmation.tsx";
+import { CreateProjectPromptDialog } from "./create-project-prompt.tsx";
 import {
 	ExperimentalFeaturesDialog,
 	GeniusHeaderDetectionDialog,
 } from "./experimental-features.tsx";
-import { Mp3ConversionDialog } from "./mp3-conversion.tsx";
 import { ImportLyricsChooserDialog } from "./import-lyrics-chooser.tsx";
+import { Mp3ConversionDialog } from "./mp3-conversion.tsx";
 import { WhatsNewDialog } from "./whats-new.tsx";
 
 export const Dialogs = () => {
@@ -50,7 +59,11 @@ export const Dialogs = () => {
 			<TTMLChecklistDialog />
 			<ConfirmationDialog />
 			<Mp3ConversionDialog />
+			<CreateProjectPromptDialog />
 			<HistoryRestoreDialog />
+			<Suspense fallback={null}>
+				<ProjectsDialog />
+			</Suspense>
 			<AdvancedSegmentationDialog />
 			<AutoSegmentDialog />
 			<LearnedSplitsDialog />

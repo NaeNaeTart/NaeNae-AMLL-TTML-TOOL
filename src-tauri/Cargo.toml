@@ -1,6 +1,6 @@
 [package]
 name = "amll-ttml-tool"
-version = "0.9.13"
+version = "0.9.14"
 description = "A brand-new syllable lyric editor for Apple Music-like lyrics"
 license = "AGPL-3.0"
 repository = "https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL"
@@ -30,6 +30,7 @@ tauri-plugin-decorum = "1"
 tauri-plugin-process = "2.3.1"
 tauri-plugin-dialog = "~2"
 tauri-plugin-fs = "~2.4.5"
+tauri-plugin-persisted-scope = "2"
 
 [target.'cfg(any(target_os = "macos", windows, target_os = "linux"))'.dependencies]
 tauri-plugin-updater = "2.9.0"

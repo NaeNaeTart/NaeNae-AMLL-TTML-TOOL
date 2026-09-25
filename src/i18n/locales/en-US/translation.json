@@ -117,6 +117,12 @@
     "copy": "Copy"
   },
   "dialog": {
+    "createProjectPrompt": {
+      "title": "Create a project?",
+      "description": "Keep the audio and lyrics together in a project folder.",
+      "ignore": "Ignore",
+      "create": "Create"
+    },
     "mp3Conversion": {
       "title": "Convert MP3 to FLAC?",
       "description": "You are importing an MP3 file: {fileName}",
