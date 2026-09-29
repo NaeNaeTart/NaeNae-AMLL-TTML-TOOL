@@ -11,7 +11,7 @@
 
 import { atom, type Atom } from "jotai";
 import { atomWithStorage, selectAtom } from "jotai/utils";
-import { REDO, UNDO, withHistory } from "jotai-history";
+import { REDO, RESET, UNDO, withHistory } from "jotai-history";
 import { uid } from "uid";
 import { identifyProject } from "$/modules/project/logic/project-info";
 import {
@@ -126,7 +126,29 @@ export const saveStatusAtom = atom<SaveStatus>(SaveStatus.Saved);
 export const lastSavedTimeAtom = atom<number | null>(null);
 
 export const undoableLyricLinesAtom = withHistory(lyricLinesAtom, 10);
-export const isDirtyAtom = atom((get) => get(undoableLyricLinesAtom).canUndo);
+/**
+ * The exact lyric snapshot that was last saved or opened, or null before any
+ * document baseline exists. Edits always replace the lyric object, so identity
+ * tells us whether the editor still holds what was saved.
+ */
+export const savedLyricLinesAtom = atom<TTMLLyric | null>(null);
+export const isDirtyAtom = atom((get) => {
+	const saved = get(savedLyricLinesAtom);
+	if (saved === null) return get(undoableLyricLinesAtom).canUndo;
+	return get(lyricLinesAtom) !== saved;
+});
+/** Marks `snapshot` as saved while keeping undo history intact. */
+export const markLyricsSavedAtom = atom(
+	null,
+	(_get, set, snapshot: TTMLLyric) => {
+		set(savedLyricLinesAtom, snapshot);
+	},
+);
+/** Starts a fresh document: clears undo history and marks the current lyric clean. */
+export const startFreshLyricDocumentAtom = atom(null, (get, set) => {
+	set(undoableLyricLinesAtom, RESET);
+	set(savedLyricLinesAtom, get(lyricLinesAtom));
+});
 export const undoLyricLinesAtom = atom(null, (_get, set) => {
 	set(undoableLyricLinesAtom, UNDO);
 });

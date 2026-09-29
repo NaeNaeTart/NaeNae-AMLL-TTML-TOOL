@@ -1,4 +1,3 @@
-import { RESET } from "jotai-history";
 import { describe, expect, it, vi } from "vitest";
 
 const recentProject = {
@@ -44,8 +43,8 @@ vi.mock("$/modules/project/logic/metadata-filename", () => ({
 	getSuggestedTtmlFileName: vi.fn(),
 }));
 vi.mock("$/states/dialogs", () => ({ confirmDialogAtom: {} }));
-const { undoableLyricLinesAtom } = vi.hoisted(() => ({
-	undoableLyricLinesAtom: {},
+const { startFreshLyricDocumentAtom } = vi.hoisted(() => ({
+	startFreshLyricDocumentAtom: {},
 }));
 
 vi.mock("$/states/main", () => ({
@@ -53,7 +52,7 @@ vi.mock("$/states/main", () => ({
 	newLyricLinesAtom: {},
 	projectIdAtom: {},
 	saveFileNameAtom: {},
-	undoableLyricLinesAtom,
+	startFreshLyricDocumentAtom,
 }));
 vi.mock("$/utils/logging", () => ({ error: vi.fn(), log: vi.fn() }));
 vi.mock("./audio-io", () => ({
@@ -126,7 +125,7 @@ describe("loadProjectFromDir", () => {
 		// Opening by path (recents, workspace list) must never widen fs scope.
 		expect(invoke).not.toHaveBeenCalled();
 		expect(store.set).toHaveBeenCalledWith(workspaceDirAtom, "C:/Projects");
-		expect(store.set).toHaveBeenCalledWith(undoableLyricLinesAtom, RESET);
+		expect(store.set).toHaveBeenCalledWith(startFreshLyricDocumentAtom);
 	});
 
 	it("unloads previous audio when the opened project has no audio", async () => {

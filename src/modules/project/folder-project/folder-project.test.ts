@@ -246,6 +246,15 @@ describe("assertSafePath", () => {
 		);
 	});
 
+	it("accepts literal percent signs that are not valid URI escapes", () => {
+		expect(assertSafePath(base, "100% Love.ttml")).toBe(
+			`${base}/100% Love.ttml`,
+		);
+		expect(() => assertSafePath(base, "50% ../evil.ttml")).toThrow(
+			/Path traversal attempt/,
+		);
+	});
+
 	it("rejects Windows reserved device segments", () => {
 		expect(() => assertSafePath(base, "CON")).toThrow(/reserved device name/);
 		expect(() => assertSafePath(base, "NUL.ttml")).toThrow(

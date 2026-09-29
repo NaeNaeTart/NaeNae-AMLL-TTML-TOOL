@@ -1,7 +1,12 @@
 import { isTauri } from "@tauri-apps/api/core";
-import { exists, mkdir, remove, writeTextFile } from "@tauri-apps/plugin-fs";
+import {
+	exists,
+	mkdir,
+	readDir,
+	remove,
+	writeTextFile,
+} from "@tauri-apps/plugin-fs";
 import type { getDefaultStore } from "jotai";
-import { RESET } from "jotai-history";
 import { toast } from "react-toastify";
 import { uid } from "uid";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -14,10 +19,11 @@ import { confirmDialogAtom } from "$/states/dialogs";
 import {
 	isDirtyAtom,
 	lyricLinesAtom,
+	markLyricsSavedAtom,
 	newLyricLinesAtom,
 	projectIdAtom,
 	saveFileNameAtom,
-	undoableLyricLinesAtom,
+	startFreshLyricDocumentAtom,
 } from "$/states/main";
 import type { TTMLLyric } from "$/types/ttml";
 import { log, error as logError } from "$/utils/logging";
@@ -75,6 +81,34 @@ export function generateLyricTextFromStore(
 	}
 }
 
+/**
+ * Removes a file superseded by a save. Only call this after the replacement
+ * and manifest are written, so a failed save never loses the original.
+ * Returns false when cleanup failed.
+ */
+async function removeReplacedFile(
+	dir: string,
+	oldName: string | undefined,
+	newName: string,
+): Promise<boolean> {
+	if (!oldName || !newName || oldName === newName) return true;
+	try {
+		if (oldName.toLowerCase() === newName.toLowerCase()) {
+			// A case-only rename is one file on case-insensitive filesystems
+			// (Windows, default macOS) but two on case-sensitive ones. Only delete
+			// when the folder really lists both names as separate entries.
+			const names = new Set((await readDir(dir)).map((e) => e.name));
+			if (!names.has(oldName) || !names.has(newName)) return true;
+		}
+		const oldPath = assertSafePath(dir, oldName);
+		if (await exists(oldPath)) await remove(oldPath);
+		return true;
+	} catch (e) {
+		logError(`Failed to remove replaced project file: ${oldName}`, e);
+		return false;
+	}
+}
+
 export async function createProject(store: Store, t: TFunc): Promise<void> {
 	if (!isTauri()) {
 		toast.error(
@@ -122,14 +156,6 @@ export async function createProject(store: Store, t: TFunc): Promise<void> {
 				return;
 			}
 
-			const emptyLyric: TTMLLyric = { lyricLines: [], metadata: [] };
-			store.set(projectIdAtom, uid());
-			store.set(newLyricLinesAtom, emptyLyric);
-			store.set(undoableLyricLinesAtom, RESET);
-			store.set(saveFileNameAtom, "");
-			store.set(projectAudioFileAtom, null);
-			audioEngine.unloadMusic();
-
 			const nextManifest: ProjectManifest = {
 				version: 1,
 				name: getFileNameFromPath(pickedDir),
@@ -152,6 +178,14 @@ export async function createProject(store: Store, t: TFunc): Promise<void> {
 				return;
 			}
 
+			// Reset the editor only once the project exists on disk.
+			const emptyLyric: TTMLLyric = { lyricLines: [], metadata: [] };
+			store.set(projectIdAtom, uid());
+			store.set(newLyricLinesAtom, emptyLyric);
+			store.set(startFreshLyricDocumentAtom);
+			store.set(saveFileNameAtom, "");
+			store.set(projectAudioFileAtom, null);
+			audioEngine.unloadMusic();
 			store.set(activeProjectDirAtom, pickedDir);
 			store.set(activeProjectManifestAtom, nextManifest);
 			await rememberProjectWorkspace(store, pickedDir);
@@ -244,56 +278,6 @@ export async function saveProject(store: Store, t: TFunc): Promise<boolean> {
 	try {
 		await mkdir(dir, { recursive: true });
 
-		if (
-			manifest?.lyricFile &&
-			manifest.lyricFile !== lyricFileName &&
-			manifest.lyricFile !== "" &&
-			lyricFileName !== ""
-		) {
-			try {
-				const oldLyricPath = assertSafePath(dir, manifest.lyricFile);
-				if (await exists(oldLyricPath)) {
-					await remove(oldLyricPath);
-				}
-			} catch (e) {
-				logError(
-					`Failed to remove renamed lyric file: ${manifest.lyricFile}`,
-					e,
-				);
-				toast.warning(
-					t(
-						"error.folderProjectCleanupFailed",
-						"Saved, but the previous lyric file could not be removed",
-					),
-				);
-			}
-		}
-
-		if (
-			manifest?.audioFile &&
-			audioFileName &&
-			manifest.audioFile !== audioFileName &&
-			manifest.audioFile !== ""
-		) {
-			try {
-				const oldAudioPath = assertSafePath(dir, manifest.audioFile);
-				if (await exists(oldAudioPath)) {
-					await remove(oldAudioPath);
-				}
-			} catch (e) {
-				logError(
-					`Failed to remove renamed audio file: ${manifest.audioFile}`,
-					e,
-				);
-				toast.warning(
-					t(
-						"error.folderProjectCleanupFailed",
-						"Saved, but the previous audio file could not be removed",
-					),
-				);
-			}
-		}
-
 		if (lyricFileName && lyricText != null) {
 			await writeProjectLyricFile(dir, lyricFileName, lyricText);
 		}
@@ -312,7 +296,9 @@ export async function saveProject(store: Store, t: TFunc): Promise<boolean> {
 			version: 1,
 			app: PROJECT_MANIFEST_APP_ID,
 			projectId: manifest?.projectId ?? uid(),
-			name: suggested?.baseName ?? manifest?.name ?? "Untitled",
+			name: manifest?.nameEdited
+				? manifest.name
+				: (suggested?.baseName ?? manifest?.name ?? "Untitled"),
 			audioFile: audioFileName,
 			lyricFile: lyricFileName,
 			song: getSongInfo(
@@ -330,7 +316,22 @@ export async function saveProject(store: Store, t: TFunc): Promise<boolean> {
 		store.set(activeProjectManifestAtom, nextManifest);
 		await rememberProjectWorkspace(store, dir);
 		store.set(saveFileNameAtom, lyricFileName);
-		store.set(undoableLyricLinesAtom, RESET);
+		store.set(markLyricsSavedAtom, lyric);
+
+		const lyricCleaned =
+			!lyricFileName ||
+			(await removeReplacedFile(dir, manifest?.lyricFile, lyricFileName));
+		const audioCleaned =
+			!audioFile ||
+			(await removeReplacedFile(dir, manifest?.audioFile, audioFileName));
+		if (!lyricCleaned || !audioCleaned) {
+			toast.warning(
+				t(
+					"error.folderProjectCleanupFailed",
+					"Saved, but a previous project file could not be removed",
+				),
+			);
+		}
 
 		toast.success(t("success.folderProjectSaved", "Project saved"));
 		log(`Saved folder project: ${nextManifest.name} (${dir})`);
@@ -390,32 +391,6 @@ export async function saveLyricsOnly(
 			"ttml",
 		);
 
-		if (
-			manifest.lyricFile &&
-			manifest.lyricFile !== lyricFileName &&
-			manifest.lyricFile !== ""
-		) {
-			try {
-				const oldLyricPath = assertSafePath(activeDir, manifest.lyricFile);
-				if (await exists(oldLyricPath)) {
-					await remove(oldLyricPath);
-				}
-			} catch (e) {
-				logError(
-					`Failed to remove renamed lyric file: ${manifest.lyricFile}`,
-					e,
-				);
-				if (!options?.silent) {
-					toast.warning(
-						t(
-							"error.folderProjectCleanupFailed",
-							"Saved, but the previous lyric file could not be removed",
-						),
-					);
-				}
-			}
-		}
-
 		await writeProjectLyricFile(activeDir, lyricFileName, lyricText);
 
 		const nextManifest: ProjectManifest = {
@@ -431,7 +406,20 @@ export async function saveLyricsOnly(
 
 		store.set(activeProjectManifestAtom, nextManifest);
 		store.set(saveFileNameAtom, lyricFileName);
-		store.set(undoableLyricLinesAtom, RESET);
+		store.set(markLyricsSavedAtom, lyric);
+		const cleaned = await removeReplacedFile(
+			activeDir,
+			manifest.lyricFile,
+			lyricFileName,
+		);
+		if (!cleaned && !options?.silent) {
+			toast.warning(
+				t(
+					"error.folderProjectCleanupFailed",
+					"Saved, but the previous lyric file could not be removed",
+				),
+			);
+		}
 		await syncProjectFolderName(store);
 
 		if (!options?.silent) {
@@ -465,6 +453,7 @@ export async function renameProject(
 	const nextManifest: ProjectManifest = {
 		...manifest,
 		name: cleaned,
+		nameEdited: true,
 		updatedAt: Date.now(),
 	};
 

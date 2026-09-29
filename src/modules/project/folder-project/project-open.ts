@@ -7,7 +7,6 @@ import {
 	writeTextFile,
 } from "@tauri-apps/plugin-fs";
 import type { getDefaultStore } from "jotai";
-import { RESET } from "jotai-history";
 import { toast } from "react-toastify";
 import { uid } from "uid";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -18,7 +17,7 @@ import {
 	newLyricLinesAtom,
 	projectIdAtom,
 	saveFileNameAtom,
-	undoableLyricLinesAtom,
+	startFreshLyricDocumentAtom,
 } from "$/states/main";
 import type { TTMLLyric } from "$/types/ttml";
 import { log, error as logError } from "$/utils/logging";
@@ -188,7 +187,7 @@ export async function loadProjectFromDir(
 
 	store.set(projectIdAtom, uid());
 	store.set(newLyricLinesAtom, lyricData);
-	store.set(undoableLyricLinesAtom, RESET);
+	store.set(startFreshLyricDocumentAtom);
 	store.set(saveFileNameAtom, lyricFileName);
 	store.set(projectAudioFileAtom, audioFile);
 
@@ -313,25 +312,6 @@ export async function importProjectDir(
 		}
 	}
 
-	store.set(projectIdAtom, uid());
-	store.set(newLyricLinesAtom, lyricData);
-	store.set(undoableLyricLinesAtom, RESET);
-	store.set(saveFileNameAtom, lyricFileName);
-	store.set(projectAudioFileAtom, audioFile);
-
-	if (audioFile) {
-		try {
-			await audioEngine.loadMusic(audioFile);
-		} catch (e) {
-			logError("Failed to load project audio into audio engine", e);
-			toast.error(
-				t("error.folderProjectAudioLoadFailed", "Failed to load project audio"),
-			);
-		}
-	} else {
-		audioEngine.unloadMusic();
-	}
-
 	const suggested = getSuggestedTtmlFileName(lyricData.metadata);
 	const nextManifest: ProjectManifest = {
 		version: 1,
@@ -354,9 +334,29 @@ export async function importProjectDir(
 		return false;
 	}
 
+	// Only touch the editor once the manifest exists, so a failed import can't
+	// leave imported lyrics attached to the previously active project.
+	store.set(projectIdAtom, uid());
+	store.set(newLyricLinesAtom, lyricData);
+	store.set(startFreshLyricDocumentAtom);
+	store.set(saveFileNameAtom, lyricFileName);
+	store.set(projectAudioFileAtom, audioFile);
 	store.set(activeProjectDirAtom, dir);
 	store.set(activeProjectManifestAtom, nextManifest);
 	await rememberProjectWorkspace(store, dir);
+
+	if (audioFile) {
+		try {
+			await audioEngine.loadMusic(audioFile);
+		} catch (e) {
+			logError("Failed to load project audio into audio engine", e);
+			toast.error(
+				t("error.folderProjectAudioLoadFailed", "Failed to load project audio"),
+			);
+		}
+	} else {
+		audioEngine.unloadMusic();
+	}
 
 	log(`Imported folder project: ${nextManifest.name} (${dir})`);
 	await upsertRecentProject({

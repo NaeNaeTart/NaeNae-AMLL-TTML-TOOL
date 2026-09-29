@@ -62,13 +62,13 @@ export function assertSafePath(baseDir: string, relativePath: string): string {
 	if (!relativePath || typeof relativePath !== "string") {
 		throw new Error("Invalid relative path: path cannot be empty");
 	}
-	let decoded = relativePath;
+	// Paths go straight to filesystem APIs, so a literal "%" (e.g. "100% Love")
+	// is legal. Still reject names whose decoded form would be unsafe.
+	const candidates = [relativePath];
 	try {
-		decoded = decodeURIComponent(relativePath);
-	} catch {
-		throw new Error("Invalid relative path: malformed URI encoding");
-	}
-	for (const candidate of [relativePath, decoded]) {
+		candidates.push(decodeURIComponent(relativePath));
+	} catch {}
+	for (const candidate of candidates) {
 		if (
 			candidate.startsWith("/") ||
 			candidate.startsWith("\\") ||
@@ -163,6 +163,9 @@ export function isProjectManifest(value: unknown): value is ProjectManifest {
 		(typeof v.folderName !== "string" ||
 			(v.folderName.length > 0 && !isSafeProjectFileName(v.folderName)))
 	) {
+		return false;
+	}
+	if (v.nameEdited !== undefined && typeof v.nameEdited !== "boolean") {
 		return false;
 	}
 	if (v.song !== undefined) {

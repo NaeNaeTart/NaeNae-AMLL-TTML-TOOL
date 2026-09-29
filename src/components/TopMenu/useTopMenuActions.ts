@@ -1,6 +1,5 @@
 import { open } from "@tauri-apps/plugin-shell";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
-import { RESET } from "jotai-history";
 import { useSetImmerAtom, withImmer } from "jotai-immer";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,6 +13,7 @@ import { validateSections } from "$/modules/lyric-editor/utils/section-system.ts
 import {
 	activeProjectDirAtom,
 	activeProjectManifestAtom,
+	projectAudioFileAtom,
 } from "$/modules/project/folder-project/state";
 import { useFolderProject } from "$/modules/project/folder-project/useFolderProject";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
@@ -62,12 +62,14 @@ import {
 import {
 	isDirtyAtom,
 	lyricLinesAtom,
+	markLyricsSavedAtom,
 	newLyricLinesAtom,
 	projectIdAtom,
 	redoLyricLinesAtom,
 	saveFileNameAtom,
 	selectedLinesAtom,
 	selectedWordsAtom,
+	startFreshLyricDocumentAtom,
 	undoableLyricLinesAtom,
 	undoLyricLinesAtom,
 } from "$/states/main.ts";
@@ -153,7 +155,12 @@ export const useTopMenuActions = () => {
 	const onNewFile = useCallback(() => {
 		const action = () => {
 			newLyricLine();
-			store.set(undoableLyricLinesAtom, RESET);
+			store.set(startFreshLyricDocumentAtom);
+			// A new standalone file must not inherit the open folder project, or
+			// saving/autosave would overwrite that project's lyrics.
+			store.set(activeProjectDirAtom, null);
+			store.set(activeProjectManifestAtom, null);
+			store.set(projectAudioFileAtom, null);
 			setProjectId(uid());
 			setSaveFileName("lyric.ttml");
 		};
@@ -256,7 +263,7 @@ export const useTopMenuActions = () => {
 				});
 				if (savedName) {
 					setSaveFileName(savedName);
-					store.set(undoableLyricLinesAtom, RESET);
+					store.set(markLyricsSavedAtom, currentLyrics);
 				}
 			} catch (e) {
 				error("Failed to save TTML file", e);

@@ -75,7 +75,10 @@ export function ChangelogDialog() {
 									<strong>Resilient Project Manifest:</strong> project.json now carries a project identifier and a song fingerprint, so the lyric and audio files are found again after being renamed outside the app. Older manifests keep working.
 								</Text>
 								<Text size="2">
-									<strong>Safe File Access:</strong> All project paths are validated against traversal and reserved names, file sizes are capped, and the feature only runs in the desktop app.
+									<strong>Safe File Access:</strong> All project paths are validated against traversal and reserved names, file sizes are capped, and folder access is granted only through folders you pick in the native dialog.
+								</Text>
+								<Text size="2">
+									<strong>Saved-State Tracking:</strong> Saving now clears the unsaved-changes warning while keeping your undo history, edits made during a save stay marked as unsaved, and undoing back to the saved version reads as saved again.
 								</Text>
 							</Flex>
 						</Box>

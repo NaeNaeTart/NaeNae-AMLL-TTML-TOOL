@@ -11,6 +11,8 @@ export interface ProjectManifest {
 	app?: typeof PROJECT_MANIFEST_APP_ID;
 	projectId?: string;
 	name: string;
+	/** True once the user renamed the project; saves then stop deriving the name from metadata. */
+	nameEdited?: boolean;
 	audioFile: string;
 	lyricFile: string;
 	coverFile?: string;
