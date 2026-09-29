@@ -1,5 +1,4 @@
 import { isTauri } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
 import {
 	exists,
 	readDir,
@@ -45,7 +44,7 @@ import {
 	PROJECT_MANIFEST_FILENAME,
 	type ProjectManifest,
 } from "./types";
-import { rememberProjectWorkspace } from "./workspace";
+import { pickProjectFolder, rememberProjectWorkspace } from "./workspace";
 
 type Store = ReturnType<typeof getDefaultStore>;
 type TFunc = (
@@ -468,13 +467,10 @@ export async function openProject(store: Store, t: TFunc): Promise<void> {
 
 	const executeOpen = async () => {
 		try {
-			const picked = await open({
-				directory: true,
-				multiple: false,
-				recursive: true,
-				title: t("dialog.openProject.title", "Select project folder"),
-			});
-			if (!picked || typeof picked !== "string") {
+			const picked = await pickProjectFolder(
+				t("dialog.openProject.title", "Select project folder"),
+			);
+			if (!picked) {
 				return;
 			}
 			await openProjectFromDir(picked, store, t);

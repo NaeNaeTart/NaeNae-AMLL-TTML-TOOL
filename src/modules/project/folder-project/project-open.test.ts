@@ -123,9 +123,8 @@ describe("loadProjectFromDir", () => {
 		expect(settled).toBe(false);
 		release?.();
 		await result;
-		expect(invoke).toHaveBeenCalledWith("grant_project_workspace_scope", {
-			projectDir: "C:/Projects/Song",
-		});
+		// Opening by path (recents, workspace list) must never widen fs scope.
+		expect(invoke).not.toHaveBeenCalled();
 		expect(store.set).toHaveBeenCalledWith(workspaceDirAtom, "C:/Projects");
 		expect(store.set).toHaveBeenCalledWith(undoableLyricLinesAtom, RESET);
 	});

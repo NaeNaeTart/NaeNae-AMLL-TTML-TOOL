@@ -1,5 +1,4 @@
 import { isTauri } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
 import { exists, mkdir, remove, writeTextFile } from "@tauri-apps/plugin-fs";
 import type { getDefaultStore } from "jotai";
 import { RESET } from "jotai-history";
@@ -45,7 +44,7 @@ import {
 	PROJECT_MANIFEST_FILENAME,
 	type ProjectManifest,
 } from "./types";
-import { rememberProjectWorkspace } from "./workspace";
+import { pickProjectFolder, rememberProjectWorkspace } from "./workspace";
 
 type Store = ReturnType<typeof getDefaultStore>;
 type TFunc = (
@@ -90,16 +89,13 @@ export async function createProject(store: Store, t: TFunc): Promise<void> {
 	const executeCreate = async () => {
 		try {
 			audioEngine.pauseMusic();
-			const pickedDir = await open({
-				directory: true,
-				multiple: false,
-				recursive: true,
-				title: t(
+			const pickedDir = await pickProjectFolder(
+				t(
 					"dialog.createProject.title",
 					"Select or create a folder for the new project",
 				),
-			});
-			if (!pickedDir || typeof pickedDir !== "string") {
+			);
+			if (!pickedDir) {
 				return;
 			}
 
@@ -206,13 +202,10 @@ export async function saveProject(store: Store, t: TFunc): Promise<boolean> {
 
 	let dir = store.get(activeProjectDirAtom);
 	if (!dir) {
-		const picked = await open({
-			directory: true,
-			multiple: false,
-			recursive: true,
-			title: t("dialog.saveProject.title", "Select or create a project folder"),
-		});
-		if (!picked || typeof picked !== "string") {
+		const picked = await pickProjectFolder(
+			t("dialog.saveProject.title", "Select or create a project folder"),
+		);
+		if (!picked) {
 			return false;
 		}
 		dir = picked;

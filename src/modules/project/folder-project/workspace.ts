@@ -19,6 +19,16 @@ type TFunc = (
 	options?: Record<string, unknown>,
 ) => string;
 
+/**
+ * Opens the backend-owned folder picker, which grants the picked folder's
+ * parent to the fs scope. Scope is never widened from a webview-supplied path.
+ */
+export async function pickProjectFolder(title: string): Promise<string | null> {
+	return (
+		(await invoke<string | null>("pick_project_folder", { title })) ?? null
+	);
+}
+
 export async function rememberProjectWorkspace(
 	store: Store,
 	projectDir: string,
@@ -26,13 +36,6 @@ export async function rememberProjectWorkspace(
 	const normalized = projectDir.replace(/\\/g, "/").replace(/\/+$/, "");
 	const separator = normalized.lastIndexOf("/");
 	if (separator <= 0) return;
-	if (isTauri()) {
-		try {
-			await invoke("grant_project_workspace_scope", { projectDir });
-		} catch (e) {
-			logError("Failed to extend workspace filesystem scope", e);
-		}
-	}
 	store.set(workspaceDirAtom, normalized.slice(0, separator));
 }
 
@@ -62,12 +65,6 @@ export async function openWorkspaceDialog(
 				),
 			});
 			if (!dir || typeof dir !== "string") return;
-
-			try {
-				await invoke("grant_workspace_scope", { workspaceDir: dir });
-			} catch (e) {
-				logError("Failed to extend workspace filesystem scope", e);
-			}
 
 			store.set(workspaceScanningAtom, true);
 			store.set(workspaceDirAtom, dir);

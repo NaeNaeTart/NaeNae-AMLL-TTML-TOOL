@@ -228,47 +228,41 @@ fn get_open_file_data() -> Option<OpenFileData> {
     None
 }
 
+/// Shows a native folder picker and grants the picked project folder's parent
+/// (needed for folder create, auto-rename and sibling scans).
+///
+/// The picker lives here instead of taking a path from the webview so scope
+/// can only be widened by a real user pick, never by a forged invoke call.
 #[tauri::command]
-fn grant_project_workspace_scope(
-    project_dir: String,
+async fn pick_project_folder(
+    title: String,
     window: tauri::Window,
-) -> Result<(), String> {
-    let project_path = std::path::PathBuf::from(&project_dir);
-    if !project_path.is_absolute() {
-        return Err("project path must be absolute".to_string());
-    }
-    if !project_path.join("project.json").is_file() {
-        return Err("not a project folder".to_string());
-    }
-    let parent = project_path.parent().filter(|p| !p.as_os_str().is_empty());
-    let Some(parent) = parent else {
-        return Err("project folder has no parent directory".to_string());
-    };
-    let scope = window
-        .try_fs_scope()
-        .ok_or_else(|| "filesystem scope is unavailable".to_string())?;
-    scope
-        .allow_directory(parent, true)
-        .map_err(|e| format!("failed to extend filesystem scope: {e}"))?;
-    Ok(())
-}
+) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
 
-#[tauri::command]
-fn grant_workspace_scope(workspace_dir: String, window: tauri::Window) -> Result<(), String> {
-    let workspace_path = std::path::PathBuf::from(&workspace_dir);
-    if !workspace_path.is_absolute() {
-        return Err("workspace path must be absolute".to_string());
-    }
-    if !workspace_path.is_dir() {
-        return Err("not a workspace folder".to_string());
-    }
+    let Some(picked) = window
+        .dialog()
+        .file()
+        .set_title(title)
+        .set_parent(&window)
+        .blocking_pick_folder()
+    else {
+        return Ok(None);
+    };
+    let project_path = picked
+        .into_path()
+        .map_err(|e| format!("invalid folder path: {e}"))?;
     let scope = window
         .try_fs_scope()
         .ok_or_else(|| "filesystem scope is unavailable".to_string())?;
+    let granted = project_path
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or(&project_path);
     scope
-        .allow_directory(workspace_path, true)
+        .allow_directory(granted, true)
         .map_err(|e| format!("failed to extend filesystem scope: {e}"))?;
-    Ok(())
+    Ok(Some(project_path.to_string_lossy().into_owned()))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -336,8 +330,7 @@ pub fn run() {
             convert_audio_mp3_to_flac,
             set_discord_activity,
             clear_discord_activity,
-            grant_project_workspace_scope,
-            grant_workspace_scope,
+            pick_project_folder,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
