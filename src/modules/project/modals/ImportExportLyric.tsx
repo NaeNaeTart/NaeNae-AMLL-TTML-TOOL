@@ -191,19 +191,19 @@ export const ImportExportLyric = () => {
 						{t("topBar.menu.importLyric.fromGenius", "从 Genius 导入…")}
 					</DropdownMenu.Item>
 
-					<DropdownMenu.Item onClick={() => onImportLyric("lrc")}>
+					<DropdownMenu.Item onClick={onImportLyric("lrc")}>
 						{t("topBar.menu.importLyric.fromLyRiC", "从 LyRiC 文件导入")}
 					</DropdownMenu.Item>
-					<DropdownMenu.Item onClick={() => onImportLyric("eslrc")}>
+					<DropdownMenu.Item onClick={onImportLyric("eslrc")}>
 						{t("topBar.menu.importLyric.fromESLyRiC", "从 ESLyRiC 文件导入")}
 					</DropdownMenu.Item>
-					<DropdownMenu.Item onClick={() => onImportLyric("qrc")}>
+					<DropdownMenu.Item onClick={onImportLyric("qrc")}>
 						{t("topBar.menu.importLyric.fromQRC", "从 QRC 文件导入")}
 					</DropdownMenu.Item>
-					<DropdownMenu.Item onClick={() => onImportLyric("yrc")}>
+					<DropdownMenu.Item onClick={onImportLyric("yrc")}>
 						{t("topBar.menu.importLyric.fromYRC", "从 YRC 文件导入")}
 					</DropdownMenu.Item>
-					<DropdownMenu.Item onClick={() => onImportLyric("lys")}>
+					<DropdownMenu.Item onClick={onImportLyric("lys")}>
 						{t(
 							"topBar.menu.importLyric.fromLrcfySylb",
 							"从 Lyricify Syllable 文件导入",
