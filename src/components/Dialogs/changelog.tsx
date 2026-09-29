@@ -77,6 +77,9 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Safe File Access:</strong> All project paths are validated against traversal and reserved names, file sizes are capped, and the feature only runs in the desktop app.
 								</Text>
+								<Text size="2">
+									<strong>Lyric File Import:</strong> Fixed file dialog triggers for LRC, ESLRC, QRC, YRC, and Lyricify Syllable formats so clicking import options in the File menu immediately opens the file picker.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
