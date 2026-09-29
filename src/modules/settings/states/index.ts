@@ -56,6 +56,14 @@ export const generateNameFromMetadataAtom = atomWithStorage(
 export const autosaveEnabledAtom = atomWithStorage("autosaveEnabled", true);
 export const autosaveIntervalAtom = atomWithStorage("autosaveInterval", 10);
 export const autosaveLimitAtom = atomWithStorage("autosaveLimit", 10);
+export const folderProjectsEnabledAtom = atomWithStorage(
+	"folderProjectsEnabled",
+	false,
+);
+export const folderProjectsAutosaveAtom = atomWithStorage(
+	"folderProjectsAutosave",
+	true,
+);
 
 export const discordRichPresenceEnabledAtom = atomWithStorage(
 	"discordRichPresenceEnabled",

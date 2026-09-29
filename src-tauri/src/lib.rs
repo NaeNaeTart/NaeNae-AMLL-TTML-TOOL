@@ -3,6 +3,7 @@ use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
 use discord_rich_presence::{DiscordIpc, DiscordIpcClient, activity};
+use tauri_plugin_fs::FsExt;
 
 const DISCORD_CLIENT_ID: &str = "1250551199862624349";
 const DISCORD_LOGO_URL: &str = "https://tool.community.spicylyrics.org/logo.png";
@@ -227,6 +228,43 @@ fn get_open_file_data() -> Option<OpenFileData> {
     None
 }
 
+/// Shows a native folder picker and grants the picked project folder's parent
+/// (needed for folder create, auto-rename and sibling scans).
+///
+/// The picker lives here instead of taking a path from the webview so scope
+/// can only be widened by a real user pick, never by a forged invoke call.
+#[tauri::command]
+async fn pick_project_folder(
+    title: String,
+    window: tauri::Window,
+) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+
+    let Some(picked) = window
+        .dialog()
+        .file()
+        .set_title(title)
+        .set_parent(&window)
+        .blocking_pick_folder()
+    else {
+        return Ok(None);
+    };
+    let project_path = picked
+        .into_path()
+        .map_err(|e| format!("invalid folder path: {e}"))?;
+    let scope = window
+        .try_fs_scope()
+        .ok_or_else(|| "filesystem scope is unavailable".to_string())?;
+    let granted = project_path
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or(&project_path);
+    scope
+        .allow_directory(granted, true)
+        .map_err(|e| format!("failed to extend filesystem scope: {e}"))?;
+    Ok(Some(project_path.to_string_lossy().into_owned()))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[allow(clippy::missing_panics_doc)]
 pub fn run() {
@@ -236,6 +274,7 @@ pub fn run() {
         .plugin(tauri_plugin_decorum::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_process::init());
 
     #[cfg(any(target_os = "macos", windows, target_os = "linux"))]
@@ -291,6 +330,7 @@ pub fn run() {
             convert_audio_mp3_to_flac,
             set_discord_activity,
             clear_discord_activity,
+            pick_project_folder,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
