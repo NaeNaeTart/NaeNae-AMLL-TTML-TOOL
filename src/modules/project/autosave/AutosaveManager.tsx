@@ -1,10 +1,14 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { autoSaveProject } from "$/modules/project/autosave/autosave";
+import { activeProjectDirAtom } from "$/modules/project/folder-project/state";
+import { useFolderProject } from "$/modules/project/folder-project/useFolderProject";
 import {
 	autosaveEnabledAtom,
 	autosaveIntervalAtom,
 	autosaveLimitAtom,
+	folderProjectsAutosaveAtom,
+	folderProjectsEnabledAtom,
 } from "$/modules/settings/states";
 import {
 	isDirtyAtom,
@@ -23,9 +27,15 @@ export const AutosaveManager = () => {
 	const limit = useAtomValue(autosaveLimitAtom);
 	const intervalMinutes = useAtomValue(autosaveIntervalAtom);
 	const projectId = useAtomValue(projectIdAtom);
+	const activeDir = useAtomValue(activeProjectDirAtom);
+	const folderProjectsEnabled = useAtomValue(folderProjectsEnabledAtom);
+	const folderProjectsAutosave = useAtomValue(folderProjectsAutosaveAtom);
+	const { saveLyricsOnly } = useFolderProject();
 
 	const setSaveStatus = useSetAtom(saveStatusAtom);
 	const setLastSavedTime = useSetAtom(lastSavedTimeAtom);
+
+	const writeProjectFile = folderProjectsEnabled && folderProjectsAutosave;
 
 	useEffect(() => {
 		if (!enabled) return;
@@ -53,7 +63,14 @@ export const AutosaveManager = () => {
 					limit,
 					intervalMinutes * 60 * 1000,
 				)
-					.then(() => {
+					.then(async () => {
+						if (activeDir && writeProjectFile) {
+							try {
+								await saveLyricsOnly({ silent: true });
+							} catch (err) {
+								logError("Failed to write project file on auto save", err);
+							}
+						}
 						setSaveStatus(SaveStatus.Saved);
 						setLastSavedTime(Date.now());
 					})
@@ -76,6 +93,9 @@ export const AutosaveManager = () => {
 		setSaveStatus,
 		setLastSavedTime,
 		intervalMinutes,
+		activeDir,
+		writeProjectFile,
+		saveLyricsOnly,
 	]);
 
 	return null;

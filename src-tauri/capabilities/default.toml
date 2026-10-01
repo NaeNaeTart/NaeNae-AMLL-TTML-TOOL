@@ -59,3 +59,27 @@ identifier = "fs:allow-exists"
 
 [[permissions]]
 identifier = "fs:allow-stat"
+
+[[permissions]]
+identifier = "fs:allow-read-file"
+
+[[permissions]]
+identifier = "fs:allow-read-text-file"
+
+[[permissions]]
+identifier = "fs:allow-write-file"
+
+[[permissions]]
+identifier = "fs:allow-write-text-file"
+
+[[permissions]]
+identifier = "fs:allow-read-dir"
+
+[[permissions]]
+identifier = "fs:allow-mkdir"
+
+[[permissions]]
+identifier = "fs:allow-remove"
+
+[[permissions]]
+identifier = "fs:allow-rename"

@@ -9,15 +9,20 @@ import {
 	parseQrc,
 	parseYrc,
 } from "@applemusic-like-lyrics/lyric";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { uid } from "uid";
-
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { convertMp3ToFlac } from "$/modules/audio/utils/mp3-converter";
 import { getProjectList } from "$/modules/project/autosave/autosave";
+import { maybePromptCreateProject } from "$/modules/project/folder-project/project-create";
+import {
+	activeProjectDirAtom,
+	pendingAudioFileAtom,
+	projectAudioFileAtom,
+} from "$/modules/project/folder-project/state";
 import { getSuggestedTtmlFileName } from "$/modules/project/logic/metadata-filename";
 import { isProjectMatch } from "$/modules/project/logic/project-match";
 import { parseLyric as parseTTML } from "$/modules/project/logic/ttml-parser";
@@ -27,23 +32,21 @@ import {
 	normalizeApostrophesOnImportAtom,
 	normalizeCyrillicEsOnImportAtom,
 } from "$/modules/settings/states";
-import {
-	confirmDialogAtom,
-	mp3ConversionDialogAtom,
-} from "$/states/dialogs";
+import { confirmDialogAtom, mp3ConversionDialogAtom } from "$/states/dialogs";
 import {
 	isDirtyAtom,
 	newLyricLinesAtom,
 	projectIdAtom,
 	saveFileNameAtom,
+	startFreshLyricDocumentAtom,
 } from "$/states/main";
 import type { TTMLLyric } from "$/types/ttml";
-import { error as logError, log } from "$/utils/logging";
-import { parseLrc } from "$/utils/parse-lrc";
 import {
 	normalizeImportedLyricApostrophes,
 	normalizeImportedLyricCyrillicEs,
 } from "$/utils/apostrophe-normalization";
+import { log, error as logError } from "$/utils/logging";
+import { parseLrc } from "$/utils/parse-lrc";
 
 const LYRIC_PARSERS: Record<string, (text: string) => LyricLine[]> = {
 	lrc: parseLrc,
@@ -70,6 +73,7 @@ const AUDIO_EXTENSIONS = new Set([
 ]);
 
 export const useFileOpener = () => {
+	const store = useStore();
 	const setNewLyricLines = useSetAtom(newLyricLinesAtom);
 	const setProjectId = useSetAtom(projectIdAtom);
 	const setSaveFileName = useSetAtom(saveFileNameAtom);
@@ -106,10 +110,28 @@ export const useFileOpener = () => {
 		[],
 	);
 
-	const performOpenFile = useCallback(
+	const loadAudioFile = useCallback(
+		async (audio: File, originProjectDir: string | null) => {
+			store.set(pendingAudioFileAtom, audio);
+			await audioEngine.loadMusic(audio);
+			// Keep the folder project that started this load in sync so saving
+			// writes this file. Decoding/conversion can take a while, so skip it if
+			// the user switched to a different project (or none) in the meantime.
+			if (
+				originProjectDir &&
+				store.get(activeProjectDirAtom) === originProjectDir
+			) {
+				store.set(projectAudioFileAtom, audio);
+			}
+		},
+		[store],
+	);
+
+	const performOpenFileInner = useCallback(
 		async (file: File, forceExt?: string) => {
 			const rawExt = file.name.split(".").pop()?.toLowerCase() || "";
 			const ext = forceExt ? forceExt.toLowerCase() : rawExt;
+			const originProjectDir = store.get(activeProjectDirAtom);
 
 			try {
 				if (AUDIO_EXTENSIONS.has(ext)) {
@@ -137,7 +159,7 @@ export const useFileOpener = () => {
 										type: "audio/flac",
 									},
 								);
-								await audioEngine.loadMusic(flacFile);
+								await loadAudioFile(flacFile, originProjectDir);
 								toast.success(t("dialog.mp3Conversion.success", "转换成功"));
 								return;
 							} catch (e) {
@@ -146,7 +168,7 @@ export const useFileOpener = () => {
 										error: e instanceof Error ? e.message : String(e),
 									}),
 								);
-								audioEngine.loadMusic(file);
+								loadAudioFile(file, originProjectDir);
 								return;
 							}
 						}
@@ -165,7 +187,7 @@ export const useFileOpener = () => {
 							});
 
 							if (!doConvert) {
-								audioEngine.loadMusic(file);
+								loadAudioFile(file, originProjectDir);
 								return;
 							}
 
@@ -188,7 +210,7 @@ export const useFileOpener = () => {
 										type: "audio/flac",
 									},
 								);
-								await audioEngine.loadMusic(flacFile);
+								await loadAudioFile(flacFile, originProjectDir);
 								toast.success(t("dialog.mp3Conversion.success", "转换成功"));
 								return;
 							} catch (e) {
@@ -197,15 +219,15 @@ export const useFileOpener = () => {
 										error: e instanceof Error ? e.message : String(e),
 									}),
 								);
-								audioEngine.loadMusic(file);
+								loadAudioFile(file, originProjectDir);
 								return;
 							}
 						}
 
-						audioEngine.loadMusic(file);
+						loadAudioFile(file, originProjectDir);
 						return;
 					}
-					audioEngine.loadMusic(file);
+					loadAudioFile(file, originProjectDir);
 					return;
 				}
 
@@ -261,6 +283,7 @@ export const useFileOpener = () => {
 
 				setProjectId(resolvedProjectId);
 				setNewLyricLines(lyricData);
+				store.set(startFreshLyricDocumentAtom);
 				const suggestedFile = getSuggestedTtmlFileName(lyricData.metadata);
 				const nextFileName =
 					ext === "ttml" ? file.name : (suggestedFile?.fileName ?? file.name);
@@ -280,7 +303,20 @@ export const useFileOpener = () => {
 			normalizeApostrophesOnImport,
 			normalizeCyrillicEsOnImport,
 			setMp3ConversionDialog,
+			store,
+			loadAudioFile,
 		],
+	);
+
+	const performOpenFile = useCallback(
+		async (file: File, forceExt?: string) => {
+			const rawExt = file.name.split(".").pop()?.toLowerCase() || "";
+			const ext = forceExt ? forceExt.toLowerCase() : rawExt;
+			if (AUDIO_EXTENSIONS.has(ext)) store.set(pendingAudioFileAtom, file);
+			await performOpenFileInner(file, forceExt);
+			maybePromptCreateProject(store);
+		},
+		[store, performOpenFileInner],
 	);
 
 	const openFile = useCallback(
