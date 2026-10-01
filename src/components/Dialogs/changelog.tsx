@@ -55,6 +55,19 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="orange">
+								v0.10.1 Updates (App Icon Fix)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>App Icon Shape:</strong> The purple app icon is a rounded tile with transparent padding again instead of a sharp full-bleed square, so it matches other apps on the taskbar, dock, and in browser tabs.
+								</Text>
+								<Text size="2">
+									<strong>macOS Downloads:</strong> Releases now ship separate Apple Silicon (aarch64) and Intel (x64) DMGs only. The universal DMG is no longer built, which makes releases noticeably faster to publish.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="cyan">
 								v0.10.0 Updates (Folder Projects)
 							</Heading>
