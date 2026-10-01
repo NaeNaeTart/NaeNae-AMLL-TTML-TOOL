@@ -55,6 +55,20 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="iris">
+								Unreleased Updates
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Preferences UI Polish &amp; Icons:</strong> Clarified
+									preset actions with dedicated apply/delete icons and tooltips,
+									harmonized semantic icons across General, Editor, Files, Audio,
+									Keybindings, Appearance, Developer, and Custom Background tabs,
+									and improved contrast for advanced configuration resets.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.10.2 Updates (Windows Install Fix)
 							</Heading>
