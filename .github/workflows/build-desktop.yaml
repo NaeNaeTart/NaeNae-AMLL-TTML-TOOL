@@ -24,6 +24,18 @@ jobs:
       - name: Verify tag and manifest versions
         if: startsWith(github.ref, 'refs/tags/v')
         run: node scripts/validate-release-version.mjs --tag "${{ github.ref_name }}"
+      # Create the release up front so the first matrix job to finish doesn't have to.
+      # tauri-action's create-then-upload path silently failed the Windows job in v0.10.1.
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          gh release view "${{ github.ref_name }}" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1 ||
+            gh release create "${{ github.ref_name }}" --repo "$GITHUB_REPOSITORY" --verify-tag \
+              --title "AMLL TTML Tool ${{ github.ref_name }}" \
+              --notes "Desktop release ${{ github.ref_name }}. Release notes are finalized after all platform assets are uploaded."
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   prepare-release-notes:
     name: Prepare release notes
