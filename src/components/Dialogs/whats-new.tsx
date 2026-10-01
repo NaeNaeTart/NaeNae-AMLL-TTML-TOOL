@@ -6,6 +6,7 @@ import {
 	MusicNote1Regular, 
 	SettingsRegular, 
 	BoxRegular,
+	FolderRegular,
 	TranslateRegular,
 	RecordRegular,
 	InfoRegular,
@@ -23,6 +24,14 @@ export function WhatsNewDialog() {
 	const [isOpen, setIsOpen] = useAtom(whatsNewDialogAtom);
 
 	const features = [
+		{
+			title: "Folder Projects",
+			description:
+				"Keep lyrics and audio together in a project folder with a project.json manifest, recent projects, and workspace scanning. Ctrl+S saves the whole project.",
+			icon: <FolderRegular />,
+			color: "cyan",
+			info: "Enable it under Settings > Files & Storage > Projects in the desktop app, then open File > Projects. Loading lyrics together with audio offers to create a project. It stays off by default.",
+		},
 		{
 			title: "Guided Beginner Workflow",
 			description:

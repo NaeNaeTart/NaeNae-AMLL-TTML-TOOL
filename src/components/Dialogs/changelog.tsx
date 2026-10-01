@@ -56,7 +56,7 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="cyan">
-								v0.9.14 Updates (Folder Projects)
+								v0.10.0 Updates (Folder Projects)
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
