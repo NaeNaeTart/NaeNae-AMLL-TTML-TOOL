@@ -80,6 +80,9 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Saved-State Tracking:</strong> Saving now clears the unsaved-changes warning while keeping your undo history, edits made during a save stay marked as unsaved, and undoing back to the saved version reads as saved again.
 								</Text>
+								<Text size="2">
+									<strong>Lyric File Import:</strong> Fixed file dialog triggers for LRC, ESLRC, QRC, YRC, and Lyricify Syllable formats so clicking import options in the File menu immediately opens the file picker.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
