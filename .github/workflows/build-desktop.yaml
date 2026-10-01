@@ -1,8 +1,16 @@
 name: Build desktop app
 
+# Release tags build and publish. Branch builds are on demand via workflow_dispatch,
+# since pushing dev, main and a tag together used to queue three full matrices
+# against GitHub's macOS runner limit.
 on:
   push:
+    tags: ["v*"]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 permissions:
   contents: write
@@ -76,10 +84,6 @@ jobs:
             args: "--target x86_64-apple-darwin"
             name: macOS
             arch: x86_64
-          - platform: macos-latest
-            args: "--target universal-apple-darwin"
-            name: macOS
-            arch: universal
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v6
@@ -88,6 +92,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: ./src-tauri -> target
+          # The macOS jobs share a runner OS, so without this they restore each other's target dir.
+          key: ${{ matrix.name }}-${{ matrix.arch }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v6
         with:
@@ -110,7 +116,23 @@ jobs:
           sudo apt-get install -y libasound2-dev libappindicator3-dev libwebkit2gtk-4.1-dev librsvg2-dev patchelf
       - run: pnpm install --frozen-lockfile
       - name: Build release and publish immutable tagged release
+        id: release
         if: startsWith(github.ref, 'refs/tags/v')
+        # hdiutil intermittently fails DMG packaging on GitHub's macOS runners; retry once below.
+        continue-on-error: ${{ matrix.platform == 'macos-latest' }}
+        uses: tauri-apps/tauri-action@v0
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: AMLL TTML Tool ${{ github.ref_name }}
+          releaseBody: Desktop release ${{ github.ref_name }}. Release notes are finalized after all platform assets are uploaded.
+          includeUpdaterJson: true
+          args: ${{ matrix.args }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      - name: Retry tagged release build
+        if: steps.release.outcome == 'failure'
         uses: tauri-apps/tauri-action@v0
         with:
           tagName: ${{ github.ref_name }}
@@ -124,7 +146,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
       - name: Build branch artifact
         if: "!startsWith(github.ref, 'refs/tags/v')"
-        run: pnpm tauri build ${{ matrix.args }}
+        shell: bash
+        run: pnpm tauri build ${{ matrix.args }} || { [ "$RUNNER_OS" = macOS ] && pnpm tauri build ${{ matrix.args }}; }
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
