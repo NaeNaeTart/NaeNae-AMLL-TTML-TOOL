@@ -546,7 +546,8 @@
     "lyricsAndTimings": "Lyrics & Word Timings",
     "autoScroll": "Auto-Scroll",
     "orderChronological": "Chronological",
-    "orderTextual": "Textual"
+    "orderTextual": "Textual",
+    "narrowWarning": "Panel is too narrow. A proper layout cannot be guaranteed at this size; please widen the panel."
   },
   "topBar": {
     "modeBtns": {
