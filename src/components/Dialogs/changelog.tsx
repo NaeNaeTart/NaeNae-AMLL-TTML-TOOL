@@ -55,6 +55,16 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="green">
+								v0.10.2 Updates (Windows Install Fix)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Duplicate Desktop Installs:</strong> v0.10.0 and v0.10.1 were installed as "NaeNae AMLL TTML Tool Fork" next to the existing "AMLL TTML Tool" instead of replacing it. The installed app is named "AMLL TTML Tool" again, and the Windows installers, .deb, and .rpm packages now remove the extra copy. Your settings and projects are kept, and Winget recognizes the app again.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="orange">
 								v0.10.1 Updates (App Icon Fix)
 							</Heading>

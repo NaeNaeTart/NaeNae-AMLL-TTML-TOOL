@@ -1,5 +1,17 @@
 {
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"bundle": {
+		"windows": {
+			"wix": {
+				"upgradeCode": "6AFCDBCF-4DCF-5CD9-9974-74985CB10E8D",
+				"fragmentPaths": ["windows/renamed-upgrade.wxs"],
+				"componentGroupRefs": ["RenamedProductUpgrade"]
+			},
+			"nsis": {
+				"installerHooks": "windows/installer-hooks.nsh"
+			}
+		}
+	},
 	"app": {
 		"windows": [
 			{

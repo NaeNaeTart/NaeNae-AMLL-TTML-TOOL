@@ -1,5 +1,16 @@
 {
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"bundle": {
+		"linux": {
+			"deb": {
+				"conflicts": ["naenae-amll-ttml-tool-fork"],
+				"replaces": ["naenae-amll-ttml-tool-fork"]
+			},
+			"rpm": {
+				"obsoletes": ["naenae-amll-ttml-tool-fork"]
+			}
+		}
+	},
 	"app": {
 		"windows": [
 			{
