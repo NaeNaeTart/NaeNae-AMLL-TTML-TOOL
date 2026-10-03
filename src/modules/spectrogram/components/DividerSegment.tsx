@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { useAtomValue, useSetAtom } from "jotai";
 import { type FC, useCallback, useContext } from "react";
 import { processedLyricLinesAtom } from "$/modules/segmentation/utils/segment-processing.ts";
@@ -115,7 +116,7 @@ export const DividerSegment: FC<DividerSegmentProps> = ({
 	return (
 		// biome-ignore lint/a11y/useSemanticElements: <hr> 在这里不适用
 		<div
-			className={styles.divider}
+			className={classNames(styles.divider, isTouching && styles.touching)}
 			style={dynamicStyles}
 			onMouseDown={startDrag}
 			onContextMenu={(e) => e.preventDefault()}
