@@ -1,6 +1,11 @@
 import {
 	ArrowDownload24Regular,
 	ArrowUpload24Regular,
+	Folder20Regular,
+	Keyboard20Regular,
+	PaintBrush20Regular,
+	PuzzlePiece20Regular,
+	Settings20Regular,
 } from "@fluentui/react-icons";
 import {
 	Box,
@@ -31,6 +36,14 @@ import {
 	type BackupFile,
 	BackupValidationError,
 } from "$/modules/settings/backup/types";
+
+const CATEGORY_ICONS: Record<BackupCategoryId, React.ReactNode> = {
+	settings: <Settings20Regular />,
+	keybindings: <Keyboard20Regular />,
+	assets: <PaintBrush20Regular />,
+	projects: <Folder20Regular />,
+	plugins: <PuzzlePiece20Regular />,
+};
 
 function useCategoryLabels() {
 	const { t } = useTranslation();
@@ -211,6 +224,15 @@ export const SettingsBackupTab = memo(() => {
 										toggle(setExportSelected, id, v === true)
 									}
 								/>
+								<Box
+									style={{
+										color: "var(--accent-9)",
+										display: "flex",
+										alignItems: "center",
+									}}
+								>
+									{CATEGORY_ICONS[id]}
+								</Box>
 								<Flex direction="column">
 									<Text size="2">{labels[id]}</Text>
 									<Text size="1" color="gray">
@@ -278,6 +300,15 @@ export const SettingsBackupTab = memo(() => {
 											toggle(setImportSelected, id, v === true)
 										}
 									/>
+									<Box
+										style={{
+											color: "var(--accent-9)",
+											display: "flex",
+											alignItems: "center",
+										}}
+									>
+										{CATEGORY_ICONS[id]}
+									</Box>
 									<Flex direction="column">
 										<Text size="2">{labels[id]}</Text>
 										<Text size="1" color="gray">

@@ -341,7 +341,10 @@
         "title": "Appearance Presets",
         "namePlaceholder": "Theme Name...",
         "save": "Save Current",
-        "empty": "No saved presets yet."
+        "empty": "No saved presets yet.",
+        "active": "Active",
+        "load": "Apply preset",
+        "delete": "Delete preset"
       },
       "theme": "Theme",
       "useCustomAccent": "Custom Accent Color",
@@ -370,6 +373,7 @@
       "currentFont": "Current Font",
       "changeFont": "Change Font...",
       "advanced": {
+        "resetToDefault": "Reset to default",
         "projectColors": "Project Colors",
         "primaryText": "Primary Text Color",
         "primaryTextDesc": "Global primary text override.",

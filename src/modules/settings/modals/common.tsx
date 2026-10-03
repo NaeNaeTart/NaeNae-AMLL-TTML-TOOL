@@ -1,13 +1,16 @@
 import resources from "virtual:i18next-loader";
 import {
+	AppsListDetail24Regular,
+	ArrowEnterLeft24Regular,
 	ArrowSortDownLines24Regular,
 	ArrowSync24Regular,
-	Briefcase24Regular,
-	ContentView24Regular,
+	CursorClick24Regular,
+	Folder24Regular,
 	Highlight24Regular,
 	History24Regular,
 	Keyboard12324Regular,
 	LocalLanguage24Regular,
+	MicSparkle24Regular,
 	PaddingLeft24Regular,
 	PaddingRight24Regular,
 	PaintBrush24Regular,
@@ -16,9 +19,11 @@ import {
 	Sparkle24Regular,
 	Stack24Regular,
 	Target24Regular,
+	TextQuote24Regular,
 	TextWrap24Regular,
 	Timer24Regular,
 	TopSpeed24Regular,
+	Translate24Regular,
 	VideoBackgroundEffect24Regular,
 } from "@fluentui/react-icons";
 import {
@@ -263,7 +268,7 @@ export const SettingsCommonTab = ({
 
 				<Card>
 					<Flex gap="3" align="center">
-						<ContentView24Regular />
+						<AppsListDetail24Regular />
 						<Box flexGrow="1">
 							<Flex align="center" justify="between" gap="4">
 								<Flex direction="column" gap="1">
@@ -463,7 +468,7 @@ export const SettingsCommonTab = ({
 
 				<Card>
 					<Flex gap="3" align="center">
-						<Timer24Regular />
+						<ArrowEnterLeft24Regular />
 						<Box flexGrow="1">
 							<Flex align="center" justify="between" gap="4">
 								<Flex direction="column" gap="1">
@@ -546,7 +551,7 @@ export const SettingsCommonTab = ({
 				<Card>
 					<Text as="label">
 						<Flex gap="3" align="center">
-							<ContentView24Regular />
+							<CursorClick24Regular />
 							<Box flexGrow="1">
 								<Flex gap="2" align="center" justify="between">
 									<Flex direction="column" gap="1">
@@ -824,7 +829,7 @@ export const SettingsCommonTab = ({
 				<Card>
 					<Text as="label">
 						<Flex gap="3" align="center">
-							<ContentView24Regular />
+							<TextQuote24Regular />
 							<Box flexGrow="1">
 								<Flex direction="column" gap="1">
 									<Flex align="center" justify="between" gap="4">
@@ -854,7 +859,7 @@ export const SettingsCommonTab = ({
 				<Card>
 					<Text as="label">
 						<Flex gap="3" align="center">
-							<ContentView24Regular />
+							<Translate24Regular />
 							<Box flexGrow="1">
 								<Flex direction="column" gap="1">
 									<Flex align="center" justify="between" gap="4">
@@ -884,7 +889,7 @@ export const SettingsCommonTab = ({
 				<Card>
 					<Text as="label">
 						<Flex gap="3" align="center">
-							<Stack24Regular />
+							<MicSparkle24Regular />
 							<Box flexGrow="1">
 								<Flex direction="column" gap="1">
 									<Flex align="center" justify="between" gap="4">
@@ -907,7 +912,7 @@ export const SettingsCommonTab = ({
 				<Card>
 					<Text as="label">
 						<Flex gap="3" align="center">
-							<Briefcase24Regular />
+							<Folder24Regular />
 							<Box flexGrow="1">
 								<Flex direction="column" gap="1">
 									<Flex align="center" justify="between" gap="4">
