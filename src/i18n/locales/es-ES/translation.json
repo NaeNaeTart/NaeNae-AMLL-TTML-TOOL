@@ -494,7 +494,8 @@
     "lyricsAndTimings": "Lyrics & Word Timings",
     "autoScroll": "Desplazamiento automático",
     "orderChronological": "Cronológico",
-    "orderTextual": "Textual"
+    "orderTextual": "Textual",
+    "narrowWarning": "El panel es muy estrecho. No se puede garantizar que se vea bien a este tamaño; por favor, amplía el panel."
   },
   "topBar": {
     "modeBtns": {

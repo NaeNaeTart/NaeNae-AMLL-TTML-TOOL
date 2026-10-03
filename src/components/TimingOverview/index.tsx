@@ -1,7 +1,8 @@
-import { Box, Card, Checkbox, Flex, SegmentedControl, Text, Tooltip } from "@radix-ui/themes";
+import { Box, Callout, Card, Checkbox, Flex, SegmentedControl, Text, Tooltip } from "@radix-ui/themes";
+import { Warning24Regular } from "@fluentui/react-icons";
 import classNames from "classnames";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -133,16 +134,16 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick, onW
 			onClick={() => onRowClick(line)}
 			style={{ display: "flex", borderBottom: "1px solid var(--gray-4)" }}
 		>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "40px", padding: "8px 12px" }}>{index + 1}</div>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.startTime)}</div>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.endTime)}</div>
-			<div className={styles.cell} style={{ width: "80px", padding: "8px 12px" }}>
+			<div className={classNames(styles.monospaced, styles.cell, styles.fixedCell)} style={{ width: "40px", padding: "8px 12px" }}>{index + 1}</div>
+			<div className={classNames(styles.monospaced, styles.cell, styles.fixedCell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.startTime)}</div>
+			<div className={classNames(styles.monospaced, styles.cell, styles.fixedCell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.endTime)}</div>
+			<div className={classNames(styles.cell, styles.fixedCell)} style={{ width: "80px", padding: "8px 12px" }}>
 				<Flex direction="column" gap="1">
 					<Text size="1" className={styles.monospaced}>{(duration / 1000).toFixed(3)}s</Text>
 					<div className={styles.durationBar} style={{ width: `${Math.min(100, durationPercent * 10)}%` }} />
 				</Flex>
 			</div>
-			<div className={styles.cell} style={{ flexGrow: 1, padding: "8px 12px", minWidth: 0 }}>
+			<div className={styles.cell} style={{ flexGrow: 1, padding: "8px 12px", minWidth: 240 }}>
 				<Box>
 					<Flex align="center" gap="2" mb="1">
 						<Text className={styles.lineText}>{line.words.map((w: any) => w.word).join("")}</Text>
@@ -177,11 +178,25 @@ export const TimingOverview = memo(() => {
 	const audioPlaying = useAtomValue(audioPlayingAtom);
 	const [autoScroll, setAutoScroll] = useAtom(timingOverviewAutoScrollAtom);
 	const [orderMode, setOrderMode] = useAtom(timingOverviewOrderModeAtom);
+	const containerRef = useRef<HTMLDivElement>(null);
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const viewportListRef = useRef<ViewportListRef>(null);
 	const userScrolledAtRef = useRef<number>(0);
 	const lastActiveIndexRef = useRef<number | undefined>(undefined);
 	const lastKnownTimeRef = useRef(0);
+	const [isNarrow, setIsNarrow] = useState(false);
+
+	useEffect(() => {
+		const el = containerRef.current;
+		if (!el) return;
+		const observer = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				setIsNarrow(entry.contentRect.width < 500);
+			}
+		});
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, []);
 
 	const displayedLines = useMemo(() => {
 		return getDisplayedTimingLines(lyrics.lyricLines, orderMode);
@@ -341,10 +356,10 @@ export const TimingOverview = memo(() => {
 	}, [autoScroll, audioPlaying, currentTime, displayedLines, smoothScrollTo]);
 
 	return (
-		<Card className={styles.timingOverview}>
+		<Card className={styles.timingOverview} ref={containerRef}>
 			<div className={styles.header}>
-				<Text size="2" weight="bold">{t("timingOverview.title", "Technical Timing Overview")}</Text>
-				<div className={styles.stats} style={{ alignItems: "center" }}>
+				<Text size="2" weight="bold" style={{ minWidth: 0 }}>{t("timingOverview.title", "Technical Timing Overview")}</Text>
+				<div className={styles.stats} style={{ alignItems: "center", minWidth: 0 }}>
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.lines", "Lines")}:</Text>
 						<Text size="1" weight="bold">{stats.lineCount}</Text>
@@ -391,14 +406,29 @@ export const TimingOverview = memo(() => {
 					</div>
 				</div>
 			</div>
+			{isNarrow && (
+				<Box px="3" pt="2" pb="1" style={{ flexShrink: 0 }}>
+					<Callout.Root color="amber" size="1" variant="soft">
+						<Callout.Icon>
+							<Warning24Regular />
+						</Callout.Icon>
+						<Callout.Text size="1">
+							{t(
+								"timingOverview.narrowWarning",
+								"Panel is too narrow. A proper layout cannot be guaranteed at this size; please widen the panel.",
+							)}
+						</Callout.Text>
+					</Callout.Root>
+				</Box>
+			)}
 			<div className={styles.scrollArea} ref={scrollRef}>
-				<div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+				<div style={{ display: "flex", flexDirection: "column", minWidth: 560 }}>
 					<div className={styles.tableHeader} style={{ display: "flex", borderBottom: "1px solid var(--gray-6)", background: "var(--gray-2)", position: "sticky", top: 0, zIndex: 10 }}>
-						<div style={{ width: "40px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>#</div>
-						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.start", "Start")}</div>
-						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.end", "End")}</div>
-						<div style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.duration", "Duration")}</div>
-						<div style={{ flexGrow: 1, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}</div>
+						<div className={styles.fixedCell} style={{ width: "40px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>#</div>
+						<div className={styles.fixedCell} style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.start", "Start")}</div>
+						<div className={styles.fixedCell} style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.end", "End")}</div>
+						<div className={styles.fixedCell} style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.duration", "Duration")}</div>
+						<div style={{ flexGrow: 1, minWidth: 240, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}</div>
 					</div>
 					<ViewportList ref={viewportListRef} items={displayedLines} viewportRef={scrollRef}>
 						{(line, index) => (
