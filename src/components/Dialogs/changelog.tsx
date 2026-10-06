@@ -55,6 +55,19 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="iris">
+								Unreleased Updates
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Spectrogram Divider Styling:</strong> Decluttered
+									touching dividers when adjacent lyric lines meet by shortening
+									handle indicators and removing corner notches for seamless
+									line boundaries.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.10.2 Updates (Windows Install Fix)
 							</Heading>

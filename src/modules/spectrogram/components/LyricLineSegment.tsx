@@ -118,7 +118,12 @@ export const LyricLineSegment: FC<LyricLineSegmentProps> = ({
 	return (
 		// biome-ignore lint/a11y/useSemanticElements: <button> 不适用
 		<div
-			className={classNames(styles.lineSegment, isGhost && styles.ghost)}
+			className={classNames(
+				styles.lineSegment,
+				isGhost && styles.ghost,
+				isTouchingStart && styles.touchingStart,
+				isTouchingEnd && styles.touchingEnd,
+			)}
 			style={dynamicStyles}
 			onMouseDown={handleMouseDown}
 			tabIndex={isGhost ? -1 : 0}
