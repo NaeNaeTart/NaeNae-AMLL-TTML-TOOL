@@ -214,7 +214,7 @@ export const SettingsBackupTab = memo(() => {
 			if (name !== null) {
 				toast.success(t("settings.backup.exportSuccess", "Backup exported"));
 			}
-		} catch (e) {
+		} catch {
 			toast.error(t("settings.backup.exportFailed", "Failed to export backup"));
 		} finally {
 			setExporting(false);
@@ -264,7 +264,7 @@ export const SettingsBackupTab = memo(() => {
 				t("settings.backup.importSuccess", "Backup imported, reloading…"),
 			);
 			window.location.reload();
-		} catch (e) {
+		} catch {
 			setImporting(false);
 			toast.error(
 				t(
