@@ -77,6 +77,11 @@ export function ChangelogDialog() {
 									header compact and readable when resizing to narrow side
 									panels, and remember whether the side preview is open between sessions.
 								</Text>
+								<Text size="2">
+									<strong>Domain Move Complete:</strong> The old tool addresses
+									now redirect to tool.community.spicylyrics.org, so the
+									one-time data transfer from them has been removed.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>
