@@ -1,8 +1,7 @@
-import { Box, Callout, Card, Checkbox, Flex, SegmentedControl, Text, Tooltip } from "@radix-ui/themes";
-import { Warning24Regular } from "@fluentui/react-icons";
+import { Box, Card, Checkbox, Flex, SegmentedControl, Text, Tooltip } from "@radix-ui/themes";
 import classNames from "classnames";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -178,25 +177,11 @@ export const TimingOverview = memo(() => {
 	const audioPlaying = useAtomValue(audioPlayingAtom);
 	const [autoScroll, setAutoScroll] = useAtom(timingOverviewAutoScrollAtom);
 	const [orderMode, setOrderMode] = useAtom(timingOverviewOrderModeAtom);
-	const containerRef = useRef<HTMLDivElement>(null);
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const viewportListRef = useRef<ViewportListRef>(null);
 	const userScrolledAtRef = useRef<number>(0);
 	const lastActiveIndexRef = useRef<number | undefined>(undefined);
 	const lastKnownTimeRef = useRef(0);
-	const [isNarrow, setIsNarrow] = useState(false);
-
-	useEffect(() => {
-		const el = containerRef.current;
-		if (!el) return;
-		const observer = new ResizeObserver((entries) => {
-			for (const entry of entries) {
-				setIsNarrow(entry.contentRect.width < 500);
-			}
-		});
-		observer.observe(el);
-		return () => observer.disconnect();
-	}, []);
 
 	const displayedLines = useMemo(() => {
 		return getDisplayedTimingLines(lyrics.lyricLines, orderMode);
@@ -356,7 +341,7 @@ export const TimingOverview = memo(() => {
 	}, [autoScroll, audioPlaying, currentTime, displayedLines, smoothScrollTo]);
 
 	return (
-		<Card className={styles.timingOverview} ref={containerRef}>
+		<Card className={styles.timingOverview}>
 			<div className={styles.header}>
 				<Text size="2" weight="bold" style={{ minWidth: 0 }}>{t("timingOverview.title", "Technical Timing Overview")}</Text>
 				<div className={styles.stats} style={{ alignItems: "center", minWidth: 0 }}>
@@ -406,21 +391,6 @@ export const TimingOverview = memo(() => {
 					</div>
 				</div>
 			</div>
-			{isNarrow && (
-				<Box px="3" pt="2" pb="1" style={{ flexShrink: 0 }}>
-					<Callout.Root color="amber" size="1" variant="soft">
-						<Callout.Icon>
-							<Warning24Regular />
-						</Callout.Icon>
-						<Callout.Text size="1">
-							{t(
-								"timingOverview.narrowWarning",
-								"Panel is too narrow. A proper layout cannot be guaranteed at this size; please widen the panel.",
-							)}
-						</Callout.Text>
-					</Callout.Root>
-				</Box>
-			)}
 			<div className={styles.scrollArea} ref={scrollRef}>
 				<div style={{ display: "flex", flexDirection: "column", minWidth: 560 }}>
 					<div className={styles.tableHeader} style={{ display: "flex", borderBottom: "1px solid var(--gray-6)", background: "var(--gray-2)", position: "sticky", top: 0, zIndex: 10 }}>
