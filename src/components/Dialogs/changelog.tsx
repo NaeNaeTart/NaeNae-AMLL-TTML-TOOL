@@ -82,6 +82,27 @@ export function ChangelogDialog() {
 									now redirect to tool.community.spicylyrics.org, so the
 									one-time data transfer from them has been removed.
 								</Text>
+								<Text size="2">
+									<strong>Backup Contents Preview:</strong> Added an expandable
+									preview dropdown before exporting settings and data backups,
+									displaying category counts, item lists, and estimated total file
+									size.
+								</Text>
+								<Text size="2">
+									<strong>Backup Assets:</strong> Appearance presets and the custom font
+									are now exported and restored with the Assets category.
+								</Text>
+								<Text size="2">
+									<strong>Backup Safety:</strong> API keys (Genius and AI
+									Sidebar) now have their own opt-in "API keys" category, off by
+									default, and are never included with Settings. The last workspace
+									folder and recent project paths are not exported because they only
+									make sense on the original device.
+								</Text>
+								<Text size="2">
+									<strong>Backup Tab Translation:</strong> The Backup settings tab is
+									now fully translated to Spanish.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

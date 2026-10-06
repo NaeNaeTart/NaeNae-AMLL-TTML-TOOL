@@ -4,8 +4,11 @@ import { exportAllProjectsData } from "$/modules/project/autosave/autosave";
 import { readCustomBackgroundBlob } from "$/modules/settings/modals/customBackground";
 import { saveFile } from "$/utils/fileSystem";
 import { blobToBase64 } from "./binary";
+import { isExportDeniedKey, isSecretKey } from "./denylist";
+import { type ExportPreviewParts, loadExportParts } from "./preview";
 import {
 	BACKUP_APP_ID,
+	BACKUP_CATEGORY_IDS,
 	BACKUP_FORMAT_VERSION,
 	type BackupCategoryId,
 	type BackupFile,
@@ -14,26 +17,16 @@ import {
 const KEYBINDING_PREFIX = "keybindings:";
 
 /**
- * @description 会被排除在设置备份之外的本地存储键。
- * `customBackgroundImage` 为已迁移到 IndexedDB 的旧键，其余为第三方（Sentry、开发工具、Vercel Analytics、i18next）。
- */
-const DENYLIST_EXACT = new Set<string>(["customBackgroundImage", "aiSidebarApiKey"]);
-const DENYLIST_PREFIXES = ["sentry", "__", "va-", "i18next"];
-
-function isDeniedKey(key: string): boolean {
-	if (DENYLIST_EXACT.has(key)) return true;
-	return DENYLIST_PREFIXES.some((prefix) => key.startsWith(prefix));
-}
-
-/**
  * @description 将 localStorage 按“键绑定”和“设置”两类进行划分（原始字符串，不做 JSON 解析）。
  */
 export function partitionLocalStorage(): {
 	settings: Record<string, string>;
 	keybindings: Record<string, string>;
+	apiKeys: Record<string, string>;
 } {
 	const settings: Record<string, string> = {};
 	const keybindings: Record<string, string> = {};
+	const apiKeys: Record<string, string> = {};
 
 	for (let i = 0; i < localStorage.length; i++) {
 		const key = localStorage.key(i);
@@ -43,12 +36,20 @@ export function partitionLocalStorage(): {
 
 		if (key.startsWith(KEYBINDING_PREFIX)) {
 			keybindings[key] = value;
-		} else if (!isDeniedKey(key)) {
+		} else if (isSecretKey(key)) {
+			if (value !== "" && value !== '""') apiKeys[key] = value;
+		} else if (!isExportDeniedKey(key)) {
 			settings[key] = value;
 		}
 	}
 
-	return { settings, keybindings };
+	return { settings, keybindings, apiKeys };
+}
+
+export interface BackupAssetsCounts {
+	background: boolean;
+	presets: number;
+	font: boolean;
 }
 
 /**
@@ -57,25 +58,29 @@ export function partitionLocalStorage(): {
 export interface BackupCounts {
 	settings: number;
 	keybindings: number;
-	assets: boolean;
+	apiKeys: number;
+	assets: BackupAssetsCounts;
 	projects: number;
 	plugins: number;
 }
 
-export async function getBackupCounts(): Promise<BackupCounts> {
-	const { settings, keybindings } = partitionLocalStorage();
-	const [background, projectsData, plugins] = await Promise.all([
-		readCustomBackgroundBlob(),
-		exportAllProjectsData(),
-		getAllPlugins(),
-	]);
+export function countsFromParts(parts: ExportPreviewParts): BackupCounts {
 	return {
-		settings: Object.keys(settings).length,
-		keybindings: Object.keys(keybindings).length,
-		assets: background !== null,
-		projects: projectsData.projects.length,
-		plugins: plugins.length,
+		settings: Object.keys(parts.settings).length,
+		keybindings: Object.keys(parts.keybindings).length,
+		apiKeys: Object.keys(parts.apiKeys ?? {}).length,
+		assets: {
+			background: parts.background !== null,
+			presets: parts.appearancePresets?.length ?? 0,
+			font: Boolean(parts.customFont),
+		},
+		projects: parts.projects.length,
+		plugins: parts.plugins.length,
 	};
+}
+
+export async function getBackupCounts(): Promise<BackupCounts> {
+	return countsFromParts(await loadExportParts(new Set(BACKUP_CATEGORY_IDS)));
 }
 
 /**
@@ -84,7 +89,7 @@ export async function getBackupCounts(): Promise<BackupCounts> {
 export async function buildBackup(
 	selected: Set<BackupCategoryId>,
 ): Promise<BackupFile> {
-	const { settings, keybindings } = partitionLocalStorage();
+	const { settings, keybindings, apiKeys } = partitionLocalStorage();
 
 	const backup: BackupFile = {
 		app: BACKUP_APP_ID,
@@ -102,8 +107,28 @@ export async function buildBackup(
 		backup.categories.keybindings = { localStorage: keybindings };
 	}
 
+	if (selected.has("apiKeys")) {
+		backup.categories.apiKeys = { localStorage: apiKeys };
+	}
+
 	if (selected.has("assets")) {
 		const blob = await readCustomBackgroundBlob();
+		let presets: unknown[] | undefined;
+		try {
+			const raw = localStorage.getItem("appearancePresets");
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				if (Array.isArray(parsed) && parsed.length > 0) presets = parsed;
+			}
+		} catch {}
+
+		let customFont: { name: string; data: string } | null = null;
+		const fontName = localStorage.getItem("customFontName");
+		const fontData = localStorage.getItem("customFontData");
+		if (fontName && fontData) {
+			customFont = { name: fontName, data: fontData };
+		}
+
 		backup.categories.assets = {
 			backgroundImage: blob
 				? {
@@ -112,6 +137,8 @@ export async function buildBackup(
 						updatedAt: Date.now(),
 					}
 				: null,
+			...(presets ? { appearancePresets: presets } : {}),
+			...(customFont ? { customFont } : {}),
 		};
 	}
 
@@ -149,7 +176,9 @@ export async function exportBackup(
 	return saveBackupFile(backup);
 }
 
-export async function saveBackupFile(backup: BackupFile): Promise<string | null> {
+export async function saveBackupFile(
+	backup: BackupFile,
+): Promise<string | null> {
 	const json = JSON.stringify(backup);
 	const date = backup.exportedAt.slice(0, 10);
 	const saved = await saveFile(new Blob([json], { type: "application/json" }), {
