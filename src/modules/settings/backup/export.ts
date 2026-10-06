@@ -5,8 +5,10 @@ import { readCustomBackgroundBlob } from "$/modules/settings/modals/customBackgr
 import { saveFile } from "$/utils/fileSystem";
 import { blobToBase64 } from "./binary";
 import { isExportDeniedKey, isSecretKey } from "./denylist";
+import { type ExportPreviewParts, loadExportParts } from "./preview";
 import {
 	BACKUP_APP_ID,
+	BACKUP_CATEGORY_IDS,
 	BACKUP_FORMAT_VERSION,
 	type BackupCategoryId,
 	type BackupFile,
@@ -14,6 +16,9 @@ import {
 
 const KEYBINDING_PREFIX = "keybindings:";
 
+/**
+ * @description 将 localStorage 按“键绑定”和“设置”两类进行划分（原始字符串，不做 JSON 解析）。
+ */
 export function partitionLocalStorage(): {
 	settings: Record<string, string>;
 	keybindings: Record<string, string>;
@@ -47,6 +52,9 @@ export interface BackupAssetsCounts {
 	font: boolean;
 }
 
+/**
+ * @description 各分类当前的数量提示，用于备份界面显示。
+ */
 export interface BackupCounts {
 	settings: number;
 	keybindings: number;
@@ -56,44 +64,28 @@ export interface BackupCounts {
 	plugins: number;
 }
 
-export async function getBackupCounts(): Promise<BackupCounts> {
-	const { settings, keybindings, apiKeys } = partitionLocalStorage();
-	const [background, projectsData, plugins] = await Promise.all([
-		readCustomBackgroundBlob(),
-		exportAllProjectsData(),
-		getAllPlugins(),
-	]);
-
-	let presetsCount = 0;
-	try {
-		const raw = localStorage.getItem("appearancePresets");
-		if (raw) {
-			const parsed = JSON.parse(raw);
-			if (Array.isArray(parsed)) presetsCount = parsed.length;
-		}
-	} catch {}
-
-	const hasFont =
-		typeof localStorage !== "undefined" &&
-		Boolean(
-			localStorage.getItem("customFontName") &&
-				localStorage.getItem("customFontData"),
-		);
-
+export function countsFromParts(parts: ExportPreviewParts): BackupCounts {
 	return {
-		settings: Object.keys(settings).length,
-		keybindings: Object.keys(keybindings).length,
-		apiKeys: Object.keys(apiKeys).length,
+		settings: Object.keys(parts.settings).length,
+		keybindings: Object.keys(parts.keybindings).length,
+		apiKeys: Object.keys(parts.apiKeys ?? {}).length,
 		assets: {
-			background: background !== null,
-			presets: presetsCount,
-			font: hasFont,
+			background: parts.background !== null,
+			presets: parts.appearancePresets?.length ?? 0,
+			font: Boolean(parts.customFont),
 		},
-		projects: projectsData.projects.length,
-		plugins: plugins.length,
+		projects: parts.projects.length,
+		plugins: parts.plugins.length,
 	};
 }
 
+export async function getBackupCounts(): Promise<BackupCounts> {
+	return countsFromParts(await loadExportParts(new Set(BACKUP_CATEGORY_IDS)));
+}
+
+/**
+ * @description 根据所选分类构建备份对象。
+ */
 export async function buildBackup(
 	selected: Set<BackupCategoryId>,
 ): Promise<BackupFile> {
@@ -174,6 +166,9 @@ export async function buildBackup(
 	return backup;
 }
 
+/**
+ * @description 构建备份并触发文件下载。返回保存的文件名（若用户取消则为 null）。
+ */
 export async function exportBackup(
 	selected: Set<BackupCategoryId>,
 ): Promise<string | null> {

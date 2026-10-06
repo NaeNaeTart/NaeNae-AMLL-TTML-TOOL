@@ -6,6 +6,8 @@ import { formatKeybindingLabel, formatSettingLabel } from "./labels";
 import { BACKUP_CATEGORY_IDS, type BackupCategoryId } from "./types";
 
 export interface ExportPreviewItem {
+	/** Unique within its category (storage key, project id, plugin id...). */
+	key: string;
 	label: string;
 	detail: string;
 	bytes: number;
@@ -40,6 +42,19 @@ export interface ExportPreviewParts {
 	}>;
 }
 
+/** Translatable strings used when building item labels. */
+export interface ExportPreviewLabels {
+	preset: string;
+	customFont: string;
+	versions: (count: number) => string;
+}
+
+const DEFAULT_LABELS: ExportPreviewLabels = {
+	preset: "Preset",
+	customFont: "Custom Font",
+	versions: (count) => `${count} versions`,
+};
+
 export const EXPORT_PREVIEW_ITEM_LIMIT = 8;
 
 export function formatPreviewBytes(bytes: number): string {
@@ -56,6 +71,7 @@ function storageItems(
 	return Object.keys(record)
 		.sort()
 		.map((key) => ({
+			key,
 			label: isKeybindings
 				? formatKeybindingLabel(key)
 				: formatSettingLabel(key),
@@ -64,112 +80,99 @@ function storageItems(
 		}));
 }
 
+function toCategory(
+	id: BackupCategoryId,
+	items: ExportPreviewItem[],
+): ExportPreviewCategory {
+	return {
+		id,
+		items,
+		bytes: items.reduce((sum, item) => sum + item.bytes, 0),
+	};
+}
+
 export function summarizeExportParts(
 	parts: ExportPreviewParts,
 	selected: Set<BackupCategoryId>,
+	labels: ExportPreviewLabels = DEFAULT_LABELS,
 ): ExportPreview {
 	const categories: ExportPreviewCategory[] = [];
 
 	for (const id of BACKUP_CATEGORY_IDS) {
 		if (!selected.has(id)) continue;
 		if (id === "settings") {
-			const items = storageItems(parts.settings, false);
-			categories.push({
-				id,
-				items,
-				bytes: items.reduce((sum, item) => sum + item.bytes, 0),
-			});
+			categories.push(toCategory(id, storageItems(parts.settings, false)));
 		} else if (id === "keybindings") {
-			const items = storageItems(parts.keybindings, true);
-			categories.push({
-				id,
-				items,
-				bytes: items.reduce((sum, item) => sum + item.bytes, 0),
-			});
+			categories.push(toCategory(id, storageItems(parts.keybindings, true)));
 		} else if (id === "assets") {
 			const items: ExportPreviewItem[] = [];
-			if (parts.appearancePresets && parts.appearancePresets.length > 0) {
-				for (const preset of parts.appearancePresets) {
-					items.push({
-						label: `Preset: ${preset.name}`,
-						detail: formatPreviewBytes(preset.bytes),
-						bytes: preset.bytes,
-					});
-				}
+			for (const preset of parts.appearancePresets ?? []) {
+				items.push({
+					key: `preset:${preset.id}`,
+					label: `${labels.preset}: ${preset.name}`,
+					detail: formatPreviewBytes(preset.bytes),
+					bytes: preset.bytes,
+				});
 			}
 			if (parts.customFont) {
 				items.push({
-					label: `Custom Font: ${parts.customFont.name}`,
+					key: "customFont",
+					label: `${labels.customFont}: ${parts.customFont.name}`,
 					detail: formatPreviewBytes(parts.customFont.bytes),
 					bytes: parts.customFont.bytes,
 				});
 			}
 			if (parts.background) {
 				items.push({
+					key: "background",
 					label: parts.background.mime,
 					detail: formatPreviewBytes(parts.background.bytes),
 					bytes: parts.background.bytes,
 				});
 			}
-			categories.push({
-				id,
-				items,
-				bytes: items.reduce((sum, item) => sum + item.bytes, 0),
-			});
+			categories.push(toCategory(id, items));
 		} else if (id === "apiKeys") {
 			const apiKeys = parts.apiKeys ?? {};
 			const items = Object.keys(apiKeys)
 				.sort()
 				.map((key) => ({
+					key,
 					label: formatSettingLabel(key),
 					detail: formatPreviewBytes(apiKeys[key].length),
 					bytes: apiKeys[key].length,
 				}));
-			categories.push({
-				id,
-				items,
-				bytes: items.reduce((sum, item) => sum + item.bytes, 0),
-			});
+			categories.push(toCategory(id, items));
 		} else if (id === "projects") {
-			const versionsByProject = new Map<string, number>();
+			const versionsByProject = new Map<string, ProjectVersion[]>();
 			for (const version of parts.versions) {
-				versionsByProject.set(
-					version.projectId,
-					(versionsByProject.get(version.projectId) ?? 0) + 1,
-				);
+				const list = versionsByProject.get(version.projectId);
+				if (list) list.push(version);
+				else versionsByProject.set(version.projectId, [version]);
 			}
 			const items = [...parts.projects]
 				.sort((a, b) => a.name.localeCompare(b.name))
 				.map((project) => {
-					const projectVersions = parts.versions.filter(
-						(version) => version.projectId === project.id,
-					);
+					const projectVersions = versionsByProject.get(project.id) ?? [];
 					return {
+						key: project.id,
 						label: project.name,
-						detail: `${versionsByProject.get(project.id) ?? 0} versions`,
+						detail: labels.versions(projectVersions.length),
 						bytes:
 							JSON.stringify(project).length +
 							JSON.stringify(projectVersions).length,
 					};
 				});
-			categories.push({
-				id,
-				items,
-				bytes: items.reduce((sum, item) => sum + item.bytes, 0),
-			});
+			categories.push(toCategory(id, items));
 		} else if (id === "plugins") {
 			const items = [...parts.plugins]
 				.sort((a, b) => a.name.localeCompare(b.name))
 				.map((plugin) => ({
+					key: plugin.id,
 					label: `${plugin.name} ${plugin.version}`,
 					detail: plugin.kind,
 					bytes: plugin.bytes,
 				}));
-			categories.push({
-				id,
-				items,
-				bytes: items.reduce((sum, item) => sum + item.bytes, 0),
-			});
+			categories.push(toCategory(id, items));
 		}
 	}
 
@@ -179,10 +182,14 @@ export function summarizeExportParts(
 	};
 }
 
-export async function previewExportBackup(
+/**
+ * Loads the raw data behind the selected categories in a single pass, so the
+ * counts and the preview can share it instead of reading everything twice.
+ */
+export async function loadExportParts(
 	selected: Set<BackupCategoryId>,
-): Promise<ExportPreview> {
-	const empty: ExportPreviewParts = {
+): Promise<ExportPreviewParts> {
+	const parts: ExportPreviewParts = {
 		settings: {},
 		keybindings: {},
 		apiKeys: {},
@@ -193,9 +200,8 @@ export async function previewExportBackup(
 		versions: [],
 		plugins: [],
 	};
-	if (selected.size === 0) return summarizeExportParts(empty, selected);
+	if (selected.size === 0) return parts;
 
-	const parts: ExportPreviewParts = { ...empty };
 	const jobs: Array<Promise<void>> = [];
 
 	if (
@@ -242,7 +248,11 @@ export async function previewExportBackup(
 				async ({ readCustomBackgroundBlob }) => {
 					const blob = await readCustomBackgroundBlob();
 					parts.background = blob
-						? { mime: blob.type || "image/png", bytes: blob.size }
+						? {
+								mime: blob.type || "image/png",
+								// The export stores the image as base64 (4 bytes per 3).
+								bytes: Math.ceil(blob.size / 3) * 4,
+							}
 						: null;
 				},
 			),
@@ -277,5 +287,16 @@ export async function previewExportBackup(
 	}
 
 	await Promise.all(jobs);
-	return summarizeExportParts(parts, selected);
+	return parts;
+}
+
+export async function previewExportBackup(
+	selected: Set<BackupCategoryId>,
+	labels?: ExportPreviewLabels,
+): Promise<ExportPreview> {
+	return summarizeExportParts(
+		await loadExportParts(selected),
+		selected,
+		labels,
+	);
 }

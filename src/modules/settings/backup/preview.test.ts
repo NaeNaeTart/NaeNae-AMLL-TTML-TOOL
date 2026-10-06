@@ -89,7 +89,7 @@ describe("summarizeExportParts", () => {
 			"Play",
 		]);
 		expect(preview.categories[2].items).toEqual([
-			{ label: "image/png", detail: "2.0 KB", bytes: 2048 },
+			{ key: "background", label: "image/png", detail: "2.0 KB", bytes: 2048 },
 		]);
 		expect(preview.categories[3].items.map((item) => item.label)).toEqual([
 			"Alpha",
@@ -131,9 +131,19 @@ describe("summarizeExportParts", () => {
 		);
 
 		expect(preview.categories[0].items).toEqual([
-			{ label: "Preset: Neon Dark", detail: "512 B", bytes: 512 },
-			{ label: "Custom Font: Custom Sans", detail: "1.0 KB", bytes: 1024 },
-			{ label: "image/png", detail: "2.0 KB", bytes: 2048 },
+			{
+				key: "preset:1",
+				label: "Preset: Neon Dark",
+				detail: "512 B",
+				bytes: 512,
+			},
+			{
+				key: "customFont",
+				label: "Custom Font: Custom Sans",
+				detail: "1.0 KB",
+				bytes: 1024,
+			},
+			{ key: "background", label: "image/png", detail: "2.0 KB", bytes: 2048 },
 		]);
 		expect(preview.categories[0].bytes).toBe(512 + 1024 + 2048);
 	});

@@ -10,18 +10,27 @@ import {
 	validateBackupFile,
 } from "./types";
 
+/**
+ * @description 解析并校验备份文件文本，非法时抛出 {@link BackupValidationError}。
+ */
 export function parseBackupFile(text: string): BackupFile {
 	const data = JSON.parse(text);
 	validateBackupFile(data);
 	return data;
 }
 
+/**
+ * @description 备份文件中实际包含的分类，用于导入确认界面。
+ */
 export function getPresentCategories(file: BackupFile): BackupCategoryId[] {
 	return (Object.keys(file.categories) as BackupCategoryId[]).filter(
 		(key) => file.categories[key] !== undefined,
 	);
 }
 
+/**
+ * @description 各分类的内容描述（数量/是否存在），用于导入确认界面。
+ */
 export function describeBackup(
 	file: BackupFile,
 ): Partial<Record<BackupCategoryId, number | boolean | BackupAssetsCounts>> {
@@ -59,6 +68,10 @@ function applyLocalStorage(entries: Record<string, string>) {
 	}
 }
 
+/**
+ * @description 将所选分类应用到当前环境。调用方应在成功后重新加载页面。
+ * 出错时抛出异常（部分数据可能已被写入）。
+ */
 export async function applyBackup(
 	file: BackupFile,
 	selected: Set<BackupCategoryId>,
