@@ -65,6 +65,11 @@ export function ChangelogDialog() {
 									handle indicators and removing corner notches for seamless
 									line boundaries.
 								</Text>
+								<Text size="2">
+									<strong>Timing Overview Header:</strong> Kept the timing overview
+									header compact and readable when resizing to narrow side
+									panels, and remember whether the side preview is open between sessions.
+								</Text>
 							</Flex>
 						</Box>
 						<Box>

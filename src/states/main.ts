@@ -36,7 +36,7 @@ export const toolModeAtom = atom<ToolMode>(ToolMode.Edit);
 export const previousToolModeAtom = atom<ToolMode | null>(null);
 export const aiSyncPickModeAtom = atom(false);
 
-export const showPreviewPanelAtom = atom(false);
+export const showPreviewPanelAtom = atomWithStorage("showPreviewPanel", false);
 export const previewPanelWidthAtom = atomWithStorage("previewPanelWidth", 400);
 export const aiSidebarWidthAtom = atomWithStorage("aiSidebarWidth", 360);
 
