@@ -1,20 +1,24 @@
 import {
-	ContentView24Regular,
+	ArrowBidirectionalLeftRight24Regular,
+	ArrowBidirectionalUpDown24Regular,
+	ArrowReset24Regular,
+	ArrowSortDownLines24Regular,
+	Checkmark24Regular,
+	CompassNorthwest24Regular,
+	Delete24Regular,
+	Edit24Regular,
+	FullScreenMaximize24Regular,
 	History24Regular,
-	Keyboard12324Regular,
-	LocalLanguage24Regular,
-	PaddingLeft24Regular,
-	PaddingRight24Regular,
+	Layer24Regular,
+	LineThickness24Regular,
+	PaintBrush24Regular,
 	Save24Regular,
+	Sparkle24Regular,
 	Speaker224Regular,
 	Stack24Regular,
-	Timer24Regular,
-	TopSpeed24Regular,
-	VideoBackgroundEffect24Regular,
-	Sparkle24Regular,
-	TimeAndWeather24Regular,
-	ErrorCircle24Regular,
 	TextT24Regular,
+	VideoBackgroundEffect24Regular,
+	Window24Regular,
 } from "@fluentui/react-icons";
 import {
 	Box,
@@ -25,7 +29,6 @@ import {
 	Heading,
 	IconButton,
 	Popover,
-	RadioGroup,
 	SegmentedControl,
 	Slider,
 	Switch,
@@ -356,27 +359,34 @@ export const SettingsAppearanceTab = () => {
 
 						{presets.length > 0 ? (
 							<Grid columns="2" gap="2">
-								{presets.map((p) => (
-									<Card key={p.id} size="1" style={{ 
-										border: lastLoaded === p.name ? "1px solid var(--accent-9)" : undefined,
-										backgroundColor: lastLoaded === p.name ? "var(--accent-2)" : undefined
-									}}>
-										<Flex align="center" justify="between">
-											<Box flexGrow="1" overflow="hidden">
-												<Text size="2" weight="bold" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</Text>
-												{lastLoaded === p.name && <Text size="1" style={{ display: "block", color: "var(--accent-9)" }}>Active</Text>}
-											</Box>
-											<Flex gap="1">
-												<IconButton size="1" variant="soft" onClick={() => handleLoadPreset(p)} title="Load Preset">
-													<Timer24Regular />
-												</IconButton>
-												<IconButton size="1" variant="ghost" color="red" onClick={() => setPresets(presets.filter(pr => pr.id !== p.id))} title="Delete Preset">
-													<History24Regular />
-												</IconButton>
+								{presets.map((p) => {
+									const isActive = lastLoaded === p.name;
+									return (
+										<Card key={p.id} size="1" style={{
+											border: isActive ? "1px solid var(--accent-9)" : undefined,
+											backgroundColor: isActive ? "var(--accent-2)" : undefined
+										}}>
+											<Flex align="center" justify="between" gap="2">
+												<Box flexGrow="1" overflow="hidden">
+													<Text size="2" weight="bold" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</Text>
+													{isActive && <Text size="1" weight="medium" style={{ display: "block", color: "var(--accent-9)" }}>{t("settings.appearance.presets.active", "Active")}</Text>}
+												</Box>
+												<Flex align="center" gap="1">
+													<Tooltip content={t("settings.appearance.presets.load", "Apply preset")}>
+														<IconButton size="1" variant={isActive ? "soft" : "ghost"} color={isActive ? undefined : "gray"} onClick={() => handleLoadPreset(p)} aria-label={t("settings.appearance.presets.load", "Apply preset")}>
+															<Checkmark24Regular />
+														</IconButton>
+													</Tooltip>
+													<Tooltip content={t("settings.appearance.presets.delete", "Delete preset")}>
+														<IconButton size="1" variant="ghost" color="red" onClick={() => setPresets(presets.filter(pr => pr.id !== p.id))} aria-label={t("settings.appearance.presets.delete", "Delete preset")}>
+															<Delete24Regular />
+														</IconButton>
+													</Tooltip>
+												</Flex>
 											</Flex>
-										</Flex>
-									</Card>
-								))}
+										</Card>
+									);
+								})}
 							</Grid>
 						) : (
 							<Text size="2" color="gray" align="center">{t("settings.appearance.presets.empty", "No saved presets yet.")}</Text>
@@ -730,7 +740,7 @@ export const SettingsAppearanceTab = () => {
 													<Popover.Root>
 														<Popover.Trigger>
 															<Button variant="soft" style={{ flexGrow: 1 }}>
-																<Timer24Regular />
+																<CompassNorthwest24Regular />
 																{t(
 																	"settings.appearance.gradientPositionSettings",
 																	"Adjust Center & Angle",
@@ -875,42 +885,45 @@ export const SettingsAppearanceTab = () => {
 					{t("settings.appearance.interfaceScale", "Interface Scale")}
 				</Heading>
 				<Card>
-					<Flex direction="column" gap="3">
-						<Flex align="center" justify="between" gap="3">
-							<Flex direction="column" gap="1">
-								<Text size="2" weight="bold">
-									{Math.round(interfaceScaleDraft * 100)}%
-								</Text>
-								<Text size="1" color="gray">
-									{t(
-										"settings.appearance.interfaceScaleDesc",
-										"Choose a scale, then apply it. You can also use Ctrl/Cmd +, -, or 0.",
-									)}
-								</Text>
+					<Flex gap="3" align="start">
+						<FullScreenMaximize24Regular />
+						<Flex direction="column" gap="3" flexGrow="1">
+							<Flex align="center" justify="between" gap="3">
+								<Flex direction="column" gap="1">
+									<Text size="2" weight="bold">
+										{Math.round(interfaceScaleDraft * 100)}%
+									</Text>
+									<Text size="1" color="gray">
+										{t(
+											"settings.appearance.interfaceScaleDesc",
+											"Choose a scale, then apply it. You can also use Ctrl/Cmd +, -, or 0.",
+										)}
+									</Text>
+								</Flex>
+								<Flex gap="2">
+									<Button
+										variant="soft"
+										disabled={interfaceScaleDraft === DEFAULT_INTERFACE_SCALE}
+										onClick={() => setInterfaceScaleDraft(DEFAULT_INTERFACE_SCALE)}
+									>
+										{t("common.reset", "Reset")}
+									</Button>
+									<Button
+										disabled={interfaceScaleDraft === interfaceScale}
+										onClick={() => setInterfaceScale(interfaceScaleDraft)}
+									>
+										{t("common.apply", "Apply")}
+									</Button>
+								</Flex>
 							</Flex>
-							<Flex gap="2">
-								<Button
-									variant="soft"
-									disabled={interfaceScaleDraft === DEFAULT_INTERFACE_SCALE}
-									onClick={() => setInterfaceScaleDraft(DEFAULT_INTERFACE_SCALE)}
-								>
-									{t("common.reset", "Reset")}
-								</Button>
-								<Button
-									disabled={interfaceScaleDraft === interfaceScale}
-									onClick={() => setInterfaceScale(interfaceScaleDraft)}
-								>
-									{t("common.apply", "Apply")}
-								</Button>
-							</Flex>
+							<Slider
+								min={MIN_INTERFACE_SCALE}
+								max={MAX_INTERFACE_SCALE}
+								step={0.05}
+								value={[interfaceScaleDraft]}
+								onValueChange={(value) => setInterfaceScaleDraft(value[0])}
+							/>
 						</Flex>
-						<Slider
-							min={MIN_INTERFACE_SCALE}
-							max={MAX_INTERFACE_SCALE}
-							step={0.05}
-							value={[interfaceScaleDraft]}
-							onValueChange={(value) => setInterfaceScaleDraft(value[0])}
-						/>
 					</Flex>
 				</Card>
 			</Flex>
@@ -948,7 +961,7 @@ export const SettingsAppearanceTab = () => {
 				</Heading>
 				<Card>
 					<Flex direction="column" gap="2">
-						<Flex align="center" gap="2" color="gray">
+						<Flex align="center" gap="2" style={{ color: "var(--gray-11)" }}>
 							<History24Regular />
 							<Text size="2">
 								{t("settings.appearance.resetDesc", "Reset all colors, backgrounds, gradients, and custom overrides back to the default theme.")}
@@ -996,7 +1009,7 @@ export const SettingsAppearanceTab = () => {
 				<Flex direction="column" gap="4">
 
 					<Flex direction="column" gap="3">
-						<Heading size="4">{t("settings.appearance.advanced.projectColors", "Project Colors")}</Heading>
+						<Heading size="4"><PaintBrush24Regular /> {t("settings.appearance.advanced.projectColors", "Project Colors")}</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Flex gap="3" align="start">
@@ -1026,7 +1039,7 @@ export const SettingsAppearanceTab = () => {
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><ContentView24Regular /> {t("settings.appearance.advanced.workspace", "Workspace Theme")}</Heading>
+						<Heading size="4"><Layer24Regular /> {t("settings.appearance.advanced.workspace", "Workspace Theme")}</Heading>
 						<Card>
 							<Grid columns="2" gap="3">
 								<AdvancedColorItem label={t("settings.appearance.advanced.titlebarBackground", "Titlebar Background")} value={vTitlebarBg} onChange={setVTitlebarBg} />
@@ -1038,7 +1051,7 @@ export const SettingsAppearanceTab = () => {
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><Stack24Regular /> {t("settings.appearance.advanced.editor", "Editor Layout")}</Heading>
+						<Heading size="4"><Edit24Regular /> {t("settings.appearance.advanced.editor", "Editor Layout")}</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Grid columns="2" gap="3">
@@ -1049,8 +1062,8 @@ export const SettingsAppearanceTab = () => {
 								</Grid>
 								<AdvancedSliderItem label={t("settings.appearance.advanced.chipBorderRadius", "Chip Border Radius")} icon={<Stack24Regular />} value={vChipRadius} min={0} max={32} onChange={setVChipRadius} unit="px" />
 								<AdvancedSliderItem label={t("settings.appearance.advanced.chipSpacing", "Chip Spacing (Gap)")} icon={<Stack24Regular />} value={vChipGap} min={0} max={32} onChange={setVChipGap} unit="px" />
-								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingVertical", "Chip Padding (V)")} icon={<PaddingLeft24Regular />} value={vChipPaddingV} min={0} max={32} onChange={setVChipPaddingV} unit="px" />
-								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingHorizontal", "Chip Padding (H)")} icon={<PaddingLeft24Regular />} value={vChipPaddingH} min={0} max={32} onChange={setVChipPaddingH} unit="px" />
+								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingVertical", "Chip Padding (V)")} icon={<ArrowBidirectionalUpDown24Regular />} value={vChipPaddingV} min={0} max={32} onChange={setVChipPaddingV} unit="px" />
+								<AdvancedSliderItem label={t("settings.appearance.advanced.chipPaddingHorizontal", "Chip Padding (H)")} icon={<ArrowBidirectionalLeftRight24Regular />} value={vChipPaddingH} min={0} max={32} onChange={setVChipPaddingH} unit="px" />
 								<Flex align="center" justify="between" gap="3">
 									<Flex direction="column" gap="1">
 										<Text>{t("settings.appearance.advanced.legacySpaceLabels", "Legacy Space Labels")}</Text>
@@ -1065,7 +1078,7 @@ export const SettingsAppearanceTab = () => {
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><VideoBackgroundEffect24Regular /> {t("settings.appearance.advanced.audioVisuals", "Playback & Visuals")}</Heading>
+						<Heading size="4"><Speaker224Regular /> {t("settings.appearance.advanced.audioVisuals", "Playback & Visuals")}</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Grid columns="2" gap="3">
@@ -1098,7 +1111,7 @@ export const SettingsAppearanceTab = () => {
 									<AdvancedColorItem label="Dialog Border" value={vDialogBorder} onChange={setVDialogBorder} />
 								</Grid>
 								<AdvancedSliderItem label="Global Border Radius" icon={<Stack24Regular />} value={vGlobalRadius} min={0} max={40} onChange={setVGlobalRadius} unit="px" />
-								<AdvancedSliderItem label="Global Border Width" icon={<Timer24Regular />} value={vGlobalBorderWidth} min={0} max={8} onChange={setVGlobalBorderWidth} unit="px" />
+								<AdvancedSliderItem label="Global Border Width" icon={<LineThickness24Regular />} value={vGlobalBorderWidth} min={0} max={8} onChange={setVGlobalBorderWidth} unit="px" />
 								<AdvancedSliderItem label="Shadow Intensity" icon={<VideoBackgroundEffect24Regular />} value={vShadow} min={0} max={10} step={0.1} onChange={setVShadow} unit="" />
 								<AdvancedSliderItem label="Backdrop Blur" icon={<Sparkle24Regular />} value={vBackdrop} min={0} max={100} onChange={(v) => { setVBackdrop(v); setGlassBlur(v); }} unit="px" />
 							</Flex>
@@ -1106,7 +1119,7 @@ export const SettingsAppearanceTab = () => {
 					</Flex>
 
 					<Flex direction="column" gap="3">
-						<Heading size="4"><Stack24Regular /> {t("settings.appearance.layout.title", "Application Layout")}</Heading>
+						<Heading size="4"><ArrowSortDownLines24Regular /> {t("settings.appearance.layout.title", "Application Layout")}</Heading>
 						<Card>
 							<Flex direction="column" gap="4">
 								<Flex direction="column" gap="1">
@@ -1122,7 +1135,7 @@ export const SettingsAppearanceTab = () => {
 													<Stack24Regular style={{ color: "var(--gray-8)" }} />
 													<Box flexGrow="1">
 														<Text size="2" weight="bold">
-														{item === "titlebar" && <><ContentView24Regular /> {t("settings.appearance.layout.titlebar", "Title Bar")}</>}
+														{item === "titlebar" && <><Window24Regular /> {t("settings.appearance.layout.titlebar", "Title Bar")}</>}
 														{item === "ribbonbar" && <><Stack24Regular style={{ transform: "rotate(180deg)" }} /> {t("settings.appearance.layout.ribbonbar", "Toolbar (Ribbon)")}</>}
 														{item === "editor" && <><TextT24Regular /> {t("settings.appearance.layout.editor", "Main Editor Area")}</>}
 														{item === "audio-controls" && <><Speaker224Regular /> {t("settings.appearance.layout.audio", "Audio Controls")}</>}
@@ -1153,12 +1166,12 @@ export const SettingsAppearanceTab = () => {
 					</Flex>
 
 					<Card size="2">
-						<Flex direction="column" gap="2">
-							<Flex align="center" gap="2" color="gray">
+						<Flex direction="column" gap="3">
+							<Flex align="center" gap="2" style={{ color: "var(--gray-11)" }}>
 								<Sparkle24Regular />
-								<Text size="2">{t("settings.appearance.advanced.masterResetNote", "This will reset all 20+ granular overrides.")}</Text>
+								<Text size="2" color="gray">{t("settings.appearance.advanced.masterResetNote", "This will reset all 20+ granular overrides.")}</Text>
 							</Flex>
-							<Button variant="soft" color="red" onClick={() => {
+							<Button variant="surface" color="red" onClick={() => {
 								setAdvWaveformColor(""); setAdvWaveformProgress("");
 								setAdvPrimaryText(""); setAdvSecondaryText("");
 								setVTitlebarBg(""); setVSidebarBg(""); setVSidebarActive(""); setVMenuHover("");
@@ -1170,8 +1183,8 @@ export const SettingsAppearanceTab = () => {
 								setVGlobalRadius(12); setVGlobalBorderWidth(1); setVShadow(1); setVBackdrop(16);
 								setLegacyDarkTheme(false);
 								setLayoutOrder(["titlebar", "ribbonbar", "editor", "audio-controls"]); setVRibbonPos("top");
-							}}>
-								<History24Regular />
+							}} style={{ cursor: "pointer" }}>
+								<ArrowReset24Regular />
 								{t("settings.appearance.advanced.resetMaster", "Master Reset Advanced Config")}
 							</Button>
 						</Flex>
@@ -1184,14 +1197,33 @@ export const SettingsAppearanceTab = () => {
 
 // --- Helper Components for Advanced Editor ---
 
+const ResetColorButton = ({ onClick }: { onClick: () => void }) => {
+	const { t } = useTranslation();
+	const label = t(
+		"settings.appearance.advanced.resetToDefault",
+		"Reset to default",
+	);
+	return (
+		<Tooltip content={label}>
+			<IconButton
+				size="1"
+				variant="ghost"
+				color="gray"
+				onClick={onClick}
+				aria-label={label}
+			>
+				<ArrowReset24Regular />
+			</IconButton>
+		</Tooltip>
+	);
+};
+
 const AdvancedColorItem = ({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) => (
 	<Flex direction="column" gap="1">
 		<Flex align="center" justify="between">
 			<Text size="1" color="gray" weight="bold">{label}</Text>
 			{value && (
-				<IconButton size="1" variant="ghost" onClick={() => onChange("")}>
-					<History24Regular />
-				</IconButton>
+				<ResetColorButton onClick={() => onChange("")} />
 			)}
 		</Flex>
 		<input 
@@ -1207,7 +1239,7 @@ const AdvancedSliderItem = ({ label, icon, value, min, max, step = 1, onChange, 
 	<Box>
 		<Flex align="center" justify="between" mb="1">
 			<Flex align="center" gap="2">
-				<Box color="accent">{icon}</Box>
+				<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>{icon}</Box>
 				<Text size="1" weight="bold">{label}</Text>
 			</Flex>
 			<Text size="1" color="gray">{value}{unit}</Text>

@@ -15,6 +15,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px 16px;
 }
 
 .scrollArea {
@@ -51,6 +53,7 @@
 .row {
 	transition: background-color 0.2s;
 	cursor: pointer;
+	min-width: 560px;
 }
 
 .row:hover {
@@ -68,6 +71,7 @@
 .monospaced {
 	font-family: var(--code-font-family, "JetBrains Mono", "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
 	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
 }
 
 .lineText {
@@ -168,7 +172,9 @@
 
 .stats {
 	display: flex;
-	gap: 16px;
+	flex-wrap: wrap;
+	column-gap: 16px;
+	row-gap: 8px;
 	color: var(--gray-11);
 	font-size: 12px;
 }
@@ -188,4 +194,10 @@
 
 .tableHeader {
 	flex-shrink: 0;
+	min-width: 560px;
+}
+
+.fixedCell {
+	flex-shrink: 0;
+	white-space: nowrap;
 }

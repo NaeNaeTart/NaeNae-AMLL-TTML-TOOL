@@ -77,7 +77,6 @@ const plugins: Plugin[] = [
 		workbox: {
 			globPatterns: ["**/*.{js,css,html,wasm}"],
 			maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
-			navigateFallbackDenylist: [/^\/migration(?:\/|$)/],
 		},
 		manifest: {
 			name: "NaeNae's Apple Music-like Lyrics TTML Tool Fork",

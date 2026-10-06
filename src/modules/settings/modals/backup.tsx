@@ -2,6 +2,12 @@ import {
 	ArrowDownload24Regular,
 	ArrowUpload24Regular,
 	ChevronDownRegular,
+	Folder20Regular,
+	Key20Regular,
+	Keyboard20Regular,
+	PaintBrush20Regular,
+	PuzzlePiece20Regular,
+	Settings20Regular,
 } from "@fluentui/react-icons";
 import {
 	Box,
@@ -12,14 +18,13 @@ import {
 	Heading,
 	Text,
 } from "@radix-ui/themes";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import {
 	type BackupAssetsCounts,
-	type BackupCounts,
+	countsFromParts,
 	exportBackup,
-	getBackupCounts,
 } from "$/modules/settings/backup/export";
 import {
 	applyBackup,
@@ -29,9 +34,11 @@ import {
 } from "$/modules/settings/backup/import";
 import {
 	EXPORT_PREVIEW_ITEM_LIMIT,
-	type ExportPreview,
+	type ExportPreviewLabels,
+	type ExportPreviewParts,
 	formatPreviewBytes,
-	previewExportBackup,
+	loadExportParts,
+	summarizeExportParts,
 } from "$/modules/settings/backup/preview";
 import {
 	BACKUP_CATEGORY_IDS,
@@ -39,6 +46,17 @@ import {
 	type BackupFile,
 	BackupValidationError,
 } from "$/modules/settings/backup/types";
+
+const CATEGORY_ICONS: Record<BackupCategoryId, React.ReactNode> = {
+	settings: <Settings20Regular />,
+	keybindings: <Keyboard20Regular />,
+	assets: <PaintBrush20Regular />,
+	projects: <Folder20Regular />,
+	plugins: <PuzzlePiece20Regular />,
+	apiKeys: <Key20Regular />,
+};
+
+const ALL_CATEGORIES = new Set<BackupCategoryId>(BACKUP_CATEGORY_IDS);
 
 function useCategoryLabels() {
 	const { t } = useTranslation();
@@ -57,7 +75,9 @@ export const SettingsBackupTab = memo(() => {
 	const labels = useCategoryLabels();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const [counts, setCounts] = useState<BackupCounts | null>(null);
+	const [exportParts, setExportParts] = useState<ExportPreviewParts | null>(
+		null,
+	);
 	const [exportSelected, setExportSelected] = useState<Set<BackupCategoryId>>(
 		() => new Set(BACKUP_CATEGORY_IDS.filter((id) => id !== "apiKeys")),
 	);
@@ -65,7 +85,6 @@ export const SettingsBackupTab = memo(() => {
 	const [expanded, setExpanded] = useState<Set<BackupCategoryId>>(
 		() => new Set(),
 	);
-	const [preview, setPreview] = useState<ExportPreview | null>(null);
 	const [previewLoading, setPreviewLoading] = useState(true);
 
 	const [pendingImport, setPendingImport] = useState<BackupFile | null>(null);
@@ -75,19 +94,13 @@ export const SettingsBackupTab = memo(() => {
 	const [importing, setImporting] = useState(false);
 
 	useEffect(() => {
-		getBackupCounts()
-			.then(setCounts)
-			.catch(() => setCounts(null));
-	}, []);
-
-	useEffect(() => {
 		let cancelled = false;
-		previewExportBackup(new Set(BACKUP_CATEGORY_IDS))
+		loadExportParts(ALL_CATEGORIES)
 			.then((next) => {
-				if (!cancelled) setPreview(next);
+				if (!cancelled) setExportParts(next);
 			})
 			.catch(() => {
-				if (!cancelled) setPreview(null);
+				if (!cancelled) setExportParts(null);
 			})
 			.finally(() => {
 				if (!cancelled) setPreviewLoading(false);
@@ -96,6 +109,29 @@ export const SettingsBackupTab = memo(() => {
 			cancelled = true;
 		};
 	}, []);
+
+	const counts = useMemo(
+		() => (exportParts ? countsFromParts(exportParts) : null),
+		[exportParts],
+	);
+
+	const previewLabels = useMemo<ExportPreviewLabels>(
+		() => ({
+			preset: t("settings.backup.previewPresetPrefix", "Preset"),
+			customFont: t("settings.backup.previewFontPrefix", "Custom Font"),
+			versions: (count) =>
+				t("settings.backup.previewVersions", "{count} versions", { count }),
+		}),
+		[t],
+	);
+
+	const preview = useMemo(
+		() =>
+			exportParts
+				? summarizeExportParts(exportParts, ALL_CATEGORIES, previewLabels)
+				: null,
+		[exportParts, previewLabels],
+	);
 
 	const toggle = useCallback(
 		(
@@ -280,6 +316,15 @@ export const SettingsBackupTab = memo(() => {
 												toggle(setExportSelected, id, v === true)
 											}
 										/>
+										<Box
+											style={{
+												color: "var(--accent-9)",
+												display: "flex",
+												alignItems: "center",
+											}}
+										>
+											{CATEGORY_ICONS[id]}
+										</Box>
 										<Flex direction="column" flexGrow="1">
 											<Text size="2">{labels[id]}</Text>
 											<Text size="1" color="gray">
@@ -328,7 +373,7 @@ export const SettingsBackupTab = memo(() => {
 														.slice(0, EXPORT_PREVIEW_ITEM_LIMIT)
 														.map((item) => (
 															<Flex
-																key={item.label}
+																key={item.key}
 																align="center"
 																justify="between"
 																gap="2"
@@ -437,6 +482,15 @@ export const SettingsBackupTab = memo(() => {
 											toggle(setImportSelected, id, v === true)
 										}
 									/>
+									<Box
+										style={{
+											color: "var(--accent-9)",
+											display: "flex",
+											alignItems: "center",
+										}}
+									>
+										{CATEGORY_ICONS[id]}
+									</Box>
 									<Flex direction="column">
 										<Text size="2">{labels[id]}</Text>
 										<Text size="1" color="gray">

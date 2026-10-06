@@ -1,3 +1,8 @@
+import {
+	Bug24Regular,
+	PuzzlePiece24Regular,
+	TopSpeed24Regular,
+} from "@fluentui/react-icons";
 import { Box, Card, Flex, Text, Checkbox } from "@radix-ui/themes";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,7 +21,8 @@ export const SettingsDevTab = memo(() => {
 					{t("settings.dev.previewPerformance", "Preview Performance")}
 				</Text>
 				<Card variant="surface">
-					<Flex direction="column" gap="3">
+					<Flex gap="3" align="center">
+						<TopSpeed24Regular />
 						<Flex align="center" gap="3">
 							<Checkbox 
 								checked={showFps} 
@@ -33,12 +39,15 @@ export const SettingsDevTab = memo(() => {
 					{t("settings.dev.wasmPlugins.title", "Community Plugin System (WASM)")}
 				</Text>
 				<Card variant="surface">
-					<Flex direction="column" gap="3">
-						<Text size="2" color="gray">
-							{t("settings.dev.wasmPlugins.description", "Manage and upload custom WebAssembly plugins to extend the tool's importing and exporting capabilities.")}
-						</Text>
-						<Flex justify="start">
-							<PluginManagerDialog />
+					<Flex gap="3" align="start">
+						<PuzzlePiece24Regular />
+						<Flex direction="column" gap="3" flexGrow="1">
+							<Text size="2" color="gray">
+								{t("settings.dev.wasmPlugins.description", "Manage and upload custom WebAssembly plugins to extend the tool's importing and exporting capabilities.")}
+							</Text>
+							<Flex justify="start">
+								<PluginManagerDialog />
+							</Flex>
 						</Flex>
 					</Flex>
 				</Card>
@@ -49,9 +58,12 @@ export const SettingsDevTab = memo(() => {
 					{t("settings.dev.debugInfo.title", "Debug Information")}
 				</Text>
 				<Card variant="surface">
-					<Flex direction="column" gap="1">
-						<Text size="1" color="gray">Environment: {import.meta.env.MODE}</Text>
-                        <Text size="1" color="gray">Platform: {window.navigator.platform}</Text>
+					<Flex gap="3" align="start">
+						<Bug24Regular />
+						<Flex direction="column" gap="1" flexGrow="1">
+							<Text size="1" color="gray">Environment: {import.meta.env.MODE}</Text>
+							<Text size="1" color="gray">Platform: {window.navigator.platform}</Text>
+						</Flex>
 					</Flex>
 				</Card>
 			</Box>

@@ -1,7 +1,11 @@
 import {
 	ArrowHookUpLeft24Regular,
+	Blur24Regular,
 	Dismiss24Regular,
+	Eye24Regular,
 	Image24Regular,
+	Layer24Regular,
+	WeatherSunny24Regular,
 } from "@fluentui/react-icons";
 import {
 	Box,
@@ -233,9 +237,14 @@ export const SettingsCustomBackgroundSettings = ({
 			<Card>
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
-						<Text>
-							{t("settings.common.customBackgroundOpacity", "Opacity")}
-						</Text>
+						<Flex align="center" gap="2">
+							<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>
+								<Eye24Regular />
+							</Box>
+							<Text>
+								{t("settings.common.customBackgroundOpacity", "Opacity")}
+							</Text>
+						</Flex>
 						<Flex align="center" gap="2">
 							<Text wrap="nowrap" color="gray" size="1">
 								{Math.round(customBackgroundOpacity * 100)}%
@@ -272,7 +281,12 @@ export const SettingsCustomBackgroundSettings = ({
 			<Card style={{ marginBottom: "var(--space-1)" }}>
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
-						<Text>{t("settings.common.customBackgroundMask", "Mask")}</Text>
+						<Flex align="center" gap="2">
+							<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>
+								<Layer24Regular />
+							</Box>
+							<Text>{t("settings.common.customBackgroundMask", "Mask")}</Text>
+						</Flex>
 						<Flex align="center" gap="2">
 							<Text wrap="nowrap" color="gray" size="1">
 								{Math.round(customBackgroundMask * 100)}%
@@ -301,7 +315,12 @@ export const SettingsCustomBackgroundSettings = ({
 			<Card>
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
-						<Text>{t("settings.common.customBackgroundBlur", "Blur Radius")}</Text>
+						<Flex align="center" gap="2">
+							<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>
+								<Blur24Regular />
+							</Box>
+							<Text>{t("settings.common.customBackgroundBlur", "Blur Radius")}</Text>
+						</Flex>
 						<Flex align="center" gap="2">
 							<Text wrap="nowrap" color="gray" size="1">
 								{customBackgroundBlur.toFixed(0)}px
@@ -330,9 +349,14 @@ export const SettingsCustomBackgroundSettings = ({
 			<Card>
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
-						<Text>
-							{t("settings.common.customBackgroundBrightness", "Brightness")}
-						</Text>
+						<Flex align="center" gap="2">
+							<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>
+								<WeatherSunny24Regular />
+							</Box>
+							<Text>
+								{t("settings.common.customBackgroundBrightness", "Brightness")}
+							</Text>
+						</Flex>
 						<Flex align="center" gap="2">
 							<Text wrap="nowrap" color="gray" size="1">
 								{Math.round(customBackgroundBrightness * 100)}%

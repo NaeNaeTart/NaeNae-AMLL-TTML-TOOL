@@ -1,3 +1,10 @@
+import {
+	Edit20Regular,
+	Folder20Regular,
+	Speaker220Regular,
+	Timer20Regular,
+	Wand20Regular,
+} from "@fluentui/react-icons";
 import { Box, Flex, Grid, Heading, Switch, Text, TextField } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useState } from "react";
@@ -6,6 +13,13 @@ import { formatKeyBindings, recordShortcut } from "$/utils/keybindings";
 import { autoSegmentDoublePressAtom } from "../states";
 import { getAllCommands } from "../registry";
 import type { KeyBindingCommand } from "../types";
+
+const KEYBINDING_CATEGORY_ICONS: Record<string, React.ReactNode> = {
+	File: <Folder20Regular />,
+	Edit: <Edit20Regular />,
+	Sync: <Timer20Regular />,
+	Audio: <Speaker220Regular />,
+};
 
 const KeyBindingsEdit = ({ command }: { command: KeyBindingCommand }) => {
 	const { t } = useTranslation();
@@ -70,7 +84,10 @@ export const AutoKeyBindingSettingsPanel = () => {
 			{Object.entries(groupedCommands).map(([category, cmds]) => (
 				<Box key={category} mb="5">
 					<Heading size="3" mb="3" color="gray">
-						{t(`settingsDialog.keybindings.category.${category}`, category)}
+						<Flex align="center" gap="2">
+							{KEYBINDING_CATEGORY_ICONS[category]}
+							<span>{t(`settingsDialog.keybindings.category.${category}`, category)}</span>
+						</Flex>
 					</Heading>
 
 					<Grid columns="2" gapX="4" gapY="3" align="center">
@@ -82,7 +99,10 @@ export const AutoKeyBindingSettingsPanel = () => {
 			))}
 			<Box mb="5">
 				<Heading size="3" mb="3" color="gray">
-					{t("settingsDialog.keybindings.autoSegmentOptions", "Auto Segment")}
+					<Flex align="center" gap="2">
+						<Wand20Regular />
+						<span>{t("settingsDialog.keybindings.autoSegmentOptions", "Auto Segment")}</span>
+					</Flex>
 				</Heading>
 				<Flex align="center" justify="between" gap="4">
 					<Box>

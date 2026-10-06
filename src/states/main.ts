@@ -36,7 +36,7 @@ export const toolModeAtom = atom<ToolMode>(ToolMode.Edit);
 export const previousToolModeAtom = atom<ToolMode | null>(null);
 export const aiSyncPickModeAtom = atom(false);
 
-export const showPreviewPanelAtom = atom(false);
+export const showPreviewPanelAtom = atomWithStorage("showPreviewPanel", false);
 export const previewPanelWidthAtom = atomWithStorage("previewPanelWidth", 400);
 export const aiSidebarWidthAtom = atomWithStorage("aiSidebarWidth", 360);
 
@@ -190,11 +190,8 @@ export const showUnselectedLinesAtom = atomWithStorage(
 	"showUnselectedLines",
 	true,
 );
-export const bgLyricIgnoreSyncAtom = atomWithStorage("bgLyricIgnoreSync", false);
-export const showEndTimeAsDurationAtom = atomWithStorage(
-	"showEndTimeAsDuration",
-	false,
-);
+export const bgLyricIgnoreSyncAtom = atom(false);
+export const showEndTimeAsDurationAtom = atom(false);
 
 export interface EditingTimeFieldState {
 	isWord: boolean;

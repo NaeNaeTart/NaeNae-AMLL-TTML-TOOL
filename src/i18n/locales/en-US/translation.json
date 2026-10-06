@@ -341,7 +341,10 @@
         "title": "Appearance Presets",
         "namePlaceholder": "Theme Name...",
         "save": "Save Current",
-        "empty": "No saved presets yet."
+        "empty": "No saved presets yet.",
+        "active": "Active",
+        "load": "Apply preset",
+        "delete": "Delete preset"
       },
       "theme": "Theme",
       "useCustomAccent": "Custom Accent Color",
@@ -370,6 +373,7 @@
       "currentFont": "Current Font",
       "changeFont": "Change Font...",
       "advanced": {
+        "resetToDefault": "Reset to default",
         "projectColors": "Project Colors",
         "primaryText": "Primary Text Color",
         "primaryTextDesc": "Global primary text override.",
@@ -517,6 +521,9 @@
       "previewCategoryEmpty": "Nothing to export in this category",
       "previewMore": "+{count} more",
       "previewTotal": "Estimated total size",
+      "previewPresetPrefix": "Preset",
+      "previewFontPrefix": "Custom Font",
+      "previewVersions": "{count} versions",
       "apiKeysWarning": "API keys are saved as plain text in the backup file. Keep it private.",
       "importTitle": "Import",
       "importDesc": "Restore settings and data from a backup file. Existing values will be replaced.",

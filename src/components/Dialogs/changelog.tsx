@@ -60,6 +60,29 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Spectrogram Divider Styling:</strong> Decluttered
+									touching dividers when adjacent lyric lines meet by shortening
+									handle indicators and removing corner notches for seamless
+									line boundaries.
+								</Text>
+								<Text size="2">
+									<strong>Preferences UI Polish &amp; Icons:</strong> Clarified
+									preset actions with dedicated apply/delete icons and tooltips,
+									harmonized semantic icons across General, Editor, Files, Audio,
+									Keybindings, Appearance, Developer, and Custom Background tabs,
+									and improved contrast for advanced configuration resets.
+								</Text>
+								<Text size="2">
+									<strong>Timing Overview Header:</strong> Kept the timing overview
+									header compact and readable when resizing to narrow side
+									panels, and remember whether the side preview is open between sessions.
+								</Text>
+								<Text size="2">
+									<strong>Domain Move Complete:</strong> The old tool addresses
+									now redirect to tool.community.spicylyrics.org, so the
+									one-time data transfer from them has been removed.
+								</Text>
+								<Text size="2">
 									<strong>Backup Contents Preview:</strong> Added an expandable
 									preview dropdown before exporting settings and data backups,
 									displaying category counts, item lists, and estimated total file
@@ -75,11 +98,6 @@ export function ChangelogDialog() {
 									default, and are never included with Settings. The last workspace
 									folder and recent project paths are not exported because they only
 									make sense on the original device.
-								</Text>
-								<Text size="2">
-									<strong>Backup Coverage:</strong> Show End Time as Duration and
-									Ignore Background Lyrics in Sync are now remembered between sessions
-									and included in backups.
 								</Text>
 								<Text size="2">
 									<strong>Backup Tab Translation:</strong> The Backup settings tab is
