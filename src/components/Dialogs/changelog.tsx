@@ -60,11 +60,22 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Spectrogram Divider Styling:</strong> Decluttered
+									touching dividers when adjacent lyric lines meet by shortening
+									handle indicators and removing corner notches for seamless
+									line boundaries.
+								</Text>
+								<Text size="2">
 									<strong>Preferences UI Polish &amp; Icons:</strong> Clarified
 									preset actions with dedicated apply/delete icons and tooltips,
 									harmonized semantic icons across General, Editor, Files, Audio,
 									Keybindings, Appearance, Developer, and Custom Background tabs,
 									and improved contrast for advanced configuration resets.
+								</Text>
+								<Text size="2">
+									<strong>Timing Overview Header:</strong> Kept the timing overview
+									header compact and readable when resizing to narrow side
+									panels, and remember whether the side preview is open between sessions.
 								</Text>
 							</Flex>
 						</Box>
