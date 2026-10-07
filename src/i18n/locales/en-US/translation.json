@@ -656,6 +656,9 @@
     "moveWordToNewLine": "Move {count} word(s) to new line"
   },
   "settingsDialog": {
+    "search": "Search settings",
+    "clearSearch": "Clear search",
+    "noSearchResults": "No matching categories",
     "title": "Preferences",
     "common": {
       "latencyTest": "Audio/input latency test"
