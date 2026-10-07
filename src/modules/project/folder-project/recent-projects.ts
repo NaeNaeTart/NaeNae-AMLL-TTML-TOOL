@@ -2,7 +2,7 @@ import { isTauri } from "@tauri-apps/api/core";
 import { join } from "@tauri-apps/api/path";
 import { exists } from "@tauri-apps/plugin-fs";
 import { error as logError } from "$/utils/logging.ts";
-import { isSafeProjectFileName } from "./manifest";
+import { isLinkedProjectFiles, isSafeProjectFileName } from "./manifest";
 import type { RecentProjectEntry, RecentProjectFileStatus } from "./types";
 
 export const RECENT_PROJECTS_STORAGE_KEY = "amll-ttml:recent-projects";
@@ -31,6 +31,9 @@ export function isRecentProjectEntry(
 	if (v.lyricFile.length > 0 && !isSafeProjectFileName(v.lyricFile)) {
 		return false;
 	}
+	if (v.linked !== undefined && !isLinkedProjectFiles(v.linked)) {
+		return false;
+	}
 	return true;
 }
 
@@ -56,16 +59,20 @@ export async function getRecentProjectFileStatus(
 		};
 	}
 	const [audioFileExists, lyricFileExists] = await Promise.all([
-		entry.audioFile
-			? join(entry.dir, entry.audioFile)
-					.then((p) => exists(p))
-					.catch(() => null)
-			: Promise.resolve(false),
-		entry.lyricFile
-			? join(entry.dir, entry.lyricFile)
-					.then((p) => exists(p))
-					.catch(() => null)
-			: Promise.resolve(false),
+		entry.linked
+			? exists(entry.linked.audioPath).catch(() => null)
+			: entry.audioFile
+				? join(entry.dir, entry.audioFile)
+						.then((p) => exists(p))
+						.catch(() => null)
+				: Promise.resolve(false),
+		entry.linked
+			? exists(entry.linked.lyricPath).catch(() => null)
+			: entry.lyricFile
+				? join(entry.dir, entry.lyricFile)
+						.then((p) => exists(p))
+						.catch(() => null)
+				: Promise.resolve(false),
 	]);
 	if (audioFileExists === null || lyricFileExists === null) {
 		return null;

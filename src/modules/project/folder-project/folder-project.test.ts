@@ -6,6 +6,7 @@ import {
 	getFileExtension,
 	getFileNameFromPath,
 	isProjectManifest,
+	isSafeLinkedPath,
 	isSafeProjectFileName,
 	sanitizeFileName,
 } from "./manifest";
@@ -137,6 +138,84 @@ describe("isProjectManifest", () => {
 
 	it("uses project.json as manifest filename", () => {
 		expect(PROJECT_MANIFEST_FILENAME).toBe("project.json");
+	});
+});
+
+describe("linked project paths", () => {
+	const manifest = (linked: unknown) => ({
+		version: 1,
+		name: "Song",
+		audioFile: "song.flac",
+		lyricFile: "song.ttml",
+		linked,
+	});
+
+	it("accepts absolute Windows and POSIX paths", () => {
+		expect(isSafeLinkedPath("C:\\Lyrics\\song.ttml")).toBe(true);
+		expect(isSafeLinkedPath("D:/Audio/song.flac")).toBe(true);
+		expect(isSafeLinkedPath("/home/user/song.flac")).toBe(true);
+	});
+
+	it("rejects relative, traversal, network, and control-character paths", () => {
+		expect(isSafeLinkedPath("song.ttml")).toBe(false);
+		expect(isSafeLinkedPath("C:/Lyrics/../secret.ttml")).toBe(false);
+		expect(isSafeLinkedPath("\\\\server\\share\\song.ttml")).toBe(false);
+		expect(isSafeLinkedPath("//server/share/song.ttml")).toBe(false);
+		expect(isSafeLinkedPath("C:/Lyrics/so\nng.ttml")).toBe(false);
+		expect(isSafeLinkedPath("C:/Lyrics/")).toBe(false);
+	});
+
+	it("accepts a manifest with linked TTML and audio paths", () => {
+		expect(
+			isProjectManifest(
+				manifest({
+					lyricPath: "C:/Lyrics/song.ttml",
+					audioPath: "D:/Audio/song.flac",
+				}),
+			),
+		).toBe(true);
+	});
+
+	it("rejects a manifest whose linked lyric is not a TTML file or path is unsafe", () => {
+		expect(
+			isProjectManifest(
+				manifest({
+					lyricPath: "C:/Lyrics/song.lrc",
+					audioPath: "D:/Audio/song.flac",
+				}),
+			),
+		).toBe(false);
+		expect(
+			isProjectManifest(
+				manifest({ lyricPath: "song.ttml", audioPath: "D:/Audio/song.flac" }),
+			),
+		).toBe(false);
+		expect(isProjectManifest(manifest("C:/Lyrics/song.ttml"))).toBe(false);
+	});
+
+	it("validates linked paths on recent project entries", () => {
+		const entry = {
+			dir: "C:/AppData/projects/abc",
+			name: "Song",
+			audioFile: "song.flac",
+			lyricFile: "song.ttml",
+			lastOpened: 1,
+		};
+		expect(
+			isRecentProjectEntry({
+				...entry,
+				linked: {
+					lyricPath: "C:/Lyrics/song.ttml",
+					audioPath: "D:/Audio/song.flac",
+				},
+			}),
+		).toBe(true);
+		expect(
+			isRecentProjectEntry({
+				...entry,
+				linked: { lyricPath: "../song.ttml", audioPath: "D:/Audio/song.flac" },
+			}),
+		).toBe(false);
 	});
 });
 

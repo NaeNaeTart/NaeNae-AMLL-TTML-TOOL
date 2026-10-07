@@ -36,6 +36,10 @@ tauri-plugin-persisted-scope = "2"
 tauri-plugin-updater = "2.9.0"
 tauri-plugin-window-state = "2"
 
+[target.'cfg(windows)'.dependencies]
+webview2-com = "0.38"
+windows = "0.61"
+
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }

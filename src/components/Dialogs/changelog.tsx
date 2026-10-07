@@ -60,6 +60,12 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
+									<strong>Linked Projects:</strong> When the app offers to create a project, choose Keep files in place to leave your TTML and audio where they are. The project only stores their locations, and reopening works from Projects. Nothing is written on linking or autosave: only an explicit save writes the TTML back to the original file, after keeping a one-time backup of the original in the project's data folder.
+								</Text>
+								<Text size="2">
+									<strong>Projects Window:</strong> Added a Linked tab with an Open projects folder button, a search field for Recent, Linked, and Workspace projects, and labels that show whether a project is a folder or linked files.
+								</Text>
+								<Text size="2">
 									<strong>Spectrogram Divider Styling:</strong> Decluttered
 									touching dividers when adjacent lyric lines meet by shortening
 									handle indicators and removing corner notches for seamless

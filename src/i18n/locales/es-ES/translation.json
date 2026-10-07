@@ -99,7 +99,9 @@
       "title": "¿Crear un proyecto?",
       "description": "Guarda el audio y la letra juntos en una carpeta de proyecto.",
       "ignore": "Ignorar",
-      "create": "Crear"
+      "create": "Crear carpeta",
+      "link": "Mantener archivos en su sitio",
+      "linkDescription": "O deja los archivos donde están: el proyecto solo recuerda sus ubicaciones y solo un guardado explícito escribe el TTML en su archivo original."
     },
     "mp3Conversion": {
       "title": "Convert MP3 to FLAC?",
@@ -111,7 +113,47 @@
       "converting": "Converting MP3 to FLAC...",
       "success": "Conversion successful",
       "failed": "Conversion failed: {error}"
+    },
+    "linkProject": {
+      "audioTitle": "Selecciona el archivo de audio que cargaste",
+      "lyricTitle": "Elige el archivo TTML en el que guardará este proyecto"
     }
+  },
+  "projectsDialog": {
+    "title": "Proyectos",
+    "tabProject": "Proyecto",
+    "tabRecent": "Recientes",
+    "tabWorkspace": "Espacio de trabajo",
+    "tabLinked": "Vinculados",
+    "linkedHint": "Proyectos que conservan su TTML y su audio en sus carpetas originales. Crea uno eligiendo Mantener archivos en su sitio cuando la app ofrezca crear un proyecto.",
+    "noLinked": "Aún no hay proyectos vinculados",
+    "createNew": "Nuevo proyecto",
+    "folderBadge": "Carpeta de proyecto",
+    "linkedBadge": "Archivos vinculados",
+    "openFolder": "Abrir carpeta",
+    "openLinkedFolder": "Abrir carpeta de proyectos",
+    "save": "Guardar",
+    "browse": "Explorar…",
+    "loading": "Cargando…",
+    "noRecent": "Sin proyectos recientes",
+    "noProject": "No hay ningún proyecto abierto",
+    "noMatches": "Ningún proyecto coincide con la búsqueda",
+    "searchPlaceholder": "Buscar por nombre o ubicación",
+    "removeLinkTitle": "¿Quitar proyecto vinculado?",
+    "removeLinkDescription": "La entrada del proyecto se elimina de la app. Tus archivos TTML y de audio no se borran."
+  },
+  "projectBrowser": {
+    "fileMissing": "{file} (falta)",
+    "noAudio": "Sin audio",
+    "noLyric": "Sin letra"
+  },
+  "workspace": {
+    "empty": "No se encontraron proyectos. Selecciona una carpeta de espacio de trabajo para escanear.",
+    "foundCount": "{count} proyecto(s) encontrados",
+    "importable": "Importable",
+    "scanning": "Escaneando…",
+    "selectFolder": "Seleccionar carpeta de espacio de trabajo…",
+    "unknown": "Desconocido"
   },
   "ribbonBar": {
     "editMode": {
@@ -671,7 +713,9 @@
   "error": {
     "unsupportedFileFormat": "Unsupported file format: {ext}",
     "openFileFailed": "Failed to open file",
-    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing."
+    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing.",
+    "linkedProjectInvalidPath": "Los archivos seleccionados no se pueden vincular. Elige un archivo .ttml y un archivo de audio en una unidad local. Los recursos compartidos de red no son compatibles.",
+    "linkedProjectBackupFailed": "No se pudo hacer una copia de seguridad del archivo TTML original, así que no se sobrescribió"
   },
   "audio": {
     "marker": "Marker",

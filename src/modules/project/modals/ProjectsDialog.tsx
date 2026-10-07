@@ -3,8 +3,10 @@ import {
 	DeleteRegular,
 	DocumentRegular,
 	FolderOpenRegular,
+	LinkRegular,
 	MusicNote1Regular,
 	SaveRegular,
+	SearchRegular,
 } from "@fluentui/react-icons";
 import {
 	Badge,
@@ -19,9 +21,15 @@ import {
 	Text,
 	TextField,
 } from "@radix-ui/themes";
-import { useAtom, useAtomValue } from "jotai";
+import { invoke, isTauri } from "@tauri-apps/api/core";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+	type LinkedProjectEntry,
+	listLinkedProjects,
+	removeLinkedProject,
+} from "$/modules/project/folder-project/linked-projects";
 import {
 	getRecentProjectFileStatus,
 	getRecentProjects,
@@ -38,16 +46,73 @@ import {
 	workspaceScanningAtom,
 } from "$/modules/project/folder-project/state";
 import { useFolderProject } from "$/modules/project/folder-project/useFolderProject";
-import { projectsDialogAtom } from "$/states/dialogs";
+import { confirmDialogAtom, projectsDialogAtom } from "$/states/dialogs";
 import { lyricLinesAtom } from "$/states/main";
+import { error as logError } from "$/utils/logging";
 import styles from "./ProjectsDialog.module.css";
 
-type Tab = "project" | "recent" | "workspace";
+type Tab = "project" | "recent" | "linked" | "workspace";
+const RelativeTime = ({ timestamp }: { timestamp: number }) => {
+	const { t } = useTranslation();
+	if (timestamp === 0) return t("workspace.unknown", "Unknown");
+	const diff = Date.now() - timestamp;
+	const minutes = Math.floor(diff / 60000);
+	const hours = Math.floor(minutes / 60);
+	const days = Math.floor(hours / 24);
+	if (days > 0) return t("time.daysAgo", "{count}d ago", { count: days });
+	if (hours > 0) return t("time.hoursAgo", "{count}h ago", { count: hours });
+	if (minutes > 0)
+		return t("time.minutesAgo", "{count}m ago", { count: minutes });
+	return t("time.justNow", "just now");
+};
+
+const matchesQuery = (query: string, ...fields: (string | undefined)[]) => {
+	const needle = query.trim().toLowerCase();
+	return (
+		!needle || fields.some((field) => field?.toLowerCase().includes(needle))
+	);
+};
+
+const FileBadge = ({
+	kind,
+	name,
+	missing,
+}: {
+	kind: "lyric" | "audio";
+	name: string;
+	missing: boolean;
+}) => {
+	const { t } = useTranslation();
+	const Icon = kind === "lyric" ? DocumentRegular : MusicNote1Regular;
+	return (
+		<Badge variant="soft" color={missing ? "red" : undefined}>
+			<Icon fontSize={10} />{" "}
+			{name
+				? missing
+					? t("projectBrowser.fileMissing", "{file} (missing)", { file: name })
+					: name
+				: kind === "lyric"
+					? t("projectBrowser.noLyric", "No lyrics")
+					: t("projectBrowser.noAudio", "No audio")}
+		</Badge>
+	);
+};
+
+const LinkedBadge = () => {
+	const { t } = useTranslation();
+	return (
+		<Badge variant="soft" color="iris">
+			<LinkRegular fontSize={10} />{" "}
+			{t("projectsDialog.linkedBadge", "Linked files")}
+		</Badge>
+	);
+};
 
 export const ProjectsDialog = () => {
 	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useAtom(projectsDialogAtom);
 	const [activeTab, setActiveTab] = useState<Tab>("project");
+	const [query, setQuery] = useState("");
 
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -73,20 +138,42 @@ export const ProjectsDialog = () => {
 						<Tabs.Trigger value="recent" className={styles.tabTrigger}>
 							{t("projectsDialog.tabRecent", "Recent")}
 						</Tabs.Trigger>
+						<Tabs.Trigger value="linked" className={styles.tabTrigger}>
+							{t("projectsDialog.tabLinked", "Linked")}
+						</Tabs.Trigger>
 						<Tabs.Trigger value="workspace" className={styles.tabTrigger}>
 							{t("projectsDialog.tabWorkspace", "Workspace")}
 						</Tabs.Trigger>
 					</Tabs.List>
+
+					{activeTab !== "project" && (
+						<TextField.Root
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							placeholder={t(
+								"projectsDialog.searchPlaceholder",
+								"Search by name or location",
+							)}
+							mb="3"
+						>
+							<TextField.Slot>
+								<SearchRegular />
+							</TextField.Slot>
+						</TextField.Root>
+					)}
 
 					<Box style={{ flexGrow: 1, overflow: "hidden", minHeight: 420 }}>
 						<Tabs.Content value="project" className={styles.tabContent}>
 							<ProjectTab onClose={() => setIsOpen(false)} />
 						</Tabs.Content>
 						<Tabs.Content value="recent" className={styles.tabContent}>
-							<RecentTab onClose={() => setIsOpen(false)} />
+							<RecentTab query={query} onClose={() => setIsOpen(false)} />
+						</Tabs.Content>
+						<Tabs.Content value="linked" className={styles.tabContent}>
+							<LinkedTab query={query} onClose={() => setIsOpen(false)} />
 						</Tabs.Content>
 						<Tabs.Content value="workspace" className={styles.tabContent}>
-							<WorkspaceTab onClose={() => setIsOpen(false)} />
+							<WorkspaceTab query={query} onClose={() => setIsOpen(false)} />
 						</Tabs.Content>
 					</Box>
 				</Tabs.Root>
@@ -111,6 +198,7 @@ const ProjectTab = ({ onClose }: { onClose: () => void }) => {
 
 	const hasAudio = projectAudioFile !== null || Boolean(manifest?.audioFile);
 	const hasLyric = lyricLines.lyricLines.length > 0;
+	const linked = manifest?.linked;
 
 	const handleSave = useCallback(async () => {
 		const trimmed = projectName.trim();
@@ -174,6 +262,19 @@ const ProjectTab = ({ onClose }: { onClose: () => void }) => {
 					v{manifest?.version || 1}
 				</Badge>
 			</Flex>
+			<Flex gap="2" align="center" wrap="wrap">
+				{linked ? (
+					<LinkedBadge />
+				) : (
+					<Badge variant="soft" color="gray">
+						<FolderOpenRegular fontSize={10} />{" "}
+						{t("projectsDialog.folderBadge", "Project folder")}
+					</Badge>
+				)}
+				<Text size="1" color="gray" truncate>
+					{activeDir}
+				</Text>
+			</Flex>
 			<Flex gap="2" wrap="wrap">
 				<Badge
 					variant="soft"
@@ -205,6 +306,16 @@ const ProjectTab = ({ onClose }: { onClose: () => void }) => {
 					</Badge>
 				)}
 			</Flex>
+			{linked && (
+				<Flex direction="column" gap="1">
+					<Text size="1" color="gray" truncate>
+						<DocumentRegular fontSize={10} /> {linked.lyricPath}
+					</Text>
+					<Text size="1" color="gray" truncate>
+						<MusicNote1Regular fontSize={10} /> {linked.audioPath}
+					</Text>
+				</Flex>
+			)}
 			<Flex justify="end" gap="2">
 				<Button variant="soft" onClick={handleBrowse}>
 					<FolderOpenRegular /> {t("projectsDialog.browse", "Browse...")}
@@ -223,7 +334,13 @@ const ProjectTab = ({ onClose }: { onClose: () => void }) => {
 	);
 };
 
-const RecentTab = ({ onClose }: { onClose: () => void }) => {
+const RecentTab = ({
+	query,
+	onClose,
+}: {
+	query: string;
+	onClose: () => void;
+}) => {
 	const { t } = useTranslation();
 	const [projects, setProjects] = useState<RecentProjectEntry[]>([]);
 	const [fileStatus, setFileStatus] = useState<
@@ -275,29 +392,29 @@ const RecentTab = ({ onClose }: { onClose: () => void }) => {
 		[loadProjects],
 	);
 
-	const formatRelativeTime = (timestamp: number) => {
-		const diff = Date.now() - timestamp;
-		const minutes = Math.floor(diff / 60000);
-		const hours = Math.floor(minutes / 60);
-		const days = Math.floor(hours / 24);
-		if (days > 0) return t("time.daysAgo", "{count}d ago", { count: days });
-		if (hours > 0) return t("time.hoursAgo", "{count}h ago", { count: hours });
-		if (minutes > 0)
-			return t("time.minutesAgo", "{count}m ago", { count: minutes });
-		return t("time.justNow", "just now");
-	};
+	const visible = projects.filter((p) =>
+		matchesQuery(
+			query,
+			p.name,
+			p.dir,
+			p.linked?.lyricPath,
+			p.linked?.audioPath,
+		),
+	);
 
 	return (
 		<ScrollArea type="auto" scrollbars="vertical" style={{ flexGrow: 1 }}>
 			<Flex direction="column" gap="2" pr="3">
-				{projects.length === 0 ? (
+				{visible.length === 0 ? (
 					<Text size="2" color="gray" align="center" my="4" as="div">
 						{loading
 							? t("projectsDialog.loading", "Loading...")
-							: t("projectsDialog.noRecent", "No recent projects")}
+							: projects.length > 0
+								? t("projectsDialog.noMatches", "No projects match your search")
+								: t("projectsDialog.noRecent", "No recent projects")}
 					</Text>
 				) : (
-					projects.map((p) => {
+					visible.map((p) => {
 						const status = fileStatus[p.dir];
 						const lyricMissing = status ? !status.lyricFileExists : false;
 						const audioMissing = status ? !status.audioFileExists : false;
@@ -318,43 +435,26 @@ const RecentTab = ({ onClose }: { onClose: () => void }) => {
 											{p.name}
 										</Text>
 										<Text size="1" color="gray" truncate>
-											{p.dir}
+											{p.linked?.lyricPath ?? p.dir}
 										</Text>
 										<Flex gap="2" mt="1" wrap="wrap">
-											<Badge
-												variant="soft"
-												color={lyricMissing ? "red" : undefined}
-											>
-												<DocumentRegular fontSize={10} />{" "}
-												{p.lyricFile
-													? lyricMissing
-														? t(
-																"projectBrowser.fileMissing",
-																"{file} (missing)",
-																{ file: p.lyricFile },
-															)
-														: p.lyricFile
-													: t("projectBrowser.noLyric", "No lyrics")}
-											</Badge>
-											<Badge
-												variant="soft"
-												color={audioMissing ? "red" : undefined}
-											>
-												<MusicNote1Regular fontSize={10} />{" "}
-												{p.audioFile
-													? audioMissing
-														? t(
-																"projectBrowser.fileMissing",
-																"{file} (missing)",
-																{ file: p.audioFile },
-															)
-														: p.audioFile
-													: t("projectBrowser.noAudio", "No audio")}
-											</Badge>
+											{p.linked && <LinkedBadge />}
+											<FileBadge
+												kind="lyric"
+												name={p.lyricFile}
+												missing={lyricMissing}
+											/>
+											<FileBadge
+												kind="audio"
+												name={p.audioFile}
+												missing={audioMissing}
+											/>
 											<Flex gap="1" align="center">
 												<ClockRegular fontSize={10} />
 												<Text size="1" color="gray">
-													{formatRelativeTime(p.updatedAt ?? p.lastOpened)}
+													<RelativeTime
+														timestamp={p.updatedAt ?? p.lastOpened}
+													/>
 												</Text>
 											</Flex>
 										</Flex>
@@ -377,7 +477,220 @@ const RecentTab = ({ onClose }: { onClose: () => void }) => {
 	);
 };
 
-const WorkspaceTab = ({ onClose }: { onClose: () => void }) => {
+const LinkedTab = ({
+	query,
+	onClose,
+}: {
+	query: string;
+	onClose: () => void;
+}) => {
+	const { t } = useTranslation();
+	const activeDir = useAtomValue(activeProjectDirAtom);
+	const setConfirmDialog = useSetAtom(confirmDialogAtom);
+	const [projects, setProjects] = useState<LinkedProjectEntry[]>([]);
+	const [fileStatus, setFileStatus] = useState<
+		Record<string, RecentProjectFileStatus | null>
+	>({});
+	const [loading, setLoading] = useState(false);
+	const { openProjectFromDir } = useFolderProject();
+
+	const loadProjects = useCallback(async () => {
+		setLoading(true);
+		try {
+			const list = await listLinkedProjects();
+			setProjects(list);
+			const statuses = await Promise.all(
+				list.map(({ dir, manifest }) =>
+					getRecentProjectFileStatus({
+						dir,
+						name: manifest.name,
+						audioFile: manifest.audioFile,
+						lyricFile: manifest.lyricFile,
+						lastOpened: 0,
+						linked: manifest.linked,
+					}),
+				),
+			);
+			setFileStatus(
+				Object.fromEntries(list.map((p, i) => [p.dir, statuses[i]])),
+			);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		loadProjects();
+	}, [loadProjects]);
+
+	useEffect(() => {
+		const handleFocus = () => loadProjects();
+		window.addEventListener("focus", handleFocus);
+		return () => window.removeEventListener("focus", handleFocus);
+	}, [loadProjects]);
+
+	const handleOpen = useCallback(
+		(dir: string) => {
+			onClose();
+			openProjectFromDir(dir);
+		},
+		[openProjectFromDir, onClose],
+	);
+
+	const handleRemove = useCallback(
+		(e: React.MouseEvent, entry: LinkedProjectEntry) => {
+			e.stopPropagation();
+			setConfirmDialog({
+				open: true,
+				title: t("projectsDialog.removeLinkTitle", "Remove linked project?"),
+				description: t(
+					"projectsDialog.removeLinkDescription",
+					"The project entry is removed from the app. Your TTML and audio files are not deleted.",
+				),
+				onConfirm: async () => {
+					try {
+						await removeLinkedProject(entry.dir);
+					} catch (err) {
+						logError("Failed to remove linked project", err);
+					}
+					await loadProjects();
+				},
+			});
+		},
+		[loadProjects, setConfirmDialog, t],
+	);
+
+	const visible = projects.filter(({ manifest }) =>
+		matchesQuery(
+			query,
+			manifest.name,
+			manifest.linked.lyricPath,
+			manifest.linked.audioPath,
+		),
+	);
+
+	return (
+		<Flex direction="column" gap="2" style={{ flexGrow: 1, minHeight: 0 }}>
+			<Flex justify="between" align="center" gap="3">
+				<Text size="1" color="gray" as="div">
+					{t(
+						"projectsDialog.linkedHint",
+						"Projects that keep their TTML and audio in their original folders. Create one by choosing Keep files in place when the app offers to create a project.",
+					)}
+				</Text>
+				{isTauri() && (
+					<Button
+						size="1"
+						variant="soft"
+						style={{ flexShrink: 0 }}
+						onClick={() =>
+							invoke("open_linked_projects_folder").catch((err) =>
+								logError("Failed to open the linked projects folder", err),
+							)
+						}
+					>
+						<FolderOpenRegular />
+						{t("projectsDialog.openLinkedFolder", "Open projects folder")}
+					</Button>
+				)}
+			</Flex>
+			<Box flexGrow="1" style={{ minHeight: 0, overflow: "hidden" }}>
+				<ScrollArea
+					type="auto"
+					scrollbars="vertical"
+					style={{ maxHeight: "46vh" }}
+				>
+					<Flex direction="column" gap="2" pr="3">
+						{visible.length === 0 ? (
+							<Text size="2" color="gray" align="center" my="4" as="div">
+								{loading
+									? t("projectsDialog.loading", "Loading...")
+									: projects.length > 0
+										? t(
+												"projectsDialog.noMatches",
+												"No projects match your search",
+											)
+										: t("projectsDialog.noLinked", "No linked projects yet")}
+							</Text>
+						) : (
+							visible.map((entry) => {
+								const { dir, manifest } = entry;
+								const status = fileStatus[dir];
+								return (
+									<Card
+										key={dir}
+										variant="surface"
+										onClick={() => handleOpen(dir)}
+										style={{ cursor: "pointer" }}
+									>
+										<Flex justify="between" align="center" gap="3">
+											<Flex
+												direction="column"
+												gap="1"
+												style={{ flexGrow: 1, overflow: "hidden" }}
+											>
+												<Text weight="bold" truncate>
+													{manifest.name}
+												</Text>
+												<Text size="1" color="gray" truncate>
+													{manifest.linked.lyricPath}
+												</Text>
+												<Text size="1" color="gray" truncate>
+													{manifest.linked.audioPath}
+												</Text>
+												<Flex gap="2" mt="1" wrap="wrap">
+													<FileBadge
+														kind="lyric"
+														name={manifest.lyricFile}
+														missing={status ? !status.lyricFileExists : false}
+													/>
+													<FileBadge
+														kind="audio"
+														name={manifest.audioFile}
+														missing={status ? !status.audioFileExists : false}
+													/>
+													<Flex gap="1" align="center">
+														<ClockRegular fontSize={10} />
+														<Text size="1" color="gray">
+															<RelativeTime
+																timestamp={manifest.updatedAt ?? 0}
+															/>
+														</Text>
+													</Flex>
+												</Flex>
+											</Flex>
+											<IconButton
+												size="1"
+												variant="ghost"
+												color="gray"
+												disabled={dir === activeDir}
+												aria-label={t(
+													"projectsDialog.removeLinkTitle",
+													"Remove linked project?",
+												)}
+												onClick={(e) => handleRemove(e, entry)}
+											>
+												<DeleteRegular />
+											</IconButton>
+										</Flex>
+									</Card>
+								);
+							})
+						)}
+					</Flex>
+				</ScrollArea>
+			</Box>
+		</Flex>
+	);
+};
+
+const WorkspaceTab = ({
+	query,
+	onClose,
+}: {
+	query: string;
+	onClose: () => void;
+}) => {
 	const { t } = useTranslation();
 	const [projects] = useAtom(workspaceProjectsAtom);
 	const [dir] = useAtom(workspaceDirAtom);
@@ -408,18 +721,9 @@ const WorkspaceTab = ({ onClose }: { onClose: () => void }) => {
 		void openWorkspace();
 	}, [openWorkspace]);
 
-	const formatRelativeTime = (timestamp: number) => {
-		if (timestamp === 0) return t("workspace.unknown", "Unknown");
-		const diff = Date.now() - timestamp;
-		const minutes = Math.floor(diff / 60000);
-		const hours = Math.floor(minutes / 60);
-		const days = Math.floor(hours / 24);
-		if (days > 0) return t("time.daysAgo", "{count}d ago", { count: days });
-		if (hours > 0) return t("time.hoursAgo", "{count}h ago", { count: hours });
-		if (minutes > 0)
-			return t("time.minutesAgo", "{count}m ago", { count: minutes });
-		return t("time.justNow", "just now");
-	};
+	const visible = projects.filter((project) =>
+		matchesQuery(query, project.name, project.dir),
+	);
 
 	return (
 		<Flex direction="column" gap="2" style={{ flexGrow: 1, minHeight: 0 }}>
@@ -438,17 +742,22 @@ const WorkspaceTab = ({ onClose }: { onClose: () => void }) => {
 					style={{ maxHeight: "46vh" }}
 				>
 					<Flex direction="column" gap="2" pr="3">
-						{projects.length === 0 ? (
+						{visible.length === 0 ? (
 							<Text size="2" color="gray" align="center" my="4" as="div">
 								{scanning
 									? t("workspace.scanning", "Scanning...")
-									: t(
-											"workspace.empty",
-											"No projects found. Select a workspace folder to scan.",
-										)}
+									: projects.length > 0
+										? t(
+												"projectsDialog.noMatches",
+												"No projects match your search",
+											)
+										: t(
+												"workspace.empty",
+												"No projects found. Select a workspace folder to scan.",
+											)}
 							</Text>
 						) : (
-							projects.map((project) => (
+							visible.map((project) => (
 								<Card
 									key={project.dir}
 									variant="surface"
@@ -491,7 +800,7 @@ const WorkspaceTab = ({ onClose }: { onClose: () => void }) => {
 											<Flex gap="1" align="center">
 												<ClockRegular fontSize={12} />
 												<Text size="1" color="gray">
-													{formatRelativeTime(project.updatedAt)}
+													<RelativeTime timestamp={project.updatedAt} />
 												</Text>
 											</Flex>
 										</Flex>

@@ -121,7 +121,9 @@
       "title": "Create a project?",
       "description": "Keep the audio and lyrics together in a project folder.",
       "ignore": "Ignore",
-      "create": "Create"
+      "create": "Create folder",
+      "link": "Keep files in place",
+      "linkDescription": "Or keep the files where they are: the project only remembers their locations, and only an explicit save writes the TTML back to its original file."
     },
     "mp3Conversion": {
       "title": "Convert MP3 to FLAC?",
@@ -133,7 +135,47 @@
       "converting": "Converting MP3 to FLAC...",
       "success": "Conversion successful",
       "failed": "Conversion failed: {error}"
+    },
+    "linkProject": {
+      "audioTitle": "Select the audio file you loaded",
+      "lyricTitle": "Choose the TTML file this project saves to"
     }
+  },
+  "projectsDialog": {
+    "title": "Projects",
+    "tabProject": "Project",
+    "tabRecent": "Recent",
+    "tabWorkspace": "Workspace",
+    "tabLinked": "Linked",
+    "linkedHint": "Projects that keep their TTML and audio in their original folders. Create one by choosing Keep files in place when the app offers to create a project.",
+    "noLinked": "No linked projects yet",
+    "createNew": "New Project",
+    "folderBadge": "Project folder",
+    "linkedBadge": "Linked files",
+    "openFolder": "Open Folder",
+    "openLinkedFolder": "Open projects folder",
+    "save": "Save",
+    "browse": "Browse...",
+    "loading": "Loading...",
+    "noRecent": "No recent projects",
+    "noProject": "No project is currently open",
+    "noMatches": "No projects match your search",
+    "searchPlaceholder": "Search by name or location",
+    "removeLinkTitle": "Remove linked project?",
+    "removeLinkDescription": "The project entry is removed from the app. Your TTML and audio files are not deleted."
+  },
+  "projectBrowser": {
+    "fileMissing": "{file} (missing)",
+    "noAudio": "No audio",
+    "noLyric": "No lyrics"
+  },
+  "workspace": {
+    "empty": "No projects found. Select a workspace folder to scan.",
+    "foundCount": "{count} project(s) found",
+    "importable": "Importable",
+    "scanning": "Scanning...",
+    "selectFolder": "Select workspace folder...",
+    "unknown": "Unknown"
   },
   "ribbonBar": {
     "editMode": {
@@ -729,7 +771,9 @@
   "error": {
     "unsupportedFileFormat": "Unsupported file format: {ext}",
     "openFileFailed": "Failed to open file",
-    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing."
+    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing.",
+    "linkedProjectInvalidPath": "The selected files cannot be linked. Choose a .ttml file and an audio file on a local drive. Network shares are not supported.",
+    "linkedProjectBackupFailed": "Could not back up the original TTML file, so it was not overwritten"
   },
   "audio": {
     "marker": "Marker",

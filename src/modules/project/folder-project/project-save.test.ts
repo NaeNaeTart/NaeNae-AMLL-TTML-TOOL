@@ -9,9 +9,10 @@ const atoms = vi.hoisted(() => ({
 	markLyricsSavedAtom: { name: "markSaved" },
 }));
 const fs = vi.hoisted(() => ({
-	exists: vi.fn(async () => true),
+	exists: vi.fn(async (_path: string) => true),
 	mkdir: vi.fn(),
 	readDir: vi.fn(async () => [] as { name: string }[]),
+	readTextFile: vi.fn(async () => "original-ttml"),
 	remove: vi.fn(),
 	writeTextFile: vi.fn(),
 }));
@@ -45,9 +46,16 @@ vi.mock("$/states/main", () => ({
 	startFreshLyricDocumentAtom: {},
 }));
 vi.mock("$/utils/logging", () => ({ error: vi.fn(), log: vi.fn() }));
-vi.mock("./audio-io", () => ({ writeProjectAudioFile: vi.fn() }));
+const audioIo = vi.hoisted(() => ({ writeProjectAudioFile: vi.fn() }));
+vi.mock("./audio-io", () => audioIo);
 vi.mock("./lyric-io", () => lyricIo);
-vi.mock("./project-folder-sync", () => ({ syncProjectFolderName: vi.fn() }));
+vi.mock("./project-folder-sync", () => ({
+	splitDirPath: (path: string) => ({
+		parent: path.slice(0, path.lastIndexOf("/")),
+		base: path.slice(path.lastIndexOf("/") + 1),
+	}),
+	syncProjectFolderName: vi.fn(),
+}));
 vi.mock("./project-naming", () => ({ getSongInfo: () => ({}) }));
 vi.mock("./project-open", () => ({ loadProjectFromDir: vi.fn() }));
 vi.mock("./recent-projects", () => ({ upsertRecentProject: vi.fn() }));
@@ -149,5 +157,113 @@ describe("folder project saves", () => {
 		expect(store.get(atoms.activeProjectManifestAtom)).toMatchObject({
 			name: "Artist - Title",
 		});
+	});
+
+	it("writes a linked project's lyrics back to the original file", async () => {
+		const store = makeStore({
+			...baseManifest,
+			audioFile: "song.flac",
+			lyricFile: "song.ttml",
+			linked: {
+				lyricPath: "D:/Lyrics/song.ttml",
+				audioPath: "E:/Audio/song.flac",
+			},
+		});
+		store.set(atoms.projectAudioFileAtom, new File(["a"], "song.flac"));
+		expect(await saveProject(store as never, (k) => k)).toBe(true);
+		expect(lyricIo.writeProjectLyricFile).toHaveBeenCalledWith(
+			"D:/Lyrics",
+			"song.ttml",
+			"<tt/>",
+		);
+		expect(audioIo.writeProjectAudioFile).not.toHaveBeenCalled();
+		expect(fs.remove).not.toHaveBeenCalled();
+		expect(fs.writeTextFile).toHaveBeenCalledWith(
+			"C:/Music/Song/project.json",
+			expect.any(String),
+		);
+		expect(store.set).toHaveBeenCalledWith(atoms.markLyricsSavedAtom, lyric);
+	});
+
+	it("never writes a linked file on autosave", async () => {
+		const store = makeStore({
+			...baseManifest,
+			lyricFile: "song.ttml",
+			linked: {
+				lyricPath: "D:/Lyrics/song.ttml",
+				audioPath: "E:/Audio/song.flac",
+			},
+		});
+		expect(
+			await saveLyricsOnly(store as never, (k) => k, { silent: true }),
+		).toBe(false);
+		expect(lyricIo.writeProjectLyricFile).not.toHaveBeenCalled();
+		expect(fs.writeTextFile).not.toHaveBeenCalled();
+	});
+
+	it("backs up the original linked file into the project folder before the first explicit save", async () => {
+		fs.exists.mockImplementation(
+			async (p: string) => !String(p).endsWith(".bak"),
+		);
+		const store = makeStore({
+			...baseManifest,
+			audioFile: "song.flac",
+			lyricFile: "song.ttml",
+			linked: {
+				lyricPath: "D:/Lyrics/song.ttml",
+				audioPath: "E:/Audio/song.flac",
+			},
+		});
+		expect(await saveProject(store as never, (k) => k)).toBe(true);
+		expect(fs.writeTextFile).toHaveBeenCalledWith(
+			"C:/Music/Song/original.ttml.bak",
+			"original-ttml",
+		);
+		expect(lyricIo.writeProjectLyricFile).toHaveBeenCalledWith(
+			"D:/Lyrics",
+			"song.ttml",
+			"<tt/>",
+		);
+	});
+
+	it("does not overwrite the linked file when the backup fails", async () => {
+		fs.exists.mockImplementation(
+			async (p: string) => !String(p).endsWith(".bak"),
+		);
+		fs.readTextFile.mockRejectedValueOnce(new Error("forbidden path"));
+		const store = makeStore({
+			...baseManifest,
+			audioFile: "song.flac",
+			lyricFile: "song.ttml",
+			linked: {
+				lyricPath: "D:/Lyrics/song.ttml",
+				audioPath: "E:/Audio/song.flac",
+			},
+		});
+		expect(await saveProject(store as never, (k) => k)).toBe(false);
+		expect(lyricIo.writeProjectLyricFile).not.toHaveBeenCalled();
+	});
+
+	it("skips the backup when the linked file does not exist yet", async () => {
+		fs.exists.mockResolvedValue(false);
+		const store = makeStore({
+			...baseManifest,
+			audioFile: "song.flac",
+			lyricFile: "song.ttml",
+			linked: {
+				lyricPath: "D:/Lyrics/song.ttml",
+				audioPath: "E:/Audio/song.flac",
+			},
+		});
+		expect(await saveProject(store as never, (k) => k)).toBe(true);
+		expect(fs.writeTextFile).not.toHaveBeenCalledWith(
+			"C:/Music/Song/original.ttml.bak",
+			expect.anything(),
+		);
+		expect(lyricIo.writeProjectLyricFile).toHaveBeenCalledWith(
+			"D:/Lyrics",
+			"song.ttml",
+			"<tt/>",
+		);
 	});
 });

@@ -23,3 +23,10 @@ export const workspaceDirAtom = atomWithStorage<string | null>(
 );
 
 export const workspaceScanningAtom = atom(false);
+
+export const pendingAudioPathAtom = atom<string | null>(null);
+
+export const pendingLyricSourceAtom = atom<{
+	path: string;
+	lineIds: string[];
+} | null>(null);

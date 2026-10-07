@@ -2,6 +2,7 @@ import { Button, Dialog, Flex, Text } from "@radix-ui/themes";
 import { useAtomValue, useStore } from "jotai";
 import { useTranslation } from "react-i18next";
 import {
+	createLinkedProjectFromCurrent,
 	createProjectFromCurrent,
 	dismissCreateProjectPrompt,
 } from "$/modules/project/folder-project/project-create";
@@ -20,7 +21,7 @@ export const CreateProjectPromptDialog = () => {
 				if (!next) dismissCreateProjectPrompt(store);
 			}}
 		>
-			<Dialog.Content maxWidth="400px">
+			<Dialog.Content maxWidth="460px">
 				<Dialog.Title>
 					{t("dialog.createProjectPrompt.title", "Create a project?")}
 				</Dialog.Title>
@@ -30,7 +31,13 @@ export const CreateProjectPromptDialog = () => {
 						"Keep the audio and lyrics together in a project folder.",
 					)}
 				</Text>
-				<Flex gap="3" justify="end">
+				<Text as="p" size="2" color="gray" mb="3">
+					{t(
+						"dialog.createProjectPrompt.linkDescription",
+						"Or keep the files where they are: the project only remembers their locations, and only an explicit save writes the TTML back to its original file.",
+					)}
+				</Text>
+				<Flex gap="3" justify="end" wrap="wrap">
 					<Button
 						variant="soft"
 						color="gray"
@@ -38,8 +45,14 @@ export const CreateProjectPromptDialog = () => {
 					>
 						{t("dialog.createProjectPrompt.ignore", "Ignore")}
 					</Button>
+					<Button
+						variant="soft"
+						onClick={() => void createLinkedProjectFromCurrent(store, t)}
+					>
+						{t("dialog.createProjectPrompt.link", "Keep files in place")}
+					</Button>
 					<Button onClick={() => void createProjectFromCurrent(store, t)}>
-						{t("dialog.createProjectPrompt.create", "Create")}
+						{t("dialog.createProjectPrompt.create", "Create folder")}
 					</Button>
 				</Flex>
 			</Dialog.Content>

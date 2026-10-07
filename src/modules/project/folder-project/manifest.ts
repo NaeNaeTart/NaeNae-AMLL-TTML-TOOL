@@ -1,4 +1,5 @@
 import {
+	type LinkedProjectFiles,
 	PROJECT_MANIFEST_APP_ID,
 	PROJECT_MANIFEST_FILENAME,
 	type ProjectManifest,
@@ -123,6 +124,33 @@ export function assertSafePath(baseDir: string, relativePath: string): string {
 	return targetPath;
 }
 
+export function isSafeLinkedPath(path: unknown): path is string {
+	if (typeof path !== "string" || path.length === 0 || path.length > 4096) {
+		return false;
+	}
+	if (!/^[a-zA-Z]:[\\/]/.test(path) && !/^\/(?!\/)/.test(path)) return false;
+	if (/[\\/]$/.test(path)) return false;
+	for (let i = 0; i < path.length; i++) {
+		const code = path.charCodeAt(i);
+		if (code < 32 || code === 127) return false;
+	}
+	const segments = path.replace(/\\/g, "/").split("/").filter(Boolean);
+	if (segments.some((seg) => seg === "." || seg === "..")) return false;
+	return isSafeProjectFileName(segments[segments.length - 1] ?? "");
+}
+
+export function isLinkedProjectFiles(
+	value: unknown,
+): value is LinkedProjectFiles {
+	if (!value || typeof value !== "object") return false;
+	const v = value as Record<string, unknown>;
+	return (
+		isSafeLinkedPath(v.lyricPath) &&
+		getFileExtension(v.lyricPath) === "ttml" &&
+		isSafeLinkedPath(v.audioPath)
+	);
+}
+
 export function isProjectManifest(value: unknown): value is ProjectManifest {
 	if (!value || typeof value !== "object") return false;
 	const v = value as Record<string, unknown>;
@@ -166,6 +194,9 @@ export function isProjectManifest(value: unknown): value is ProjectManifest {
 		return false;
 	}
 	if (v.nameEdited !== undefined && typeof v.nameEdited !== "boolean") {
+		return false;
+	}
+	if (v.linked !== undefined && !isLinkedProjectFiles(v.linked)) {
 		return false;
 	}
 	if (v.song !== undefined) {

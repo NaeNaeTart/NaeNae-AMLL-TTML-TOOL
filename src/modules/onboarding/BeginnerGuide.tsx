@@ -27,6 +27,7 @@ import {
 	ImportSourceCards,
 	type ImportSourceId,
 } from "$/modules/lyrics-import/components/ImportSourceCards";
+import { AUDIO_EXTS } from "$/modules/project/folder-project/audio-io";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
 import {
 	allowConsecutiveBackgroundLinesAtom,
@@ -48,6 +49,7 @@ import {
 	ToolMode,
 	toolModeAtom,
 } from "$/states/main";
+import { LYRIC_FILE_FILTERS, openFileWithDialog } from "$/utils/fileDialog";
 import { saveFile } from "$/utils/fileSystem";
 import {
 	GUIDE_STEP_IDS,
@@ -202,18 +204,12 @@ export const BeginnerGuide = () => {
 	}, [setExported, setPanelOpen, setStep, setWelcomeOpen]);
 
 	const openExisting = useCallback(() => {
-		const input = document.createElement("input");
-		input.type = "file";
-		input.accept = ".ttml,*/*";
-		input.addEventListener(
-			"change",
-			() => {
-				const file = input.files?.[0];
-				if (file) openFile(file);
-			},
-			{ once: true },
-		);
-		input.click();
+		void openFileWithDialog({
+			multiple: false,
+			filters: LYRIC_FILE_FILTERS,
+		}).then((file) => {
+			if (file && !Array.isArray(file)) openFile(file);
+		});
 		setCompletion("dismissed");
 		setWelcomeOpen(false);
 	}, [openFile, setCompletion, setWelcomeOpen]);
@@ -229,19 +225,17 @@ export const BeginnerGuide = () => {
 		return false;
 	}, [duration, exported, lyrics, step]);
 
-	const pickAudio = useCallback(() => {
-		const input = document.createElement("input");
-		input.type = "file";
-		input.accept = "audio/*,*/*";
-		input.addEventListener(
-			"change",
-			() => {
-				const file = input.files?.[0];
-				if (file) openFile(file);
-			},
-			{ once: true },
-		);
-		input.click();
+	const pickAudio = useCallback(async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: [
+				{
+					name: "Audio",
+					extensions: [...AUDIO_EXTS],
+				},
+			],
+		});
+		if (file && !Array.isArray(file)) openFile(file);
 	}, [openFile]);
 
 	const openImportSource = useCallback(

@@ -30,7 +30,7 @@ import {
 	isProjectManifest,
 	isSafeProjectFileName,
 } from "./manifest";
-import { resolveManifestFiles } from "./project-folder-sync";
+import { resolveManifestFiles, splitDirPath } from "./project-folder-sync";
 import { getSongInfo } from "./project-naming";
 import { upsertRecentProject } from "./recent-projects";
 import {
@@ -129,16 +129,25 @@ export async function loadProjectFromDir(
 		return false;
 	}
 
-	const validManifest: ProjectManifest = await resolveManifestFiles(
-		dir,
-		parsedManifest,
-	);
+	const linked = parsedManifest.linked;
+	const validManifest: ProjectManifest = linked
+		? parsedManifest
+		: await resolveManifestFiles(dir, parsedManifest);
+	const lyricLocation = linked
+		? splitDirPath(linked.lyricPath)
+		: { parent: dir, base: validManifest.lyricFile };
+	const audioLocation = linked
+		? splitDirPath(linked.audioPath)
+		: { parent: dir, base: validManifest.audioFile };
 
 	const lyricFileName = validManifest.lyricFile;
 	let lyricData: TTMLLyric = { lyricLines: [], metadata: [] };
 	if (lyricFileName) {
 		try {
-			lyricData = await readProjectLyricFile(dir, lyricFileName);
+			lyricData = await readProjectLyricFile(
+				lyricLocation.parent,
+				lyricLocation.base,
+			);
 		} catch (e) {
 			logError(`Failed to load lyric file: ${lyricFileName}`, e);
 			toast.error(
@@ -158,7 +167,10 @@ export async function loadProjectFromDir(
 	let audioFile: File | null = null;
 	if (validManifest.audioFile) {
 		try {
-			audioFile = await loadProjectAudioFile(dir, validManifest.audioFile);
+			audioFile = await loadProjectAudioFile(
+				audioLocation.parent,
+				audioLocation.base,
+			);
 			if (!audioFile) {
 				toast.warning(
 					t(
@@ -193,7 +205,7 @@ export async function loadProjectFromDir(
 
 	store.set(activeProjectDirAtom, dir);
 	store.set(activeProjectManifestAtom, nextManifest);
-	await rememberProjectWorkspace(store, dir);
+	if (!linked) await rememberProjectWorkspace(store, dir);
 
 	if (audioFile) {
 		try {
@@ -222,6 +234,7 @@ export async function loadProjectFromDir(
 		lyricFile: nextManifest.lyricFile,
 		lastOpened: Date.now(),
 		updatedAt: nextManifest.updatedAt,
+		linked: nextManifest.linked,
 	});
 	return true;
 }

@@ -83,3 +83,7 @@ identifier = "fs:allow-remove"
 
 [[permissions]]
 identifier = "fs:allow-rename"
+
+[[permissions]]
+identifier = "fs:scope"
+allow = [{ path = "$APPDATA/projects" }, { path = "$APPDATA/projects/**" }]
