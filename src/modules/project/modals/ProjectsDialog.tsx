@@ -25,6 +25,11 @@ import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+import {
+	getLinkedBackupInfo,
+	type LinkedBackupInfo,
+} from "$/modules/project/folder-project/linked-backup";
 import {
 	type LinkedProjectEntry,
 	listLinkedProjects,
@@ -491,6 +496,7 @@ const LinkedTab = ({
 	const [fileStatus, setFileStatus] = useState<
 		Record<string, RecentProjectFileStatus | null>
 	>({});
+	const [backups, setBackups] = useState<Record<string, LinkedBackupInfo>>({});
 	const [loading, setLoading] = useState(false);
 	const { openProjectFromDir } = useFolderProject();
 
@@ -514,6 +520,12 @@ const LinkedTab = ({
 			setFileStatus(
 				Object.fromEntries(list.map((p, i) => [p.dir, statuses[i]])),
 			);
+			const backupInfos = await Promise.all(
+				list.map(({ dir }) => getLinkedBackupInfo(dir)),
+			);
+			setBackups(
+				Object.fromEntries(list.map((p, i) => [p.dir, backupInfos[i]])),
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -535,6 +547,17 @@ const LinkedTab = ({
 			openProjectFromDir(dir);
 		},
 		[openProjectFromDir, onClose],
+	);
+
+	const handleOpenBackupDir = useCallback(
+		(e: React.MouseEvent, dir: string) => {
+			e.stopPropagation();
+			invoke("open_linked_project_dir", { dir }).catch((err) => {
+				logError("Failed to open the linked project folder", err);
+				toast.error(t("error.openFolderFailed", "Could not open the folder"));
+			});
+		},
+		[t],
 	);
 
 	const handleRemove = useCallback(
@@ -616,6 +639,7 @@ const LinkedTab = ({
 							visible.map((entry) => {
 								const { dir, manifest } = entry;
 								const status = fileStatus[dir];
+								const backup = backups[dir];
 								return (
 									<Card
 										key={dir}
@@ -649,6 +673,23 @@ const LinkedTab = ({
 														name={manifest.audioFile}
 														missing={status ? !status.audioFileExists : false}
 													/>
+													{backup?.exists && backup.mtimeMs != null && (
+														<Button
+															size="1"
+															variant="soft"
+															color="iris"
+															onClick={(e) => handleOpenBackupDir(e, dir)}
+															title={t(
+																"projectsDialog.showBackup",
+																"Show backup location",
+															)}
+														>
+															<FolderOpenRegular fontSize={10} />
+															<Text size="1">
+																{new Date(backup.mtimeMs).toLocaleString()}
+															</Text>
+														</Button>
+													)}
 													<Flex gap="1" align="center">
 														<ClockRegular fontSize={10} />
 														<Text size="1" color="gray">
