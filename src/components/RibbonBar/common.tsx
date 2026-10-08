@@ -21,9 +21,10 @@ import {
 	useRef,
 } from "react";
 
-export const RibbonSection: FC<
-	PropsWithChildren<{ label: ReactNode; isSidebar?: boolean }>
-> = ({ children, label, isSidebar }) => (
+export const RibbonSection: FC<PropsWithChildren<{ label: ReactNode }>> = ({
+	children,
+	label,
+}) => (
 	<>
 		<Flex
 			direction="column"
@@ -31,56 +32,38 @@ export const RibbonSection: FC<
 			flexShrink="0"
 			style={{
 				alignSelf: "stretch",
-				width: isSidebar ? "100%" : "unset",
+				width: "unset",
 			}}
 		>
 			<Flex
 				flexGrow="1"
 				align="center"
-				justify={isSidebar ? "start" : "center"}
-				direction={isSidebar ? "column" : "row"}
+				justify="center"
+				direction="row"
 				gap="2"
-				p={isSidebar ? "2" : "0"}
+				p="0"
 			>
 				{children}
 			</Flex>
-			{!isSidebar && (
-				<Flex
-					align="center"
-					justify="center"
-					px="2"
-					style={{
-						color: "var(--ribbon-label-color)",
-						fontSize: "var(--font-size-1)",
-						whiteSpace: "nowrap",
-					}}
-				>
-					{label}
-				</Flex>
-			)}
-			{isSidebar && label && (
-				<Flex
-					px="3"
-					py="1"
-					style={{
-						backgroundColor: "var(--accent-3)",
-						color: "var(--ribbon-label-color)",
-						fontSize: "10px",
-						fontWeight: "bold",
-						textTransform: "uppercase",
-						letterSpacing: "0.05em",
-					}}
-				>
-					{label}
-				</Flex>
-			)}
+			<Flex
+				align="center"
+				justify="center"
+				px="2"
+				style={{
+					color: "var(--ribbon-label-color)",
+					fontSize: "var(--font-size-1)",
+					whiteSpace: "nowrap",
+				}}
+			>
+				{label}
+			</Flex>
 		</Flex>
 		<Separator
-			orientation={isSidebar ? "horizontal" : "vertical"}
+			orientation="vertical"
 			size="4"
 			style={{
-				height: isSidebar ? "1px" : "unset",
-				width: isSidebar ? "100%" : "1px",
+				height: "unset",
+				width: "1px",
 				alignSelf: "stretch",
 			}}
 		/>
@@ -116,14 +99,14 @@ const RibbonHeightReserve: FC<{ rows: number }> = ({ rows }) => (
 
 export const RibbonFrame = forwardRef<
 	HTMLDivElement,
-	PropsWithChildren<{ isSidebar?: boolean; reserveControlRows?: number }>
->(({ children, isSidebar, reserveControlRows }, ref) => {
+	PropsWithChildren<{ reserveControlRows?: number }>
+>(({ children, reserveControlRows }, ref) => {
 	const frameRef = useRef<HTMLDivElement>(null);
 	useImperativeHandle(ref, () => frameRef.current as HTMLDivElement, []);
 
 	useEffect(() => {
 		const frame = frameRef.current;
-		if (!frame || isSidebar) return;
+		if (!frame) return;
 
 		let scrollTarget = frame.scrollLeft;
 		let isAnimating = false;
@@ -169,19 +152,19 @@ export const RibbonFrame = forwardRef<
 			frame.removeEventListener("wheel", handleWheel);
 			frame.removeEventListener("scroll", handleScroll);
 		};
-	}, [isSidebar]);
+	}, []);
 
 	return (
 		<Flex
-			p={isSidebar ? "0" : "3"}
-			direction={isSidebar ? "column" : "row"}
-			gap={isSidebar ? "0" : "3"}
-			align={isSidebar ? "stretch" : "center"}
+			p="3"
+			direction="row"
+			gap="3"
+			align="center"
 			style={{
-				overflowX: isSidebar ? "hidden" : "auto",
-				overflowY: isSidebar ? "auto" : "clip",
+				overflowX: "auto",
+				overflowY: "clip",
 				height: "100%",
-				width: isSidebar ? undefined : "100%",
+				width: "100%",
 				scrollbarWidth: "thin",
 				scrollbarColor: "var(--gray-a8) transparent",
 			}}
@@ -189,13 +172,13 @@ export const RibbonFrame = forwardRef<
 			asChild
 		>
 			<motion.div
-				initial={isSidebar ? { y: 10, opacity: 0 } : { x: 10, opacity: 0 }}
-				animate={isSidebar ? { y: 0, opacity: 1 } : { x: 0, opacity: 1 }}
-				exit={isSidebar ? { y: -10, opacity: 0 } : { x: -10, opacity: 0 }}
+				initial={{ x: 10, opacity: 0 }}
+				animate={{ x: 0, opacity: 1 }}
+				exit={{ x: -10, opacity: 0 }}
 				layout
 				ref={frameRef}
 			>
-				{!isSidebar && reserveControlRows && (
+				{reserveControlRows && (
 					<RibbonHeightReserve rows={reserveControlRows} />
 				)}
 				{children}

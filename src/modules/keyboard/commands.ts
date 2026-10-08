@@ -62,20 +62,6 @@ export const cmdUnselectAll = registerCommand(
 	"Edit",
 );
 
-export const cmdSelectInverted = registerCommand(
-	"selectInverted",
-	[CONTROL_KEY, "KeyI"],
-	t("settingsDialog.keybindings.selectInverted"),
-	"Edit",
-);
-
-export const cmdSelectWordsOfMatchedSelection = registerCommand(
-	"selectWordsOfMatchedSelection",
-	[CONTROL_KEY, "F2"],
-	t("settingsDialog.keybindings.selectWordsOfMatchedSelection"),
-	"Edit",
-);
-
 export const cmdDeleteSelection = registerCommand(
 	"deleteSelection",
 	[DELETE_KEY],

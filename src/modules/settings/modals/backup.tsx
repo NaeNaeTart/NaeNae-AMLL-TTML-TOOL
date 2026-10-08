@@ -6,7 +6,6 @@ import {
 	Key20Regular,
 	Keyboard20Regular,
 	PaintBrush20Regular,
-	PuzzlePiece20Regular,
 	Settings20Regular,
 } from "@fluentui/react-icons";
 import {
@@ -52,7 +51,6 @@ const CATEGORY_ICONS: Record<BackupCategoryId, React.ReactNode> = {
 	keybindings: <Keyboard20Regular />,
 	assets: <PaintBrush20Regular />,
 	projects: <Folder20Regular />,
-	plugins: <PuzzlePiece20Regular />,
 	apiKeys: <Key20Regular />,
 };
 
@@ -65,7 +63,6 @@ function useCategoryLabels() {
 		keybindings: t("settings.backup.category.keybindings", "Keybindings"),
 		assets: t("settings.backup.category.assets", "Appearance assets"),
 		projects: t("settings.backup.category.projects", "Projects & history"),
-		plugins: t("settings.backup.category.plugins", "Plugins"),
 		apiKeys: t("settings.backup.category.apiKeys", "API keys"),
 	} satisfies Record<BackupCategoryId, string>;
 }
@@ -192,10 +189,6 @@ export const SettingsBackupTab = memo(() => {
 				case "projects":
 					return t("settings.backup.hint.projects", "{count} projects", {
 						count: counts.projects,
-					});
-				case "plugins":
-					return t("settings.backup.hint.plugins", "{count} plugins", {
-						count: counts.plugins,
 					});
 				case "apiKeys":
 					return t("settings.backup.hint.apiKeys", "{count} keys", {

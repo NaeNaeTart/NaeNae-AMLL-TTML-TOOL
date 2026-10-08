@@ -20,12 +20,6 @@ import {
 import { identifyProject } from "$/modules/project/logic/project-info";
 import type { TTMLLyric } from "../types/ttml";
 
-export enum DarkMode {
-	Auto = "auto",
-	Light = "light",
-	Dark = "dark",
-}
-
 export enum ToolMode {
 	Edit = "edit",
 	Sync = "sync",
@@ -34,18 +28,12 @@ export enum ToolMode {
 
 export const toolModeAtom = atom<ToolMode>(ToolMode.Edit);
 export const previousToolModeAtom = atom<ToolMode | null>(null);
-export const aiSyncPickModeAtom = atom(false);
 
 export const showPreviewPanelAtom = atomWithStorage("showPreviewPanel", false);
 export const previewPanelWidthAtom = atomWithStorage("previewPanelWidth", 400);
-export const aiSidebarWidthAtom = atomWithStorage("aiSidebarWidth", 360);
 
-export const darkModeAtom = atom(DarkMode.Auto);
-export const isDarkThemeAtom = atom((get) => {
-	if (get(darkModeAtom) === DarkMode.Auto) return get(autoDarkModeAtom);
-	return get(darkModeAtom) === DarkMode.Dark;
-});
 export const autoDarkModeAtom = atom(true);
+export const isDarkThemeAtom = autoDarkModeAtom;
 
 export const lyricLinesAtom = atom({
 	lyricLines: [],

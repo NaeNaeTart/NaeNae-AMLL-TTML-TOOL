@@ -1158,7 +1158,6 @@ const LyricSyncWordView: FC<{
 							showTimestamps &&
 							highlightErrors)) &&
 					styles.error,
-				/* highlightGrammarWarnings is visually disabled as per user request */
 			),
 		[
 			instantFade,

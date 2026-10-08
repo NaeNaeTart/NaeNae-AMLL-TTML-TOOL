@@ -1,4 +1,3 @@
-import type { WASMPlugin } from "$/modules/plugins/types";
 import type {
 	ProjectInfo,
 	ProjectVersion,
@@ -22,7 +21,6 @@ export type BackupCategoryId =
 	| "keybindings"
 	| "assets"
 	| "projects"
-	| "plugins"
 	| "apiKeys";
 
 export const BACKUP_CATEGORY_IDS: BackupCategoryId[] = [
@@ -30,7 +28,6 @@ export const BACKUP_CATEGORY_IDS: BackupCategoryId[] = [
 	"keybindings",
 	"assets",
 	"projects",
-	"plugins",
 	"apiKeys",
 ];
 
@@ -42,14 +39,6 @@ export interface BackupBackgroundImage {
 	dataBase64: string;
 	updatedAt: number;
 }
-
-/**
- * @description 序列化后的 WASM 插件（二进制以 base64 存储）
- */
-export type BackupPlugin = Omit<WASMPlugin, "blob"> & {
-	blobBase64: string;
-	blobMime: string;
-};
 
 export interface BackupCustomFont {
 	name: string;
@@ -77,7 +66,6 @@ export interface BackupFile {
 			projects: ProjectInfo[];
 			versions: Omit<ProjectVersion, "id">[];
 		};
-		plugins?: { plugins: BackupPlugin[] };
 	};
 }
 
@@ -208,22 +196,6 @@ export function validateBackupFile(data: unknown): asserts data is BackupFile {
 				!isPlainObject(v) ||
 				typeof v.projectId !== "string" ||
 				!isPlainObject(v.data)
-			) {
-				throw new BackupValidationError("malformedCategories");
-			}
-		}
-	}
-
-	if (categories.plugins !== undefined) {
-		const plugins = categories.plugins;
-		if (!isPlainObject(plugins) || !Array.isArray(plugins.plugins)) {
-			throw new BackupValidationError("malformedCategories");
-		}
-		for (const p of plugins.plugins) {
-			if (
-				!isPlainObject(p) ||
-				typeof p.id !== "string" ||
-				typeof p.blobBase64 !== "string"
 			) {
 				throw new BackupValidationError("malformedCategories");
 			}

@@ -3,7 +3,6 @@ import { LatencyTestDialog } from "$/modules/audio/modals/LatencyTest.tsx";
 import { GeniusImportLyricsDialog } from "$/modules/genius/modals/GeniusImportLyricsDialog.tsx";
 import { GeniusSearchDialog } from "$/modules/genius/modals/GeniusSearchDialog.tsx";
 import { ImportFromLRCLIB } from "$/modules/lrclib/modals/ImportDialog.tsx";
-import { GrammarCheckDialog } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { UrbanDictionaryDialog } from "$/modules/lyric-editor/modals/UrbanDictionaryDialog.tsx";
 import { CombineWordsDialog } from "$/modules/lyric-editor/tools/CombineWordsDialog.tsx";
 import { ReplaceRomanizationDialog } from "$/modules/lyric-editor/tools/ReplaceRomanizationDialog.tsx";
@@ -14,7 +13,6 @@ import { ImportLyricsDialog } from "$/modules/lyrics-import/modals/ImportLyricsD
 import { HistoryRestoreDialog } from "$/modules/project/modals/HistoryRestore.tsx";
 import { ImportFromText } from "$/modules/project/modals/ImportFromText.tsx";
 import { MetadataEditor } from "$/modules/project/modals/MetadataEditor.tsx";
-import { SubmitToAMLLDBDialog } from "$/modules/project/modals/SubmitToAmll.tsx";
 import { AdvancedSegmentationDialog } from "$/modules/segmentation/components/AdvancedSegmentation.tsx";
 
 const ProjectsDialog = lazy(() =>
@@ -33,10 +31,7 @@ import { TTMLChecklistDialog } from "$/modules/ttml-checklist/TTMLChecklistDialo
 import { ChangelogDialog } from "./changelog.tsx";
 import { ConfirmationDialog } from "./confirmation.tsx";
 import { CreateProjectPromptDialog } from "./create-project-prompt.tsx";
-import {
-	ExperimentalFeaturesDialog,
-	GeniusHeaderDetectionDialog,
-} from "./experimental-features.tsx";
+import { GeniusHeaderDetectionDialog } from "./genius-header-detection.tsx";
 import { ImportLyricsChooserDialog } from "./import-lyrics-chooser.tsx";
 import { Mp3ConversionDialog } from "./mp3-conversion.tsx";
 import { WhatsNewDialog } from "./whats-new.tsx";
@@ -54,7 +49,6 @@ export const Dialogs = () => {
 			<CombineWordsDialog />
 			<ReplaceWordDialog />
 			<ReplaceRomanizationDialog />
-			<SubmitToAMLLDBDialog />
 			<LatencyTestDialog />
 			<TTMLChecklistDialog />
 			<ConfirmationDialog />
@@ -69,7 +63,6 @@ export const Dialogs = () => {
 			<LearnedSplitsDialog />
 			<TimeShiftDialog />
 			<TimeStretchDialog />
-			<GrammarCheckDialog />
 
 			<GeniusSearchDialog />
 			<GeniusImportLyricsDialog />
@@ -78,7 +71,6 @@ export const Dialogs = () => {
 			<FontSelectionDialog />
 			<UrbanDictionaryDialog />
 			<SuggestedSplitsDialog />
-			<ExperimentalFeaturesDialog />
 			<GeniusHeaderDetectionDialog />
 		</>
 	);

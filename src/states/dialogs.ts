@@ -7,7 +7,6 @@ export const settingsDialogAtom = atom(false);
 export const settingsTabAtom = atom("common");
 export const latencyTestDialogAtom = atom(false);
 export const ttmlChecklistDialogAtom = atom(false);
-export const submitToAMLLDBDialogAtom = atom(false);
 export const splitWordDialogAtom = atom(false);
 export const replaceWordDialogAtom = atom(false);
 export const replaceRomanizationDialogAtom = atom({
@@ -24,10 +23,6 @@ export const autoSegmentDialogAtom = atom(false);
 export const learnedSplitsDialogAtom = atom(false);
 export const timeShiftDialogAtom = atom(false);
 export const timeStretchDialogAtom = atom(false);
-export const lineSpectrogramDialogAtom = atom<{
-	open: boolean;
-	lineId?: string;
-}>({ open: false });
 export const confirmDialogAtom = atom<{
 	open: boolean;
 	title: string;

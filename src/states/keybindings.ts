@@ -26,8 +26,6 @@ import {
 	cmdSeekBackward,
 	cmdSeekForward,
 	cmdSelectAll,
-	cmdSelectInverted,
-	cmdSelectWordsOfMatchedSelection,
 	cmdSwitchEditMode,
 	cmdSwitchPreviewMode,
 	cmdSwitchSyncMode,
@@ -59,9 +57,6 @@ export const keyUndoAtom = cmdUndo.atom;
 export const keyRedoAtom = cmdRedo.atom;
 export const keySelectAllAtom = cmdSelectAll.atom;
 export const keyUnselectAllAtom = cmdUnselectAll.atom;
-export const keySelectInvertedAtom = cmdSelectInverted.atom;
-export const keySelectWordsOfMatchedSelectionAtom =
-	cmdSelectWordsOfMatchedSelection.atom;
 export const keyDeleteSelectionAtom = cmdDeleteSelection.atom;
 export const keyAutoSegmentAtom = cmdAutoSegment.atom;
 

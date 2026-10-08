@@ -45,17 +45,6 @@ const EditMenuItems = () => {
 			>
 				<Trans i18nKey="topBar.menu.unselectAllLines">取消选中所有歌词行</Trans>
 			</DropdownMenu.Item>
-			<DropdownMenu.Item onSelect={menu.onSelectInverted}>
-				<Trans i18nKey="topBar.menu.invertSelectAllLines">反选所有歌词行</Trans>
-			</DropdownMenu.Item>
-			<DropdownMenu.Item
-				onSelect={menu.onSelectWordsOfMatchedSelection}
-				shortcut={getShortcut(menu.selectWordsOfMatchedSelectionKey)}
-			>
-				<Trans i18nKey="topBar.menu.selectWordsOfMatchedSelection">
-					选择匹配的单词
-				</Trans>
-			</DropdownMenu.Item>
 			<DropdownMenu.Separator />
 			<DropdownMenu.Item onSelect={menu.onDeleteSelection}>
 				<Trans i18nKey="contextMenu.deleteWords">删除选定单词</Trans>

@@ -395,6 +395,11 @@ export const SettingsAboutTab = () => {
 							})}
 						</Text>
 						<Text as="div" size="2">
+							{t("aboutModal.platform", "Platform: {platform}", {
+								platform: window.navigator.platform,
+							})}
+						</Text>
+						<Text as="div" size="2">
 							{t("aboutModal.gitCommit", "Git Commit: {commit}", {
 								commit:
 									GIT_COMMIT === "unknown" ? (

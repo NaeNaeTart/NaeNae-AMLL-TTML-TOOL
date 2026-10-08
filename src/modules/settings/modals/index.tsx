@@ -1,5 +1,4 @@
 import {
-	Code24Regular,
 	Dismiss24Regular,
 	Edit24Regular,
 	Folder24Regular,
@@ -8,7 +7,6 @@ import {
 	PaintBrush24Regular,
 	Search24Regular,
 	Settings24Regular,
-	Sparkle24Regular,
 	Speaker224Regular,
 } from "@fluentui/react-icons";
 import {
@@ -37,12 +35,10 @@ import {
 	settingsSearchKeywords,
 } from "../logic/settings-search";
 import { SettingsAboutTab } from "./about";
-import { SettingsAiTab } from "./ai";
 import { SettingsAppearanceTab } from "./appearance";
 import { AudioSettingsTab } from "./audio";
 import { SettingsBackupTab } from "./backup";
 import { SettingsCommonTab } from "./common";
-import { SettingsDevTab } from "./dev";
 import { SettingsKeyBindingsDialog } from "./keybindings";
 import styles from "./settings.module.css";
 import { SettingsSpectrogramTab } from "./spectrogram";
@@ -92,7 +88,9 @@ export const SettingsDialog = memo(() => {
 	const searchRef = useRef<HTMLInputElement>(null);
 	const contentRef = useRef<HTMLElement>(null);
 	const { t } = useTranslation();
-	const displayedTab = activeTab === "assistant" ? "ai" : activeTab;
+	const displayedTab = ["assistant", "ai", "dev"].includes(activeTab)
+		? "common"
+		: activeTab;
 	const navigationItems = useMemo(
 		() => [
 			{
@@ -126,19 +124,9 @@ export const SettingsDialog = memo(() => {
 				label: t("settingsDialog.tab.appearance", "Appearance"),
 			},
 			{
-				value: "ai",
-				icon: <Sparkle24Regular />,
-				label: t("settingsDialog.tab.ai", "AI"),
-			},
-			{
 				value: "about",
 				icon: <Info24Regular />,
 				label: t("common.about", "About"),
-			},
-			{
-				value: "dev",
-				icon: <Code24Regular />,
-				label: t("settingsDialog.tab.dev", "Developer"),
 			},
 		],
 		[t],
@@ -333,19 +321,9 @@ export const SettingsDialog = memo(() => {
 								<SettingsAppearanceTab />
 							</SettingsPage>
 						</Tabs.Content>
-						<Tabs.Content value="ai" className={styles.tabContent}>
-							<SettingsPage title={t("settingsDialog.tab.ai", "AI")}>
-								<SettingsAiTab />
-							</SettingsPage>
-						</Tabs.Content>
 						<Tabs.Content value="about" className={styles.tabContent}>
 							<SettingsPage title={t("common.about", "About")}>
 								<SettingsAboutTab />
-							</SettingsPage>
-						</Tabs.Content>
-						<Tabs.Content value="dev" className={styles.tabContent}>
-							<SettingsPage title={t("settingsDialog.tab.dev", "Developer")}>
-								<SettingsDevTab />
 							</SettingsPage>
 						</Tabs.Content>
 					</main>

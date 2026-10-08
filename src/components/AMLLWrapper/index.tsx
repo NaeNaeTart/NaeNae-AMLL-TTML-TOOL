@@ -20,10 +20,6 @@ import {
 } from "$/modules/audio/states/index.ts";
 import { customBackgroundImageAtom } from "$/modules/settings/modals/customBackground";
 import {
-	customAccentColorAtom,
-	useCustomAccentAtom,
-} from "$/modules/settings/states/index.ts";
-import {
 	instantHighlightFadeAtom,
 	lyricWordFadeWidthAtom,
 	showFpsCounterAtom,
@@ -432,20 +428,6 @@ export const AMLLWrapper = memo(
 		const instantFade = useAtomValue(instantHighlightFadeAtom);
 		const albumImg = useAtomValue(customBackgroundImageAtom);
 
-		const useCustomAccent = useAtomValue(useCustomAccentAtom);
-		const customAccentColor = useAtomValue(customAccentColorAtom);
-
-		// Fallback colors for the mesh warp when no image is available
-		const fallbackColors = useMemo(() => {
-			// If we have a custom hex accent, use that.
-			// Otherwise, we'll just use a generic set of colors based on the theme.
-			// (The library usually handles color extraction from images, but we can provide hints)
-			if (useCustomAccent && customAccentColor) {
-				return [customAccentColor, "#121212", "#000000"];
-			}
-			return undefined; // Let library default for named accent colors if possible
-		}, [useCustomAccent, customAccentColor]);
-
 		return (
 			<div
 				className={classNames(
@@ -460,7 +442,6 @@ export const AMLLWrapper = memo(
 					<BackgroundRender
 						key={albumImg || "default"}
 						album={albumImg || undefined}
-						color={fallbackColors?.[0]}
 						// PERF: Only animate when audio is actually playing
 						playing={isPlaying}
 						// PERF: 0.5x render scale - invisible quality difference on a blurred gradient

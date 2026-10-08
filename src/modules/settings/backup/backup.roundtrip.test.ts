@@ -5,10 +5,6 @@ vi.mock("virtual:buildmeta", () => ({
 	GIT_COMMIT: "test",
 }));
 vi.mock("$/utils/fileSystem", () => ({ saveFile: vi.fn() }));
-vi.mock("$/modules/plugins/plugin-store", () => ({
-	getAllPlugins: vi.fn(async () => []),
-	savePlugin: vi.fn(),
-}));
 vi.mock("$/modules/project/autosave/autosave", () => ({
 	exportAllProjectsData: vi.fn(async () => ({ projects: [], versions: [] })),
 	restoreProjectsData: vi.fn(),
@@ -19,7 +15,7 @@ vi.mock("$/modules/settings/modals/customBackground", () => ({
 }));
 
 import { buildBackup, partitionLocalStorage } from "./export";
-import { applyBackup } from "./import";
+import { applyBackup, getPresentCategories, parseBackupFile } from "./import";
 import type { BackupCategoryId, BackupFile } from "./types";
 
 class MemoryStorage {
@@ -49,7 +45,6 @@ const ALL: Set<BackupCategoryId> = new Set([
 	"keybindings",
 	"assets",
 	"projects",
-	"plugins",
 ]);
 
 const PRESETS = [{ id: "1", name: "Neon", settings: { accentColor: "pink" } }];
@@ -74,10 +69,7 @@ describe("backup export", () => {
 
 		expect(Object.keys(settings)).toEqual(["accentColor"]);
 		expect(Object.keys(keybindings)).toEqual(["keybindings:play"]);
-		expect(Object.keys(apiKeys).sort()).toEqual([
-			"aiSidebarApiKey",
-			"geniusApiKey",
-		]);
+		expect(Object.keys(apiKeys).sort()).toEqual(["geniusApiKey"]);
 	});
 
 	it("exports presets and custom font only through the assets category", async () => {
@@ -115,6 +107,56 @@ describe("backup export", () => {
 });
 
 describe("backup import", () => {
+	it("ignores retired plugin categories in old backups", async () => {
+		const backup = parseBackupFile(
+			JSON.stringify({
+				app: "amll-ttml-tool",
+				formatVersion: 1,
+				categories: {
+					settings: { localStorage: { accentColor: JSON.stringify("ruby") } },
+					plugins: { plugins: [{ id: "old", blobBase64: "AA==" }] },
+				},
+			}),
+		);
+		expect(getPresentCategories(backup)).toEqual(["settings"]);
+		await applyBackup(backup, new Set(getPresentCategories(backup)));
+		expect(localStorage.getItem("accentColor")).toBe(JSON.stringify("ruby"));
+	});
+
+	it("does not export or restore retired settings, commands, or AI keys", async () => {
+		const retired = {
+			importAddSpaces: "true",
+			importSplitHyphens: "true",
+			vRibbonPosition: JSON.stringify("left"),
+			aiSidebarEnabled: "true",
+			aiSidebarApiKey: JSON.stringify("retired-secret"),
+			"keybindings:selectInverted": "KeyI",
+			"keybindings:selectWordsOfMatchedSelection": "F2",
+		};
+		for (const [key, value] of Object.entries(retired)) {
+			localStorage.setItem(key, value);
+		}
+		const exported = await buildBackup(new Set([...ALL, "apiKeys"]));
+		for (const key of Object.keys(retired)) {
+			expect(JSON.stringify(exported)).not.toContain(key);
+		}
+		localStorage.clear();
+		await applyBackup(
+			{
+				...craft(retired),
+				categories: {
+					settings: { localStorage: retired },
+					keybindings: { localStorage: retired },
+					apiKeys: { localStorage: retired },
+				},
+			},
+			new Set([...ALL, "apiKeys"]),
+		);
+		for (const key of Object.keys(retired)) {
+			expect(localStorage.getItem(key)).toBeNull();
+		}
+	});
+
 	function craft(settings: Record<string, string>): BackupFile {
 		return {
 			app: "amll-ttml-tool",
@@ -170,19 +212,18 @@ describe("backup api keys category", () => {
 		const backup = await buildBackup(KEYS);
 
 		expect(backup.categories.apiKeys?.localStorage).toEqual({
-			aiSidebarApiKey: JSON.stringify("secret-ai"),
 			geniusApiKey: JSON.stringify("secret-genius"),
 		});
 	});
 
 	it("skips empty keys", async () => {
-		localStorage.setItem("aiSidebarApiKey", JSON.stringify(""));
+		localStorage.setItem("geniusApiKey", JSON.stringify(""));
 
 		const backup = await buildBackup(KEYS);
 
-		expect(Object.keys(backup.categories.apiKeys?.localStorage ?? {})).toEqual([
-			"geniusApiKey",
-		]);
+		expect(Object.keys(backup.categories.apiKeys?.localStorage ?? {})).toEqual(
+			[],
+		);
 	});
 
 	it("restores keys and ignores anything else in the category", async () => {
@@ -195,9 +236,7 @@ describe("backup api keys category", () => {
 		expect(localStorage.getItem("geniusApiKey")).toBe(
 			JSON.stringify("secret-genius"),
 		);
-		expect(localStorage.getItem("aiSidebarApiKey")).toBe(
-			JSON.stringify("secret-ai"),
-		);
+		expect(localStorage.getItem("aiSidebarApiKey")).toBeNull();
 		expect(localStorage.getItem("accentColor")).toBeNull();
 	});
 

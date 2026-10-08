@@ -98,5 +98,3 @@ export const splitWordRememberAtom = atomWithStorage(
 	"segmentation.splitWord.remember",
 	true,
 );
-
-export const segmentationLangAtom = atom<string>("en-us");

@@ -39,9 +39,6 @@
       }
     }
   },
-  "amll": {
-    "noLyrics": "No lyrics available in store"
-  },
   "confirmDialog": {
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -83,14 +80,11 @@
       "maybeLater": "Maybe Later",
       "enableNow": "Enable Now",
       "title": "Genius Header Categorization",
-      "description": "Automatically detect and categorize Genius-style section headers (e.g., [Chorus]). Provides color-coded sections and tools to copy previous timings.",
       "snapToPlayhead": "Snap to Playhead",
       "noPreviousFound": "No previous identical header found with timing.",
       "copyPrevious": "Copy Previous Timing",
       "headersRestored": "Section headers restored."
-    },
-    "title": "Experimental Features",
-    "description": "These features are currently in development and may be unstable. Use with caution."
+    }
   },
   "common": {
     "close": "Close",
@@ -179,7 +173,6 @@
   },
   "ribbonBar": {
     "editMode": {
-      "grammarCheck": "Grammar Check",
       "multipleValues": "Multiple values…",
       "duration": "持续时间",
       "showTranslation": "Show Translation Line",
@@ -223,7 +216,6 @@
       "romanLyric": "Romanization",
       "layoutMode": "Layout",
       "auxiliaryLineDisplay": "Auxiliary Line Display",
-      "tools": "Check",
       "previewPanel": "Preview Panel",
       "playbackTracking": "Tracking",
       "autoScroll": "Auto-Scroll",
@@ -232,7 +224,6 @@
     },
     "previewMode": {
       "mode": "Mode",
-      "amllDeprecated": "AMLL mode is deprecated, please use Standard mode",
       "standard": "Standard",
       "timing": "Timing",
       "spicy": "Spicy",
@@ -245,7 +236,6 @@
       "lyrics": "Lyrics",
       "showTranslation": "Show Translation",
       "showRoman": "Show Romanization",
-      "maskObsceneWords": "Mask Obscene Words",
       "word": "Word",
       "fadeWidth": "Fade Width",
       "instantFade": "Instant Fade Out",
@@ -289,7 +279,6 @@
       "highlightActiveLine": "Highlight Line",
       "syncTab": "Sync Tab"
     },
-    "experimentalFeatures": "Experimental Features",
     "loading": "Loading panel..."
   },
   "settings": {
@@ -463,15 +452,7 @@
         "titlebar": "Title Bar",
         "ribbonbar": "Toolbar (Ribbon)",
         "editor": "Main Editor Area",
-        "audio": "Audio Controls",
-        "ribbonPos": "Toolbar Orientation",
-        "pos": {
-          "top": "Top",
-          "bottom": "Bottom",
-          "left": "Left",
-          "right": "Right"
-        },
-        "sidebarWarning": "Note: Sidebar mode is experimental and may look different."
+        "audio": "Audio Controls"
       },
       "fontImportSuccess": "Font imported successfully!",
       "fontLibrary": "Font Library",
@@ -492,7 +473,6 @@
       "googleFonts": "Google Fonts Library"
     },
     "group": {
-      "assistant": "Assistant",
       "display": "Display",
       "timing": "Syncing",
       "timingHighlight": "Visual Timing Cue (Sync)",
@@ -500,8 +480,6 @@
       "autosave": "Auto Save"
     },
     "assistant": {
-      "quickFixes": "Quick Fixes (Grammar)",
-      "quickFixesDesc": "Enable suggestions for repeated words and common transcription errors.",
       "manualTimestampEdit": "Manual Timestamp Editing",
       "manualTimestampEditDesc": "Allow clicking on timestamps in Sync mode to manually type values.",
       "visualizeTimestampUpdate": "Visualize Timestamp Updates",
@@ -533,7 +511,6 @@
         "keybindings": "Keybindings",
         "assets": "Appearance assets",
         "projects": "Projects & history",
-        "plugins": "Plugins",
         "apiKeys": "API keys"
       },
       "hint": {
@@ -545,7 +522,6 @@
         "backgroundSet": "Custom background",
         "fontSet": "Custom font",
         "projects": "{count} projects",
-        "plugins": "{count} plugins",
         "apiKeys": "{count} keys"
       },
       "exportSuccess": "Backup exported",
@@ -576,17 +552,6 @@
       "cancelButton": "Cancel",
       "applyButton": "Import & reload"
     },
-    "dev": {
-      "previewPerformance": "Preview Performance",
-      "showFps": "Show FPS Counter in Preview",
-      "wasmPlugins": {
-        "title": "Community Plugin System (WASM)",
-        "description": "Manage and upload custom WebAssembly plugins to extend the tool's importing and exporting capabilities."
-      },
-      "debugInfo": {
-        "title": "Debug Information"
-      }
-    },
     "spectrogram": {
       "palette": "Color Palette",
       "paletteCustom": "Custom",
@@ -615,15 +580,12 @@
       "sync": "Time",
       "preview": "Preview"
     },
-    "boykisser": "boykisser",
     "appName": "NaeNae's AMLL TTML Tool Fork",
     "menu": {
       "undo": "Undo",
       "redo": "Redo",
       "selectAllLines": "Select all lines",
       "unselectAllLines": "Deselect all lines",
-      "invertSelectAllLines": "Invert line selections",
-      "selectWordsOfMatchedSelection": "Select words matching selection",
       "timeShift": "Time Shift...",
       "timeStretch": "Time Stretch...",
       "editMetadata": "Edit lyrics metadata…",
@@ -634,7 +596,6 @@
       "saveLyric": "Save lyrics",
       "restoreFromHistory": "Restore from history…",
       "saveLyricToClipboard": "Save TTML to clipboard",
-      "uploadToAMLLDB": "Upload to database (CN only)",
       "file": "File",
       "helpDoc": "Documentation (CN)",
       "help": "Help",
@@ -651,12 +612,7 @@
         "fromPlainText": "Import from plain text…",
         "fromLRCLIB": "Import from LRCLIB...",
         "fromLyrically": "Import from Lyrically...",
-        "fromGenius": "Import from Genius…",
-        "fromLyRiC": "Import from LyRiC file…",
-        "fromESLyRiC": "Import from ESLyRiC file…",
-        "fromQRC": "Import from QRC file…",
-        "fromYRC": "Import from YRC file…",
-        "fromLrcfySylb": "Import from Lyricify Syllable file…"
+        "fromGenius": "Import from Genius…"
       },
       "exportLyric": {
         "export": "Export lyrics",
@@ -713,8 +669,6 @@
       "redo": "Redo",
       "selectAll": "Select All",
       "unselectAll": "Deselect All",
-      "selectInverted": "Invert Selection",
-      "selectWordsOfMatchedSelection": "Select similar words",
       "deleteSelection": "Delete Selection",
       "autoSegment": "Tools - Auto Segment",
       "switchEditMode": "Mode Switch - Switch to Edit Mode",
@@ -761,20 +715,17 @@
     },
     "tab": {
       "common": "General",
-      "assistant": "Assistant",
       "appearance": "Appearance",
       "audio": "Audio",
       "keybindings": "Keybindings",
       "spectrogram": "Spectrogram",
-      "backup": "Backup",
-      "dev": "Dev"
+      "backup": "Backup"
     }
   },
   "autoSegmentApplied": "Auto-segmented with {engine}",
   "error": {
     "unsupportedFileFormat": "Unsupported file format: {ext}",
     "openFileFailed": "Failed to open file",
-    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing.",
     "linkedProjectInvalidPath": "The selected files cannot be linked. Choose a .ttml file and an audio file on a local drive. Network shares are not supported.",
     "linkedProjectBackupFailed": "Could not back up the original TTML file, so it was not overwritten"
   },
@@ -878,15 +829,7 @@
     "title": "Import Lyric from LRCLIB"
   },
   "lyricEditor": {
-    "locate": "Locate",
-    "lineSpectrogram": {
-      "title": "Line Spectrogram Alignment",
-      "desc": "Adjust the start and end points of this line using the spectrogram. The line duration will be split proportionally into its words based on character count.",
-      "startTime": "Start:",
-      "endTime": "End:",
-      "duration": "Duration:",
-      "playPause": "Play/Pause"
-    }
+    "locate": "Locate"
   },
   "lyricLineView": {
     "translatedLabel": "Translation:",
@@ -938,30 +881,6 @@
   "touchSyncPanel": {
     "prevWord": "Jump Previous Word",
     "nextWord": "Jump Next Word"
-  },
-  "grammarCheck": {
-    "ambiguous": "Possible grammar issue",
-    "repeatedWord": "Repeated word",
-    "capitalization": "Word should be capitalized",
-    "capitalInMiddle": "Word has capital letters in middle",
-    "title": "Grammar & Spelling Check",
-    "issues": "Issues",
-    "history": "History",
-    "ignoredWords": "Ignored Words",
-    "noIssues": "No issues found!",
-    "issuesFound": "issues found",
-    "undoLast": "Undo Last",
-    "clearHistory": "Clear History",
-    "noHistory": "No changes made yet",
-    "fixed": "fixed",
-    "ignored": "ignored",
-    "line": "Line",
-    "clearIgnoredWords": "Clear All",
-    "noIgnoredWords": "No ignored words",
-    "noIssuesMessage": "No issues found! Your lyrics look good.",
-    "applyFix": "Apply suggested fix",
-    "ignoreSession": "Ignore this word in this session",
-    "ignoreAlways": "Always ignore this word"
   },
   "urbanDictionary": {
     "title": "Urban Dictionary",
@@ -1117,20 +1036,6 @@
     "lineCount": "{count} lyric lines",
     "import": "Import reviewed lyrics"
   },
-  "pluginManager": {
-    "trigger": "Plugins",
-    "title": "Plugin Management",
-    "description": "Extend your lyric editing capabilities",
-    "installed": "Installed",
-    "store": "Plugin Store",
-    "empty": "No plugins installed",
-    "browse": "Browse Store",
-    "techniques": "Techniques",
-    "usage": "Usage",
-    "sideload": "Sideload .wasm plugin",
-    "loading": "Loading community plugins...",
-    "install": "Install"
-  },
   "globalDragOverlay": {
     "title": "Release to load"
   },
@@ -1164,55 +1069,6 @@
   },
   "metadata": {
     "title": "Metadata"
-  },
-  "submitToAMLLDB": {
-    "validation": {
-      "missingMusicName": "Metadata missing track name",
-      "missingArtists": "Metadata missing track artists",
-      "missingAlbum": "Metadata missing album name",
-      "missingMusicId": "Metadata missing platform track ID"
-    },
-    "defaultReason": "New lyrics submission",
-    "errors": {
-      "validation": "Submission validation failed:\n{errors}",
-      "noLyrics": "There's no lyrics content yet?",
-      "uploadFailed": "Failed to request upload lyrics file: {status} {statusText}",
-      "submitFailed": "Submission failed, check console for reason!"
-    },
-    "labels": {
-      "submit": "Lyrics Submit/Correction"
-    },
-    "issueTitle": "[Lyrics Submit/Fix] {name}",
-    "unknownTitle": "Unknown Title",
-    "unknownArtist": "Unknown Artist",
-    "description": "Submit lyrics to AMLL Lyrics Database",
-    "title": "Submit lyrics to AMLL Lyrics Database (Simplified Chinese users only)",
-    "chineseOnlyWarning": "This feature is only available to Simplified Chinese users of AMLL Lyrics Database. If you are editing lyrics to use them in other software, please follow that software's way to submit lyrics!",
-    "thankYou": "First of all, thank you for your generous lyrics contribution!",
-    "cc0Agreement": "By submitting you agree to",
-    "cc0Rights": "use the CC0 license and fully waive ownership of the lyrics",
-    "andSubmit": "and submit to the lyrics database!",
-    "futureUse": "And the lyrics will be used as default TTML source by AMLL systems in the future!",
-    "rightsWarning": "If you value retaining ownership, please do NOT submit!",
-    "submitInstructions": "Enter the following info then jump to the GitHub issue submission page!",
-    "closeWarning": "Close warning message",
-    "uploadDbType": "Lyrics Database Type",
-    "uploadDbTypeOfficial": "Official Database",
-    "uploadDbTypeUser": "User Database",
-    "uploadDbTypeBoth": "Both Databases",
-    "officialDesc": "Submitting to the official database requires manual review to ensure lyrics quality and synchronization. This is recommended for high-quality contributions.",
-    "userDesc": "Submitting to the user database only requires bot verification. It is faster but doesn't guarantee the same level of performance quality.",
-    "bothDesc": "This will open submission pages for both repositories. Please create an issue in each manually.",
-    "genFromName": "Generate from metadata",
-    "musicName": "Track Title",
-    "musicNameDesc": "Recommended format: Artist - Song Title",
-    "submitReason": "Reason",
-    "submitReasonNew": "New lyrics submission",
-    "submitReasonFix": "Fix existing lyrics",
-    "comment": "Comment",
-    "commentPlaceholder": "Anything else you want to add?",
-    "issueFoundTitle": "Please fix the following issues before submitting:",
-    "submitBtn": "Upload and Create Issue"
   },
   "splitWordDialog": {
     "spaceCount": "Space x{count}",
@@ -1337,7 +1193,8 @@
     "github": "GitHub Repository",
     "crowdin": "Help Translate in Crowdin",
     "buildDate": "Build Date: {date}",
-    "gitCommit": "Git Commit: {commit}"
+    "gitCommit": "Git Commit: {commit}",
+    "platform": "Platform: {platform}"
   },
   "spectrogram": {
     "invalidEndTime": "Cannot select this end time",

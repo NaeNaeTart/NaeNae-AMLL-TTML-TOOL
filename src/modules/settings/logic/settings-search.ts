@@ -11,9 +11,7 @@ export const settingsSearchKeywords: Record<string, string> = {
 		"keyboard keys shortcut controls new open save undo redo select delete mode sync playback seek volume segment audition",
 	appearance:
 		"theme preset custom accent color background blur glass intensity image gradient font interface scale reset layout titlebar sidebar editor chip spacing padding romanization translation scrollbar dialog shadow selection",
-	ai: "assistant model api provider prompt review",
 	about: "version update credits license",
-	dev: "developer debug experimental advanced",
 };
 
 export function matchesSettingsSearch(text: string, query: string): boolean {

@@ -11,8 +11,6 @@ import {
 	keyRedoAtom,
 	keySaveFileAtom,
 	keySelectAllAtom,
-	keySelectInvertedAtom,
-	keySelectWordsOfMatchedSelectionAtom,
 	keyUndoAtom,
 } from "$/states/keybindings";
 import {
@@ -79,14 +77,6 @@ export const TopMenu: FC = () => {
 	}, [menu.onRedo]);
 	useKeyBindingAtom(keySelectAllAtom, menu.onUnselectAll, [menu.onUnselectAll]);
 	useKeyBindingAtom(keySelectAllAtom, menu.onSelectAll, [menu.onSelectAll]);
-	useKeyBindingAtom(keySelectInvertedAtom, menu.onSelectInverted, [
-		menu.onSelectInverted,
-	]);
-	useKeyBindingAtom(
-		keySelectWordsOfMatchedSelectionAtom,
-		menu.onSelectWordsOfMatchedSelection,
-		[menu.onSelectWordsOfMatchedSelection],
-	);
 	useKeyBindingAtom(keyDeleteSelectionAtom, menu.onDeleteSelection, [
 		menu.onDeleteSelection,
 	]);

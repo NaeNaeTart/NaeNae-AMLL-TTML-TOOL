@@ -55,22 +55,6 @@
 			opacity 0.2s ease,
 			padding 0.2s ease;
 		animation: laneItemFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-		&.hasInstantFade {
-			transition: none !important;
-			animation: none !important;
-
-			&.active,
-			&.animated {
-				transition: none !important;
-				animation: none !important;
-				box-shadow: none !important; /* Disable glow for instant feedback */
-
-				.displayWord {
-					text-shadow: none !important;
-				}
-			}
-		}
 	}
 
 	&.dropLeft {
@@ -701,16 +685,6 @@
 	background-color: var(--red-a4);
 }
 
-.lyricWord.grammarWarning,
-.lyricLine.grammarWarning {
-	box-shadow: 0 0 0 2px var(--orange-a10);
-}
-
-.lyricWord.grammarWarning:hover,
-.lyricLine.grammarWarning:hover {
-	background-color: var(--orange-a2);
-}
-
 .lyricWord.selected {
 	.startTime,
 	.endTime {
@@ -753,6 +727,23 @@
 	&.selected {
 		background-color: var(--accent-a11);
 		box-shadow: 0 0 40px var(--accent-a7);
+	}
+}
+
+/* Follow active styles so instant fade wins equal-specificity overrides. */
+.lyricWord.sync.hasInstantFade {
+	transition: none;
+	animation: none;
+
+	&.active,
+	&.animated {
+		transition: none;
+		animation: none;
+		box-shadow: none;
+
+		.displayWord {
+			text-shadow: none;
+		}
 	}
 }
 

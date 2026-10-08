@@ -1,10 +1,10 @@
-import { savePlugin } from "$/modules/plugins/plugin-store";
 import { restoreProjectsData } from "$/modules/project/autosave/autosave";
 import { writeCustomBackgroundBlob } from "$/modules/settings/modals/customBackground";
 import { base64ToBlob } from "./binary";
 import { isDeniedKey, isSecretKey } from "./denylist";
 import type { BackupAssetsCounts } from "./export";
 import {
+	BACKUP_CATEGORY_IDS,
 	type BackupCategoryId,
 	type BackupFile,
 	validateBackupFile,
@@ -23,7 +23,7 @@ export function parseBackupFile(text: string): BackupFile {
  * @description 备份文件中实际包含的分类，用于导入确认界面。
  */
 export function getPresentCategories(file: BackupFile): BackupCategoryId[] {
-	return (Object.keys(file.categories) as BackupCategoryId[]).filter(
+	return BACKUP_CATEGORY_IDS.filter(
 		(key) => file.categories[key] !== undefined,
 	);
 }
@@ -57,7 +57,6 @@ export function describeBackup(
 		};
 	}
 	if (c.projects) result.projects = c.projects.projects.length;
-	if (c.plugins) result.plugins = c.plugins.plugins.length;
 	return result;
 }
 
@@ -118,15 +117,5 @@ export async function applyBackup(
 
 	if (selected.has("projects") && c.projects) {
 		await restoreProjectsData(c.projects.projects, c.projects.versions);
-	}
-
-	if (selected.has("plugins") && c.plugins) {
-		for (const plugin of c.plugins.plugins) {
-			const { blobBase64, blobMime, ...rest } = plugin;
-			await savePlugin({
-				...rest,
-				blob: base64ToBlob(blobBase64, blobMime),
-			});
-		}
 	}
 }

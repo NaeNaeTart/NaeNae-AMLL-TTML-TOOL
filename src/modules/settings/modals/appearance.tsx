@@ -97,7 +97,6 @@ import {
 	selectedGradientAtom,
 	useCustomAccentAtom,
 	useCustomGradientAtom,
-	vRibbonPositionAtom,
 } from "$/modules/settings/states/index.ts";
 import { fontSelectionDialogAtom } from "$/states/dialogs.ts";
 import { isDarkThemeAtom } from "$/states/main.ts";
@@ -221,7 +220,6 @@ export const SettingsAppearanceTab = () => {
 	const [vBackdrop, setVBackdrop] = useAtom(advBackdropBlurAtom);
 	const [presets, setPresets] = useAtom(appearancePresetsAtom);
 	const [layoutOrder, setLayoutOrder] = useAtom(appLayoutOrderAtom);
-	const [vRibbonPos, setVRibbonPos] = useAtom(vRibbonPositionAtom);
 	const [newPresetName, setNewPresetName] = useState("");
 
 	const appFont = useAtomValue(appFontAtom);
@@ -287,7 +285,6 @@ export const SettingsAppearanceTab = () => {
 				vShadow,
 				vBackdrop,
 				layoutOrder,
-				vRibbonPos,
 				legacyDarkTheme,
 			},
 		};
@@ -368,7 +365,6 @@ export const SettingsAppearanceTab = () => {
 		if (s.vShadow !== undefined) setVShadow(Number(s.vShadow));
 		if (s.vBackdrop !== undefined) setVBackdrop(Number(s.vBackdrop));
 		if (s.layoutOrder !== undefined) setLayoutOrder(s.layoutOrder);
-		if (s.vRibbonPos !== undefined) setVRibbonPos(s.vRibbonPos);
 
 		// Small timeout to clear the flash of "active" state if desired,
 		// but keeping it visible helps user know it worked.
@@ -1214,7 +1210,6 @@ export const SettingsAppearanceTab = () => {
 											"editor",
 											"audio-controls",
 										]);
-										setVRibbonPos("top");
 									}}
 								>
 									<History24Regular />
@@ -1689,40 +1684,6 @@ export const SettingsAppearanceTab = () => {
 										</Reorder.Item>
 									))}
 								</Reorder.Group>
-
-								<Flex direction="column" gap="2" mt="2">
-									<Text size="2" weight="bold">
-										{t(
-											"settings.appearance.layout.ribbonPos",
-											"Toolbar Orientation",
-										)}
-									</Text>
-									<SegmentedControl.Root
-										value={vRibbonPos}
-										onValueChange={(v) => setVRibbonPos(v as any)}
-									>
-										<SegmentedControl.Item value="top">
-											{t("settings.appearance.layout.pos.top", "Top")}
-										</SegmentedControl.Item>
-										<SegmentedControl.Item value="bottom">
-											{t("settings.appearance.layout.pos.bottom", "Bottom")}
-										</SegmentedControl.Item>
-										<SegmentedControl.Item value="left">
-											{t("settings.appearance.layout.pos.left", "Left")}
-										</SegmentedControl.Item>
-										<SegmentedControl.Item value="right">
-											{t("settings.appearance.layout.pos.right", "Right")}
-										</SegmentedControl.Item>
-									</SegmentedControl.Root>
-									{(vRibbonPos === "left" || vRibbonPos === "right") && (
-										<Text size="1" color="amber">
-											{t(
-												"settings.appearance.layout.sidebarWarning",
-												"Note: Sidebar mode is experimental and may look different.",
-											)}
-										</Text>
-									)}
-								</Flex>
 							</Flex>
 						</Card>
 					</Flex>
@@ -1776,7 +1737,6 @@ export const SettingsAppearanceTab = () => {
 										"editor",
 										"audio-controls",
 									]);
-									setVRibbonPos("top");
 								}}
 								style={{ cursor: "pointer" }}
 							>

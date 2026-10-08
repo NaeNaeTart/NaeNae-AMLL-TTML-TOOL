@@ -26,17 +26,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { platform, version } from "@tauri-apps/plugin-os";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
-import {
-	type FC,
-	memo,
-	Suspense,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { useAtomValue, useSetAtom, useStore } from "jotai";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { ToastContainer, toast } from "react-toastify";
@@ -72,15 +63,12 @@ import {
 	advSidebarBgAtom,
 	advTitlebarBgAtom,
 	advTranslationColorAtom,
-	aiSidebarEnabledAtom,
 	allowConsecutiveBackgroundLinesAtom,
 	appFontAtom,
 	appFontStyleAtom,
 	appFontWeightAtom,
 	appLayoutOrderAtom,
 	backgroundModeAtom,
-	boykisserModeAtom,
-	boykisserUnlockedAtom,
 	customAccentColorAtom,
 	customFontDataAtom,
 	customFontNameAtom,
@@ -96,7 +84,6 @@ import {
 	selectedGradientAtom,
 	useCustomAccentAtom,
 	useCustomGradientAtom,
-	vRibbonPositionAtom,
 } from "$/modules/settings/states/index.ts";
 import { lazy } from "$/utils/lazy.ts";
 import styles from "./App.module.css";
@@ -105,7 +92,6 @@ import { ResizablePanel } from "./components/ResizablePanel";
 import RibbonBar from "./components/RibbonBar";
 import { TitleBar } from "./components/TitleBar";
 import { useFileOpener } from "./hooks/useFileOpener.ts";
-import { AiSidebar } from "./modules/ai-sidebar/AiSidebar";
 import AudioControls from "./modules/audio/components/index.tsx";
 import { useAudioFeedback } from "./modules/audio/hooks/useAudioFeedback.ts";
 import { DiscordPresence } from "./modules/discord-presence/DiscordPresence";
@@ -127,7 +113,6 @@ import {
 import { showTouchSyncPanelAtom } from "./modules/settings/states/sync.ts";
 import { settingsDialogAtom, settingsTabAtom } from "./states/dialogs.ts";
 import {
-	aiSidebarWidthAtom,
 	isDarkThemeAtom,
 	isGlobalFileDraggingAtom,
 	lyricLinesAtom,
@@ -210,78 +195,11 @@ const AppErrorPage = ({
 	);
 };
 
-const RainEffect: FC<{ isRaining: boolean }> = memo(({ isRaining }) => {
-	const [images, setImages] = useState<{ id: string; x: number }[]>([]);
-	const counterRef = useRef(0);
-
-	useEffect(() => {
-		if (!isRaining) {
-			counterRef.current = 0;
-			return;
-		}
-		const columns = 8;
-		const columnIndices = Array.from({ length: columns }, (_, i) => i);
-		const shuffle = (array: number[]) => {
-			for (let i = array.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[array[i], array[j]] = [array[j], array[i]];
-			}
-			return array;
-		};
-		let shuffled = shuffle([...columnIndices]);
-
-		const interval = setInterval(() => {
-			if (counterRef.current % columns === 0) {
-				shuffled = shuffle([...columnIndices]);
-			}
-			const columnIndex = shuffled[counterRef.current % columns];
-			const x =
-				columnIndex * (100 / columns) + Math.random() * (100 / columns) * 0.8;
-			setImages((prev) => [
-				...prev,
-				{ id: Math.random().toString(36).substring(7), x },
-			]);
-			counterRef.current++;
-		}, 150);
-		return () => clearInterval(interval);
-	}, [isRaining]);
-
-	return (
-		<>
-			{images.map((img) => (
-				<motion.img
-					key={img.id}
-					src="https://images.weserv.nl/?url=https://files.catbox.moe/5n0ofa.gif&n=-1"
-					alt=""
-					referrerPolicy="no-referrer"
-					initial={{ y: -120, x: `${img.x}vw`, opacity: 1 }}
-					animate={{ y: "110vh" }}
-					transition={{ duration: 2, ease: "linear" }}
-					onAnimationComplete={() => {
-						setImages((prev) => prev.filter((i) => i.id !== img.id));
-					}}
-					style={{
-						position: "fixed",
-						top: 0,
-						left: 0,
-						width: "120px",
-						height: "120px",
-						zIndex: 2147483647,
-						pointerEvents: "none",
-						objectFit: "contain",
-					}}
-				/>
-			))}
-		</>
-	);
-});
-
 function App() {
 	const isDarkTheme = useAtomValue(isDarkThemeAtom);
 	const legacyDarkTheme = useAtomValue(legacyDarkThemeAtom);
 	const toolMode = useAtomValue(toolModeAtom);
 	const showTouchSyncPanel = useAtomValue(showTouchSyncPanelAtom);
-	const aiSidebarEnabled = useAtomValue(aiSidebarEnabledAtom);
 	const showPreviewPanel = useAtomValue(showPreviewPanelAtom);
 	// Preview mode already owns the entire editor area. Keep the sync preview
 	// pane's setting intact for when the user returns, but never render a second
@@ -340,77 +258,6 @@ function App() {
 	const vSelection = useAtomValue(advSelectionColorAtom);
 	const vBackdropBlur = useAtomValue(advBackdropBlurAtom);
 	const appLayoutOrder = useAtomValue(appLayoutOrderAtom);
-	const vRibbonPosition = useAtomValue(vRibbonPositionAtom);
-
-	const boykisserMode = useAtomValue(boykisserModeAtom);
-	const [boykisserUnlocked, setBoykisserUnlocked] = useAtom(
-		boykisserUnlockedAtom,
-	);
-	const [, setTypedSequence] = useState("");
-
-	useEffect(() => {
-		const isTauri =
-			typeof window !== "undefined" &&
-			(("__TAURI__" in window && !!window.__TAURI__) ||
-				!!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa =
-			typeof window !== "undefined" &&
-			(window.matchMedia("(display-mode: standalone)").matches ||
-				("standalone" in window.navigator && !!window.navigator.standalone));
-		const isApp = isTauri || isPwa;
-
-		if (!isApp) return;
-
-		const handleKeyDown = (e: KeyboardEvent) => {
-			// Don't trigger if typing in text inputs or textareas
-			const activeElement = document.activeElement;
-			if (
-				activeElement &&
-				(activeElement.tagName === "INPUT" ||
-					activeElement.tagName === "TEXTAREA" ||
-					activeElement.getAttribute("contenteditable") === "true")
-			) {
-				return;
-			}
-
-			if (e.key.length === 1) {
-				setTypedSequence((prev) => {
-					const next = (prev + e.key.toLowerCase()).slice(-9);
-					if (next === "boykisser") {
-						setBoykisserUnlocked(true);
-					}
-					return next;
-				});
-			}
-		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-		};
-	}, [setBoykisserUnlocked]);
-
-	const isApp = useMemo(() => {
-		const isTauri =
-			typeof window !== "undefined" &&
-			(("__TAURI__" in window && !!window.__TAURI__) ||
-				!!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa =
-			typeof window !== "undefined" &&
-			(window.matchMedia("(display-mode: standalone)").matches ||
-				("standalone" in window.navigator && !!window.navigator.standalone));
-		return isTauri || isPwa;
-	}, []);
-
-	const isUnlocked = !isApp || boykisserUnlocked;
-
-	const [isRaining, setIsRaining] = useState(false);
-
-	const startRain = useCallback(() => {
-		if (isRaining) return;
-		setIsRaining(true);
-		setTimeout(() => setIsRaining(false), 3000);
-	}, [isRaining]);
-
 	useEffect(() => {
 		// Extract font name from appFont string (e.g., '"Inter", sans-serif' -> 'Inter')
 		const match = appFont.match(/"([^"]+)"/);
@@ -807,12 +654,7 @@ function App() {
 					<Flex direction="column" height="100vh">
 						{appLayoutOrder.map((id) => {
 							if (id === "titlebar") return <TitleBar key="titlebar" />;
-							if (
-								id === "ribbonbar" &&
-								(vRibbonPosition === "top" || vRibbonPosition === "bottom")
-							) {
-								return <RibbonBar key="ribbonbar" position={vRibbonPosition} />;
-							}
+							if (id === "ribbonbar") return <RibbonBar key="ribbonbar" />;
 							if (id === "editor") {
 								const editorContent = (
 									<Box flexGrow="1" overflow="hidden" key="editor-content">
@@ -894,39 +736,10 @@ function App() {
 													</AnimatePresence>
 												)}
 											</Box>
-											{aiSidebarEnabled &&
-												(toolMode === ToolMode.Edit ||
-													toolMode === ToolMode.Sync) && (
-													<ResizablePanel
-														widthAtom={aiSidebarWidthAtom}
-														minWidth={280}
-														maxWidth={560}
-													>
-														<AiSidebar />
-													</ResizablePanel>
-												)}
 										</Flex>
 									</Box>
 								);
 
-								if (vRibbonPosition === "left" || vRibbonPosition === "right") {
-									return (
-										<Flex
-											direction="row"
-											flexGrow="1"
-											overflow="hidden"
-											key="editor-row"
-										>
-											{vRibbonPosition === "left" && (
-												<RibbonBar isSidebar position="left" />
-											)}
-											{editorContent}
-											{vRibbonPosition === "right" && (
-												<RibbonBar isSidebar position="right" />
-											)}
-										</Flex>
-									);
-								}
 								return editorContent;
 							}
 							if (id === "audio-controls") {
@@ -946,29 +759,7 @@ function App() {
 						<Dialogs />
 					</Suspense>
 					<ToastContainer theme={effectiveTheme} />
-					{boykisserMode &&
-						isUnlocked &&
-						!window.location.href.includes("spicylyrics.org") && (
-							<img
-								src="https://images.weserv.nl/?url=https://files.catbox.moe/5n0ofa.gif&n=-1"
-								alt=""
-								referrerPolicy="no-referrer"
-								onClick={startRain}
-								style={{
-									position: "fixed",
-									top: "28px",
-									right: "120px",
-									width: "20px",
-									height: "20px",
-									pointerEvents: "auto",
-									cursor: "pointer",
-									zIndex: 9999,
-									objectFit: "contain",
-								}}
-							/>
-						)}
 				</div>
-				<RainEffect isRaining={isRaining} />
 			</ErrorBoundary>
 		</Theme>
 	);

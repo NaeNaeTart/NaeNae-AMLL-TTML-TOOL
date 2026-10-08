@@ -23,7 +23,6 @@ import App from "./App.tsx";
 import "./i18n/index.ts";
 import "./index.css";
 import "./utils/pwa.tsx";
-import { pluginManager } from "$/modules/plugins/plugin-manager";
 import { globalStore } from "./states/store.ts";
 
 async function startApp() {
@@ -40,8 +39,6 @@ async function startApp() {
 		) {
 			(AMLLLyric.wasm_start as () => void)();
 		}
-
-		await pluginManager.loadEnabledPlugins();
 	} catch (e) {
 		console.error("Error during App initialization:", e);
 	}

@@ -1,0 +1,87 @@
+import { Info24Regular } from "@fluentui/react-icons";
+import { Box, Button, Dialog, Flex, Text } from "@radix-ui/themes";
+import { useAtom, useSetAtom } from "jotai";
+import { useTranslation } from "react-i18next";
+import {
+	geniusCategorizationEnabledAtom,
+	geniusHeaderDetectionDialogOpenAtom,
+	geniusHeaderDetectionDialogShownAtom,
+} from "$/modules/settings/states/index.ts";
+
+export const GeniusHeaderDetectionDialog = () => {
+	const { t } = useTranslation();
+	const setGeniusCategorizationEnabled = useSetAtom(
+		geniusCategorizationEnabledAtom,
+	);
+	const setDialogShown = useSetAtom(geniusHeaderDetectionDialogShownAtom);
+	const [isOpen, setIsOpen] = useAtom(geniusHeaderDetectionDialogOpenAtom);
+
+	return (
+		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+			<Dialog.Content style={{ maxWidth: 500 }}>
+				<Dialog.Title>
+					{t(
+						"experimentalFeatures.geniusCategorization.dialogTitle",
+						"Genius Headers Detected!",
+					)}
+				</Dialog.Title>
+				<Dialog.Description mb="4">
+					{t(
+						"experimentalFeatures.geniusCategorization.dialogDesc",
+						"We've detected section headers in your lyrics. Would you like to enable the experimental 'Genius Header Categorization' feature to help with your workflow?",
+					)}
+				</Dialog.Description>
+
+				<Flex direction="column" gap="3">
+					<Box
+						p="3"
+						style={{
+							backgroundColor: "var(--gray-2)",
+							borderRadius: "var(--radius-2)",
+						}}
+					>
+						<Flex gap="2" align="start">
+							<Info24Regular
+								style={{ color: "var(--accent-9)", marginTop: "2px" }}
+							/>
+							<Text size="1">
+								{t(
+									"experimentalFeatures.geniusCategorization.usageInfo",
+									"Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.",
+								)}
+							</Text>
+						</Flex>
+					</Box>
+
+					<Flex justify="end" gap="2">
+						<Button
+							variant="soft"
+							color="gray"
+							onClick={() => {
+								setIsOpen(false);
+								setDialogShown(true);
+							}}
+						>
+							{t(
+								"experimentalFeatures.geniusCategorization.maybeLater",
+								"Maybe Later",
+							)}
+						</Button>
+						<Button
+							onClick={() => {
+								setGeniusCategorizationEnabled(true);
+								setDialogShown(true);
+								setIsOpen(false);
+							}}
+						>
+							{t(
+								"experimentalFeatures.geniusCategorization.enableNow",
+								"Enable Now",
+							)}
+						</Button>
+					</Flex>
+				</Flex>
+			</Dialog.Content>
+		</Dialog.Root>
+	);
+};

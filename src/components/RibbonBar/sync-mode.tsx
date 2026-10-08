@@ -21,7 +21,7 @@ import {
 } from "@radix-ui/themes";
 import { useAtom, useAtomValue } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
-import { type FC, forwardRef } from "react";
+import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocation } from "$/modules/lyric-editor/utils/lyric-states.ts";
 import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
@@ -93,10 +93,7 @@ const EmptyBeatField = () => {
 	);
 };
 
-export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
-	HTMLDivElement,
-	{ isSidebar?: boolean }
->(({ isSidebar }, ref) => {
+export const SyncModeRibbonBar = forwardRef<HTMLDivElement>((_props, ref) => {
 	const [visualizeTimestampUpdate, setVisualizeTimestampUpdate] = useAtom(
 		visualizeTimestampUpdateAtom,
 	);
@@ -143,10 +140,9 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 	const [showAdvanced, setShowAdvanced] = useAtom(advancedRibbonControlsAtom);
 
 	return (
-		<RibbonFrame ref={ref} isSidebar={isSidebar}>
+		<RibbonFrame ref={ref}>
 			{showAdvanced && (
 				<RibbonSection
-					isSidebar={isSidebar}
 					label={t("ribbonBar.syncMode.currentEmptyBeat", "当前空拍")}
 				>
 					<Grid
@@ -160,10 +156,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					</Grid>
 				</RibbonSection>
 			)}
-			<RibbonSection
-				isSidebar={isSidebar}
-				label={t("ribbonBar.syncMode.syncAdjustment", "打轴调整")}
-			>
+			<RibbonSection label={t("ribbonBar.syncMode.syncAdjustment", "打轴调整")}>
 				<Grid
 					columns="max-content auto"
 					gap="4"
@@ -218,10 +211,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					<EmptyBeatField />
 				</Grid>
 			</RibbonSection>
-			<RibbonSection
-				isSidebar={isSidebar}
-				label={t("ribbonBar.syncMode.syncLevel", "Sync Level")}
-			>
+			<RibbonSection label={t("ribbonBar.syncMode.syncLevel", "Sync Level")}>
 				<Flex
 					direction="column"
 					gap="2"
@@ -245,7 +235,6 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</Flex>
 			</RibbonSection>
 			<RibbonSection
-				isSidebar={isSidebar}
 				label={t("ribbonBar.syncMode.playbackTracking", "Tracking")}
 			>
 				<Grid
@@ -292,7 +281,6 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 			</RibbonSection>
 			{showAdvanced && (
 				<RibbonSection
-					isSidebar={isSidebar}
 					label={t("ribbonBar.syncMode.assistSettings", "辅助设置")}
 				>
 					<Grid
@@ -393,7 +381,6 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 			)}
 			{showAdvanced && (
 				<RibbonSection
-					isSidebar={isSidebar}
 					label={t("ribbonBar.syncMode.displayOptions", "显示选项")}
 				>
 					<Grid
@@ -493,7 +480,6 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</RibbonSection>
 			)}
 			<RibbonSection
-				isSidebar={isSidebar}
 				label={t("ribbonBar.syncMode.keyBindingReference", "打轴键位速查")}
 			>
 				<Flex gap="4">
@@ -533,10 +519,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</Flex>
 			</RibbonSection>
 			{showAdvanced && (
-				<RibbonSection
-					isSidebar={isSidebar}
-					label={t("ribbonBar.editMode.previewPanel", "预览面板")}
-				>
+				<RibbonSection label={t("ribbonBar.editMode.previewPanel", "预览面板")}>
 					<Flex direction="column" align="center" gap="1">
 						<Switch
 							checked={showPreviewPanel}
@@ -545,10 +528,7 @@ export const SyncModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					</Flex>
 				</RibbonSection>
 			)}
-			<RibbonSection
-				label={t("ribbonBar.advanced", "Advanced")}
-				isSidebar={isSidebar}
-			>
+			<RibbonSection label={t("ribbonBar.advanced", "Advanced")}>
 				<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
 			</RibbonSection>
 		</RibbonFrame>

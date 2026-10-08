@@ -11,7 +11,6 @@ const ALL: Set<BackupCategoryId> = new Set([
 	"keybindings",
 	"assets",
 	"projects",
-	"plugins",
 ]);
 
 function makeParts(): ExportPreviewParts {
@@ -36,22 +35,6 @@ function makeParts(): ExportPreviewParts {
 		versions: [
 			{ projectId: "p1", timestamp: 1, data: {} as never },
 			{ projectId: "p1", timestamp: 2, data: {} as never },
-		],
-		plugins: [
-			{
-				id: "pl2",
-				name: "Zeta",
-				version: "2.0.0",
-				kind: "tool",
-				bytes: 100,
-			},
-			{
-				id: "pl1",
-				name: "Alpha",
-				version: "1.0.0",
-				kind: "importer",
-				bytes: 10,
-			},
 		],
 	};
 }
@@ -79,7 +62,6 @@ describe("summarizeExportParts", () => {
 			"keybindings",
 			"assets",
 			"projects",
-			"plugins",
 		]);
 		expect(preview.categories[0].items.map((item) => item.label)).toEqual([
 			"A Key",
@@ -97,10 +79,6 @@ describe("summarizeExportParts", () => {
 		]);
 		expect(preview.categories[3].items[0].detail).toBe("2 versions");
 		expect(preview.categories[3].items[1].detail).toBe("0 versions");
-		expect(preview.categories[4].items.map((item) => item.label)).toEqual([
-			"Alpha 1.0.0",
-			"Zeta 2.0.0",
-		]);
 		expect(preview.totalBytes).toBe(
 			preview.categories.reduce((sum, category) => sum + category.bytes, 0),
 		);

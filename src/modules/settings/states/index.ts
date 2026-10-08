@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { atom, type ExtractAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
 export enum SyncJudgeMode {
@@ -44,10 +44,6 @@ export const showLineRomanizationAtom = atomWithStorage(
 	true,
 );
 
-export const hideSubmitAMLLDBWarningAtom = atomWithStorage(
-	"hideSubmitAMLLDBWarning",
-	false,
-);
 export const generateNameFromMetadataAtom = atomWithStorage(
 	"generateNameFromMetadata",
 	true,
@@ -202,11 +198,6 @@ export const customGradientSizeAtom = atomWithStorage<number>(
 	1,
 );
 
-export const syncGradientToAccentAtom = atomWithStorage<boolean>(
-	"syncGradientToAccent",
-	false,
-);
-
 export const appFontAtom = atomWithStorage<string>(
 	"appFont",
 	'"MiSans", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
@@ -228,30 +219,6 @@ export const appFontWeightAtom = atomWithStorage<string>(
 export const appFontStyleAtom = atomWithStorage<string>(
 	"appFontStyle",
 	"normal",
-);
-
-export const importAddSpacesAtom = atomWithStorage<boolean>(
-	"importAddSpaces",
-	false,
-);
-
-export const importSplitHyphensAtom = atomWithStorage<boolean>(
-	"importSplitHyphens",
-	true,
-);
-
-export const aiSidebarEnabledAtom = atomWithStorage("aiSidebarEnabled", false);
-export const aiSidebarBaseUrlAtom = atomWithStorage(
-	"aiSidebarBaseUrl",
-	"https://api.openai.com/v1",
-);
-export const aiSidebarModelAtom = atomWithStorage(
-	"aiSidebarModel",
-	"gpt-4o-mini",
-);
-export const aiSidebarPersistKeyAtom = atomWithStorage(
-	"aiSidebarPersistKey",
-	false,
 );
 
 export const normalizeApostrophesOnImportAtom = atomWithStorage<boolean>(
@@ -291,13 +258,6 @@ export const hideMp3ConversionWarningAtom = atomWithStorage<boolean>(
 	"hideMp3ConversionWarning",
 	false,
 );
-
-export const boykisserModeAtom = atomWithStorage<boolean>(
-	"boykisserMode",
-	false,
-);
-
-export const boykisserUnlockedAtom = atom<boolean>(false);
 
 export const glassmorphismBlurAtom = atomWithStorage<number>(
 	"glassmorphismBlur",
@@ -413,14 +373,54 @@ export const appLayoutOrderAtom = atomWithStorage<string[]>("appLayoutOrder", [
 	"audio-controls",
 ]);
 
-export const vRibbonPositionAtom = atomWithStorage<
-	"top" | "bottom" | "left" | "right"
->("vRibbonPosition", "top");
-
 export interface AppearancePreset {
 	id: string;
 	name: string;
-	settings: Record<string, any>;
+	settings: Partial<{
+		accentColor: ExtractAtomValue<typeof accentColorAtom>;
+		useCustomAccent: boolean;
+		customAccentColor: string;
+		glassBlur: number;
+		backgroundMode: ExtractAtomValue<typeof backgroundModeAtom>;
+		selectedGradient: string;
+		useCustomGradient: boolean;
+		customGradientColors: string[];
+		customGradientType: ExtractAtomValue<typeof customGradientTypeAtom>;
+		customGradientOpacity: number;
+		customGradientCenter: [number, number];
+		customGradientAngle: number;
+		customGradientSize: number;
+		advWaveformColor: string;
+		advWaveformProgress: string;
+		advPrimaryText: string;
+		advSecondaryText: string;
+		vTitlebarBg: string;
+		vSidebarBg: string;
+		vSidebarActive: string;
+		vMenuHover: string;
+		vEditorBg: string;
+		vActiveLine: string;
+		vLineHover: string;
+		vSelection: string;
+		vChipRadius: number;
+		vChipGap: number;
+		vChipPaddingV: number;
+		vChipPaddingH: number;
+		vRomanColor: string;
+		vTransColor: string;
+		vGeniusHeaderColor: string;
+		vAudioBarBg: string;
+		vAudioBarText: string;
+		vScrollbar: string;
+		vDialogBg: string;
+		vDialogBorder: string;
+		vGlobalRadius: number;
+		vGlobalBorderWidth: number;
+		vShadow: number;
+		vBackdrop: number;
+		layoutOrder: string[];
+		legacyDarkTheme: boolean;
+	}>;
 }
 
 export const appearancePresetsAtom = atomWithStorage<AppearancePreset[]>(
@@ -432,8 +432,6 @@ export const geniusCategorizationEnabledAtom = atomWithStorage<boolean>(
 	"geniusCategorizationEnabled",
 	false,
 );
-
-export const experimentalFeaturesDialogOpenAtom = atom(false);
 
 export const geniusHeaderDetectionDialogShownAtom = atomWithStorage<boolean>(
 	"geniusHeaderDetectionDialogShown",

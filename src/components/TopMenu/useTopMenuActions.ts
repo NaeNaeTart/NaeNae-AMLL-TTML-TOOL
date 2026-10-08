@@ -43,7 +43,6 @@ import {
 	metadataEditorDialogAtom,
 	projectsDialogAtom,
 	settingsDialogAtom,
-	submitToAMLLDBDialogAtom,
 	timeShiftDialogAtom,
 	timeStretchDialogAtom,
 	ttmlChecklistDialogAtom,
@@ -55,8 +54,6 @@ import {
 	keyRedoAtom,
 	keySaveFileAtom,
 	keySelectAllAtom,
-	keySelectInvertedAtom,
-	keySelectWordsOfMatchedSelectionAtom,
 	keyUndoAtom,
 } from "$/states/keybindings.ts";
 import {
@@ -114,10 +111,6 @@ export const useTopMenuActions = () => {
 	const undoKey = useAtomValue(keyUndoAtom);
 	const redoKey = useAtomValue(keyRedoAtom);
 	const selectAllLinesKey = useAtomValue(keySelectAllAtom);
-	const selectInvertedLinesKey = useAtomValue(keySelectInvertedAtom);
-	const selectWordsOfMatchedSelectionKey = useAtomValue(
-		keySelectWordsOfMatchedSelectionAtom,
-	);
 	const deleteSelectionKey = useAtomValue(keyDeleteSelectionAtom);
 	const runHistoryAction = useMemo(
 		() => createHistoryActionGate(requestAnimationFrame),
@@ -296,6 +289,8 @@ export const useTopMenuActions = () => {
 		}
 
 		if (untimedLine && untimedWord) {
+			const line = untimedLine;
+			const word = untimedWord;
 			setConfirmDialog({
 				open: true,
 				title: t(
@@ -313,10 +308,10 @@ export const useTopMenuActions = () => {
 				cancelText: t("confirmDialog.untimedLyrics.fixIt", "Fix It"),
 				onConfirm: action,
 				onCancel: () => {
-					store.set(selectedLinesAtom, new Set([untimedLine!.id]));
-					store.set(selectedWordsAtom, new Set([untimedWord!.id]));
-					audioEngine.seekMusic(untimedLine!.startTime / 1000);
-					store.set(currentTimeAtom, untimedLine!.startTime);
+					store.set(selectedLinesAtom, new Set([line.id]));
+					store.set(selectedWordsAtom, new Set([word.id]));
+					audioEngine.seekMusic(line.startTime / 1000);
+					store.set(currentTimeAtom, line.startTime);
 				},
 			});
 		} else {
@@ -387,6 +382,8 @@ export const useTopMenuActions = () => {
 		}
 
 		if (untimedLine && untimedWord) {
+			const line = untimedLine;
+			const word = untimedWord;
 			setConfirmDialog({
 				open: true,
 				title: t(
@@ -404,20 +401,16 @@ export const useTopMenuActions = () => {
 				cancelText: t("confirmDialog.untimedLyrics.fixIt", "Fix It"),
 				onConfirm: action,
 				onCancel: () => {
-					store.set(selectedLinesAtom, new Set([untimedLine!.id]));
-					store.set(selectedWordsAtom, new Set([untimedWord!.id]));
-					audioEngine.seekMusic(untimedLine!.startTime / 1000);
-					store.set(currentTimeAtom, untimedLine!.startTime);
+					store.set(selectedLinesAtom, new Set([line.id]));
+					store.set(selectedWordsAtom, new Set([word.id]));
+					audioEngine.seekMusic(line.startTime / 1000);
+					store.set(currentTimeAtom, line.startTime);
 				},
 			});
 		} else {
 			action();
 		}
 	}, [store, setConfirmDialog, t]);
-
-	const onSubmitToAMLLDB = useCallback(() => {
-		store.set(submitToAMLLDBDialogAtom, true);
-	}, [store]);
 
 	const onOpenMetadataEditor = useCallback(() => {
 		setMetadataEditorOpened(true);
@@ -509,10 +502,6 @@ export const useTopMenuActions = () => {
 			}
 		}
 	}, [store]);
-
-	const onSelectInverted = useCallback(() => {}, []);
-
-	const onSelectWordsOfMatchedSelection = useCallback(() => {}, []);
 
 	const onDeleteSelection = useCallback(() => {
 		const selectedWordIds = store.get(selectedWordsAtom);
@@ -666,8 +655,6 @@ export const useTopMenuActions = () => {
 		redoKey,
 		selectAllLinesKey,
 		unselectAllLinesKey: selectAllLinesKey,
-		selectInvertedLinesKey,
-		selectWordsOfMatchedSelectionKey,
 		deleteSelectionKey,
 		undoDisabled: !undoLyricLines.canUndo,
 		redoDisabled: !undoLyricLines.canRedo,
@@ -678,13 +665,10 @@ export const useTopMenuActions = () => {
 		onOpenHistoryRestore,
 		onOpenProjects,
 		onSaveFileToClipboard,
-		onSubmitToAMLLDB,
 		onUndo,
 		onRedo,
 		onSelectAll,
 		onUnselectAll,
-		onSelectInverted,
-		onSelectWordsOfMatchedSelection,
 		onDeleteSelection,
 		onOpenTimeShift,
 		onOpenTimeStretch,

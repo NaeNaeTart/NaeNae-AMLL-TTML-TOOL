@@ -39,7 +39,6 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarCheckDialog.tsx";
 import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
 import {
 	displayRomanizationInSyncAtom,
@@ -70,20 +69,6 @@ import {
 } from "$/utils/phonetic";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
 import { RibbonFrame, RibbonSection } from "./common";
-
-const GrammarCheckButton = () => {
-	const { t } = useTranslation();
-	const store = useStore();
-	return (
-		<Button
-			onClick={() => {
-				store.set(grammarCheckDialogAtom, true);
-			}}
-		>
-			{t("ribbonBar.editMode.grammarCheck", "语法检查")}
-		</Button>
-	);
-};
 
 const MULTIPLE_VALUES = Symbol("multiple-values");
 
@@ -971,10 +956,7 @@ const PhoneticSection = () => {
 	);
 };
 
-export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
-	HTMLDivElement,
-	{ isSidebar?: boolean }
->(({ isSidebar }, ref) => {
+export const EditModeRibbonBar = forwardRef<HTMLDivElement>((_props, ref) => {
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const { t } = useTranslation();
 	const selectedLines = useAtomValue(selectedLinesAtom);
@@ -987,11 +969,8 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 	const [syncTabPosition, setSyncTabPosition] = useAtom(syncTabPositionAtom);
 
 	return (
-		<RibbonFrame ref={ref} isSidebar={isSidebar} reserveControlRows={3}>
-			<RibbonSection
-				label={t("ribbonBar.editMode.new", "新建")}
-				isSidebar={isSidebar}
-			>
+		<RibbonFrame ref={ref} reserveControlRows={3}>
+			<RibbonSection label={t("ribbonBar.editMode.new", "新建")}>
 				<Grid columns="1" gap="1" gapY="1" flexGrow="1" align="center">
 					<Button
 						size="1"
@@ -1008,7 +987,6 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 			</RibbonSection>
 			<RibbonSection
 				label={t("ribbonBar.editMode.playbackTracking", "Tracking")}
-				isSidebar={isSidebar}
 			>
 				<Grid
 					columns="max-content auto"
@@ -1053,10 +1031,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</Grid>
 			</RibbonSection>
 			{selectedLines.size > 0 && (
-				<RibbonSection
-					isSidebar={isSidebar}
-					label={t("ribbonBar.editMode.lineTiming", "行时间戳")}
-				>
+				<RibbonSection label={t("ribbonBar.editMode.lineTiming", "行时间戳")}>
 					<Grid
 						columns="max-content 1fr"
 						gap="2"
@@ -1080,10 +1055,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</RibbonSection>
 			)}
 			{selectedLines.size > 0 && (
-				<RibbonSection
-					isSidebar={isSidebar}
-					label={t("ribbonBar.editMode.lineProperties", "行属性")}
-				>
+				<RibbonSection label={t("ribbonBar.editMode.lineProperties", "行属性")}>
 					<Grid
 						columns="max-content max-content"
 						gap="4"
@@ -1116,10 +1088,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				<PhoneticSection />
 			)}
 			{selectedWords.size > 0 && (
-				<RibbonSection
-					isSidebar={isSidebar}
-					label={t("ribbonBar.editMode.wordTiming", "词时间戳")}
-				>
+				<RibbonSection label={t("ribbonBar.editMode.wordTiming", "词时间戳")}>
 					<Grid
 						columns="max-content 1fr"
 						gap="2"
@@ -1156,7 +1125,6 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 			)}
 			{selectedWords.size > 0 && (
 				<RibbonSection
-					isSidebar={isSidebar}
 					label={t("ribbonBar.editMode.wordProperties", "单词属性")}
 				>
 					<Grid
@@ -1191,7 +1159,6 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 			)}
 			{showAdvanced && selectedLines.size > 0 && (
 				<RibbonSection
-					isSidebar={isSidebar}
 					label={t("ribbonBar.editMode.secondaryContent", "次要内容")}
 				>
 					<Grid
@@ -1219,10 +1186,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</RibbonSection>
 			)}
 			{showAdvanced && (
-				<RibbonSection
-					label={t("ribbonBar.editMode.layoutMode", "布局模式")}
-					isSidebar={isSidebar}
-				>
+				<RibbonSection label={t("ribbonBar.editMode.layoutMode", "布局模式")}>
 					<EditModeField
 						simpleModeLabel={t(
 							"settings.common.layoutModeOptions.simple",
@@ -1238,25 +1202,11 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 			{showAdvanced && (
 				<RibbonSection
 					label={t("ribbonBar.editMode.auxiliaryLineDisplay", "辅助行显示")}
-					isSidebar={isSidebar}
 				>
 					<AuxiliaryDisplayField />
 				</RibbonSection>
 			)}
-			{showAdvanced && (
-				<RibbonSection
-					label={t("ribbonBar.editMode.tools", "工具")}
-					isSidebar={isSidebar}
-				>
-					<Flex gap="2" direction="column">
-						<GrammarCheckButton />
-					</Flex>
-				</RibbonSection>
-			)}
-			<RibbonSection
-				label={t("ribbonBar.advanced", "Advanced")}
-				isSidebar={isSidebar}
-			>
+			<RibbonSection label={t("ribbonBar.advanced", "Advanced")}>
 				<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
 			</RibbonSection>
 		</RibbonFrame>

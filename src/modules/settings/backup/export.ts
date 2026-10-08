@@ -1,5 +1,4 @@
 import { BUILD_TIME, GIT_COMMIT } from "virtual:buildmeta";
-import { getAllPlugins } from "$/modules/plugins/plugin-store";
 import { exportAllProjectsData } from "$/modules/project/autosave/autosave";
 import { readCustomBackgroundBlob } from "$/modules/settings/modals/customBackground";
 import { saveFile } from "$/utils/fileSystem";
@@ -34,6 +33,8 @@ export function partitionLocalStorage(): {
 		const value = localStorage.getItem(key);
 		if (value === null) continue;
 
+		if (isExportDeniedKey(key) && !isSecretKey(key)) continue;
+
 		if (key.startsWith(KEYBINDING_PREFIX)) {
 			keybindings[key] = value;
 		} else if (isSecretKey(key)) {
@@ -61,7 +62,6 @@ export interface BackupCounts {
 	apiKeys: number;
 	assets: BackupAssetsCounts;
 	projects: number;
-	plugins: number;
 }
 
 export function countsFromParts(parts: ExportPreviewParts): BackupCounts {
@@ -75,7 +75,6 @@ export function countsFromParts(parts: ExportPreviewParts): BackupCounts {
 			font: Boolean(parts.customFont),
 		},
 		projects: parts.projects.length,
-		plugins: parts.plugins.length,
 	};
 }
 
@@ -147,19 +146,6 @@ export async function buildBackup(
 		backup.categories.projects = {
 			projects,
 			versions: versions.map(({ id: _id, ...rest }) => rest),
-		};
-	}
-
-	if (selected.has("plugins")) {
-		const plugins = await getAllPlugins();
-		backup.categories.plugins = {
-			plugins: await Promise.all(
-				plugins.map(async ({ blob, ...rest }) => ({
-					...rest,
-					blobMime: blob.type || "application/wasm",
-					blobBase64: await blobToBase64(blob),
-				})),
-			),
 		};
 	}
 

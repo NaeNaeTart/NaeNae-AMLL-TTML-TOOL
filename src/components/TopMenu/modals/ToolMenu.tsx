@@ -3,9 +3,7 @@ import { useAtom } from "jotai";
 import { Toolbar } from "radix-ui";
 import type { CSSProperties } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { pluginManager } from "$/modules/plugins/plugin-manager";
 import { spectrogramHoverSyncEnabledAtom } from "$/modules/settings/states/sync";
-import { lyricLinesAtom } from "$/states/main";
 import { useTopMenuActions } from "../useTopMenuActions";
 
 type ToolMenuProps = {
@@ -17,27 +15,9 @@ type ToolMenuProps = {
 const ToolMenuItems = () => {
 	const { t } = useTranslation();
 	const menu = useTopMenuActions();
-	const [lyricLines, setLyricLines] = useAtom(lyricLinesAtom);
 	const [spectrogramHoverSyncEnabled, setSpectrogramHoverSyncEnabled] = useAtom(
 		spectrogramHoverSyncEnabledAtom,
 	);
-
-	const tools = pluginManager.getTools();
-
-	const onRunPluginTool = (pluginId: string) => async () => {
-		try {
-			const nextLines = await pluginManager.runTool(
-				pluginId,
-				lyricLines.lyricLines,
-			);
-			setLyricLines((prev) => ({
-				...prev,
-				lyricLines: nextLines,
-			}));
-		} catch (e) {
-			console.error(`Failed to run tool ${pluginId}:`, e);
-		}
-	};
 
 	return (
 		<>
@@ -75,16 +55,6 @@ const ToolMenuItems = () => {
 			<DropdownMenu.Item onSelect={menu.onOpenTTMLChecklist}>
 				{t("topBar.menu.ttmlChecklist", "TTML Checklist")}
 			</DropdownMenu.Item>
-
-			{tools.length > 0 && <DropdownMenu.Separator />}
-			{tools.map((tool) => (
-				<DropdownMenu.Item
-					key={tool.metadata.id}
-					onSelect={onRunPluginTool(tool.metadata.id)}
-				>
-					{tool.metadata.name}
-				</DropdownMenu.Item>
-			))}
 		</>
 	);
 };

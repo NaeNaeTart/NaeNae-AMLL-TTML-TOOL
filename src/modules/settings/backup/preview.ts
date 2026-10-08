@@ -33,13 +33,6 @@ export interface ExportPreviewParts {
 	customFont?: { name: string; bytes: number } | null;
 	projects: ProjectInfo[];
 	versions: ProjectVersion[];
-	plugins: Array<{
-		id: string;
-		name: string;
-		version: string;
-		kind: string;
-		bytes: number;
-	}>;
 }
 
 /** Translatable strings used when building item labels. */
@@ -163,16 +156,6 @@ export function summarizeExportParts(
 					};
 				});
 			categories.push(toCategory(id, items));
-		} else if (id === "plugins") {
-			const items = [...parts.plugins]
-				.sort((a, b) => a.name.localeCompare(b.name))
-				.map((plugin) => ({
-					key: plugin.id,
-					label: `${plugin.name} ${plugin.version}`,
-					detail: plugin.kind,
-					bytes: plugin.bytes,
-				}));
-			categories.push(toCategory(id, items));
 		}
 	}
 
@@ -198,7 +181,6 @@ export async function loadExportParts(
 		customFont: null,
 		projects: [],
 		versions: [],
-		plugins: [],
 	};
 	if (selected.size === 0) return parts;
 
@@ -269,23 +251,6 @@ export async function loadExportParts(
 			),
 		);
 	}
-	if (selected.has("plugins")) {
-		jobs.push(
-			import("$/modules/plugins/plugin-store").then(
-				async ({ getAllPlugins }) => {
-					const plugins = await getAllPlugins();
-					parts.plugins = plugins.map((plugin) => ({
-						id: plugin.id,
-						name: plugin.name,
-						version: plugin.version,
-						kind: plugin.type,
-						bytes: plugin.blob.size,
-					}));
-				},
-			),
-		);
-	}
-
 	await Promise.all(jobs);
 	return parts;
 }

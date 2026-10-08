@@ -66,11 +66,6 @@ const FileMenuItems = () => {
 			<DropdownMenu.Separator />
 			<ImportExportLyric />
 			<DropdownMenu.Separator />
-			<DropdownMenu.Item onSelect={menu.onSubmitToAMLLDB}>
-				<Trans i18nKey="topBar.menu.uploadToAMLLDB">
-					上传到 AMLL 歌词数据库
-				</Trans>
-			</DropdownMenu.Item>
 		</>
 	);
 };
