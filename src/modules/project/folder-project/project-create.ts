@@ -275,7 +275,7 @@ export async function createLinkedProjectFromCurrent(
 		store.set(activeProjectManifestAtom, manifest);
 		store.set(projectAudioFileAtom, audio);
 		store.set(saveFileNameAtom, getFileNameFromPath(lyricPath));
-		await grantDroppedFileAccess(store.get(pendingAudioPathAtom));
+		await grantDroppedFileAccess(audioPath);
 		await grantDroppedFileAccess(knownLyricPath);
 		await upsertRecentProject({
 			dir,

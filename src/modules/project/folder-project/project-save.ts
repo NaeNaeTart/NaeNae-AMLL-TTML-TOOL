@@ -5,6 +5,7 @@ import {
 	readDir,
 	readTextFile,
 	remove,
+	rename,
 	writeTextFile,
 } from "@tauri-apps/plugin-fs";
 import type { getDefaultStore } from "jotai";
@@ -127,8 +128,10 @@ async function ensureLinkedBackup(
 		if (!(await exists(lyricPath))) return true;
 		const backupPath = assertSafePath(dir, LINKED_LYRIC_BACKUP_FILENAME);
 		if (await exists(backupPath)) return true;
+		const tempPath = assertSafePath(dir, `${LINKED_LYRIC_BACKUP_FILENAME}.tmp`);
 		await mkdir(dir, { recursive: true });
-		await writeTextFile(backupPath, await readTextFile(lyricPath));
+		await writeTextFile(tempPath, await readTextFile(lyricPath));
+		await rename(tempPath, backupPath);
 		log(`Backed up linked lyric file to ${backupPath}`);
 		return true;
 	} catch (e) {
