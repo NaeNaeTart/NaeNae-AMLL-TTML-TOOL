@@ -16,6 +16,7 @@ import {
 	Switch,
 	Text,
 	TextField,
+	Tooltip,
 } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { forwardRef } from "react";
@@ -301,7 +302,14 @@ export const PreviewModeRibbonBar = forwardRef<HTMLDivElement>(
 					</RibbonSection>
 				)}
 				<RibbonSection label={t("ribbonBar.advanced", "Advanced")}>
-					<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+					<Tooltip
+						content={t(
+							"ribbonBar.advancedTooltip",
+							"Applies to all toolbars: Edit, Time, and Preview.",
+						)}
+					>
+						<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+					</Tooltip>
 				</RibbonSection>
 			</RibbonFrame>
 		);

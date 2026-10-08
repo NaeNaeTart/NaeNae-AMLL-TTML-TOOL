@@ -43,7 +43,6 @@ import {
 	advancedSecondaryTextColorAtom,
 	advancedWaveformColorAtom,
 	advancedWaveformProgressColorAtom,
-	advBackdropBlurAtom,
 	advChipBorderRadiusAtom,
 	advChipGapAtom,
 	advChipPaddingHorizontalAtom,
@@ -256,7 +255,6 @@ function App() {
 	const vGlobalBorderWidth = useAtomValue(advGlobalBorderWidthAtom);
 	const vShadow = useAtomValue(advShadowIntensityAtom);
 	const vSelection = useAtomValue(advSelectionColorAtom);
-	const vBackdropBlur = useAtomValue(advBackdropBlurAtom);
 	const appLayoutOrder = useAtomValue(appLayoutOrderAtom);
 	useEffect(() => {
 		// Extract font name from appFont string (e.g., '"Inter", sans-serif' -> 'Inter')
@@ -354,7 +352,7 @@ function App() {
 			--global-radius: ${vGlobalRadius}px !important;
 			--global-border-width: ${vGlobalBorderWidth}px !important;
 			--shadow-intensity: ${vShadow} !important;
-			--custom-backdrop-blur: ${vBackdropBlur}px !important;
+			--custom-backdrop-blur: ${glassmorphismBlur}px !important;
 
 			--radius-factor: ${vGlobalRadius / 12} !important;
 
@@ -416,7 +414,6 @@ function App() {
 		vGlobalBorderWidth,
 		vShadow,
 		vSelection,
-		vBackdropBlur,
 		appFontWeight,
 		appFontStyle,
 		customFontData,

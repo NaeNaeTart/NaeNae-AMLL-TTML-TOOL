@@ -18,6 +18,7 @@ import {
 	Switch,
 	Text,
 	TextField,
+	Tooltip,
 } from "@radix-ui/themes";
 import { useAtom, useAtomValue } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
@@ -37,11 +38,11 @@ import {
 import { instantHighlightFadeAtom } from "$/modules/settings/states/preview";
 import {
 	currentEmptyBeatAtom,
-	editActiveLineHighlightAtom,
 	enableTimeModeDoubleClickEditAtom,
 	type SyncLevelMode,
 	showTouchSyncPanelAtom,
 	spectrogramHoverSyncEnabledAtom,
+	syncActiveLineHighlightAtom,
 	syncAutoScrollAtom,
 	syncCommitOffsetAtom,
 	syncLevelModeAtom,
@@ -133,7 +134,7 @@ export const SyncModeRibbonBar = forwardRef<HTMLDivElement>((_props, ref) => {
 	const [instantFade, setInstantFade] = useAtom(instantHighlightFadeAtom);
 	const [syncAutoScroll, setSyncAutoScroll] = useAtom(syncAutoScrollAtom);
 	const [syncActiveLineHighlight, setSyncActiveLineHighlight] = useAtom(
-		editActiveLineHighlightAtom,
+		syncActiveLineHighlightAtom,
 	);
 	const [syncTabPosition, setSyncTabPosition] = useAtom(syncTabPositionAtom);
 	const { t } = useTranslation();
@@ -529,7 +530,14 @@ export const SyncModeRibbonBar = forwardRef<HTMLDivElement>((_props, ref) => {
 				</RibbonSection>
 			)}
 			<RibbonSection label={t("ribbonBar.advanced", "Advanced")}>
-				<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+				<Tooltip
+					content={t(
+						"ribbonBar.advancedTooltip",
+						"Applies to all toolbars: Edit, Time, and Preview.",
+					)}
+				>
+					<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+				</Tooltip>
 			</RibbonSection>
 		</RibbonFrame>
 	);

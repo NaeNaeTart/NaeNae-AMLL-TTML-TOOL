@@ -9,7 +9,7 @@ import {
 	parseQrc,
 	parseYrc,
 } from "@applemusic-like-lyrics/lyric";
-import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
+import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -90,7 +90,6 @@ export const useFileOpener = () => {
 	const isDirty = useAtomValue(isDirtyAtom);
 	const { t } = useTranslation();
 
-	const [conversionMode] = useAtom(mp3ConversionModeAtom);
 	const normalizeApostrophesOnImport = useAtomValue(
 		normalizeApostrophesOnImportAtom,
 	);
@@ -144,6 +143,7 @@ export const useFileOpener = () => {
 			try {
 				if (AUDIO_EXTENSIONS.has(ext)) {
 					if (ext === "mp3") {
+						const conversionMode = store.get(mp3ConversionModeAtom);
 						if (conversionMode === Mp3ConversionMode.Always) {
 							const fileData = await file.arrayBuffer();
 							const uint8Array = new Uint8Array(fileData);
@@ -317,7 +317,6 @@ export const useFileOpener = () => {
 			setSaveFileName,
 			normalizeLyricLines,
 			t,
-			conversionMode,
 			normalizeApostrophesOnImport,
 			normalizeCyrillicEsOnImport,
 			setMp3ConversionDialog,

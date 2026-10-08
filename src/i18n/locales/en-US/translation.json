@@ -172,6 +172,7 @@
     "unknown": "Unknown"
   },
   "ribbonBar": {
+    "advancedTooltip": "Applies to all toolbars: Edit, Time, and Preview.",
     "editMode": {
       "multipleValues": "Multiple values…",
       "duration": "持续时间",
@@ -283,6 +284,10 @@
   },
   "settings": {
     "common": {
+      "highlightActiveLineDesc": "Visually highlights the lyric line currently being played in the selected mode.",
+      "playbackSettingsMode": "Playback behavior for",
+      "editMode": "Edit",
+      "timeMode": "Time",
       "enabled": "Enabled",
       "layoutModeOptions": {
         "simple": "Simple Mode",
@@ -369,6 +374,7 @@
         "gradient": "Gradient"
       },
       "presets": {
+        "missingBackground": "This preset's background image is unavailable on this device. The current image was kept.",
         "title": "Appearance Presets",
         "namePlaceholder": "Theme Name...",
         "save": "Save Current",

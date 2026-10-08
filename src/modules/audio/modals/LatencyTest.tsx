@@ -11,7 +11,8 @@ import {
 } from "$/modules/settings/states";
 import { latencyTestDialogAtom } from "$/states/dialogs.ts";
 import { keySyncNextAtom } from "$/states/keybindings";
-import { useKeyBindingAtom } from "$/utils/keybindings";
+import { type KeyBindingEvent, registerKeyBindings } from "$/utils/keybindings";
+import { subscribeLatencyTestTaps } from "../utils/latency-test-session";
 
 const BeepVisualizer = ({ enable }: { enable: boolean }) => {
 	return (
@@ -38,6 +39,7 @@ export const LatencyTestDialog = memo(() => {
 		max: number;
 	} | null>(null);
 	const syncJudgeMode = useAtomValue(syncJudgeModeAtom);
+	const syncNextBinding = useAtomValue(keySyncNextAtom);
 	const nextBeatTime = useRef(0);
 	const curBeatTime = useRef(0);
 	const hitOffsetsRef = useRef<number[]>([]);
@@ -46,12 +48,36 @@ export const LatencyTestDialog = memo(() => {
 	const { t } = useTranslation();
 
 	useEffect(() => {
+		if (dialogOpen) return;
+		setStart(false);
+		setHitOffset(null);
+		hitOffsetsRef.current = [];
+		curBeatTime.current = 0;
+		nextBeatTime.current = 0;
+	}, [dialogOpen]);
+
+	useEffect(() => {
 		if (!start || !dialogOpen) {
 			setCurBeat(-1);
 			return;
 		}
 		setHitOffset(null);
 		let canceled = false;
+		let frameId = 0;
+		const scheduledNodes = new Set<AudioScheduledSourceNode>();
+		const playBeep = (
+			node: AudioScheduledSourceNode,
+			when: number,
+			stop: number,
+		) => {
+			node.addEventListener("ended", () => scheduledNodes.delete(node), {
+				once: true,
+			});
+			void audioEngine.playNode(node, when, stop).then(() => {
+				if (canceled) node.stop();
+				else scheduledNodes.add(node);
+			});
+		};
 
 		const canvas = visualizerRef.current;
 		if (!canvas) return;
@@ -83,11 +109,7 @@ export const LatencyTestDialog = memo(() => {
 
 			curBeatTime.current = audioEngine.ctxCurrentTime;
 			nextBeatTime.current = curBeatTime.current;
-			audioEngine.playNode(
-				beep1(),
-				curBeatTime.current,
-				curBeatTime.current + nodeDur,
-			);
+			playBeep(beep1(), curBeatTime.current, curBeatTime.current + nodeDur);
 			setCurBeat(0);
 
 			let curNode: AudioScheduledSourceNode | null = null;
@@ -100,7 +122,7 @@ export const LatencyTestDialog = memo(() => {
 					beat %= 4;
 					curBeatTime.current = nextBeatTime.current;
 					nextBeatTime.current = currentTime + dur;
-					audioEngine.playNode(
+					playBeep(
 						curNode,
 						nextBeatTime.current,
 						nextBeatTime.current + nodeDur,
@@ -140,21 +162,22 @@ export const LatencyTestDialog = memo(() => {
 					canvas.height,
 				);
 
-				await new Promise((r) => requestAnimationFrame(r));
+				await new Promise<void>((resolve) => {
+					frameId = requestAnimationFrame(() => resolve());
+				});
 			}
-
-			curNode?.stop();
 		})();
 
 		return () => {
 			canceled = true;
+			cancelAnimationFrame(frameId);
+			for (const node of scheduledNodes) node.stop();
+			scheduledNodes.clear();
 		};
 	}, [start, dialogOpen, beepDuration]);
 
-	useKeyBindingAtom(
-		keySyncNextAtom,
-		(evt) => {
-			if (!start) return;
+	useEffect(() => {
+		const onTap = (evt: KeyBindingEvent) => {
 			const currentTime = audioEngine.ctxCurrentTime;
 			const outputLatency = audioEngine.ctxOutputLatency;
 			let hitTime = currentTime + outputLatency;
@@ -195,9 +218,13 @@ export const LatencyTestDialog = memo(() => {
 					max: Math.max(old.max, v),
 				};
 			});
-		},
-		[start],
-	);
+		};
+		return subscribeLatencyTestTaps(
+			dialogOpen && start,
+			(callback) => registerKeyBindings(syncNextBinding, callback),
+			onTap,
+		);
+	}, [dialogOpen, start, syncJudgeMode, syncNextBinding]);
 
 	return (
 		<Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -254,15 +281,10 @@ export const LatencyTestDialog = memo(() => {
 							{hitOffset === null
 								? t("latencyTestDialog.latencyDisplay.current.none", "未测量")
 								: hitOffset.cur > 0
-									? t("latencyTestDialog.latencyDisplay.current.fast", "快") +
-										` ${hitOffset.cur}ms`
+									? `${t("latencyTestDialog.latencyDisplay.current.fast", "快")} ${hitOffset.cur}ms`
 									: hitOffset.cur < 0
-										? t("latencyTestDialog.latencyDisplay.current.slow", "慢") +
-											` ${hitOffset.cur}ms`
-										: t(
-												"latencyTestDialog.latencyDisplay.current.perfect",
-												"完美",
-											) + " 0ms"}
+										? `${t("latencyTestDialog.latencyDisplay.current.slow", "慢")} ${hitOffset.cur}ms`
+										: `${t("latencyTestDialog.latencyDisplay.current.perfect", "完美")} 0ms`}
 						</Text>
 
 						<Text>
