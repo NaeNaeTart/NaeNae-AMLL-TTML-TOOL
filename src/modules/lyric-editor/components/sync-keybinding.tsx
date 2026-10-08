@@ -192,7 +192,10 @@ export const SyncKeyBinding: FC = () => {
 			store.set(selectedWordsAtom, new Set([nextWord.unit.id]));
 			store.set(selectedLinesAtom, new Set([nextWord.line.id]));
 			store.set(currentEmptyBeatAtom, 0);
-			if (play) audioEngine.seekMusic(getUnitStartTime(nextWord.unit) / 1000);
+			if (play)
+				void audioEngine.resumeOrSeekMusic(
+					getUnitStartTime(nextWord.unit) / 1000,
+				);
 			return true;
 		},
 		[store],
@@ -229,14 +232,18 @@ export const SyncKeyBinding: FC = () => {
 					store.set(selectedWordsAtom, new Set());
 				} else {
 					store.set(selectedWordsAtom, new Set([lastUnit.id]));
-					if (play) audioEngine.seekMusic(getUnitStartTime(lastUnit) / 1000);
+					if (play)
+						void audioEngine.resumeOrSeekMusic(
+							getUnitStartTime(lastUnit) / 1000,
+						);
 				}
 			} else {
 				const lineUnits = getSynchronizableUnits(location.line);
 				const prevUnit = lineUnits[location.syncIndex - 1];
 				if (!prevUnit) return false;
 				store.set(selectedWordsAtom, new Set([prevUnit.id]));
-				if (play) audioEngine.seekMusic(getUnitStartTime(prevUnit) / 1000);
+				if (play)
+					void audioEngine.resumeOrSeekMusic(getUnitStartTime(prevUnit) / 1000);
 			}
 			return true;
 		},
@@ -298,7 +305,7 @@ export const SyncKeyBinding: FC = () => {
 		if (!lastUnit) return;
 		store.set(selectedWordsAtom, new Set([lastUnit.id]));
 		store.set(selectedLinesAtom, new Set([location.line.id]));
-		audioEngine.seekMusic(getUnitStartTime(lastUnit) / 1000);
+		void audioEngine.resumeOrSeekMusic(getUnitStartTime(lastUnit) / 1000);
 	}, [store]);
 
 	useKeyBindingAtom(keyMoveFirstWordAndPlayAtom, () => {
@@ -308,7 +315,7 @@ export const SyncKeyBinding: FC = () => {
 		if (!firstUnit) return;
 		store.set(selectedWordsAtom, new Set([firstUnit.id]));
 		store.set(selectedLinesAtom, new Set([location.line.id]));
-		audioEngine.seekMusic(getUnitStartTime(firstUnit) / 1000);
+		void audioEngine.resumeOrSeekMusic(getUnitStartTime(firstUnit) / 1000);
 	}, [store]);
 
 	// 记录时间戳（主要打轴按键）
@@ -528,10 +535,10 @@ export const SyncKeyBinding: FC = () => {
 				const state: LyricsState = prev;
 				const nextLines = state.lyricLines.slice();
 
-				let curLineIndex = location.lineIndex;
-				let curWordIndex = location.wordIndex;
-				let curRubyIndex = location.rubyIndex;
-				let curSyncIndex = location.syncIndex;
+				const curLineIndex = location.lineIndex;
+				const curWordIndex = location.wordIndex;
+				const curRubyIndex = location.rubyIndex;
+				const curSyncIndex = location.syncIndex;
 
 				const getLineToEdit = (idx: number) => {
 					nextLines[idx] = cloneLineWithWords(nextLines[idx]);

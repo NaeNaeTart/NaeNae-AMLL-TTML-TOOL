@@ -7,6 +7,7 @@ import {
 } from "@fluentui/react-icons";
 import {
 	Box,
+	Button,
 	Flex,
 	Grid,
 	Heading,
@@ -14,10 +15,17 @@ import {
 	Text,
 	TextField,
 } from "@radix-ui/themes";
-import { useAtom } from "jotai";
-import { useState } from "react";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { formatKeyBindings, recordShortcut } from "$/utils/keybindings";
+import {
+	formatKeyBindings,
+	getShortcutKey,
+	RESET_KEYBINDING,
+	recordShortcut,
+	stopRecordingShortcut,
+} from "$/utils/keybindings";
+import { findKeyBindingConflicts } from "../conflicts";
 import { getAllCommands } from "../registry";
 import { autoSegmentDoublePressAtom } from "../states";
 import type { KeyBindingCommand } from "../types";
@@ -29,41 +37,103 @@ const KEYBINDING_CATEGORY_ICONS: Record<string, React.ReactNode> = {
 	Audio: <Speaker220Regular />,
 };
 
-const KeyBindingsEdit = ({ command }: { command: KeyBindingCommand }) => {
+const KeyBindingsEdit = ({
+	command,
+	conflicts = [],
+}: {
+	command: KeyBindingCommand;
+	conflicts?: KeyBindingCommand[];
+}) => {
 	const { t } = useTranslation();
 	const [keys, setKeys] = useAtom(command.atom);
 	const [listening, setListening] = useState(false);
+	const labelId = useId();
+	const conflictId = useId();
+	const startRecording = async () => {
+		if (listening) return;
+		try {
+			setListening(true);
+			setKeys(await recordShortcut());
+		} catch {
+			// Escape or another recording cancels without changing this binding.
+		} finally {
+			setListening(false);
+		}
+	};
 
 	return (
 		<>
-			<Box style={{ display: "flex", alignItems: "center" }}>
+			<Box id={labelId} style={{ display: "flex", alignItems: "center" }}>
 				{t(command.description)}
 			</Box>
 
 			<Box>
-				<TextField.Root
-					onClick={async () => {
-						try {
-							setListening(true);
-							const newKeys = await recordShortcut();
-							setKeys(newKeys);
-						} catch {
-							// 用户取消
-						} finally {
-							setListening(false);
+				<Flex direction="column" gap="2">
+					<TextField.Root
+						onClick={startRecording}
+						onKeyDown={(event) => {
+							if (!listening && (event.key === "Enter" || event.key === " ")) {
+								event.preventDefault();
+								event.stopPropagation();
+								void startRecording();
+							}
+						}}
+						aria-labelledby={labelId}
+						aria-describedby={conflicts.length > 0 ? conflictId : undefined}
+						size="2"
+						value={
+							listening
+								? t("settingsDialog.keybindings.recording")
+								: formatKeyBindings(keys) ||
+									t("settingsDialog.keybindings.unbound")
 						}
-					}}
-					size="2"
-					value={listening ? "..." : formatKeyBindings(keys)}
-					readOnly
-					variant="soft"
-					style={{
-						cursor: "pointer",
-						textAlign: "left",
-						backgroundColor: listening ? "var(--gray-3)" : "var(--gray-1)",
-						color: listening ? "var(--accent-11)" : "var(--gray-12)",
-					}}
-				/>
+						readOnly
+						variant="soft"
+						style={{
+							cursor: "pointer",
+							textAlign: "left",
+							backgroundColor: listening ? "var(--gray-3)" : "var(--gray-1)",
+							color: listening ? "var(--accent-11)" : "var(--gray-12)",
+						}}
+					/>
+					<Flex gap="2" wrap="wrap">
+						<Button
+							size="1"
+							variant="soft"
+							disabled={
+								listening ||
+								getShortcutKey(keys) === getShortcutKey(command.defaultKeys)
+							}
+							onClick={() => setKeys(RESET_KEYBINDING)}
+						>
+							{t("settingsDialog.keybindings.resetDefault")}
+						</Button>
+						<Button
+							size="1"
+							variant="soft"
+							color="gray"
+							disabled={listening || keys.length === 0}
+							onClick={() => setKeys([])}
+						>
+							{t("settingsDialog.keybindings.clear")}
+						</Button>
+					</Flex>
+					{conflicts.length > 0 && (
+						<Text
+							id={conflictId}
+							as="div"
+							size="1"
+							color="orange"
+							role="status"
+						>
+							{t("settingsDialog.keybindings.conflict", {
+								commands: conflicts
+									.map((other) => t(other.description))
+									.join(", "),
+							})}
+						</Text>
+					)}
+				</Flex>
 			</Box>
 		</>
 	);
@@ -71,10 +141,20 @@ const KeyBindingsEdit = ({ command }: { command: KeyBindingCommand }) => {
 
 export const AutoKeyBindingSettingsPanel = () => {
 	const { t } = useTranslation();
+	useEffect(() => () => stopRecordingShortcut(), []);
 	const [autoSegmentDoublePress, setAutoSegmentDoublePress] = useAtom(
 		autoSegmentDoublePressAtom,
 	);
-	const commands = getAllCommands();
+	const commands = useMemo(() => getAllCommands(), []);
+	const bindingsAtom = useMemo(
+		() =>
+			atom((get) =>
+				commands.map((command) => ({ command, keys: get(command.atom) })),
+			),
+		[commands],
+	);
+	const bindings = useAtomValue(bindingsAtom);
+	const conflicts = findKeyBindingConflicts(bindings);
 
 	const groupedCommands = commands.reduce(
 		(acc, cmd) => {
@@ -100,9 +180,18 @@ export const AutoKeyBindingSettingsPanel = () => {
 						</Flex>
 					</Heading>
 
-					<Grid columns="2" gapX="4" gapY="3" align="center">
+					<Grid
+						columns={{ initial: "1", sm: "2" }}
+						gapX="4"
+						gapY="3"
+						align="center"
+					>
 						{cmds.map((cmd) => (
-							<KeyBindingsEdit key={cmd.id} command={cmd} />
+							<KeyBindingsEdit
+								key={cmd.id}
+								command={cmd}
+								conflicts={conflicts.get(cmd.id)}
+							/>
 						))}
 					</Grid>
 				</Box>

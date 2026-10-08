@@ -1,5 +1,12 @@
 import { useAtom } from "jotai";
 import { useEffect } from "react";
+import {
+	cmdInterfaceScaleDown,
+	cmdInterfaceScaleReset,
+	cmdInterfaceScaleUp,
+	cmdInterfaceScaleUpAlternate,
+} from "$/modules/keyboard/commands";
+import { useCommand } from "$/modules/keyboard/hooks";
 import { error } from "$/utils/logging";
 import {
 	getInterfaceScaleForShortcut,
@@ -26,24 +33,15 @@ export function InterfaceScaleManager() {
 			.catch((reason) => error("Failed to update interface scale", reason));
 	}, [interfaceScale, isTauri, normalizedScale, setInterfaceScale]);
 
-	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
-
-			const nextScale = getInterfaceScaleForShortcut(
-				interfaceScale,
-				event.key,
-				isTauri,
-			);
-			if (nextScale === undefined) return;
-
-			event.preventDefault();
-			setInterfaceScale(nextScale);
-		};
-
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [interfaceScale, isTauri, setInterfaceScale]);
+	const changeScale = (key: string) => {
+		setInterfaceScale(
+			(scale) => getInterfaceScaleForShortcut(scale, key) ?? scale,
+		);
+	};
+	useCommand(cmdInterfaceScaleUp, () => changeScale("+"), [], isTauri);
+	useCommand(cmdInterfaceScaleUpAlternate, () => changeScale("+"), [], isTauri);
+	useCommand(cmdInterfaceScaleDown, () => changeScale("-"), [], isTauri);
+	useCommand(cmdInterfaceScaleReset, () => changeScale("0"), [], isTauri);
 
 	return null;
 }

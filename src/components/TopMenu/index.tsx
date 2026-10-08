@@ -2,6 +2,10 @@ import { Box, Flex } from "@radix-ui/themes";
 import { useAtomValue } from "jotai";
 import { Toolbar } from "radix-ui";
 import { type FC, useCallback, useEffect, useState } from "react";
+import {
+	cmdAutoSegmentDialog,
+	cmdRedoAlternate,
+} from "$/modules/keyboard/commands";
 import { autoSegmentDoublePressAtom } from "$/modules/keyboard/states";
 import {
 	keyAutoSegmentAtom,
@@ -14,9 +18,9 @@ import {
 	keySelectInvertedAtom,
 	keySelectWordsOfMatchedSelectionAtom,
 	keyUndoAtom,
+	keyUnselectAllAtom,
 } from "$/states/keybindings";
 import {
-	registerKeyBindings,
 	useDoubleKeyBindingAtom,
 	useKeyBindingAtom,
 } from "$/utils/keybindings";
@@ -65,19 +69,10 @@ export const TopMenu: FC = () => {
 	useKeyBindingAtom(keySaveFileAtom, menu.onSaveFile, [menu.onSaveFile]);
 	useKeyBindingAtom(keyUndoAtom, menu.onUndo, [menu.onUndo]);
 	useKeyBindingAtom(keyRedoAtom, menu.onRedo, [menu.onRedo]);
-	useEffect(() => {
-		const unbinds = [
-			registerKeyBindings(["Control", "KeyY"], menu.onRedo),
-			registerKeyBindings(["Control", "Shift", "KeyZ"], menu.onRedo),
-			registerKeyBindings(["Shift", "Control", "KeyZ"], menu.onRedo),
-		];
-		return () => {
-			unbinds.forEach((unbind) => {
-				unbind();
-			});
-		};
-	}, [menu.onRedo]);
-	useKeyBindingAtom(keySelectAllAtom, menu.onUnselectAll, [menu.onUnselectAll]);
+	useKeyBindingAtom(cmdRedoAlternate.atom, menu.onRedo, [menu.onRedo]);
+	useKeyBindingAtom(keyUnselectAllAtom, menu.onUnselectAll, [
+		menu.onUnselectAll,
+	]);
 	useKeyBindingAtom(keySelectAllAtom, menu.onSelectAll, [menu.onSelectAll]);
 	useKeyBindingAtom(keySelectInvertedAtom, menu.onSelectInverted, [
 		menu.onSelectInverted,
@@ -99,6 +94,9 @@ export const TopMenu: FC = () => {
 		[menu.onQuickAutoSegment],
 		autoSegmentDoublePress,
 	);
+	useKeyBindingAtom(cmdAutoSegmentDialog.atom, menu.onAutoSegment, [
+		menu.onAutoSegment,
+	]);
 
 	return (
 		<Flex

@@ -16,8 +16,9 @@ export function useCommand(
 	command: KeyBindingCommand,
 	callback: KeyBindingCallback,
 	deps: DependencyList = [],
+	enabled = true,
 ) {
 	const currentKeys = useAtomValue(command.atom);
 
-	useKeyBinding(currentKeys, callback, deps);
+	useKeyBinding(enabled ? currentKeys : [], callback, deps);
 }
