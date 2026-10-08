@@ -231,7 +231,7 @@ export const ImportExportLyric = () => {
 					<DropdownMenu.Item onClick={onExportLyric(stringifyLrc, "lrc")}>
 						{t("topBar.menu.exportLyric.toLyRiC", "导出到 LyRiC")}
 					</DropdownMenu.Item>
-					<DropdownMenu.Item onClick={onExportLyric(stringifyEslrc, "lrc")}>
+					<DropdownMenu.Item onClick={onExportLyric(stringifyEslrc, "eslrc")}>
 						{t("topBar.menu.exportLyric.toESLyRiC", "导出到 ESLyRiC")}
 					</DropdownMenu.Item>
 					<DropdownMenu.Item onClick={onExportLyric(stringifyQrc, "qrc")}>

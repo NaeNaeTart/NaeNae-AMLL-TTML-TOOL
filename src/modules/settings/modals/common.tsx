@@ -32,15 +32,21 @@ import {
 	Flex,
 	Heading,
 	Link,
+	SegmentedControl,
 	Select,
 	Slider,
 	Switch,
 	Text,
 	TextField,
 } from "@radix-ui/themes";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playbackRateAtom, volumeAtom } from "$/modules/audio/states";
+import {
+	MAX_PLAYBACK_RATE,
+	MIN_PLAYBACK_RATE,
+} from "$/modules/audio/utils/playback-rate";
 import { DiscordPresenceSettings } from "$/modules/discord-presence/DiscordPresenceSettings";
 import {
 	allowConsecutiveBackgroundLinesAtom,
@@ -61,8 +67,11 @@ import {
 } from "$/modules/settings/states";
 import {
 	editActiveLineHighlightAtom,
+	editAutoScrollAtom,
+	editTabPositionAtom,
 	enableUpcomingWordHighlightAtom,
 	spectrogramHoverSyncEnabledAtom,
+	syncActiveLineHighlightAtom,
 	syncAutoScrollAtom,
 	syncCommitOffsetAtom,
 	syncFocusMainLineAtom,
@@ -72,6 +81,7 @@ import {
 	upcomingWordHighlightColorAtom,
 	upcomingWordHighlightThresholdAtom,
 } from "$/modules/settings/states/sync";
+import { ToolMode, toolModeAtom } from "$/states/main";
 import {
 	KeyBindingTriggerMode,
 	keyBindingTriggerModeAtom,
@@ -129,11 +139,25 @@ export const SettingsCommonTab = ({
 	const [syncFocusMainLine, setSyncFocusMainLine] = useAtom(
 		syncFocusMainLineAtom,
 	);
-	const [syncAutoScroll, setSyncAutoScroll] = useAtom(syncAutoScrollAtom);
-	const [editActiveLineHighlight, setEditActiveLineHighlight] = useAtom(
-		editActiveLineHighlightAtom,
+	const toolMode = useAtomValue(toolModeAtom);
+	const [playbackSettingsMode, setPlaybackSettingsMode] = useState(
+		toolMode === ToolMode.Edit ? ToolMode.Edit : ToolMode.Sync,
 	);
-	const [syncTabPosition, setSyncTabPosition] = useAtom(syncTabPositionAtom);
+	const [syncAutoScroll, setSyncAutoScroll] = useAtom(
+		playbackSettingsMode === ToolMode.Edit
+			? editAutoScrollAtom
+			: syncAutoScrollAtom,
+	);
+	const [editActiveLineHighlight, setEditActiveLineHighlight] = useAtom(
+		playbackSettingsMode === ToolMode.Edit
+			? editActiveLineHighlightAtom
+			: syncActiveLineHighlightAtom,
+	);
+	const [syncTabPosition, setSyncTabPosition] = useAtom(
+		playbackSettingsMode === ToolMode.Edit
+			? editTabPositionAtom
+			: syncTabPositionAtom,
+	);
 
 	const { t, i18n } = useTranslation();
 	const currentLanguage = i18n.resolvedLanguage || i18n.language;
@@ -167,15 +191,15 @@ export const SettingsCommonTab = ({
 	};
 
 	const getTranslationProgress = (code: string) => {
-		const source = (resources as any)["en-US"]?.translation;
-		const target = (resources as any)[code]?.translation;
+		const source = resources["en-US"]?.translation;
+		const target = resources[code]?.translation;
 		if (!source || !target || code === "en-US") return null;
 
-		const countKeys = (obj: any): number => {
+		const countKeys = (obj: Record<string, unknown>): number => {
 			let count = 0;
 			for (const key in obj) {
 				if (typeof obj[key] === "object") {
-					count += countKeys(obj[key]);
+					count += countKeys(obj[key] as Record<string, unknown>);
 				} else {
 					count++;
 				}
@@ -183,12 +207,18 @@ export const SettingsCommonTab = ({
 			return count;
 		};
 
-		const countTranslatedKeys = (s: any, t: any): number => {
+		const countTranslatedKeys = (
+			s: Record<string, unknown>,
+			t: Record<string, unknown>,
+		): number => {
 			let count = 0;
 			for (const key in s) {
 				if (t[key] !== undefined) {
 					if (typeof s[key] === "object") {
-						count += countTranslatedKeys(s[key], t[key]);
+						count += countTranslatedKeys(
+							s[key] as Record<string, unknown>,
+							t[key] as Record<string, unknown>,
+						);
 					} else if (t[key] !== s[key] && t[key] !== "") {
 						// Only count as translated if it's different from English and not empty
 						count++;
@@ -661,6 +691,25 @@ export const SettingsCommonTab = ({
 							</Flex>
 						</Text>
 					</Card>
+					<Text weight="bold">
+						{t("settings.common.playbackSettingsMode", "Playback behavior for")}
+					</Text>
+					<SegmentedControl.Root
+						value={playbackSettingsMode}
+						onValueChange={(value) =>
+							setPlaybackSettingsMode(
+								value === ToolMode.Edit ? ToolMode.Edit : ToolMode.Sync,
+							)
+						}
+					>
+						<SegmentedControl.Item value={ToolMode.Edit}>
+							{t("settings.common.editMode", "Edit")}
+						</SegmentedControl.Item>
+						<SegmentedControl.Item value={ToolMode.Sync}>
+							{t("settings.common.timeMode", "Time")}
+						</SegmentedControl.Item>
+					</SegmentedControl.Root>
+
 					<Card>
 						<Text as="label">
 							<Flex gap="3" align="center">
@@ -748,7 +797,7 @@ export const SettingsCommonTab = ({
 											<Text size="1" color="gray">
 												{t(
 													"settings.common.highlightActiveLineDesc",
-													"Visually highlights the lyric line currently being played in both Edit and Time modes.",
+													"Visually highlights the lyric line currently being played in the selected mode.",
 												)}
 											</Text>
 										</Flex>
@@ -1063,7 +1112,7 @@ export const SettingsCommonTab = ({
 									<Slider
 										min={0}
 										max={1}
-										defaultValue={[volume]}
+										value={[volume]}
 										step={0.01}
 										onValueChange={(v) => setVolume(v[0])}
 									/>
@@ -1090,9 +1139,9 @@ export const SettingsCommonTab = ({
 										</Text>
 									</Flex>
 									<Slider
-										min={0.1}
-										max={2}
-										defaultValue={[playbackRate]}
+										min={MIN_PLAYBACK_RATE}
+										max={MAX_PLAYBACK_RATE}
+										value={[playbackRate]}
 										step={0.05}
 										onValueChange={(v) => setPlaybackRate(v[0])}
 									/>

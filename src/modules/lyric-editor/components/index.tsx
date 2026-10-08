@@ -40,6 +40,8 @@ import {
 	geniusHeaderDetectionDialogShownAtom,
 } from "$/modules/settings/states/index.ts";
 import {
+	editAutoScrollAtom,
+	editTabPositionAtom,
 	syncAutoScrollAtom,
 	syncFocusMainLineAtom,
 	syncTabPositionAtom,
@@ -605,7 +607,9 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		},
 		[visibleItems, smoothScrollTo, cancelScrollAnimation, updateEditorAnchor],
 	);
-	const syncTabPosition = useAtomValue(syncTabPositionAtom);
+	const syncTabPosition = useAtomValue(
+		toolMode === ToolMode.Edit ? editTabPositionAtom : syncTabPositionAtom,
+	);
 
 	const visibleItemsRef = useRef(visibleItems);
 	visibleItemsRef.current = visibleItems;
@@ -713,7 +717,9 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		setDetectionDialogOpen,
 	]);
 
-	const syncAutoScroll = useAtomValue(syncAutoScrollAtom);
+	const syncAutoScroll = useAtomValue(
+		toolMode === ToolMode.Edit ? editAutoScrollAtom : syncAutoScrollAtom,
+	);
 	const syncFocusMainLine = useAtomValue(syncFocusMainLineAtom);
 	const userScrolledAtRef = useRef<number>(0);
 	const lastKnownTimeRef = useRef(0);

@@ -40,6 +40,13 @@ import { Reorder } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+import { applyDefinedPresetSettings } from "$/modules/settings/logic/appearance-presets";
+import {
+	DEFAULT_GLASS_BLUR,
+	getPresetGlassBlur,
+	MAX_GLASS_BLUR,
+} from "$/modules/settings/logic/glass-blur";
 import {
 	DEFAULT_INTERFACE_SCALE,
 	MAX_INTERFACE_SCALE,
@@ -57,7 +64,6 @@ import {
 	advancedSecondaryTextColorAtom,
 	advancedWaveformColorAtom,
 	advancedWaveformProgressColorAtom,
-	advBackdropBlurAtom,
 	advChipBorderRadiusAtom,
 	advChipGapAtom,
 	advChipPaddingHorizontalAtom,
@@ -81,9 +87,13 @@ import {
 	appearanceEditorModeAtom,
 	appearancePresetsAtom,
 	appFontAtom,
+	appFontStyleAtom,
+	appFontWeightAtom,
 	appLayoutOrderAtom,
 	backgroundModeAtom,
 	customAccentColorAtom,
+	customFontDataAtom,
+	customFontNameAtom,
 	customGradientAngleAtom,
 	customGradientCenterAtom,
 	customGradientColorsAtom,
@@ -95,6 +105,7 @@ import {
 	legacyDarkThemeAtom,
 	legacySpaceLabelsAtom,
 	selectedGradientAtom,
+	syncGradientToAccentAtom,
 	useCustomAccentAtom,
 	useCustomGradientAtom,
 	vRibbonPositionAtom,
@@ -103,6 +114,12 @@ import { fontSelectionDialogAtom } from "$/states/dialogs.ts";
 import { isDarkThemeAtom } from "$/states/main.ts";
 import { generateGradient, generateRadixScale } from "$/utils/colorScale";
 import {
+	customBackgroundBlurAtom,
+	customBackgroundBrightnessAtom,
+	customBackgroundImageAtom,
+	customBackgroundImageKeyAtom,
+	customBackgroundMaskAtom,
+	customBackgroundOpacityAtom,
 	SettingsCustomBackgroundCard,
 	SettingsCustomBackgroundSettings,
 } from "./customBackground";
@@ -218,13 +235,33 @@ export const SettingsAppearanceTab = () => {
 	);
 	const [vShadow, setVShadow] = useAtom(advShadowIntensityAtom);
 	const [vSelection, setVSelection] = useAtom(advSelectionColorAtom);
-	const [vBackdrop, setVBackdrop] = useAtom(advBackdropBlurAtom);
 	const [presets, setPresets] = useAtom(appearancePresetsAtom);
 	const [layoutOrder, setLayoutOrder] = useAtom(appLayoutOrderAtom);
 	const [vRibbonPos, setVRibbonPos] = useAtom(vRibbonPositionAtom);
 	const [newPresetName, setNewPresetName] = useState("");
 
-	const appFont = useAtomValue(appFontAtom);
+	const [appFont, setAppFont] = useAtom(appFontAtom);
+	const [appFontWeight, setAppFontWeight] = useAtom(appFontWeightAtom);
+	const [appFontStyle, setAppFontStyle] = useAtom(appFontStyleAtom);
+	const [customFontName, setCustomFontName] = useAtom(customFontNameAtom);
+	const [customFontData, setCustomFontData] = useAtom(customFontDataAtom);
+	const [syncGradientToAccent, setSyncGradientToAccent] = useAtom(
+		syncGradientToAccentAtom,
+	);
+	const [customBackgroundOpacity, setCustomBackgroundOpacity] = useAtom(
+		customBackgroundOpacityAtom,
+	);
+	const [customBackgroundMask, setCustomBackgroundMask] = useAtom(
+		customBackgroundMaskAtom,
+	);
+	const [customBackgroundBlur, setCustomBackgroundBlur] = useAtom(
+		customBackgroundBlurAtom,
+	);
+	const [customBackgroundBrightness, setCustomBackgroundBrightness] = useAtom(
+		customBackgroundBrightnessAtom,
+	);
+	const customBackgroundImageKey = useAtomValue(customBackgroundImageKeyAtom);
+	const setCustomBackgroundImage = useSetAtom(customBackgroundImageAtom);
 	const [glassBlur, setGlassBlur] = useAtom(glassmorphismBlurAtom);
 	const [interfaceScale, setInterfaceScale] = useAtom(interfaceScaleAtom);
 	const [interfaceScaleDraft, setInterfaceScaleDraft] =
@@ -247,6 +284,19 @@ export const SettingsAppearanceTab = () => {
 				useCustomAccent,
 				customAccentColor,
 				glassBlur,
+				appFont,
+				interfaceScale,
+				customBackgroundImageKey,
+				appFontWeight,
+				appFontStyle,
+				customFontName,
+				customFontData,
+				syncGradientToAccent,
+				customBackgroundOpacity,
+				customBackgroundMask,
+				customBackgroundBlur,
+				customBackgroundBrightness,
+
 				// Backgrounds
 				backgroundMode,
 				selectedGradient,
@@ -285,7 +335,6 @@ export const SettingsAppearanceTab = () => {
 				vGlobalRadius,
 				vGlobalBorderWidth,
 				vShadow,
-				vBackdrop,
 				layoutOrder,
 				vRibbonPos,
 				legacyDarkTheme,
@@ -295,8 +344,31 @@ export const SettingsAppearanceTab = () => {
 		setNewPresetName("");
 	};
 
-	const handleLoadPreset = (p: AppearancePreset) => {
+	const handleLoadPreset = async (p: AppearancePreset) => {
 		const s = p.settings;
+		if (s.customBackgroundImageKey !== undefined) {
+			const loaded = await setCustomBackgroundImage(s.customBackgroundImageKey);
+			if (!loaded)
+				toast.warning(
+					t(
+						"settings.appearance.presets.missingBackground",
+						"This preset's background image is unavailable on this device. The current image was kept.",
+					),
+				);
+		}
+		applyDefinedPresetSettings(s, {
+			appFont: setAppFont,
+			interfaceScale: setInterfaceScale,
+			appFontWeight: setAppFontWeight,
+			appFontStyle: setAppFontStyle,
+			customFontName: setCustomFontName,
+			customFontData: setCustomFontData,
+			syncGradientToAccent: setSyncGradientToAccent,
+			customBackgroundOpacity: setCustomBackgroundOpacity,
+			customBackgroundMask: setCustomBackgroundMask,
+			customBackgroundBlur: setCustomBackgroundBlur,
+			customBackgroundBrightness: setCustomBackgroundBrightness,
+		});
 
 		// Set a small loading indicator state
 		setLastLoaded(p.name);
@@ -307,7 +379,8 @@ export const SettingsAppearanceTab = () => {
 			setUseCustomAccent(!!s.useCustomAccent);
 		if (s.customAccentColor !== undefined)
 			setCustomAccentColor(s.customAccentColor);
-		if (s.glassBlur !== undefined) setGlassBlur(Number(s.glassBlur));
+		const presetBlur = getPresetGlassBlur(s);
+		if (presetBlur !== undefined) setGlassBlur(presetBlur);
 
 		// Backgrounds
 		if (s.backgroundMode !== undefined) setBackgroundMode(s.backgroundMode);
@@ -366,7 +439,6 @@ export const SettingsAppearanceTab = () => {
 		if (s.vGlobalBorderWidth !== undefined)
 			setVGlobalBorderWidth(Number(s.vGlobalBorderWidth));
 		if (s.vShadow !== undefined) setVShadow(Number(s.vShadow));
-		if (s.vBackdrop !== undefined) setVBackdrop(Number(s.vBackdrop));
 		if (s.layoutOrder !== undefined) setLayoutOrder(s.layoutOrder);
 		if (s.vRibbonPos !== undefined) setVRibbonPos(s.vRibbonPos);
 
@@ -539,6 +611,50 @@ export const SettingsAppearanceTab = () => {
 				</Card>
 			</Flex>
 
+			<Heading size="4" mt="4">
+				{t("settings.appearance.glass", "Glassmorphism")}
+			</Heading>
+			<Card>
+				<Flex direction="column" gap="4">
+					<Flex gap="3" align="start">
+						<Sparkle24Regular />
+						<Box flexGrow="1">
+							<Flex direction="column" gap="3">
+								<Flex align="center" justify="between">
+									<Flex direction="column" gap="1">
+										<Text>
+											{t("settings.appearance.glassBlur", "Glass Intensity")}
+										</Text>
+										<Text size="1" color="gray">
+											{t(
+												"settings.appearance.glassBlurDesc",
+												"Adjust the background blur effect for glassmorphic elements.",
+											)}
+										</Text>
+									</Flex>
+									<Text
+										size="1"
+										weight="bold"
+										style={{ color: "var(--accent-9)" }}
+									>
+										{glassBlur}px
+									</Text>
+								</Flex>
+								<Slider
+									min={0}
+									max={MAX_GLASS_BLUR}
+									step={1}
+									value={[glassBlur]}
+									onValueChange={(v) => {
+										setGlassBlur(v[0]);
+									}}
+								/>
+							</Flex>
+						</Box>
+					</Flex>
+				</Flex>
+			</Card>
+
 			{editorMode === AppearanceEditorMode.Basic ? (
 				<>
 					<Flex direction="column" gap="2">
@@ -640,54 +756,6 @@ export const SettingsAppearanceTab = () => {
 													))}
 												</Grid>
 											)}
-										</Flex>
-									</Box>
-								</Flex>
-							</Flex>
-						</Card>
-
-						<Heading size="4" mt="4">
-							{t("settings.appearance.glass", "Glassmorphism")}
-						</Heading>
-						<Card>
-							<Flex direction="column" gap="4">
-								<Flex gap="3" align="start">
-									<Sparkle24Regular />
-									<Box flexGrow="1">
-										<Flex direction="column" gap="3">
-											<Flex align="center" justify="between">
-												<Flex direction="column" gap="1">
-													<Text>
-														{t(
-															"settings.appearance.glassBlur",
-															"Glass Intensity",
-														)}
-													</Text>
-													<Text size="1" color="gray">
-														{t(
-															"settings.appearance.glassBlurDesc",
-															"Adjust the background blur effect for glassmorphic elements.",
-														)}
-													</Text>
-												</Flex>
-												<Text
-													size="1"
-													weight="bold"
-													style={{ color: "var(--accent-9)" }}
-												>
-													{glassBlur}px
-												</Text>
-											</Flex>
-											<Slider
-												min={0}
-												max={64}
-												step={1}
-												value={[glassBlur]}
-												onValueChange={(v) => {
-													setGlassBlur(v[0]);
-													setVBackdrop(v[0]);
-												}}
-											/>
 										</Flex>
 									</Box>
 								</Flex>
@@ -1178,7 +1246,7 @@ export const SettingsAppearanceTab = () => {
 										setCustomGradientCenter([50, 50]);
 										setCustomGradientAngle(45);
 										setCustomGradientSize(1);
-										setGlassBlur(24);
+										setGlassBlur(DEFAULT_GLASS_BLUR);
 										setLegacyDarkTheme(false);
 
 										setAdvWaveformColor("");
@@ -1207,7 +1275,6 @@ export const SettingsAppearanceTab = () => {
 										setVGlobalRadius(12);
 										setVGlobalBorderWidth(1);
 										setVShadow(1);
-										setVBackdrop(16);
 										setLayoutOrder([
 											"titlebar",
 											"ribbonbar",
@@ -1586,18 +1653,6 @@ export const SettingsAppearanceTab = () => {
 									onChange={setVShadow}
 									unit=""
 								/>
-								<AdvancedSliderItem
-									label="Backdrop Blur"
-									icon={<Sparkle24Regular />}
-									value={vBackdrop}
-									min={0}
-									max={100}
-									onChange={(v) => {
-										setVBackdrop(v);
-										setGlassBlur(v);
-									}}
-									unit="px"
-								/>
 							</Flex>
 						</Card>
 					</Flex>
@@ -1699,7 +1754,7 @@ export const SettingsAppearanceTab = () => {
 									</Text>
 									<SegmentedControl.Root
 										value={vRibbonPos}
-										onValueChange={(v) => setVRibbonPos(v as any)}
+										onValueChange={(v) => setVRibbonPos(v as typeof vRibbonPos)}
 									>
 										<SegmentedControl.Item value="top">
 											{t("settings.appearance.layout.pos.top", "Top")}
@@ -1768,7 +1823,7 @@ export const SettingsAppearanceTab = () => {
 									setVGlobalRadius(12);
 									setVGlobalBorderWidth(1);
 									setVShadow(1);
-									setVBackdrop(16);
+									setGlassBlur(DEFAULT_GLASS_BLUR);
 									setLegacyDarkTheme(false);
 									setLayoutOrder([
 										"titlebar",

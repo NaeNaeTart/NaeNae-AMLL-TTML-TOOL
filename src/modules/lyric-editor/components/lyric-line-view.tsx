@@ -57,6 +57,7 @@ import {
 } from "$/modules/settings/states/index.ts";
 import {
 	editActiveLineHighlightAtom,
+	syncActiveLineHighlightAtom,
 	syncLevelModeAtom,
 	syncWordWrapAtom,
 	visualizeTimestampUpdateAtom,
@@ -386,11 +387,23 @@ export const LyricLineView: FC<{
 	);
 	const words = useAtomValue(wordsAtom);
 	const lineSelected = useAtomValue(lineSelectedAtom);
-	const editActiveLineHighlight = useAtomValue(editActiveLineHighlightAtom);
+	const toolMode = useAtomValue(toolModeAtom);
+	const editActiveLineHighlight = useAtomValue(
+		toolMode === ToolMode.Sync
+			? syncActiveLineHighlightAtom
+			: editActiveLineHighlightAtom,
+	);
 	const isPlaybackActiveAtom = useMemo(
 		() =>
 			atom((get) => {
-				if (!get(editActiveLineHighlightAtom)) return false;
+				if (
+					!get(
+						get(toolModeAtom) === ToolMode.Sync
+							? syncActiveLineHighlightAtom
+							: editActiveLineHighlightAtom,
+					)
+				)
+					return false;
 				return get(activeLineIdsAtom).includes(line.id);
 			}),
 		[line.id],
@@ -401,7 +414,6 @@ export const LyricLineView: FC<{
 	const visualizeTimestampUpdate = useAtomValue(visualizeTimestampUpdateAtom);
 	const showTimestamps = useAtomValue(showTimestampsAtom);
 	const showEndTimeAsDuration = useAtomValue(showEndTimeAsDurationAtom);
-	const toolMode = useAtomValue(toolModeAtom);
 	const syncLevelMode = useAtomValue(syncLevelModeAtom);
 	const store = useStore();
 	const geniusCategorizationEnabled = useAtomValue(
@@ -968,7 +980,9 @@ export const LyricLineView: FC<{
 											size="1"
 											weight="bold"
 											color={
-												customHeaderColor ? undefined : (categoryColor as any)
+												customHeaderColor || categoryColor === "accent"
+													? undefined
+													: categoryColor
 											}
 											style={{
 												opacity: 0.8,

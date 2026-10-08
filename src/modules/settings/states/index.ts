@@ -1,5 +1,7 @@
-import { atom } from "jotai";
+import { atom, type ExtractAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { clampGlassBlur } from "../logic/glass-blur";
+import { atomWithMigratedStorage } from "./migrated-storage";
 
 export enum SyncJudgeMode {
 	FirstKeyDownTime = "first-keydown-time",
@@ -282,14 +284,10 @@ export enum Mp3ConversionMode {
 	Ask = "ask",
 }
 
-export const mp3ConversionModeAtom = atomWithStorage<Mp3ConversionMode>(
+export const mp3ConversionModeAtom = atomWithMigratedStorage<Mp3ConversionMode>(
 	"mp3ConversionMode",
 	Mp3ConversionMode.Ask,
-);
-
-export const hideMp3ConversionWarningAtom = atomWithStorage<boolean>(
-	"hideMp3ConversionWarning",
-	false,
+	{ obsoleteKeys: ["hideMp3ConversionWarning"] },
 );
 
 export const boykisserModeAtom = atomWithStorage<boolean>(
@@ -299,9 +297,14 @@ export const boykisserModeAtom = atomWithStorage<boolean>(
 
 export const boykisserUnlockedAtom = atom<boolean>(false);
 
-export const glassmorphismBlurAtom = atomWithStorage<number>(
+export const glassmorphismBlurAtom = atomWithMigratedStorage<number>(
 	"glassmorphismBlur",
 	24,
+	{
+		legacyKey: "advBackdropBlur",
+		obsoleteKeys: ["advBackdropBlur"],
+		normalize: clampGlassBlur,
+	},
 );
 
 export const interfaceScaleAtom = atomWithStorage<number>(
@@ -404,7 +407,6 @@ export const advGlobalBorderWidthAtom = atomWithStorage(
 );
 export const advShadowIntensityAtom = atomWithStorage("advShadowIntensity", 1);
 export const advSelectionColorAtom = atomWithStorage("advSelectionColor", "");
-export const advBackdropBlurAtom = atomWithStorage("advBackdropBlur", 16);
 
 export const appLayoutOrderAtom = atomWithStorage<string[]>("appLayoutOrder", [
 	"titlebar",
@@ -417,10 +419,69 @@ export const vRibbonPositionAtom = atomWithStorage<
 	"top" | "bottom" | "left" | "right"
 >("vRibbonPosition", "top");
 
+export interface AppearancePresetSettings {
+	accentColor: ExtractAtomValue<typeof accentColorAtom>;
+	useCustomAccent: boolean;
+	customAccentColor: string;
+	glassBlur: number;
+	backgroundMode: "none" | "image" | "gradient";
+	selectedGradient: string;
+	useCustomGradient: boolean;
+	customGradientColors: string[];
+	customGradientType: "linear" | "radial" | "conic";
+	customGradientOpacity: number;
+	customGradientCenter: [number, number];
+	customGradientAngle: number;
+	customGradientSize: number;
+	syncGradientToAccent: boolean;
+	appFont: string;
+	appFontWeight: string;
+	appFontStyle: string;
+	customFontName: string | null;
+	customFontData: string | null;
+	interfaceScale: number;
+	customBackgroundImageKey: string | null;
+	customBackgroundOpacity: number;
+	customBackgroundMask: number;
+	customBackgroundBlur: number;
+	customBackgroundBrightness: number;
+	advWaveformColor: string;
+	advWaveformProgress: string;
+	advPrimaryText: string;
+	advSecondaryText: string;
+	vTitlebarBg: string;
+	vSidebarBg: string;
+	vSidebarActive: string;
+	vMenuHover: string;
+	vEditorBg: string;
+	vActiveLine: string;
+	vLineHover: string;
+	vSelection: string;
+	vChipRadius: number;
+	vChipGap: number;
+	vChipPaddingV: number;
+	vChipPaddingH: number;
+	vRomanColor: string;
+	vTransColor: string;
+	vGeniusHeaderColor: string;
+	vAudioBarBg: string;
+	vAudioBarText: string;
+	vScrollbar: string;
+	vDialogBg: string;
+	vDialogBorder: string;
+	vGlobalRadius: number;
+	vGlobalBorderWidth: number;
+	vShadow: number;
+	vBackdrop: number;
+	layoutOrder: string[];
+	vRibbonPos: "top" | "bottom" | "left" | "right";
+	legacyDarkTheme: boolean;
+}
+
 export interface AppearancePreset {
 	id: string;
 	name: string;
-	settings: Record<string, any>;
+	settings: Partial<AppearancePresetSettings>;
 }
 
 export const appearancePresetsAtom = atomWithStorage<AppearancePreset[]>(

@@ -42,6 +42,11 @@ import {
 	preservesPitchAtom,
 	volumeAtom,
 } from "$/modules/audio/states";
+import {
+	MAX_PLAYBACK_RATE,
+	MIN_PLAYBACK_RATE,
+	stepPlaybackRate,
+} from "$/modules/audio/utils/playback-rate";
 import { AuditionKeyBinding } from "$/modules/keyboard/components/AuditionKeyBinding";
 import { AudioSpectrogram } from "$/modules/spectrogram/components/AudioSpectrogram";
 import {
@@ -85,11 +90,11 @@ const AudioPlaybackKeyBinding = memo(() => {
 	}, [store]);
 
 	useKeyBindingAtom(keyPlaybackRateUpAtom, () => {
-		store.set(playbackRateAtom, (v) => Math.min(4, v + 0.25));
+		store.set(playbackRateAtom, (v) => stepPlaybackRate(v, 1));
 	}, [store]);
 
 	useKeyBindingAtom(keyPlaybackRateDownAtom, () => {
-		store.set(playbackRateAtom, (v) => Math.max(0.25, v - 0.25));
+		store.set(playbackRateAtom, (v) => stepPlaybackRate(v, -1));
 	}, [store]);
 
 	useKeyBindingAtom(keyPlaybackRateResetAtom, () => {
@@ -242,8 +247,8 @@ export const AudioControls: FC = memo(() => {
 											{t("audioPanel.playbackRate", "播放速度")}
 										</Text>
 										<Slider
-											min={0.1}
-											max={2}
+											min={MIN_PLAYBACK_RATE}
+											max={MAX_PLAYBACK_RATE}
 											value={[playbackRate]}
 											step={0.05}
 											onValueChange={(v) => setPlaybackRate(v[0])}

@@ -52,7 +52,6 @@ import {
 	advancedSecondaryTextColorAtom,
 	advancedWaveformColorAtom,
 	advancedWaveformProgressColorAtom,
-	advBackdropBlurAtom,
 	advChipBorderRadiusAtom,
 	advChipGapAtom,
 	advChipPaddingHorizontalAtom,
@@ -338,7 +337,6 @@ function App() {
 	const vGlobalBorderWidth = useAtomValue(advGlobalBorderWidthAtom);
 	const vShadow = useAtomValue(advShadowIntensityAtom);
 	const vSelection = useAtomValue(advSelectionColorAtom);
-	const vBackdropBlur = useAtomValue(advBackdropBlurAtom);
 	const appLayoutOrder = useAtomValue(appLayoutOrderAtom);
 	const vRibbonPosition = useAtomValue(vRibbonPositionAtom);
 
@@ -507,7 +505,7 @@ function App() {
 			--global-radius: ${vGlobalRadius}px !important;
 			--global-border-width: ${vGlobalBorderWidth}px !important;
 			--shadow-intensity: ${vShadow} !important;
-			--custom-backdrop-blur: ${vBackdropBlur}px !important;
+			--custom-backdrop-blur: ${glassmorphismBlur}px !important;
 
 			--radius-factor: ${vGlobalRadius / 12} !important;
 
@@ -569,7 +567,6 @@ function App() {
 		vGlobalBorderWidth,
 		vShadow,
 		vSelection,
-		vBackdropBlur,
 		appFontWeight,
 		appFontStyle,
 		customFontData,

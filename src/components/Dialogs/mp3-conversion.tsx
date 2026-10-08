@@ -1,20 +1,31 @@
 import { Box, Button, Checkbox, Dialog, Flex, Text } from "@radix-ui/themes";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { hideMp3ConversionWarningAtom } from "$/modules/settings/states";
+import {
+	Mp3ConversionMode,
+	mp3ConversionModeAtom,
+} from "$/modules/settings/states";
 import { mp3ConversionDialogAtom } from "$/states/dialogs";
 
 export const Mp3ConversionDialog = () => {
 	const [dialogState, setDialogState] = useAtom(mp3ConversionDialogAtom);
-	const [hideWarning, setHideWarning] = useAtom(hideMp3ConversionWarningAtom);
+	const [hideWarning, setHideWarning] = useState(false);
+	const setConversionMode = useSetAtom(mp3ConversionModeAtom);
+
+	useEffect(() => {
+		if (dialogState.open) setHideWarning(false);
+	}, [dialogState.open]);
 	const { t } = useTranslation();
 
 	const handleConvert = () => {
+		if (hideWarning) setConversionMode(Mp3ConversionMode.Always);
 		dialogState.onConvert();
 		setDialogState({ ...dialogState, open: false });
 	};
 
 	const handleSkip = () => {
+		if (hideWarning) setConversionMode(Mp3ConversionMode.Never);
 		dialogState.onSkip();
 		setDialogState({ ...dialogState, open: false });
 	};
@@ -50,7 +61,7 @@ export const Mp3ConversionDialog = () => {
 					<Flex align="center" gap="2">
 						<Checkbox
 							checked={hideWarning}
-							onCheckedChange={(checked) => setHideWarning(checked as boolean)}
+							onCheckedChange={(checked) => setHideWarning(checked === true)}
 						/>
 						<Text size="2">
 							{t(

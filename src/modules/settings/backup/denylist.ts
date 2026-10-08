@@ -4,7 +4,7 @@ const LOCAL_ONLY_KEYS = ["lastWorkspaceDir", "amll-ttml:recent-projects"];
  * @description 会被排除在设置备份之外的本地存储键。
  * `customBackgroundImage` 为已迁移到 IndexedDB 的旧键，其余为第三方（Sentry、开发工具、Vercel Analytics、i18next）。
  */
-const LEGACY_KEYS = ["customBackgroundImage"];
+const LEGACY_KEYS = ["customBackgroundImage", "hideMp3ConversionWarning"];
 const ASSET_OWNED_KEYS = [
 	"appearancePresets",
 	"customFontName",

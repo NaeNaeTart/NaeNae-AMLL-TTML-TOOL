@@ -23,6 +23,7 @@ import {
 	Switch,
 	Text,
 	TextField,
+	Tooltip,
 } from "@radix-ui/themes";
 import { atom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
@@ -52,7 +53,7 @@ import {
 import {
 	editActiveLineHighlightAtom,
 	editAutoScrollAtom,
-	syncTabPositionAtom,
+	editTabPositionAtom,
 } from "$/modules/settings/states/sync.ts";
 import {
 	editingTimeFieldAtom,
@@ -984,7 +985,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 	const [editActiveLineHighlight, setEditActiveLineHighlight] = useAtom(
 		editActiveLineHighlightAtom,
 	);
-	const [syncTabPosition, setSyncTabPosition] = useAtom(syncTabPositionAtom);
+	const [syncTabPosition, setSyncTabPosition] = useAtom(editTabPositionAtom);
 
 	return (
 		<RibbonFrame ref={ref} isSidebar={isSidebar} reserveControlRows={3}>
@@ -1257,7 +1258,14 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				label={t("ribbonBar.advanced", "Advanced")}
 				isSidebar={isSidebar}
 			>
-				<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+				<Tooltip
+					content={t(
+						"ribbonBar.advancedTooltip",
+						"Applies to all toolbars: Edit, Time, and Preview.",
+					)}
+				>
+					<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+				</Tooltip>
 			</RibbonSection>
 		</RibbonFrame>
 	);

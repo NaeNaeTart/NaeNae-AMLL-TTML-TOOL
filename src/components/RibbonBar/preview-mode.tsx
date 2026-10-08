@@ -16,6 +16,7 @@ import {
 	Switch,
 	Text,
 	TextField,
+	Tooltip,
 } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { type FC, forwardRef } from "react";
@@ -346,7 +347,14 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				label={t("ribbonBar.advanced", "Advanced")}
 				isSidebar={isSidebar}
 			>
-				<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+				<Tooltip
+					content={t(
+						"ribbonBar.advancedTooltip",
+						"Applies to all toolbars: Edit, Time, and Preview.",
+					)}
+				>
+					<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
+				</Tooltip>
 			</RibbonSection>
 		</RibbonFrame>
 	);
