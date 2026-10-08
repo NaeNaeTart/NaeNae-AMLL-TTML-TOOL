@@ -48,6 +48,13 @@ export const cmdRedo = registerCommand(
 	"Edit",
 );
 
+export const cmdRedoAlternate = registerCommand(
+	"redoAlternate",
+	[CONTROL_KEY, "KeyY"],
+	t("settingsDialog.keybindings.redoAlternate"),
+	"Edit",
+);
+
 export const cmdSelectAll = registerCommand(
 	"selectAll",
 	[CONTROL_KEY, "KeyA"],
@@ -73,6 +80,13 @@ export const cmdAutoSegment = registerCommand(
 	"autoSegment",
 	["KeyE"],
 	t("settingsDialog.keybindings.autoSegment"),
+	"Edit",
+);
+
+export const cmdAutoSegmentDialog = registerCommand(
+	"autoSegmentDialog",
+	["Shift", "KeyE"],
+	t("settingsDialog.keybindings.autoSegmentDialog"),
 	"Edit",
 );
 
@@ -105,6 +119,34 @@ export const cmdLocateActiveLine = registerCommand(
 	"locateActiveLine",
 	[CONTROL_KEY, "Shift", "KeyL"],
 	t("settingsDialog.keybindings.locateActiveLine"),
+	"View",
+);
+
+export const cmdInterfaceScaleUp = registerCommand(
+	"interfaceScaleUp",
+	[CONTROL_KEY, "Equal"],
+	t("settingsDialog.keybindings.interfaceScaleUp"),
+	"View",
+);
+
+export const cmdInterfaceScaleUpAlternate = registerCommand(
+	"interfaceScaleUpAlternate",
+	[CONTROL_KEY, "Shift", "Equal"],
+	t("settingsDialog.keybindings.interfaceScaleUpAlternate"),
+	"View",
+);
+
+export const cmdInterfaceScaleDown = registerCommand(
+	"interfaceScaleDown",
+	[CONTROL_KEY, "Minus"],
+	t("settingsDialog.keybindings.interfaceScaleDown"),
+	"View",
+);
+
+export const cmdInterfaceScaleReset = registerCommand(
+	"interfaceScaleReset",
+	[CONTROL_KEY, "Digit0"],
+	t("settingsDialog.keybindings.interfaceScaleReset"),
 	"View",
 );
 
@@ -184,9 +226,10 @@ export const cmdToggleWordHighlight = registerCommand(
 
 export const cmdUrbanDictionary = registerCommand(
 	"urbanDictionary",
-	["KeyF"],
+	["Shift", "KeyF"],
 	t("settingsDialog.keybindings.urbanDictionary"),
 	"Edit",
+	["edit"],
 );
 
 export const cmdUrbanDictionarySync = registerCommand(
@@ -198,14 +241,14 @@ export const cmdUrbanDictionarySync = registerCommand(
 
 export const cmdMoveFirstWordAndPlay = registerCommand(
 	"moveFirstWordAndPlay",
-	["KeyHome"],
+	["Home"],
 	t("settingsDialog.keybindings.moveFirstWordAndPlay"),
 	"Sync",
 );
 
 export const cmdMoveLastWordAndPlay = registerCommand(
 	"moveLastWordAndPlay",
-	["KeyEnd"],
+	["End"],
 	t("settingsDialog.keybindings.moveLastWordAndPlay"),
 	"Sync",
 );
@@ -290,15 +333,22 @@ export const cmdAuditionSelectionBefore = registerCommand(
 
 export const cmdAuditionSelection = registerCommand(
 	"auditionSelection",
-	["KeyS"],
+	["KeyB"],
 	t("settingsDialog.keybindings.auditionSelection"),
 	"Spectrogram",
 );
 
 export const cmdAuditionSelectionAfter = registerCommand(
 	"auditionSelectionAfter",
-	["KeyW"],
+	["KeyN"],
 	t("settingsDialog.keybindings.auditionSelectionAfter"),
+	"Spectrogram",
+);
+
+export const cmdCancelTimelineEditing = registerCommand(
+	"cancelTimelineEditing",
+	["Escape"],
+	t("settingsDialog.keybindings.cancelTimelineEditing"),
 	"Spectrogram",
 );
 

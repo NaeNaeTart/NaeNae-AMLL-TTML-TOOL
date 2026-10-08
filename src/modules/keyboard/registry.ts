@@ -1,5 +1,10 @@
 import { atomWithKeybindingStorage } from "$/utils/keybindings";
-import type { I18nKey, KeyBindingCommand, KeyBindingsConfig } from "./types";
+import type {
+	I18nKey,
+	KeyBindingCommand,
+	KeyBindingMode,
+	KeyBindingsConfig,
+} from "./types";
 
 /**
  * 存储所有注册的命令
@@ -20,6 +25,9 @@ export function registerCommand(
 	defaultKeys: KeyBindingsConfig,
 	description: I18nKey,
 	category = "General",
+	modes: readonly KeyBindingMode[] = category === "Sync"
+		? ["sync"]
+		: ["edit", "sync", "preview"],
 ) {
 	const commandAtom = atomWithKeybindingStorage(id, defaultKeys);
 
@@ -28,6 +36,7 @@ export function registerCommand(
 		defaultKeys,
 		description,
 		category,
+		modes,
 		atom: commandAtom,
 	};
 

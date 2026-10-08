@@ -4,6 +4,7 @@ import type { RESET_KEYBINDING } from "$/utils/keybindings";
 
 export type I18nKey = ParseKeys<"translation">;
 export type KeyBindingsConfig = string[];
+export type KeyBindingMode = "edit" | "sync" | "preview";
 
 export interface KeyBindingCommand {
 	/** 唯一标识符 */
@@ -14,6 +15,8 @@ export interface KeyBindingCommand {
 	description: I18nKey;
 	/** 设置面板中的分类 */
 	category: string;
+	/** Modes in which the command's handler is active (for conflict warnings). */
+	modes: readonly KeyBindingMode[];
 	/**
 	 * 对应的 Jotai Atom
 	 */

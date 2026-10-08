@@ -60,36 +60,13 @@ export const keyBindingTriggerModeAtom = atom(
 );
 
 export function formatKeyBindings(cfg: KeyBindingsConfig): string {
-	const sorted = [...cfg].sort((a, b) => {
-		const indexA = MODIFIER_ORDER.indexOf(a);
-		const indexB = MODIFIER_ORDER.indexOf(b);
-		if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-		if (indexA !== -1) return -1;
-		if (indexB !== -1) return 1;
-		return a.localeCompare(b);
-	});
-	return sorted
-		.map((key) => {
-			if (key.startsWith("Key")) return key.substring(3);
-			if (key.endsWith("Right")) return key.substring(0, key.length - 5);
-			if (key.endsWith("Left")) return key.substring(0, key.length - 4);
-			if (navigator.userAgent.includes("Mac")) {
-				if (key === "Control") return "⌃";
-				if (key === "Alt") return "⌥";
-				if (key === "Shift") return "⇧";
-				if (key === "Meta") return "⌘";
-				if (key === "Backspace") return "⌫";
-			} else if (navigator.userAgent.includes("Windows")) {
-				if (key.startsWith("Control")) return "Ctrl";
-				if (key === "Meta") return "Win";
-			}
-			return key;
-		})
-		.join(navigator.userAgent.includes("Mac") ? " " : " + ");
+	return formatKeyBindingsAsArray(cfg).join(
+		navigator.userAgent.includes("Mac") ? " " : " + ",
+	);
 }
 
 export function formatKeyBindingsAsArray(cfg: KeyBindingsConfig): string[] {
-	const sorted = [...cfg].sort((a, b) => {
+	const sorted = normalizeKeyBindings(cfg).sort((a, b) => {
 		const indexA = MODIFIER_ORDER.indexOf(a);
 		const indexB = MODIFIER_ORDER.indexOf(b);
 		if (indexA !== -1 && indexB !== -1) return indexA - indexB;
@@ -98,6 +75,15 @@ export function formatKeyBindingsAsArray(cfg: KeyBindingsConfig): string[] {
 		return a.localeCompare(b);
 	});
 	return sorted.map((key) => {
+		const labels: Record<string, string> = {
+			ArrowLeft: "←",
+			ArrowRight: "→",
+			ArrowUp: "↑",
+			ArrowDown: "↓",
+			BracketLeft: "[",
+			BracketRight: "]",
+		};
+		if (labels[key]) return labels[key];
 		if (key.startsWith("Key")) return key.substring(3);
 		if (navigator.userAgent.includes("Mac")) {
 			if (key === "Control") return "⌃";
@@ -130,30 +116,34 @@ export function atomWithKeybindingStorage(
 				try {
 					set(keyAtom, await recordShortcut());
 				} catch {
-					set(keyAtom, defaultValue);
+					// Canceling recording leaves the current binding intact.
 				}
 			}
 		},
 	);
 }
 
-const blackListedKeys = new Set(["Bracket", "Arrow"]);
-function removeSideOfKeyCode(code: string) {
-	for (const key of blackListedKeys) {
-		if (code.startsWith(key)) return code;
-	}
-	if (code.endsWith("Left")) return code.substring(0, code.length - 4);
-	if (code.endsWith("Right")) return code.substring(0, code.length - 5);
-	return code;
+export function normalizeKeyCode(code: string): string {
+	if (code === "KeyHome") return "Home";
+	if (code === "KeyEnd") return "End";
+	return code.replace(/^(Control|Meta|Alt|Shift)(Left|Right)$/, "$1");
+}
+
+export function normalizeKeyBindings(cfg: Iterable<string>): KeyBindingsConfig {
+	return [...new Set([...cfg].map(normalizeKeyCode))];
 }
 
 const pressingKeys = new Set<string>();
 const registeredKeyBindings = new Map<string, Set<KeyBindingCallback>>();
+const registeredAtomBindings = new Map<
+	ReturnType<typeof atomWithKeybindingStorage>,
+	Set<KeyBindingCallback>
+>();
 let downTime = 0;
 
 const MODIFIER_ORDER = ["Control", "Meta", "Alt", "Shift"];
-function getShortcutKey(cfg: KeyBindingsConfig | Set<string>) {
-	const keys = [...cfg];
+export function getShortcutKey(cfg: KeyBindingsConfig | Set<string>) {
+	const keys = normalizeKeyBindings(cfg);
 	keys.sort((a, b) => {
 		const indexA = MODIFIER_ORDER.indexOf(a);
 		const indexB = MODIFIER_ORDER.indexOf(b);
@@ -201,7 +191,7 @@ window.addEventListener("keydown", (evt) => {
 		downTime = evt.timeStamp;
 	}
 
-	const code = removeSideOfKeyCode(evt.code);
+	const code = normalizeKeyCode(evt.code);
 
 	// 阻止空格滚动
 	if (
@@ -226,7 +216,7 @@ window.addEventListener("keyup", (evt) => {
 		return;
 	}
 
-	const code = removeSideOfKeyCode(evt.code);
+	const code = normalizeKeyCode(evt.code);
 
 	if (currentTriggerMode === KeyBindingTriggerMode.KeyUp) {
 		const joined = getShortcutKey(pressingKeys);
@@ -249,7 +239,7 @@ export function forceInvokeKeyBindingAtom(
 ) {
 	const keyBinding = store.get(thisAtom);
 	const joined = getShortcutKey(keyBinding);
-	const callbacks = registeredKeyBindings.get(joined);
+	const callbacks = registeredAtomBindings.get(thisAtom);
 
 	if (callbacks) {
 		const downTimeOffset = 0;
@@ -327,6 +317,7 @@ export function registerKeyBindings(
 	set.add(callback);
 	return () => {
 		set?.delete(callback);
+		if (set?.size === 0) registeredKeyBindings.delete(joined);
 	};
 }
 
@@ -340,6 +331,26 @@ export function useKeyBinding(
 	}, [cfg, callback, ...(deps || [])]);
 }
 
+export function registerKeyBindingAtom(
+	thisAtom: ReturnType<typeof atomWithKeybindingStorage>,
+	cfg: KeyBindingsConfig,
+	callback: KeyBindingCallback,
+) {
+	// On-screen timing controls invoke an action even when its shortcut is unbound.
+	let callbacks = registeredAtomBindings.get(thisAtom);
+	if (!callbacks) {
+		callbacks = new Set();
+		registeredAtomBindings.set(thisAtom, callbacks);
+	}
+	callbacks.add(callback);
+	const unregisterShortcut = registerKeyBindings(cfg, callback);
+	return () => {
+		unregisterShortcut();
+		callbacks?.delete(callback);
+		if (callbacks?.size === 0) registeredAtomBindings.delete(thisAtom);
+	};
+}
+
 /**
  * @deprecated 请使用 useCommand
  */
@@ -350,8 +361,8 @@ export function useKeyBindingAtom(
 ): KeyBindingsConfig {
 	const keyBindings = useAtomValue(thisAtom);
 	useEffect(() => {
-		return registerKeyBindings(keyBindings, callback);
-	}, [keyBindings, callback, ...(deps || [])]);
+		return registerKeyBindingAtom(thisAtom, keyBindings, callback);
+	}, [thisAtom, keyBindings, callback, ...(deps || [])]);
 	return keyBindings;
 }
 
@@ -364,55 +375,107 @@ export function useDoubleKeyBindingAtom(
 	const keyBindings = useAtomValue(thisAtom);
 	useEffect(() => {
 		if (!enabled) return;
-
-		let lastPressTime = -Infinity;
-		const joinedKey = getShortcutKey(keyBindings);
-		const onKeyDown = (evt: KeyboardEvent) => {
-			if (evt.repeat || isEditing(evt)) return;
-
-			const keys = [
-				...(evt.ctrlKey ? ["Control"] : []),
-				...(evt.metaKey ? ["Meta"] : []),
-				...(evt.altKey ? ["Alt"] : []),
-				...(evt.shiftKey ? ["Shift"] : []),
-				removeSideOfKeyCode(evt.code),
-			];
-			if (getShortcutKey(keys) !== joinedKey) return;
-
-			if (evt.timeStamp - lastPressTime <= 350) {
-				callback({
-					downTime: lastPressTime,
-					downTimeOffset: evt.timeStamp - lastPressTime,
-					triggerTime: evt.timeStamp,
-				});
-				evt.preventDefault();
-				evt.stopPropagation();
-				evt.stopImmediatePropagation();
-				lastPressTime = -Infinity;
-				return;
-			}
-
-			lastPressTime = evt.timeStamp;
-		};
-
-		window.addEventListener("keydown", onKeyDown, true);
-		return () => window.removeEventListener("keydown", onKeyDown, true);
+		return registerDoubleKeyBindings(keyBindings, callback);
 	}, [keyBindings, callback, enabled, ...(deps || [])]);
 	return keyBindings;
 }
 
+export function registerDoubleKeyBindings(
+	cfg: KeyBindingsConfig,
+	callback: KeyBindingCallback,
+) {
+	let lastPressTime = -Infinity;
+	let pending: { code: string; downTime: number } | undefined;
+	const joinedKey = getShortcutKey(cfg);
+	const reset = () => {
+		lastPressTime = -Infinity;
+		pending = undefined;
+	};
+	const trigger = (evt: KeyboardEvent, keyDownTime: number) => {
+		if (evt.timeStamp - lastPressTime <= 350) {
+			callback({
+				downTime: keyDownTime,
+				downTimeOffset: evt.timeStamp - keyDownTime,
+				triggerTime: evt.timeStamp,
+			});
+			// This capture listener consumes the event before the dispatcher sees it.
+			if (evt.type === "keyup") pressingKeys.delete(normalizeKeyCode(evt.code));
+			evt.preventDefault();
+			evt.stopPropagation();
+			evt.stopImmediatePropagation();
+			lastPressTime = -Infinity;
+		} else {
+			lastPressTime = evt.timeStamp;
+		}
+	};
+	const onKeyDown = (evt: KeyboardEvent) => {
+		if (isEditing(evt)) {
+			reset();
+			return;
+		}
+		if (evt.repeat) return;
+		const keys = [
+			...(evt.ctrlKey ? ["Control"] : []),
+			...(evt.metaKey ? ["Meta"] : []),
+			...(evt.altKey ? ["Alt"] : []),
+			...(evt.shiftKey ? ["Shift"] : []),
+			normalizeKeyCode(evt.code),
+		];
+		if (getShortcutKey(keys) !== joinedKey) {
+			const code = normalizeKeyCode(evt.code);
+			if (
+				MODIFIER_ORDER.includes(code) &&
+				normalizeKeyBindings(cfg).includes(code)
+			)
+				return;
+			reset();
+			return;
+		}
+		if (currentTriggerMode === KeyBindingTriggerMode.KeyDown) {
+			trigger(evt, evt.timeStamp);
+		} else {
+			pending = { code: evt.code, downTime: evt.timeStamp };
+		}
+	};
+	const onKeyUp = (evt: KeyboardEvent) => {
+		if (isEditing(evt)) {
+			reset();
+			return;
+		}
+		if (pending?.code !== evt.code) return;
+		if (currentTriggerMode === KeyBindingTriggerMode.KeyUp) {
+			trigger(evt, pending.downTime);
+		}
+		pending = undefined;
+	};
+	window.addEventListener("keydown", onKeyDown, { capture: true });
+	window.addEventListener("keyup", onKeyUp, { capture: true });
+	window.addEventListener("blur", reset);
+	return () => {
+		window.removeEventListener("keydown", onKeyDown, { capture: true });
+		window.removeEventListener("keyup", onKeyUp, { capture: true });
+		window.removeEventListener("blur", reset);
+	};
+}
+
 let currentKeyDownEvent: ((evt: KeyboardEvent) => void) | undefined;
 let currentKeyUpEvent: ((evt: KeyboardEvent) => void) | undefined;
+let currentRecordingReject: ((reason: Error) => void) | undefined;
 
 export function stopRecordingShortcut() {
 	if (currentKeyDownEvent) {
-		window.removeEventListener("keydown", currentKeyDownEvent);
+		window.removeEventListener("keydown", currentKeyDownEvent, {
+			capture: true,
+		});
 		currentKeyDownEvent = undefined;
 	}
 	if (currentKeyUpEvent) {
-		window.removeEventListener("keyup", currentKeyUpEvent);
+		window.removeEventListener("keyup", currentKeyUpEvent, { capture: true });
 		currentKeyUpEvent = undefined;
 	}
+	pressingKeys.clear();
+	currentRecordingReject?.(new Error("User canceled"));
+	currentRecordingReject = undefined;
 }
 
 export function recordShortcut(): Promise<KeyBindingsConfig> {
@@ -421,17 +484,19 @@ export function recordShortcut(): Promise<KeyBindingsConfig> {
 		const recorded = new Set<string>();
 		const stack = new Set<string>();
 		const onKeyDown = (evt: KeyboardEvent) => {
-			recorded.add(evt.code);
+			recorded.add(normalizeKeyCode(evt.code));
 			stack.add(evt.code);
 			evt.preventDefault();
 			evt.stopPropagation();
 			evt.stopImmediatePropagation();
 		};
 		const onKeyUp = (evt: KeyboardEvent) => {
+			if (!stack.has(evt.code)) return;
 			stack.delete(evt.code);
 			if (stack.size === 0) {
+				currentRecordingReject = undefined;
 				stopRecordingShortcut();
-				if (stack.has("Escape")) {
+				if (recorded.size === 1 && recorded.has("Escape")) {
 					reject(new Error("User canceled"));
 				} else {
 					resolve([...recorded]);
@@ -443,7 +508,9 @@ export function recordShortcut(): Promise<KeyBindingsConfig> {
 		};
 		currentKeyDownEvent = onKeyDown;
 		currentKeyUpEvent = onKeyUp;
-		window.addEventListener("keydown", onKeyDown);
-		window.addEventListener("keyup", onKeyUp);
+		currentRecordingReject = reject;
+		// Capture before dialog Escape handlers so canceling keeps Preferences open.
+		window.addEventListener("keydown", onKeyDown, { capture: true });
+		window.addEventListener("keyup", onKeyUp, { capture: true });
 	});
 }

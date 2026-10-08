@@ -1,6 +1,8 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { cmdCancelTimelineEditing } from "$/modules/keyboard/commands";
+import { useCommand } from "$/modules/keyboard/hooks";
 import {
 	adjustLineEndTime,
 	shiftLineStartTime,
@@ -44,20 +46,13 @@ export function useTimelineEditing(scrollLeft: number, zoom: number) {
 		return 0;
 	}, [pendingStartTime, editingTimeField, rawLyricLines, selectedLines]);
 
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				if (pendingStartTime !== null || editingTimeField) {
-					setPendingStartTime(null);
-					if (document.activeElement instanceof HTMLElement) {
-						document.activeElement.blur();
-					}
-				}
+	useCommand(cmdCancelTimelineEditing, () => {
+		if (pendingStartTime !== null || editingTimeField) {
+			setPendingStartTime(null);
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
 			}
-		};
-
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
+		}
 	}, [pendingStartTime, editingTimeField]);
 
 	const handleContainerMouseDown = useCallback(

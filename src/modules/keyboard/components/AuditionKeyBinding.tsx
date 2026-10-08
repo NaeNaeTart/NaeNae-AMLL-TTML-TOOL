@@ -33,7 +33,7 @@ export const AuditionKeyBinding = () => {
 
 	// 播放选中片段前 500ms
 	useCommand(cmdAuditionSelectionBefore, () => {
-		if (!selectedSegment?.startTime) return;
+		if (selectedSegment?.startTime == null) return;
 		audioEngine.auditionRange(
 			(selectedSegment.startTime - AUDITION_PADDING_MS) / 1000,
 			selectedSegment.startTime / 1000,
@@ -42,7 +42,8 @@ export const AuditionKeyBinding = () => {
 
 	// 播放选中的片段
 	useCommand(cmdAuditionSelection, () => {
-		if (!selectedSegment?.startTime || !selectedSegment?.endTime) return;
+		if (selectedSegment?.startTime == null || selectedSegment.endTime == null)
+			return;
 		audioEngine.auditionRange(
 			selectedSegment.startTime / 1000,
 			selectedSegment.endTime / 1000,
@@ -51,7 +52,7 @@ export const AuditionKeyBinding = () => {
 
 	// 播放选中片段后 500ms
 	useCommand(cmdAuditionSelectionAfter, () => {
-		if (!selectedSegment?.endTime) return;
+		if (selectedSegment?.endTime == null) return;
 		audioEngine.auditionRange(
 			selectedSegment.endTime / 1000,
 			(selectedSegment.endTime + AUDITION_PADDING_MS) / 1000,
