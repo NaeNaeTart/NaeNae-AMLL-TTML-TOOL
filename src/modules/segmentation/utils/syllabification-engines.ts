@@ -198,19 +198,24 @@ export const SYLLABIFICATION_ENGINES: SyllabificationEngine[] = [
 			}
 		},
 	},
-	...hyphenationLanguages.map(([language, name, hasBetterEngine]) => ({
-		id: `hyphenation-${language}` as SegmentationEngineId,
-		name: `${name}${hasBetterEngine ? " (legacy)" : ""}`,
-		description: `Use the existing ${name} hyphenation patterns.`,
-		split: (word: string) => [word],
-	})),
+	...hyphenationLanguages.map<SyllabificationEngine>(
+		([language, name, hasBetterEngine]) => ({
+			id: `hyphenation-${language}`,
+			name: `${name}${hasBetterEngine ? " (legacy)" : ""}`,
+			description: `Use the existing ${name} hyphenation patterns.`,
+			split: (word) => [word],
+		}),
+	),
 	{
 		id: "none",
 		name: "None",
 		description: "Do not split words automatically.",
 		split: (word) => [word],
 	},
-].sort((left, right) => left.name.localeCompare(right.name));
+];
+SYLLABIFICATION_ENGINES.sort((left, right) =>
+	left.name.localeCompare(right.name),
+);
 
 export const getSyllabificationEngine = (id: SegmentationEngineId) =>
 	SYLLABIFICATION_ENGINES.find((engine) => engine.id === id) ??

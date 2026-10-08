@@ -35,13 +35,27 @@ describe("shouldExportAsLineSynced", () => {
 
 describe("collectFollowingBackgroundLines", () => {
 	it("collects every consecutive background line when enabled", () => {
-		const lines = [{ ...newLyricLine(), id: "main" }, backgroundLine("bg-1"), backgroundLine("bg-2"), backgroundLine("bg-3"), { ...newLyricLine(), id: "next-main" }];
-		expect(collectFollowingBackgroundLines(lines, 0, true).map((line) => line.id)).toEqual(["bg-1", "bg-2", "bg-3"]);
+		const lines = [
+			{ ...newLyricLine(), id: "main" },
+			backgroundLine("bg-1"),
+			backgroundLine("bg-2"),
+			backgroundLine("bg-3"),
+			{ ...newLyricLine(), id: "next-main" },
+		];
+		expect(
+			collectFollowingBackgroundLines(lines, 0, true).map((line) => line.id),
+		).toEqual(["bg-1", "bg-2", "bg-3"]);
 	});
 
 	it("keeps legacy one-line grouping when disabled", () => {
-		const lines = [{ ...newLyricLine(), id: "main" }, backgroundLine("bg-1"), backgroundLine("bg-2")];
-		expect(collectFollowingBackgroundLines(lines, 0, false).map((line) => line.id)).toEqual(["bg-1"]);
+		const lines = [
+			{ ...newLyricLine(), id: "main" },
+			backgroundLine("bg-1"),
+			backgroundLine("bg-2"),
+		];
+		expect(
+			collectFollowingBackgroundLines(lines, 0, false).map((line) => line.id),
+		).toEqual(["bg-1"]);
 	});
 
 	it("collects the full run after a standalone background line when enabled", () => {
@@ -50,10 +64,9 @@ describe("collectFollowingBackgroundLines", () => {
 			backgroundLine("bg-2"),
 			backgroundLine("bg-3"),
 		];
-		expect(collectFollowingBackgroundLines(lines, 0, true).map((line) => line.id)).toEqual([
-			"bg-2",
-			"bg-3",
-		]);
+		expect(
+			collectFollowingBackgroundLines(lines, 0, true).map((line) => line.id),
+		).toEqual(["bg-2", "bg-3"]);
 	});
 });
 

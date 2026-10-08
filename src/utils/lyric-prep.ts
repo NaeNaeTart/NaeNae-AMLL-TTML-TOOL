@@ -1,5 +1,7 @@
 const isCJKChar = (char: string) =>
-	/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(char);
+	/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(
+		char,
+	);
 const isAlphaNum = (char: string) => /[\p{L}\p{N}]/u.test(char);
 const isLatinAlphaNum = (char: string) => /[\p{Script=Latin}\p{N}]/u.test(char);
 const isComma = (char: string) => /[,，、]/u.test(char);

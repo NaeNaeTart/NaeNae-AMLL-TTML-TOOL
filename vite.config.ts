@@ -15,22 +15,22 @@ import { configDefaults } from "vitest/config";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const AMLL_LOCAL_PATH = resolve(__dirname, "./applemusic-like-lyrics-main/applemusic-like-lyrics-main");
+const AMLL_LOCAL_PATH = resolve(
+	__dirname,
+	"./applemusic-like-lyrics-main/applemusic-like-lyrics-main",
+);
 const AMLL_LOCAL_EXISTS = existsSync(AMLL_LOCAL_PATH);
 
 process.env.AMLL_LOCAL_EXISTS = AMLL_LOCAL_EXISTS ? "true" : "false";
 
-const localePaths: string[] = [resolve(__dirname, "./src/i18n/locales")]; 
+const localePaths: string[] = [resolve(__dirname, "./src/i18n/locales")];
 
 const plugins: Plugin[] = [
 	ConditionalCompile(),
 	react({
 		babel: {
 			presets: ["jotai/babel/preset"],
-			plugins: [
-				jotaiDebugLabel,
-				jotaiReactRefresh,
-			],
+			plugins: [jotaiDebugLabel, jotaiReactRefresh],
 		},
 	}),
 	svgLoader(),
@@ -105,7 +105,11 @@ export default defineConfig({
 		{
 			name: "shim-module",
 			transform(code, id) {
-				if (id.includes("node_modules/hangul-romanize") || id.includes("node_modules/pinyin-pro") || id.includes("node_modules/wanakana")) {
+				if (
+					id.includes("node_modules/hangul-romanize") ||
+					id.includes("node_modules/pinyin-pro") ||
+					id.includes("node_modules/wanakana")
+				) {
 					return {
 						code: `var module = { exports: {} };\n${code}`,
 						map: null,
@@ -119,12 +123,7 @@ export default defineConfig({
 	clearScreen: false,
 	optimizeDeps: {
 		include: ["jotai"],
-		exclude: [
-			"url",
-			"@ffmpeg/ffmpeg", 
-			"@ffmpeg/util", 
-			"hangul-romanize"
-		],
+		exclude: ["url", "@ffmpeg/ffmpeg", "@ffmpeg/util", "hangul-romanize"],
 	},
 	server: {
 		watch: {
@@ -138,12 +137,13 @@ export default defineConfig({
 	},
 	envPrefix: ["VITE_", "TAURI_", "AMLL_", "SENTRY_"],
 	build: {
-		target: process.env.TAURI_ENV_PLATFORM === "windows" ? "chrome105" : "safari15",
+		target:
+			process.env.TAURI_ENV_PLATFORM === "windows" ? "chrome105" : "safari15",
 		minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
 		sourcemap: true,
 	},
 	resolve: {
-		alias: Object.assign(
+		alias: Object.assign<Record<string, string>, Record<string, string>>(
 			{
 				$: resolve(__dirname, "src"),
 				url: resolve(__dirname, "src/utils/url-shim.ts"),

@@ -12,18 +12,18 @@ import {
 } from "$/modules/lyric-editor/utils/lyric-states";
 import {
 	highlightActiveWordAtom,
+	SyncJudgeMode,
 	smartFirstWordAtom,
 	smartLastWordAtom,
-	SyncJudgeMode,
 	syncJudgeModeAtom,
 } from "$/modules/settings/states";
 import {
 	currentEmptyBeatAtom,
 	smartFirstWordActiveIdAtom,
 	spectrogramHoverSyncEnabledAtom,
+	syncCommitOffsetAtom,
 	syncLevelModeAtom,
 	syncTimeOffsetAtom,
-	syncCommitOffsetAtom,
 } from "$/modules/settings/states/sync";
 import {
 	spectrogramHoverTimeMsAtom,
@@ -48,12 +48,16 @@ import {
 	selectedLinesAtom,
 	selectedWordsAtom,
 } from "$/states/main.ts";
-import type { LyricLine, LyricWord, LyricWordBase, TTMLLyric } from "$/types/ttml";
+import type {
+	LyricLine,
+	LyricWord,
+	LyricWordBase,
+	TTMLLyric,
+} from "$/types/ttml";
 import {
 	type KeyBindingEvent,
 	useKeyBindingAtom,
 } from "$/utils/keybindings.ts";
-
 
 const getUnitStartTime = (unit: {
 	word: LyricWord;
@@ -168,7 +172,9 @@ export const SyncKeyBinding: FC = () => {
 				}
 				timeAdjustment *= audioEngine.musicPlayBackRate;
 			}
-			return Math.round(Math.max(0, audioTimeNow + timeAdjustment + syncTimeOffset));
+			return Math.round(
+				Math.max(0, audioTimeNow + timeAdjustment + syncTimeOffset),
+			);
 		},
 		[store],
 	);
@@ -363,36 +369,64 @@ export const SyncKeyBinding: FC = () => {
 					const units = getSynchronizableUnits(curLine);
 					if (units.length > 0) {
 						let startTime = getUnitStartTime(units[0]);
-						if (startTime === undefined || startTime >= currentTime || startTime === 0) {
-
+						if (
+							startTime === undefined ||
+							startTime >= currentTime ||
+							startTime === 0
+						) {
 							startTime = Math.max(0, currentTime - 1000);
 						}
 						const totalDuration = currentTime - startTime;
-						const lengths = units.map((u) => Math.max(1, (u.rubyWord?.word || u.word.word).trim().length));
+						const lengths = units.map((u) =>
+							Math.max(1, (u.rubyWord?.word || u.word.word).trim().length),
+						);
 						const totalLength = lengths.reduce((a, b) => a + b, 0);
 
 						let currentStart = startTime;
-						for(let i = 0; i < units.length; i++) {
-							const duration = Math.round((lengths[i] / totalLength) * totalDuration);
-							const currentEnd = (i === units.length - 1) ? currentTime : currentStart + duration;
-							setUnitStartTimeCloned(curLine, units[i].wordIndex, units[i].rubyIndex, currentStart);
-							setUnitEndTimeCloned(curLine, units[i].wordIndex, units[i].rubyIndex, currentEnd);
+						for (let i = 0; i < units.length; i++) {
+							const duration = Math.round(
+								(lengths[i] / totalLength) * totalDuration,
+							);
+							const currentEnd =
+								i === units.length - 1 ? currentTime : currentStart + duration;
+							setUnitStartTimeCloned(
+								curLine,
+								units[i].wordIndex,
+								units[i].rubyIndex,
+								currentStart,
+							);
+							setUnitEndTimeCloned(
+								curLine,
+								units[i].wordIndex,
+								units[i].rubyIndex,
+								currentEnd,
+							);
 							currentStart = currentEnd;
 						}
 					}
 
-					const nextLineIndex = state.lyricLines.slice(location.lineIndex + 1).findIndex(
-						(nextLine) => isSynchronizableLine(nextLine) && getSynchronizableUnits(nextLine).length > 0
-					);
+					const nextLineIndex = state.lyricLines
+						.slice(location.lineIndex + 1)
+						.findIndex(
+							(nextLine) =>
+								isSynchronizableLine(nextLine) &&
+								getSynchronizableUnits(nextLine).length > 0,
+						);
 
 					if (nextLineIndex !== -1) {
-						const absoluteNextLineIndex = location.lineIndex + 1 + nextLineIndex;
+						const absoluteNextLineIndex =
+							location.lineIndex + 1 + nextLineIndex;
 						const prevNextLine = state.lyricLines[absoluteNextLineIndex];
 						const nextLine = cloneLineWithWords(prevNextLine);
 						nextLine.startTime = currentTime;
 						const nextLineUnits = getSynchronizableUnits(nextLine);
 						if (nextLineUnits.length > 0) {
-							setUnitStartTimeCloned(nextLine, nextLineUnits[0].wordIndex, nextLineUnits[0].rubyIndex, currentTime);
+							setUnitStartTimeCloned(
+								nextLine,
+								nextLineUnits[0].wordIndex,
+								nextLineUnits[0].rubyIndex,
+								currentTime,
+							);
 						}
 						nextLines[absoluteNextLineIndex] = nextLine;
 					}
@@ -402,9 +436,13 @@ export const SyncKeyBinding: FC = () => {
 				});
 
 				const state = store.get(lyricLinesAtom);
-				const nextLineIndex = state.lyricLines.slice(location.lineIndex + 1).findIndex(
-					(nextLine) => isSynchronizableLine(nextLine) && getSynchronizableUnits(nextLine).length > 0
-				);
+				const nextLineIndex = state.lyricLines
+					.slice(location.lineIndex + 1)
+					.findIndex(
+						(nextLine) =>
+							isSynchronizableLine(nextLine) &&
+							getSynchronizableUnits(nextLine).length > 0,
+					);
 				if (nextLineIndex !== -1) {
 					const absoluteNextLineIndex = location.lineIndex + 1 + nextLineIndex;
 					const nextLine = state.lyricLines[absoluteNextLineIndex];
@@ -501,7 +539,12 @@ export const SyncKeyBinding: FC = () => {
 				};
 
 				// 1. Commit current word end time
-				setUnitEndTimeCloned(getLineToEdit(curLineIndex), curWordIndex, curRubyIndex, currentTime);
+				setUnitEndTimeCloned(
+					getLineToEdit(curLineIndex),
+					curWordIndex,
+					curRubyIndex,
+					currentTime,
+				);
 
 				// 2. Scan forward for next selection
 				targetSelection = null;
@@ -521,8 +564,18 @@ export const SyncKeyBinding: FC = () => {
 							nextLines[iterLineIndex].endTime = currentTime;
 							targetLine.startTime = currentTime;
 						}
-						setUnitStartTimeCloned(targetLine, next.unit.wordIndex, next.unit.rubyIndex, currentTime);
-						setUnitEndTimeCloned(targetLine, next.unit.wordIndex, next.unit.rubyIndex, currentTime);
+						setUnitStartTimeCloned(
+							targetLine,
+							next.unit.wordIndex,
+							next.unit.rubyIndex,
+							currentTime,
+						);
+						setUnitEndTimeCloned(
+							targetLine,
+							next.unit.wordIndex,
+							next.unit.rubyIndex,
+							currentTime,
+						);
 						iterLineIndex = next.lineIndex;
 						iterSyncIndex = next.syncIndex;
 					} else {
@@ -532,7 +585,12 @@ export const SyncKeyBinding: FC = () => {
 							nextLines[iterLineIndex].endTime = currentTime;
 							targetLine.startTime = currentTime;
 						}
-						setUnitStartTimeCloned(targetLine, next.unit.wordIndex, next.unit.rubyIndex, currentTime);
+						setUnitStartTimeCloned(
+							targetLine,
+							next.unit.wordIndex,
+							next.unit.rubyIndex,
+							currentTime,
+						);
 						targetSelection = { id: next.unit.id, lineId: next.line.id };
 						break;
 					}
@@ -544,8 +602,14 @@ export const SyncKeyBinding: FC = () => {
 
 			// Apply selection AFTER lyricLinesAtom is set (avoids nested propagation)
 			if (targetSelection) {
-				store.set(selectedWordsAtom, new Set([(targetSelection as { id: string; lineId: string }).id]));
-				store.set(selectedLinesAtom, new Set([(targetSelection as { id: string; lineId: string }).lineId]));
+				store.set(
+					selectedWordsAtom,
+					new Set([(targetSelection as { id: string; lineId: string }).id]),
+				);
+				store.set(
+					selectedLinesAtom,
+					new Set([(targetSelection as { id: string; lineId: string }).lineId]),
+				);
 			}
 
 			store.set(currentEmptyBeatAtom, 0);
@@ -560,7 +624,7 @@ export const SyncKeyBinding: FC = () => {
 
 			const _t4 = performance.now();
 			console.debug(
-				`[commit] setup=${(_t1 - _t0).toFixed(2)}ms | lyricLinesAtom.set=${(_t3 - _t2).toFixed(2)}ms | post-set=${(_t4 - _t3).toFixed(2)}ms | TOTAL=${(_t4 - _t0).toFixed(2)}ms`
+				`[commit] setup=${(_t1 - _t0).toFixed(2)}ms | lyricLinesAtom.set=${(_t3 - _t2).toFixed(2)}ms | post-set=${(_t4 - _t3).toFixed(2)}ms | TOTAL=${(_t4 - _t0).toFixed(2)}ms`,
 			);
 		},
 		[store, moveToNextWord],
@@ -586,32 +650,54 @@ export const SyncKeyBinding: FC = () => {
 					const units = getSynchronizableUnits(curLine);
 					if (units.length > 0) {
 						let startTime = getUnitStartTime(units[0]);
-						if (startTime === undefined || startTime >= currentTime || startTime === 0) {
-
+						if (
+							startTime === undefined ||
+							startTime >= currentTime ||
+							startTime === 0
+						) {
 							startTime = Math.max(0, currentTime - 1000);
 						}
 						const totalDuration = currentTime - startTime;
-						const lengths = units.map((u) => Math.max(1, (u.rubyWord?.word || u.word.word).trim().length));
+						const lengths = units.map((u) =>
+							Math.max(1, (u.rubyWord?.word || u.word.word).trim().length),
+						);
 						const totalLength = lengths.reduce((a, b) => a + b, 0);
 
 						let currentStart = startTime;
-						for(let i = 0; i < units.length; i++) {
-							const duration = Math.round((lengths[i] / totalLength) * totalDuration);
-							const currentEnd = (i === units.length - 1) ? currentTime : currentStart + duration;
-							setUnitStartTimeCloned(curLine, units[i].wordIndex, units[i].rubyIndex, currentStart);
-							setUnitEndTimeCloned(curLine, units[i].wordIndex, units[i].rubyIndex, currentEnd);
+						for (let i = 0; i < units.length; i++) {
+							const duration = Math.round(
+								(lengths[i] / totalLength) * totalDuration,
+							);
+							const currentEnd =
+								i === units.length - 1 ? currentTime : currentStart + duration;
+							setUnitStartTimeCloned(
+								curLine,
+								units[i].wordIndex,
+								units[i].rubyIndex,
+								currentStart,
+							);
+							setUnitEndTimeCloned(
+								curLine,
+								units[i].wordIndex,
+								units[i].rubyIndex,
+								currentEnd,
+							);
 							currentStart = currentEnd;
 						}
 					}
-					
+
 					nextLines[location.lineIndex] = curLine;
 					return { ...state, lyricLines: nextLines };
 				});
 
 				const state = store.get(lyricLinesAtom);
-				const nextLineIndex = state.lyricLines.slice(location.lineIndex + 1).findIndex(
-					(nextLine) => isSynchronizableLine(nextLine) && getSynchronizableUnits(nextLine).length > 0
-				);
+				const nextLineIndex = state.lyricLines
+					.slice(location.lineIndex + 1)
+					.findIndex(
+						(nextLine) =>
+							isSynchronizableLine(nextLine) &&
+							getSynchronizableUnits(nextLine).length > 0,
+					);
 				if (nextLineIndex !== -1) {
 					const absoluteNextLineIndex = location.lineIndex + 1 + nextLineIndex;
 					const nextLine = state.lyricLines[absoluteNextLineIndex];
@@ -646,11 +732,10 @@ export const SyncKeyBinding: FC = () => {
 		},
 		[store, moveToNextWord],
 	);
-	
+
 	useKeyBindingAtom(keyToggleWordHighlightAtom, () => {
 		store.set(highlightActiveWordAtom, (v) => !v);
 	}, [store]);
-
 
 	return null;
 };

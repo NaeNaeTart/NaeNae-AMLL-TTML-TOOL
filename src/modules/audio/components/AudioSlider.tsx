@@ -1,9 +1,18 @@
-import { Card, Flex, Popover, Text, TextField, TextArea, Box, IconButton } from "@radix-ui/themes";
+import { Delete16Regular } from "@fluentui/react-icons";
+import {
+	Box,
+	Card,
+	Flex,
+	IconButton,
+	Popover,
+	Text,
+	TextArea,
+	TextField,
+} from "@radix-ui/themes";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import WaveSurfer from "wavesurfer.js";
-import { msToTimestamp } from "$/utils/timestamp";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import {
 	audioBufferAtom,
@@ -12,12 +21,12 @@ import {
 	currentTimeAtom,
 } from "$/modules/audio/states";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main";
+import type { Mark } from "$/types/ttml";
+import { msToTimestamp } from "$/utils/timestamp";
 import { useHoverGuide } from "../hooks";
 import { AudioRegion } from "./AudioRegion";
 import styles from "./AudioSlider.module.css";
 import { HoverGuide } from "./HoverGuide";
-import { Add16Regular, Delete16Regular } from "@fluentui/react-icons";
-import type { Mark } from "$/types/ttml";
 
 const WaveformMarkers = memo(
 	({
@@ -29,7 +38,6 @@ const WaveformMarkers = memo(
 		updateMark: (timeMs: number, data: Partial<Mark>) => void;
 		toggleMark: (timeMs: number) => void;
 	}) => {
-		const { t } = useTranslation();
 		return (
 			<>
 				{markers.map((marker) => (
@@ -53,11 +61,8 @@ const InteractiveHoverOverlay = memo(
 		sliderWidthPx: number;
 		isDraggingRef: React.RefObject<boolean>;
 	}) => {
-		const {
-			hoverState,
-			handleContainerMouseMove,
-			handleContainerMouseLeave,
-		} = useHoverGuide(sliderWidthPx, isDraggingRef);
+		const { hoverState, handleContainerMouseMove, handleContainerMouseLeave } =
+			useHoverGuide(sliderWidthPx, isDraggingRef);
 
 		return (
 			<div
@@ -81,6 +86,7 @@ const MarkerItem = memo(
 		updateMark: (timeMs: number, data: Partial<Mark>) => void;
 		toggleMark: (timeMs: number) => void;
 	}) => {
+		const { t } = useTranslation();
 		const [localLabel, setLocalLabel] = useState(marker.label || "");
 		const [localDescription, setLocalDescription] = useState(
 			marker.description || "",
@@ -109,7 +115,7 @@ const MarkerItem = memo(
 
 		return (
 			<Popover.Root onOpenChange={(open) => !open && commitChanges()}>
-				<Popover.Trigger asChild>
+				<Popover.Trigger>
 					<div
 						className={styles.markingLine}
 						style={{ left: `${marker.left}px` }}

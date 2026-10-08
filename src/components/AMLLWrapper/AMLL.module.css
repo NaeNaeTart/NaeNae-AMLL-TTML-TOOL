@@ -1,67 +1,67 @@
 .amllContainer {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
+	width: 100%;
+	height: 100%;
+	position: relative;
+	overflow: hidden;
 }
 
 .bgLayer {
-    position: absolute;
-    inset: -5%;
-    width: 110%;
-    height: 110%;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.85;
+	position: absolute;
+	inset: -5%;
+	width: 110%;
+	height: 110%;
+	z-index: 0;
+	pointer-events: none;
+	opacity: 0.85;
 }
 
 .lyricsLayer {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
 }
 
 /* The wrapper div that the LyricPlayer appends its element into */
 :global(.amll-player-instance) {
-    flex: 1 !important;
-    height: 100% !important;
-    width: 100% !important;
-    min-height: 0 !important;
+	flex: 1 !important;
+	height: 100% !important;
+	width: 100% !important;
+	min-height: 0 !important;
 }
 
 /* The actual lyric player element created by the library */
 :global(.amll-player-instance > *) {
-    width: 100% !important;
-    height: 100% !important;
+	width: 100% !important;
+	height: 100% !important;
 }
 
 /* Lyric line base styles - font only, let the library handle position/opacity */
 :global(.amll-lyric-line) {
-    font-family: var(--default-font-family) !important;
-    font-size: 3.8rem !important;
-    font-weight: 850 !important;
-    line-height: 1.15 !important;
-    color: rgba(255, 255, 255, 0.4) !important;
+	font-family: var(--default-font-family) !important;
+	font-size: 3.8rem !important;
+	font-weight: 850 !important;
+	line-height: 1.15 !important;
+	color: rgba(255, 255, 255, 0.4) !important;
 }
 
 :global(.amll-lyric-line-active) {
-    color: #fff !important;
+	color: #fff !important;
 }
 
 /* Duet and background vocal styling */
 :global(.amll-lyric-line[data-line-type="bg"]),
 :global([class*="bg-line"]) {
-    text-align: right !important;
-    transform-origin: right center !important;
+	text-align: right !important;
+	transform-origin: right center !important;
 }
 
 .noLyrics {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 1.2rem;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: rgba(255, 255, 255, 0.5);
+	font-size: 1.2rem;
 }

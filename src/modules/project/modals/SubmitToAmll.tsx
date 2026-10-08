@@ -158,7 +158,15 @@ export const SubmitToAMLLDBDialog = memo(() => {
 				return;
 			}
 
-			const ttmlText = exportTTMLText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom), { allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) });
+			const ttmlText = exportTTMLText(
+				store.get(lyricLinesAtom),
+				store.get(lyricTextNormalizationOptionsAtom),
+				{
+					allowConsecutiveBackgroundLines: store.get(
+						allowConsecutiveBackgroundLinesAtom,
+					),
+				},
+			);
 			const ttmlBlob = new Blob([ttmlText], { type: "text/xml" });
 
 			const formData = new FormData();
@@ -248,10 +256,7 @@ ${comment}
 			<Dialog.Content>
 				<VisuallyHidden>
 					<Dialog.Description>
-						{t(
-							"submitToAMLLDB.description",
-							"提交歌词到 AMLL 歌词数据库",
-						)}
+						{t("submitToAMLLDB.description", "提交歌词到 AMLL 歌词数据库")}
 					</Dialog.Description>
 				</VisuallyHidden>
 				<Dialog.Title>
@@ -347,21 +352,30 @@ ${comment}
 							{uploadDbType === UploadDBType.Official && (
 								<Callout.Root color="grass">
 									<Callout.Text size="1">
-										{t("submitToAMLLDB.officialDesc", "提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。")}
+										{t(
+											"submitToAMLLDB.officialDesc",
+											"提交到官方歌词库，需要进行人工审核，确保歌词满足基本要求以及时间轴和效果后方可加入词库。\n此举可以把关你的歌词质量，让你的歌词能以足够好的演出效果呈现，推荐提交到此处。",
+										)}
 									</Callout.Text>
 								</Callout.Root>
 							)}
 							{uploadDbType === UploadDBType.User && (
 								<Callout.Root color="orange">
 									<Callout.Text size="1">
-										{t("submitToAMLLDB.userDesc", "提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。")}
+										{t(
+											"submitToAMLLDB.userDesc",
+											"提交到用户歌词库，仅需通过机器人审核没有严重问题后即可加入词库，无需人工审核。\n但是如果出现歌词内容以及呈现效果的问题则只能通过重新提交覆盖，无法进行人工核对保证质量。",
+										)}
 									</Callout.Text>
 								</Callout.Root>
 							)}
 							{uploadDbType === UploadDBType.Both && (
 								<Callout.Root color="orange">
 									<Callout.Text size="1">
-										{t("submitToAMLLDB.bothDesc", "两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。")}
+										{t(
+											"submitToAMLLDB.bothDesc",
+											"两个都要也不坏，知晓情况即可\n上传后将会分别打开每个仓库对应的提交页面，请手动分别按下创建议题即可提交。",
+										)}
 									</Callout.Text>
 								</Callout.Root>
 							)}
@@ -385,7 +399,10 @@ ${comment}
 								disabled={genNameFromMetadata}
 								onChange={(e) => setName(e.currentTarget.value)}
 							/>
-							{t("submitToAMLLDB.musicNameDesc", "推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在")}
+							{t(
+								"submitToAMLLDB.musicNameDesc",
+								"推荐使用 歌手 - 歌曲 格式，方便仓库管理员确认你的歌曲是否存在",
+							)}
 						</Flex>
 					</Text>
 					<Text as="label" size="2">
@@ -395,7 +412,9 @@ ${comment}
 								value={submitReason}
 								onValueChange={setSubmitReason}
 							>
-								<RadioGroup.Item value="新歌词提交">{t("submitToAMLLDB.submitReasonNew", "新歌词提交")}</RadioGroup.Item>
+								<RadioGroup.Item value="新歌词提交">
+									{t("submitToAMLLDB.submitReasonNew", "新歌词提交")}
+								</RadioGroup.Item>
 								<RadioGroup.Item value="修正已有歌词">
 									{t("submitToAMLLDB.submitReasonFix", "修正已有歌词")}
 								</RadioGroup.Item>
@@ -407,7 +426,10 @@ ${comment}
 							{t("submitToAMLLDB.comment", "备注")}
 							<TextArea
 								resize="vertical"
-								placeholder={t("submitToAMLLDB.commentPlaceholder", "有什么需要补充说明的呢？")}
+								placeholder={t(
+									"submitToAMLLDB.commentPlaceholder",
+									"有什么需要补充说明的呢？",
+								)}
 								value={comment}
 								onChange={(e) => setComment(e.currentTarget.value)}
 							/>
@@ -419,7 +441,10 @@ ${comment}
 								<ErrorCircle16Regular />
 							</Callout.Icon>
 							<Callout.Text>
-								{t("submitToAMLLDB.issueFoundTitle", "发现以下问题，请修正后再提交：")}
+								{t(
+									"submitToAMLLDB.issueFoundTitle",
+									"发现以下问题，请修正后再提交：",
+								)}
 								<ul>
 									{issues.map((issue) => (
 										<li key={issue}>{issue}</li>

@@ -1,65 +1,96 @@
+import { Info24Regular, Warning24Regular } from "@fluentui/react-icons";
 import {
+	Box,
 	Button,
+	Callout,
 	Checkbox,
 	Dialog,
 	Flex,
-	Text,
 	Separator,
-	Callout,
-	Box,
+	Text,
 } from "@radix-ui/themes";
-import { Info24Regular, Warning24Regular } from "@fluentui/react-icons";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import {
 	experimentalFeaturesDialogOpenAtom,
 	geniusCategorizationEnabledAtom,
-	geniusHeaderDetectionDialogShownAtom,
 	geniusHeaderDetectionDialogOpenAtom,
+	geniusHeaderDetectionDialogShownAtom,
 } from "$/modules/settings/states/index.ts";
 
 export const GeniusHeaderDetectionDialog = () => {
 	const { t } = useTranslation();
-	const [geniusCategorizationEnabled, setGeniusCategorizationEnabled] = useAtom(
+	const setGeniusCategorizationEnabled = useSetAtom(
 		geniusCategorizationEnabledAtom,
 	);
-	const [dialogShown, setDialogShown] = useAtom(geniusHeaderDetectionDialogShownAtom);
+	const setDialogShown = useSetAtom(geniusHeaderDetectionDialogShownAtom);
 	const [isOpen, setIsOpen] = useAtom(geniusHeaderDetectionDialogOpenAtom);
 
 	// This is a bit tricky to trigger from here, maybe a separate atom for this specific dialog's open state
 	// Or just use a local state and trigger it via an effect that we expose?
-	
+
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
 			<Dialog.Content style={{ maxWidth: 500 }}>
-				<Dialog.Title>{t("experimentalFeatures.geniusCategorization.dialogTitle", "Genius Headers Detected!")}</Dialog.Title>
+				<Dialog.Title>
+					{t(
+						"experimentalFeatures.geniusCategorization.dialogTitle",
+						"Genius Headers Detected!",
+					)}
+				</Dialog.Title>
 				<Dialog.Description mb="4">
-					{t("experimentalFeatures.geniusCategorization.dialogDesc", "We've detected section headers in your lyrics. Would you like to enable the experimental 'Genius Header Categorization' feature to help with your workflow?")}
+					{t(
+						"experimentalFeatures.geniusCategorization.dialogDesc",
+						"We've detected section headers in your lyrics. Would you like to enable the experimental 'Genius Header Categorization' feature to help with your workflow?",
+					)}
 				</Dialog.Description>
 
 				<Flex direction="column" gap="3">
-					<Box p="3" style={{ backgroundColor: "var(--gray-2)", borderRadius: "var(--radius-2)" }}>
+					<Box
+						p="3"
+						style={{
+							backgroundColor: "var(--gray-2)",
+							borderRadius: "var(--radius-2)",
+						}}
+					>
 						<Flex gap="2" align="start">
-							<Info24Regular style={{ color: "var(--accent-9)", marginTop: "2px" }} />
+							<Info24Regular
+								style={{ color: "var(--accent-9)", marginTop: "2px" }}
+							/>
 							<Text size="1">
-								{t("experimentalFeatures.geniusCategorization.usageInfo", "Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.")}
+								{t(
+									"experimentalFeatures.geniusCategorization.usageInfo",
+									"Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.",
+								)}
 							</Text>
 						</Flex>
 					</Box>
 
 					<Flex justify="end" gap="2">
-						<Button variant="soft" color="gray" onClick={() => {
-							setIsOpen(false);
-							setDialogShown(true);
-						}}>
-							{t("experimentalFeatures.geniusCategorization.maybeLater", "Maybe Later")}
+						<Button
+							variant="soft"
+							color="gray"
+							onClick={() => {
+								setIsOpen(false);
+								setDialogShown(true);
+							}}
+						>
+							{t(
+								"experimentalFeatures.geniusCategorization.maybeLater",
+								"Maybe Later",
+							)}
 						</Button>
-						<Button onClick={() => {
-							setGeniusCategorizationEnabled(true);
-							setDialogShown(true);
-							setIsOpen(false);
-						}}>
-							{t("experimentalFeatures.geniusCategorization.enableNow", "Enable Now")}
+						<Button
+							onClick={() => {
+								setGeniusCategorizationEnabled(true);
+								setDialogShown(true);
+								setIsOpen(false);
+							}}
+						>
+							{t(
+								"experimentalFeatures.geniusCategorization.enableNow",
+								"Enable Now",
+							)}
 						</Button>
 					</Flex>
 				</Flex>
@@ -78,9 +109,14 @@ export const ExperimentalFeaturesDialog = () => {
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
 			<Dialog.Content style={{ maxWidth: 500 }}>
-				<Dialog.Title>{t("experimentalFeatures.title", "Experimental Features")}</Dialog.Title>
+				<Dialog.Title>
+					{t("experimentalFeatures.title", "Experimental Features")}
+				</Dialog.Title>
 				<Dialog.Description mb="4">
-					{t("experimentalFeatures.description", "These features are currently in development and may be unstable. Use with caution.")}
+					{t(
+						"experimentalFeatures.description",
+						"These features are currently in development and may be unstable. Use with caution.",
+					)}
 				</Dialog.Description>
 
 				<Callout.Root color="amber" variant="soft" mb="4">
@@ -88,7 +124,10 @@ export const ExperimentalFeaturesDialog = () => {
 						<Warning24Regular />
 					</Callout.Icon>
 					<Callout.Text>
-						{t("experimentalFeatures.description", "These features are currently in development and may be unstable. Use with caution.")}
+						{t(
+							"experimentalFeatures.description",
+							"These features are currently in development and may be unstable. Use with caution.",
+						)}
 					</Callout.Text>
 				</Callout.Root>
 
@@ -97,23 +136,42 @@ export const ExperimentalFeaturesDialog = () => {
 						<Flex align="center" gap="2" justify="between">
 							<Flex direction="column">
 								<Text weight="bold" size="3">
-									{t("experimentalFeatures.geniusCategorization.title", "Genius Header Categorization")}
+									{t(
+										"experimentalFeatures.geniusCategorization.title",
+										"Genius Header Categorization",
+									)}
 								</Text>
 								<Text size="1" color="gray">
-									{t("experimentalFeatures.geniusCategorization.description", "Detect, normalize, review, navigate, collapse, validate, and edit Genius-style song sections while preserving them in TTML exports.")}
+									{t(
+										"experimentalFeatures.geniusCategorization.description",
+										"Detect, normalize, review, navigate, collapse, validate, and edit Genius-style song sections while preserving them in TTML exports.",
+									)}
 								</Text>
 							</Flex>
 							<Checkbox
 								checked={geniusCategorizationEnabled}
-								onCheckedChange={(checked) => setGeniusCategorizationEnabled(!!checked)}
+								onCheckedChange={(checked) =>
+									setGeniusCategorizationEnabled(!!checked)
+								}
 							/>
 						</Flex>
-						
-						<Box p="3" style={{ backgroundColor: "var(--gray-2)", borderRadius: "var(--radius-2)" }}>
+
+						<Box
+							p="3"
+							style={{
+								backgroundColor: "var(--gray-2)",
+								borderRadius: "var(--radius-2)",
+							}}
+						>
 							<Flex gap="2" align="start">
-								<Info24Regular style={{ color: "var(--accent-9)", marginTop: "2px" }} />
+								<Info24Regular
+									style={{ color: "var(--accent-9)", marginTop: "2px" }}
+								/>
 								<Text size="1">
-									{t("experimentalFeatures.geniusCategorization.usageInfo", "Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.")}
+									{t(
+										"experimentalFeatures.geniusCategorization.usageInfo",
+										"Once enabled, section headers will be styled differently in the editor. You can click on them to access specialized tools like 'Copy Previous Timing' and 'Snap to Playhead'.",
+									)}
 								</Text>
 							</Flex>
 						</Box>

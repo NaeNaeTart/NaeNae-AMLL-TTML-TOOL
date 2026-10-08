@@ -84,7 +84,6 @@ export const keyToggleWordHighlightAtom = cmdToggleWordHighlight.atom;
 export const keyUrbanDictionaryAtom = cmdUrbanDictionary.atom;
 export const keyUrbanDictionarySyncAtom = cmdUrbanDictionarySync.atom;
 
-
 export const keyMoveFirstWordAndPlayAtom = cmdMoveFirstWordAndPlay.atom;
 export const keyMoveLastWordAndPlayAtom = cmdMoveLastWordAndPlay.atom;
 

@@ -1,40 +1,40 @@
 .pluginDialogContent {
-    background-color: var(--gray-a3);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
-    border-radius: 24px;
-    padding: 40px !important;
+	background-color: var(--gray-a3);
+	backdrop-filter: blur(24px) saturate(180%);
+	-webkit-backdrop-filter: blur(24px) saturate(180%);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+	border-radius: 24px;
+	padding: 40px !important;
 }
 
 .pluginStoreCard {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: transform 0.2s ease;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	transition: transform 0.2s ease;
 }
 
 .pluginStoreCard:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.08);
+	transform: translateY(-2px);
+	background: rgba(255, 255, 255, 0.08);
 }
 
 .sideloadZone {
-    border: 3px dashed rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.02);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	border: 3px dashed rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.02);
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sideloadZone:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: var(--accent-a8);
-    transform: scale(1.01);
+	background: rgba(255, 255, 255, 0.06);
+	border-color: var(--accent-a8);
+	transform: scale(1.01);
 }
 
 .customPopover {
-    max-width: 350px;
-    background-color: var(--gray-a4);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--gray-a5);
-    z-index: 2000;
+	max-width: 350px;
+	background-color: var(--gray-a4);
+	backdrop-filter: blur(16px);
+	border: 1px solid var(--gray-a5);
+	z-index: 2000;
 }

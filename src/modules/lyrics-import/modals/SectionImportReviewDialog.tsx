@@ -13,14 +13,14 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+	createSectionFromHeader,
+	getSectionHeader,
+} from "$/modules/lyric-editor/utils/section-system";
+import {
 	LYRIC_SECTION_CATEGORIES,
 	type LyricSection,
 	type LyricSectionCategory,
 } from "$/types/ttml";
-import {
-	createSectionFromHeader,
-	getSectionHeader,
-} from "$/modules/lyric-editor/utils/section-system";
 
 export interface ReviewedSection extends LyricSection {
 	occurrence: number;
@@ -98,9 +98,7 @@ export function SectionImportReviewDialog({
 	) => {
 		setSections((current) =>
 			current.map((section) =>
-				section.occurrence === occurrence
-					? { ...section, ...patch }
-					: section,
+				section.occurrence === occurrence ? { ...section, ...patch } : section,
 			),
 		);
 	};
@@ -108,9 +106,14 @@ export function SectionImportReviewDialog({
 	return (
 		<Dialog.Root open={open}>
 			<Dialog.Content maxWidth="1000px">
-				<Dialog.Title>{t("sectionImportReview.title", "Review detected sections")}</Dialog.Title>
+				<Dialog.Title>
+					{t("sectionImportReview.title", "Review detected sections")}
+				</Dialog.Title>
 				<Dialog.Description>
-					{t("sectionImportReview.description", "Check normalized categories and metadata before replacing the lyrics.")}
+					{t(
+						"sectionImportReview.description",
+						"Check normalized categories and metadata before replacing the lyrics.",
+					)}
 				</Dialog.Description>
 				<Flex gap="4" mt="4" style={{ height: "60vh" }}>
 					<Flex direction="column" gap="2" style={{ flex: 1 }}>
@@ -128,7 +131,11 @@ export function SectionImportReviewDialog({
 							<Text size="2" weight="bold">
 								{t("sectionImportReview.structure", "Structure")}
 							</Text>
-							<Badge color="indigo">{t("sectionImportReview.sectionCount", { count: sections.length })}</Badge>
+							<Badge color="indigo">
+								{t("sectionImportReview.sectionCount", {
+									count: sections.length,
+								})}
+							</Badge>
 						</Flex>
 						<ScrollArea style={{ flex: 1 }}>
 							<Flex direction="column" gap="2" pr="3">
@@ -166,7 +173,10 @@ export function SectionImportReviewDialog({
 											</Flex>
 											<Flex gap="2">
 												<TextField.Root
-													placeholder={t("sectionImportReview.vocalist", "Vocalist / role")}
+													placeholder={t(
+														"sectionImportReview.vocalist",
+														"Vocalist / role",
+													)}
 													value={section.vocalist ?? ""}
 													onChange={(event) =>
 														updateSection(section.occurrence, {
@@ -177,18 +187,25 @@ export function SectionImportReviewDialog({
 												/>
 												<input
 													type="color"
-													title={t("sectionImportReview.color", "Section color")}
+													title={t(
+														"sectionImportReview.color",
+														"Section color",
+													)}
 													value={section.color ?? "#808080"}
 													onChange={(event) =>
 														updateSection(section.occurrence, {
 															color: event.target.value,
 														})
 													}
-													style={{ width: "48px", border: 0, background: "none" }}
+													style={{
+														width: "48px",
+														border: 0,
+														background: "none",
+													}}
 												/>
 											</Flex>
 											<TextField.Root
-											placeholder={t("sectionImportReview.notes", "Notes")}
+												placeholder={t("sectionImportReview.notes", "Notes")}
 												value={section.notes ?? ""}
 												onChange={(event) =>
 													updateSection(section.occurrence, {
@@ -199,15 +216,15 @@ export function SectionImportReviewDialog({
 											<Flex gap="2">
 												<Badge
 													color={
-														(section.confidence ?? 1) < 0.6
-															? "orange"
-															: "green"
+														(section.confidence ?? 1) < 0.6 ? "orange" : "green"
 													}
 												>
 													{Math.round((section.confidence ?? 1) * 100)}%
 												</Badge>
 												<Text size="1" color="gray">
-													{t("sectionImportReview.lineCount", { count: section.lineCount })}
+													{t("sectionImportReview.lineCount", {
+														count: section.lineCount,
+													})}
 												</Text>
 											</Flex>
 										</Flex>

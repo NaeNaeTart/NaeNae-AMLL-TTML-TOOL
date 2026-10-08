@@ -1,22 +1,22 @@
+import { Open16Regular, QuestionCircle16Regular } from "@fluentui/react-icons";
 import {
+	Badge,
+	Box,
 	Button,
+	Card,
 	Dialog,
 	Flex,
 	Grid,
+	ScrollArea,
 	Select,
+	Separator,
 	Switch,
+	Tabs,
 	Text,
 	TextArea,
 	TextField,
-	Tabs,
-	ScrollArea,
-	Card,
-	Badge,
-	Separator,
 	VisuallyHidden,
-	Box,
 } from "@radix-ui/themes";
-import { Open16Regular, QuestionCircle16Regular } from "@fluentui/react-icons";
 import { atom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import {
@@ -26,37 +26,8 @@ import {
 	useEffect,
 	useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import {
-	confirmDialogAtom,
-	importFromTextDialogAtom,
-} from "$/states/dialogs.ts";
-
-import {
-	isDirtyAtom,
-	lyricLinesAtom,
-	selectedLinesAtom,
-	selectedWordsAtom,
-} from "$/states/main.ts";
-
-import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml";
-import {
-	importAddSpacesAtom,
-	importSplitHyphensAtom,
-	normalizeApostrophesOnImportAtom,
-	normalizeCyrillicEsOnImportAtom,
-	geniusCategorizationEnabledAtom,
-	geniusHeaderDetectionDialogOpenAtom,
-	geniusHeaderDetectionDialogShownAtom,
-	geniusHeaderRestorationTextAtom,
-} from "$/modules/settings/states/index.ts";
-
-import { error as logError } from "$/utils/logging.ts";
-import { prepareLyricLine } from "$/utils/lyric-prep";
-import {
-	normalizeImportedLyricApostrophes,
-	normalizeImportedLyricCyrillicEs,
-} from "$/utils/apostrophe-normalization";
 import { getGeniusHeader } from "$/modules/lyric-editor/utils/genius-sections.ts";
 import { applyReviewedSections } from "$/modules/lyric-editor/utils/section-system.ts";
 import {
@@ -65,9 +36,34 @@ import {
 	SectionImportReviewDialog,
 } from "$/modules/lyrics-import/modals/SectionImportReviewDialog";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
+import {
+	geniusCategorizationEnabledAtom,
+	geniusHeaderDetectionDialogOpenAtom,
+	geniusHeaderDetectionDialogShownAtom,
+	geniusHeaderRestorationTextAtom,
+	importAddSpacesAtom,
+	importSplitHyphensAtom,
+	normalizeApostrophesOnImportAtom,
+	normalizeCyrillicEsOnImportAtom,
+} from "$/modules/settings/states/index.ts";
+import {
+	confirmDialogAtom,
+	importFromTextDialogAtom,
+} from "$/states/dialogs.ts";
+import {
+	isDirtyAtom,
+	lyricLinesAtom,
+	selectedLinesAtom,
+	selectedWordsAtom,
+} from "$/states/main.ts";
+import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml";
+import {
+	normalizeImportedLyricApostrophes,
+	normalizeImportedLyricCyrillicEs,
+} from "$/utils/apostrophe-normalization";
+import { error as logError } from "$/utils/logging.ts";
+import { prepareLyricLine } from "$/utils/lyric-prep";
 import styles from "./ImportFromText.module.css";
-
-import { useTranslation } from "react-i18next";
 
 // type IModelDeltaDecoration = monaco.editor.IModelDeltaDecoration;
 // type IEditorDecorationsCollection = monaco.editor.IEditorDecorationsCollection;

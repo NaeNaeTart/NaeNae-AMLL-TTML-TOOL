@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { TTMLLyric } from "$/types/ttml";
+import { newLyricLine, type TTMLLyric } from "$/types/ttml";
 import { parseDurationInput, scaleTTMLTimings } from "./time-stretch";
 
 describe("parseDurationInput", () => {
@@ -20,7 +20,7 @@ describe("parseDurationInput", () => {
 
 describe("scaleTTMLTimings", () => {
 	it("scales every stored timeline timestamp and preserves other data", () => {
-		const lyrics = {
+		const lyrics: TTMLLyric = {
 			metadata: [{ key: "ttml:language", value: ["en"] }],
 			marks: [{ timeMs: 501, label: "Verse" }],
 			lyricLines: [
@@ -51,7 +51,7 @@ describe("scaleTTMLTimings", () => {
 					],
 				},
 			],
-		} as TTMLLyric;
+		};
 
 		scaleTTMLTimings(lyrics, 0.5);
 
@@ -73,7 +73,7 @@ describe("scaleTTMLTimings", () => {
 	});
 
 	it("preserves zero and nullable linked timestamps", () => {
-		const lyrics = {
+		const lyrics: TTMLLyric = {
 			metadata: [],
 			lyricLines: [
 				{
@@ -92,7 +92,7 @@ describe("scaleTTMLTimings", () => {
 					},
 				},
 			],
-		} as TTMLLyric;
+		};
 
 		scaleTTMLTimings(lyrics, 2);
 
@@ -102,14 +102,14 @@ describe("scaleTTMLTimings", () => {
 	});
 
 	it("scales only the requested lines and leaves marks unchanged", () => {
-		const lyrics = {
+		const lyrics: TTMLLyric = {
 			metadata: [],
 			marks: [{ timeMs: 100, label: "Verse" }],
 			lyricLines: [
-				{ startTime: 100, endTime: 200, words: [] },
-				{ startTime: 300, endTime: 400, words: [] },
+				{ ...newLyricLine(), startTime: 100, endTime: 200, words: [] },
+				{ ...newLyricLine(), startTime: 300, endTime: 400, words: [] },
 			],
-		} as TTMLLyric;
+		};
 
 		scaleTTMLTimings(lyrics, 2, new Set([1]));
 
@@ -125,7 +125,7 @@ describe("scaleTTMLTimings", () => {
 	});
 
 	it("rejects invalid scale factors", () => {
-		const lyrics = { metadata: [], lyricLines: [] } as TTMLLyric;
+		const lyrics: TTMLLyric = { metadata: [], lyricLines: [] };
 		expect(() => scaleTTMLTimings(lyrics, 0)).toThrow(RangeError);
 		expect(() => scaleTTMLTimings(lyrics, Number.POSITIVE_INFINITY)).toThrow(
 			RangeError,

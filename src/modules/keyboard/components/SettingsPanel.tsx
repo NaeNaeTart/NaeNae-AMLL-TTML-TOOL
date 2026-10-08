@@ -5,13 +5,21 @@ import {
 	Timer20Regular,
 	Wand20Regular,
 } from "@fluentui/react-icons";
-import { Box, Flex, Grid, Heading, Switch, Text, TextField } from "@radix-ui/themes";
+import {
+	Box,
+	Flex,
+	Grid,
+	Heading,
+	Switch,
+	Text,
+	TextField,
+} from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatKeyBindings, recordShortcut } from "$/utils/keybindings";
-import { autoSegmentDoublePressAtom } from "../states";
 import { getAllCommands } from "../registry";
+import { autoSegmentDoublePressAtom } from "../states";
 import type { KeyBindingCommand } from "../types";
 
 const KEYBINDING_CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -86,7 +94,9 @@ export const AutoKeyBindingSettingsPanel = () => {
 					<Heading size="3" mb="3" color="gray">
 						<Flex align="center" gap="2">
 							{KEYBINDING_CATEGORY_ICONS[category]}
-							<span>{t(`settingsDialog.keybindings.category.${category}`, category)}</span>
+							<span>
+								{t(`settingsDialog.keybindings.category.${category}`, category)}
+							</span>
 						</Flex>
 					</Heading>
 
@@ -101,12 +111,22 @@ export const AutoKeyBindingSettingsPanel = () => {
 				<Heading size="3" mb="3" color="gray">
 					<Flex align="center" gap="2">
 						<Wand20Regular />
-						<span>{t("settingsDialog.keybindings.autoSegmentOptions", "Auto Segment")}</span>
+						<span>
+							{t(
+								"settingsDialog.keybindings.autoSegmentOptions",
+								"Auto Segment",
+							)}
+						</span>
 					</Flex>
 				</Heading>
 				<Flex align="center" justify="between" gap="4">
 					<Box>
-						<Text>{t("settingsDialog.keybindings.autoSegmentDoublePress", "Require double press")}</Text>
+						<Text>
+							{t(
+								"settingsDialog.keybindings.autoSegmentDoublePress",
+								"Require double press",
+							)}
+						</Text>
 						<Text as="div" size="1" color="gray">
 							{t(
 								"settingsDialog.keybindings.autoSegmentDoublePressDesc",

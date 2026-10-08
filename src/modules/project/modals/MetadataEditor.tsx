@@ -48,7 +48,6 @@ import {
 	SpotifyIcon,
 } from "./PlatformIcons";
 
-
 interface MetadataEntryProps {
 	entry: { key: string; value: string[] };
 	index: number;

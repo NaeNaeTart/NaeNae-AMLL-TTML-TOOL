@@ -43,7 +43,7 @@ export const TimeShiftToolbar: FC = () => {
 	const [previewScope, setPreviewScope] = useAtom(timeShiftPreviewScopeAtom);
 	const previewRange = useAtomValue(timeShiftPreviewCustomRangeAtom);
 	const setDialogVisible = useSetAtom(timeShiftDialogAtom);
-	
+
 	const lyricLines = useAtomValue(lyricLinesAtom);
 	const selectedLines = useAtomValue(selectedLinesAtom);
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
@@ -52,9 +52,12 @@ export const TimeShiftToolbar: FC = () => {
 	const [isCopyMode, setIsCopyMode] = useState(false);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	const adjustOffset = useCallback((delta: number) => {
-		setPreviewOffset((prev) => prev + delta);
-	}, [setPreviewOffset]);
+	const adjustOffset = useCallback(
+		(delta: number) => {
+			setPreviewOffset((prev) => prev + delta);
+		},
+		[setPreviewOffset],
+	);
 
 	const getFirstAffectedIndex = useCallback(() => {
 		const lines = lyricLines.lyricLines;
@@ -82,7 +85,12 @@ export const TimeShiftToolbar: FC = () => {
 			const targetLine = lyricLines.lyricLines[firstIndex];
 			setPreviewOffset(currentTime - targetLine.startTime);
 		}
-	}, [currentTime, getFirstAffectedIndex, lyricLines.lyricLines, setPreviewOffset]);
+	}, [
+		currentTime,
+		getFirstAffectedIndex,
+		lyricLines.lyricLines,
+		setPreviewOffset,
+	]);
 
 	// Default scope to "selected" if lines are selected
 	useEffect(() => {
@@ -136,7 +144,7 @@ export const TimeShiftToolbar: FC = () => {
 			}
 
 			if (isCopyMode) {
-				const newLines = targetLineIndices.map(index => {
+				const newLines = targetLineIndices.map((index) => {
 					const line = lines[index];
 					const newLine = JSON.parse(JSON.stringify(line));
 					newLine.id = uid();
@@ -158,15 +166,15 @@ export const TimeShiftToolbar: FC = () => {
 				draft.lyricLines.push(...newLines);
 				draft.lyricLines.sort((a, b) => a.startTime - b.startTime);
 			} else {
-				targetLineIndices.forEach(index => {
+				targetLineIndices.forEach((index) => {
 					const line = lines[index];
 					line.startTime += offset;
 					line.endTime += offset;
-					line.words.forEach(w => {
+					line.words.forEach((w) => {
 						w.startTime += offset;
 						w.endTime += offset;
 						if (w.ruby) {
-							w.ruby.forEach(r => {
+							w.ruby.forEach((r) => {
 								r.startTime += offset;
 								r.endTime += offset;
 							});
@@ -225,46 +233,56 @@ export const TimeShiftToolbar: FC = () => {
 			<Box className={styles.toolbarContainer} onWheel={handleWheel}>
 				<Flex align="center" gap="4">
 					<Flex direction="column" gap="0">
-						<Text size="1" weight="bold" style={{ color: "var(--accent-11)", lineHeight: 1 }}>
+						<Text
+							size="1"
+							weight="bold"
+							style={{ color: "var(--accent-11)", lineHeight: 1 }}
+						>
 							{t("timeShiftDialog.title", "Time Shift")}
 						</Text>
-						<SegmentedControl.Root 
-							size="1" 
-							value={isCopyMode ? "copy" : "move"} 
+						<SegmentedControl.Root
+							size="1"
+							value={isCopyMode ? "copy" : "move"}
 							onValueChange={(v) => setIsCopyMode(v === "copy")}
 							style={{ marginTop: 4 }}
 						>
 							<SegmentedControl.Item value="move">
-								<Flex align="center" gap="1"><ArrowRightRegular fontSize={12}/>{t("common.move", "Move")}</Flex>
+								<Flex align="center" gap="1">
+									<ArrowRightRegular fontSize={12} />
+									{t("common.move", "Move")}
+								</Flex>
 							</SegmentedControl.Item>
 							<SegmentedControl.Item value="copy">
-								<Flex align="center" gap="1"><CopyRegular fontSize={12}/>{t("common.copy", "Copy")}</Flex>
+								<Flex align="center" gap="1">
+									<CopyRegular fontSize={12} />
+									{t("common.copy", "Copy")}
+								</Flex>
 							</SegmentedControl.Item>
 						</SegmentedControl.Root>
 					</Flex>
 
 					<Box className={styles.divider} />
-					
+
 					<Flex align="center" gap="2" className={styles.controlGroup}>
-						<IconButton 
-							size="1" 
-							variant="ghost" 
+						<IconButton
+							size="1"
+							variant="ghost"
 							onMouseDown={() => startAdjusting(-100)}
 							onMouseUp={stopAdjusting}
 							onMouseLeave={stopAdjusting}
 						>
 							<SubtractRegular />
 						</IconButton>
-						<IconButton 
-							size="1" 
-							variant="ghost" 
+						<IconButton
+							size="1"
+							variant="ghost"
 							onMouseDown={() => startAdjusting(-10)}
 							onMouseUp={stopAdjusting}
 							onMouseLeave={stopAdjusting}
 						>
 							<SubtractRegular />
 						</IconButton>
-						
+
 						<Box style={{ width: 120 }}>
 							<Slider
 								size="1"
@@ -276,18 +294,18 @@ export const TimeShiftToolbar: FC = () => {
 							/>
 						</Box>
 
-						<IconButton 
-							size="1" 
-							variant="ghost" 
+						<IconButton
+							size="1"
+							variant="ghost"
 							onMouseDown={() => startAdjusting(10)}
 							onMouseUp={stopAdjusting}
 							onMouseLeave={stopAdjusting}
 						>
 							<AddRegular />
 						</IconButton>
-						<IconButton 
-							size="1" 
-							variant="ghost" 
+						<IconButton
+							size="1"
+							variant="ghost"
 							onMouseDown={() => startAdjusting(100)}
 							onMouseUp={stopAdjusting}
 							onMouseLeave={stopAdjusting}
@@ -301,15 +319,35 @@ export const TimeShiftToolbar: FC = () => {
 					<Flex align="center" gap="1">
 						<TextField.Root
 							size="1"
-							value={previewOffset === 0 ? "" : (previewOffset > 0 ? `+${previewOffset}` : String(previewOffset))}
+							value={
+								previewOffset === 0
+									? ""
+									: previewOffset > 0
+										? `+${previewOffset}`
+										: String(previewOffset)
+							}
 							onChange={handleInputChange}
 							placeholder="0"
-							style={{ width: 80, textAlign: "center", fontVariantNumeric: "tabular-nums" }}
+							style={{
+								width: 80,
+								textAlign: "center",
+								fontVariantNumeric: "tabular-nums",
+							}}
 						>
 							<TextField.Slot side="right">ms</TextField.Slot>
 						</TextField.Root>
-						<Tooltip content={t("timeShiftDialog.snapToPlayhead", "Snap start of affected lines to current playback time")}>
-							<IconButton size="1" variant="soft" radius="full" onClick={handleSnapToPlayhead}>
+						<Tooltip
+							content={t(
+								"timeShiftDialog.snapToPlayhead",
+								"Snap start of affected lines to current playback time",
+							)}
+						>
+							<IconButton
+								size="1"
+								variant="soft"
+								radius="full"
+								onClick={handleSnapToPlayhead}
+							>
 								<RecordRegular fontSize={12} />
 							</IconButton>
 						</Tooltip>
@@ -318,7 +356,9 @@ export const TimeShiftToolbar: FC = () => {
 					<Box className={styles.divider} />
 
 					<Flex align="center" gap="2">
-						<Text size="1" color="gray">{t("timeShiftDialog.scopeLabel", "Scope")}</Text>
+						<Text size="1" color="gray">
+							{t("timeShiftDialog.scopeLabel", "Scope")}
+						</Text>
 						<Select.Root
 							size="1"
 							value={previewScope}
@@ -326,10 +366,18 @@ export const TimeShiftToolbar: FC = () => {
 						>
 							<Select.Trigger variant="soft" style={{ minWidth: 100 }} />
 							<Select.Content>
-								<Select.Item value="all">{t("timeShiftDialog.scope.all", "All")}</Select.Item>
-								<Select.Item value="selected">{t("timeShiftDialog.scope.selected", "Selected")}</Select.Item>
-								<Select.Item value="selected-following">{t("timeShiftDialog.scope.selectedFollowing", "Following")}</Select.Item>
-								<Select.Item value="custom">{t("timeShiftDialog.scope.custom", "Custom")}</Select.Item>
+								<Select.Item value="all">
+									{t("timeShiftDialog.scope.all", "All")}
+								</Select.Item>
+								<Select.Item value="selected">
+									{t("timeShiftDialog.scope.selected", "Selected")}
+								</Select.Item>
+								<Select.Item value="selected-following">
+									{t("timeShiftDialog.scope.selectedFollowing", "Following")}
+								</Select.Item>
+								<Select.Item value="custom">
+									{t("timeShiftDialog.scope.custom", "Custom")}
+								</Select.Item>
 							</Select.Content>
 						</Select.Root>
 					</Flex>
@@ -338,9 +386,18 @@ export const TimeShiftToolbar: FC = () => {
 
 					<Flex gap="2">
 						<Button size="2" variant="solid" onClick={handleApply}>
-							<CheckmarkRegular /> {isCopyMode ? t("common.copy", "Copy") : t("common.apply", "Apply")}
+							<CheckmarkRegular />{" "}
+							{isCopyMode
+								? t("common.copy", "Copy")
+								: t("common.apply", "Apply")}
 						</Button>
-						<IconButton size="2" color="gray" variant="soft" onClick={handleCancel} title={t("common.cancel", "Cancel")}>
+						<IconButton
+							size="2"
+							color="gray"
+							variant="soft"
+							onClick={handleCancel}
+							title={t("common.cancel", "Cancel")}
+						>
 							<DismissRegular />
 						</IconButton>
 					</Flex>

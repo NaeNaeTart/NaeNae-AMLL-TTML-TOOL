@@ -1,0 +1,36 @@
+name: CI
+
+# Checks every PR and every push to dev/main. Make "CI / check" a required
+# status check on dev and main so nothing lands without passing it.
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint and format
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm exec tsc -b
+      - name: Tests
+        run: pnpm run test:all
+      - name: Build
+        run: pnpm run build

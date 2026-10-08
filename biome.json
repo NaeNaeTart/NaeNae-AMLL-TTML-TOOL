@@ -8,7 +8,9 @@
 			"!**/build",
 			"!**/target",
 			"!**/vendor",
-			"!!**/decode-audio.js"
+			"!!**/decode-audio.js",
+			"!src/i18n/locales",
+			"!src/modules/segmentation/data"
 		]
 	},
 	"formatter": {

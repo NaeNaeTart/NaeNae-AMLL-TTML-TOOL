@@ -90,7 +90,10 @@ describe("resolveAnchorLineIndex", () => {
 		lines: any[],
 		currentTime: number,
 		_focusMainLine: boolean,
-	) => lines.findIndex((l) => currentTime >= l.startTime && currentTime <= l.endTime);
+	) =>
+		lines.findIndex(
+			(l) => currentTime >= l.startTime && currentTime <= l.endTime,
+		);
 
 	it("returns modeAnchor when syncTabPosition is disabled", () => {
 		expect(
@@ -194,4 +197,3 @@ describe("resolveAnchorLineIndex", () => {
 		).toBe(-1);
 	});
 });
-

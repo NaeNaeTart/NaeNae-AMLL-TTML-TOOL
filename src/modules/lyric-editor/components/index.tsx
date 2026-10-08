@@ -25,25 +25,30 @@ import {
 	useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { guidePanelOpenAtom, guideStepAtom, guideWelcomeOpenAtom } from "$/modules/onboarding/states";
-import { importLyricsChooserDialogAtom, projectsDialogAtom } from "$/states/dialogs";
-import { useFileOpener } from "$/hooks/useFileOpener";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
+import { useFileOpener } from "$/hooks/useFileOpener";
 import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import {
-	syncAutoScrollAtom,
-	syncFocusMainLineAtom,
-	syncTabPositionAtom,
-} from "$/modules/settings/states/sync.ts";
-import { keyLocateActiveLineAtom } from "$/states/keybindings.ts";
-import { LYRIC_FILE_FILTERS, openFileWithDialog } from "$/utils/fileDialog";
-import { useKeyBindingAtom } from "$/utils/keybindings.ts";
+	guidePanelOpenAtom,
+	guideStepAtom,
+	guideWelcomeOpenAtom,
+} from "$/modules/onboarding/states";
 import {
 	folderProjectsEnabledAtom,
 	geniusCategorizationEnabledAtom,
 	geniusHeaderDetectionDialogOpenAtom,
 	geniusHeaderDetectionDialogShownAtom,
 } from "$/modules/settings/states/index.ts";
+import {
+	syncAutoScrollAtom,
+	syncFocusMainLineAtom,
+	syncTabPositionAtom,
+} from "$/modules/settings/states/sync.ts";
+import {
+	importLyricsChooserDialogAtom,
+	projectsDialogAtom,
+} from "$/states/dialogs";
+import { keyLocateActiveLineAtom } from "$/states/keybindings.ts";
 import {
 	collapsedSectionIdsAtom,
 	lyricLinesAtom,
@@ -53,6 +58,8 @@ import {
 	toolModeAtom,
 } from "$/states/main.ts";
 import type { LyricLine } from "$/types/ttml.ts";
+import { LYRIC_FILE_FILTERS, openFileWithDialog } from "$/utils/fileDialog";
+import { useKeyBindingAtom } from "$/utils/keybindings.ts";
 import { repairSectionIntegrity } from "../utils/section-system.ts";
 import {
 	clampScrollTop,
@@ -86,7 +93,7 @@ const lyricLinesOnlyAtom = splitAtom(
 	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
 );
 
-let modeAnchorLines: Record<ToolMode, number> = {
+const modeAnchorLines: Record<ToolMode, number> = {
 	[ToolMode.Edit]: -1,
 	[ToolMode.Sync]: -1,
 	[ToolMode.Preview]: -1,
@@ -617,7 +624,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				selectedLineIds: store.get(selectedLinesAtom),
 				currentTime: store.get(currentTimeAtom),
 				lines: store.get(lyricLinesAtom).lyricLines,
-				previousMode: store.get(previousToolModeAtom),
+				previousMode: store.get(previousToolModeAtom) ?? ToolMode.Edit,
 				syncFocusMainLine: store.get(syncFocusMainLineAtom),
 				findCurrentLineIndex,
 			});
@@ -740,7 +747,11 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 
 				const currentTime = store.get(currentTimeAtom);
 				const lines = store.get(lyricLinesAtom).lyricLines;
-				const index = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
+				const index = findCurrentLineIndex(
+					lines,
+					currentTime,
+					syncFocusMainLine,
+				);
 				if (index !== -1) {
 					lastPlaybackScrolledIndexRef.current = index;
 					scrollToLineIndex(index, true);
@@ -767,7 +778,12 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		cancelResumeTimer();
 		userScrolledAtRef.current = Date.now();
 		scrollToLineIndex(scrollToIndex, true);
-	}, [scrollToIndex, scrollToLineIndex, cancelResumeTimer, cancelScrollAnimation]);
+	}, [
+		scrollToIndex,
+		scrollToLineIndex,
+		cancelResumeTimer,
+		cancelScrollAnimation,
+	]);
 
 	const handleScroll = useCallback(() => {
 		if (scrollRafRef.current !== null || isProgrammaticScrollRef.current) {
@@ -783,7 +799,13 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		if (!isPointerDownRef.current && store.get(selectedLinesAtom).size === 0) {
 			scheduleResume(AUTO_SCROLL_PAUSE_MS);
 		}
-	}, [updateEditorAnchor, isAutoScrollActive, cancelScrollAnimation, scheduleResume, store]);
+	}, [
+		updateEditorAnchor,
+		isAutoScrollActive,
+		cancelScrollAnimation,
+		scheduleResume,
+		store,
+	]);
 
 	useEffect(() => {
 		const viewEl = viewElRef.current;
@@ -803,7 +825,11 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		userScrolledAtRef.current = 0;
 		const currentTime = store.get(currentTimeAtom);
 		const lyricLines = store.get(lyricLinesAtom).lyricLines;
-		const index = findCurrentLineIndex(lyricLines, currentTime, syncFocusMainLine);
+		const index = findCurrentLineIndex(
+			lyricLines,
+			currentTime,
+			syncFocusMainLine,
+		);
 		if (index !== -1) {
 			lastPlaybackScrolledIndexRef.current = index;
 			scrollToLineIndex(index, true);
@@ -819,7 +845,9 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		if (!viewEl) return;
 
 		const onPointerDown = (evt: Event) => {
-			if ((evt.target as HTMLElement | null)?.closest(`.${styles.locateButton}`))
+			if (
+				(evt.target as HTMLElement | null)?.closest(`.${styles.locateButton}`)
+			)
 				return;
 			isPointerDownRef.current = true;
 			cancelScrollAnimation();
@@ -853,23 +881,48 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			}
 		};
 
-		viewEl.addEventListener("pointerdown", onPointerDown, { capture: true, passive: true });
-		window.addEventListener("pointerup", onPointerUp, { capture: true, passive: true });
-		window.addEventListener("pointercancel", onPointerUp, { capture: true, passive: true });
-		viewEl.addEventListener("touchmove", onPointerDown, { capture: true, passive: true });
+		viewEl.addEventListener("pointerdown", onPointerDown, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener("pointerup", onPointerUp, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener("pointercancel", onPointerUp, {
+			capture: true,
+			passive: true,
+		});
+		viewEl.addEventListener("touchmove", onPointerDown, {
+			capture: true,
+			passive: true,
+		});
 		viewEl.addEventListener("wheel", onWheel, { capture: true, passive: true });
-		viewEl.addEventListener("keydown", onKeyDown, { capture: true, passive: true });
+		viewEl.addEventListener("keydown", onKeyDown, {
+			capture: true,
+			passive: true,
+		});
 
 		return () => {
-			viewEl.removeEventListener("pointerdown", onPointerDown, { capture: true });
+			viewEl.removeEventListener("pointerdown", onPointerDown, {
+				capture: true,
+			});
 			window.removeEventListener("pointerup", onPointerUp, { capture: true });
-			window.removeEventListener("pointercancel", onPointerUp, { capture: true });
+			window.removeEventListener("pointercancel", onPointerUp, {
+				capture: true,
+			});
 			viewEl.removeEventListener("touchmove", onPointerDown, { capture: true });
 			viewEl.removeEventListener("wheel", onWheel, { capture: true });
 			viewEl.removeEventListener("keydown", onKeyDown, { capture: true });
 			cancelResumeTimer();
 		};
-	}, [isAutoScrollActive, scheduleResume, cancelResumeTimer, cancelScrollAnimation, store]);
+	}, [
+		isAutoScrollActive,
+		scheduleResume,
+		cancelResumeTimer,
+		cancelScrollAnimation,
+		store,
+	]);
 
 	// When a line is selected, cancel auto-scroll resume so it stays locked forever
 	useEffect(() => {
@@ -888,7 +941,9 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 		if (!isAutoScrollActive) return;
 		return store.sub(currentTimeAtom, () => {
 			const currentTime = store.get(currentTimeAtom);
-			if (Math.abs(currentTime - lastKnownTimeRef.current) > AUTO_SCROLL_PAUSE_MS) {
+			if (
+				Math.abs(currentTime - lastKnownTimeRef.current) > AUTO_SCROLL_PAUSE_MS
+			) {
 				if (
 					Date.now() - userScrolledAtRef.current > 500 &&
 					!isPointerDownRef.current &&
@@ -919,7 +974,13 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				scrollToLineIndex(index, true);
 			}
 		});
-	}, [store, isAutoScrollActive, syncFocusMainLine, scrollToLineIndex, cancelResumeTimer]);
+	}, [
+		store,
+		isAutoScrollActive,
+		syncFocusMainLine,
+		scrollToLineIndex,
+		cancelResumeTimer,
+	]);
 
 	useImperativeHandle(ref, () => viewElRef.current as HTMLDivElement, []);
 
@@ -943,7 +1004,13 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					)}
 				</Text>
 				<Flex gap="2" wrap="wrap" justify="center" mt="2">
-					<Button onClick={() => { setGuideStep(0); setGuidePanel(false); setGuideWelcome(true); }}>
+					<Button
+						onClick={() => {
+							setGuideStep(0);
+							setGuidePanel(false);
+							setGuideWelcome(true);
+						}}
+					>
 						{t("beginnerGuide.empty.start", "Start Guide")}
 					</Button>
 					<Button variant="soft" onClick={() => setImportChooser(true)}>
@@ -953,10 +1020,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 						{t("beginnerGuide.empty.open", "Open TTML")}
 					</Button>
 					{folderProjectsEnabled && (
-						<Button
-							variant="outline"
-							onClick={() => setProjectsDialog(true)}
-						>
+						<Button variant="outline" onClick={() => setProjectsDialog(true)}>
 							{t("topBar.menu.projects", "Projects")}
 						</Button>
 					)}
@@ -964,7 +1028,12 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 			</Flex>
 		);
 	return (
-		<Flex data-guide-target="editor" direction="column" flexGrow="1" className={styles.lyricLinesWrapper}>
+		<Flex
+			data-guide-target="editor"
+			direction="column"
+			flexGrow="1"
+			className={styles.lyricLinesWrapper}
+		>
 			<SectionMetadataDialog />
 			<SectionManagerDialog />
 			<CategorizeSelectionDialog />

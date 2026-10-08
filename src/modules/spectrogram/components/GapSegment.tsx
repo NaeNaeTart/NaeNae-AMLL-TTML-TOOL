@@ -23,7 +23,8 @@ export const GapSegment: FC<GapSegmentProps> = ({
 		return null;
 	}
 
-	const left = (((startTime + (isGhost ? offset : 0)) - lineStartTime) / 1000) * zoom;
+	const left =
+		((startTime + (isGhost ? offset : 0) - lineStartTime) / 1000) * zoom;
 	const width = ((endTime - startTime) / 1000) * zoom;
 
 	if (width < 1) {

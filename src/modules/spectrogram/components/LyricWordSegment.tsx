@@ -44,7 +44,8 @@ export const LyricWordSegment: FC<LyricWordSegmentProps> = ({
 		return null;
 	}
 
-	const left = (((startTime + (isGhost ? offset : 0)) - lineStartTime) / 1000) * zoom;
+	const left =
+		((startTime + (isGhost ? offset : 0) - lineStartTime) / 1000) * zoom;
 	const width = ((endTime - startTime) / 1000) * zoom;
 
 	const isSelected = !isGhost && selectedWordId === segment.id;

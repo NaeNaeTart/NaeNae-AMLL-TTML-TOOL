@@ -5,7 +5,10 @@
  * @param size The desired size (e.g. 300)
  * @returns The proxied and optimized image URL
  */
-export const getBetterGeniusCoverArt = (url: string | undefined | null, size = 300) => {
+export const getBetterGeniusCoverArt = (
+	url: string | undefined | null,
+	size = 300,
+) => {
 	if (!url || typeof url !== "string") return "";
 
 	let cleaned = url.trim();

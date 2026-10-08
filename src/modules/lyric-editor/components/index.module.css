@@ -60,18 +60,18 @@
 			transition: none !important;
 			animation: none !important;
 
-			&.active, &.animated {
+			&.active,
+			&.animated {
 				transition: none !important;
 				animation: none !important;
 				box-shadow: none !important; /* Disable glow for instant feedback */
-				
+
 				.displayWord {
 					text-shadow: none !important;
 				}
 			}
 		}
 	}
-
 
 	&.dropLeft {
 		border-left: solid 3px var(--accent-a11);
@@ -113,7 +113,12 @@
 	flex-grow: 0;
 	flex-shrink: 0;
 	text-align: left;
-	transition: width 0.2s ease-in-out, margin 0.2s ease-in-out, opacity 0.2s ease-in-out, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), flex-basis 0.2s ease-in-out;
+	transition:
+		width 0.2s ease-in-out,
+		margin 0.2s ease-in-out,
+		opacity 0.2s ease-in-out,
+		transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+		flex-basis 0.2s ease-in-out;
 	animation: laneItemFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
 	&.spaceGroup {
@@ -254,7 +259,9 @@
 	font: inherit;
 	font-size: 1.5em;
 	text-align: center;
-	transition: width 0.15s ease-out, min-width 0.15s ease-out;
+	transition:
+		width 0.15s ease-out,
+		min-width 0.15s ease-out;
 }
 
 .syncWordInputMeasure {
@@ -424,13 +431,14 @@
 }
 
 .lyricLineContainer {
-
 	min-width: 0;
 	padding: var(--space-3);
 	flex-grow: 1;
 	display: flex;
 	flex-direction: column;
-	transition: padding 0.2s ease-in-out, height 0.2s ease-in-out;
+	transition:
+		padding 0.2s ease-in-out,
+		height 0.2s ease-in-out;
 
 	&.sync {
 		padding: 0 var(--space-3);
@@ -444,7 +452,10 @@
 	flex-wrap: wrap;
 	align-items: baseline;
 	gap: var(--chip-gap, var(--space-2));
-	transition: gap 0.2s ease-in-out, padding 0.2s ease-in-out, row-gap 0.2s ease-in-out;
+	transition:
+		gap 0.2s ease-in-out,
+		padding 0.2s ease-in-out,
+		row-gap 0.2s ease-in-out;
 
 	&.edit {
 		margin-bottom: var(--space-2);
@@ -466,7 +477,10 @@
 			flex-wrap: wrap;
 			overflow: visible;
 			row-gap: var(--space-2);
-			transition: row-gap 0.2s ease-in-out, gap 0.2s ease-in-out, padding 0.2s ease-in-out;
+			transition:
+				row-gap 0.2s ease-in-out,
+				gap 0.2s ease-in-out,
+				padding 0.2s ease-in-out;
 		}
 
 		&.hideTimestamps {
@@ -503,13 +517,13 @@
 			box-shadow: none;
 			padding: 0;
 			margin: 0;
-			
+
 			.wordMainText {
 				font-weight: bold;
 				font-size: 1.2em;
 			}
 		}
-		
+
 		.insertWordField {
 			display: none;
 		}
@@ -667,7 +681,6 @@
 	opacity: 1;
 }
 
-
 .lyricWord.error,
 .lyricLine.error {
 	box-shadow: 0 0 0 2px var(--red-a10);
@@ -712,7 +725,6 @@
 	}
 }
 
-
 .lyricWord.sync.active {
 	background-color: var(--accent-a9);
 	transition: background-color 0s;
@@ -726,7 +738,7 @@
 
 		animation: highlightBurst 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 		box-shadow: 0 0 35px var(--accent-a9);
-		
+
 		.displayWord {
 			transition: text-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 			text-shadow: 0 0 20px var(--accent-a11);
@@ -743,9 +755,6 @@
 		box-shadow: 0 0 40px var(--accent-a7);
 	}
 }
-
-
-
 
 .lineNumber {
 	min-width: 2em;
@@ -807,5 +816,3 @@
 		background-color: var(--accent-a9);
 	}
 }
-
-

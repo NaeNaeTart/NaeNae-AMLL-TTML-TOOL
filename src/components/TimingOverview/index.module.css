@@ -69,7 +69,17 @@
 }
 
 .monospaced {
-	font-family: var(--code-font-family, "JetBrains Mono", "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+	font-family: var(
+		--code-font-family,
+		"JetBrains Mono",
+		"SF Mono",
+		Menlo,
+		Monaco,
+		Consolas,
+		"Liberation Mono",
+		"Courier New",
+		monospace
+	);
 	font-variant-numeric: tabular-nums;
 	white-space: nowrap;
 }
@@ -104,7 +114,9 @@
 	gap: 1px;
 	cursor: pointer;
 	user-select: none;
-	transition: border-color 0.15s ease, background-color 0.15s ease;
+	transition:
+		border-color 0.15s ease,
+		background-color 0.15s ease;
 }
 
 .wordPill:hover {
@@ -128,7 +140,9 @@
 	border-radius: 4px;
 	overflow: hidden;
 	cursor: pointer;
-	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
 }
 
 .wordGroup:hover {
@@ -137,7 +151,9 @@
 
 .wordGroup.wordGroupActive {
 	border-color: var(--accent-10);
-	box-shadow: 0 0 6px var(--accent-8), inset 0 0 3px var(--accent-4);
+	box-shadow:
+		0 0 6px var(--accent-8),
+		inset 0 0 3px var(--accent-4);
 	background-color: var(--accent-a3);
 }
 

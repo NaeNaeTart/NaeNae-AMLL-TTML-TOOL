@@ -62,9 +62,7 @@ import {
 	spectrogramSelectionAtom,
 } from "$/modules/spectrogram/states";
 import { isDraggingAtom } from "$/modules/spectrogram/states/dnd.ts";
-import {
-	timeShiftPreviewActiveAtom,
-} from "$/states/dialogs.ts";
+import { timeShiftPreviewActiveAtom } from "$/states/dialogs.ts";
 import {
 	lyricLinesAtom,
 	selectedLinesAtom,

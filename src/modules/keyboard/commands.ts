@@ -30,7 +30,6 @@ export const cmdSaveFile = registerCommand(
 	"File",
 );
 
-
 // =========================================================================================
 //  编辑与选择
 // =========================================================================================
@@ -210,7 +209,6 @@ export const cmdUrbanDictionarySync = registerCommand(
 	t("settingsDialog.keybindings.urbanDictionarySync"),
 	"Sync",
 );
-
 
 export const cmdMoveFirstWordAndPlay = registerCommand(
 	"moveFirstWordAndPlay",

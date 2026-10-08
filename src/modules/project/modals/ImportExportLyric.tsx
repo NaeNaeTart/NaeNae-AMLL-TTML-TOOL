@@ -15,7 +15,7 @@ import { useFileOpener } from "$/hooks/useFileOpener.ts";
 import { validateSections } from "$/modules/lyric-editor/utils/section-system";
 import { pluginManager } from "$/modules/plugins/plugin-manager";
 import exportTTMLText from "$/modules/project/logic/ttml-writer";
-import { allowConsecutiveBackgroundLinesAtom, lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
+import { lyricTextNormalizationOptionsAtom } from "$/modules/settings/states";
 import {
 	geniusImportLyricsDialogAtom,
 	importFromLRCLIBDialogAtom,
@@ -73,10 +73,14 @@ export const ImportExportLyric = () => {
 					type: "application/xml",
 				});
 				openFile(newFile, extension);
-			} catch (e: any) {
+			} catch (e) {
 				error(`Plugin import failed: ${pluginId}`, e);
+				const message =
+					typeof e === "object" && e !== null && "message" in e
+						? e.message
+						: undefined;
 				alert(
-					e.message ||
+					message ||
 						"Import failed. Please make sure you are using a valid TTML file.",
 				);
 			}
@@ -89,7 +93,6 @@ export const ImportExportLyric = () => {
 			const lyricState = normalizeLyricText(
 				store.get(lyricLinesAtom),
 				store.get(lyricTextNormalizationOptionsAtom),
-				{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
 			);
 			const lyric = lyricState.lyricLines;
 			const metadata = lyricState.metadata;

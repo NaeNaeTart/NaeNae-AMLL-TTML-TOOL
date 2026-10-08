@@ -732,7 +732,7 @@ export function createSectionsFromSelectedLines(
 
 	const blocks: Array<{ start: number; end: number }> = [];
 	for (const index of selectedIndexes) {
-		const previous = blocks.at(-1);
+		const previous = blocks[blocks.length - 1];
 		if (previous && index === previous.end) {
 			previous.end++;
 		} else {

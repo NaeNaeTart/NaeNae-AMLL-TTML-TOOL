@@ -10,9 +10,19 @@ const { clearWebsiteCache, forceWebsiteRefresh } = await import("./pwa");
 
 describe("PWA recovery", () => {
 	const reload = vi.fn();
+	const getRegistration =
+		vi.fn<
+			() => Promise<
+				{ update: () => Promise<void>; waiting?: object } | undefined
+			>
+		>();
+	const getRegistrations =
+		vi.fn<() => Promise<{ unregister: () => Promise<boolean> }[]>>();
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		getRegistration.mockReset();
+		getRegistrations.mockReset();
 		const cacheStorage = {
 			keys: vi.fn(),
 			delete: vi.fn(),
@@ -23,19 +33,17 @@ describe("PWA recovery", () => {
 		});
 		vi.stubGlobal("navigator", {
 			serviceWorker: {
-				getRegistration: vi.fn(),
-				getRegistrations: vi.fn(),
+				getRegistration,
+				getRegistrations,
 			},
 		});
 		vi.stubGlobal("caches", cacheStorage);
 	});
 
 	it("activates a waiting update instead of reloading the stale worker", async () => {
-		const update = vi.fn();
+		const update = vi.fn<() => Promise<void>>().mockResolvedValue();
 		const registration = { update, waiting: {} };
-		vi.mocked(navigator.serviceWorker.getRegistration).mockResolvedValue(
-			registration as ServiceWorkerRegistration,
-		);
+		getRegistration.mockResolvedValue(registration);
 
 		await expect(forceWebsiteRefresh()).resolves.toBe(true);
 
@@ -45,10 +53,8 @@ describe("PWA recovery", () => {
 	});
 
 	it("reloads after checking when there is no waiting update", async () => {
-		const update = vi.fn();
-		vi.mocked(navigator.serviceWorker.getRegistration).mockResolvedValue({
-			update,
-		} as ServiceWorkerRegistration);
+		const update = vi.fn<() => Promise<void>>().mockResolvedValue();
+		getRegistration.mockResolvedValue({ update });
 
 		await expect(forceWebsiteRefresh()).resolves.toBe(true);
 
@@ -57,10 +63,8 @@ describe("PWA recovery", () => {
 	});
 
 	it("unregisters service workers and removes Cache Storage before reloading", async () => {
-		const unregister = vi.fn();
-		vi.mocked(navigator.serviceWorker.getRegistrations).mockResolvedValue([
-			{ unregister } as ServiceWorkerRegistration,
-		]);
+		const unregister = vi.fn<() => Promise<boolean>>().mockResolvedValue(true);
+		getRegistrations.mockResolvedValue([{ unregister }]);
 		vi.mocked(caches.keys).mockResolvedValue(["workbox-precache", "runtime"]);
 
 		await expect(clearWebsiteCache()).resolves.toBe(true);

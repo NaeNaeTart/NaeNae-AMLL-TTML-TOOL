@@ -9,15 +9,15 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-import { atom, type Atom } from "jotai";
+import { type Atom, atom } from "jotai";
 import { atomWithStorage, selectAtom } from "jotai/utils";
 import { REDO, RESET, UNDO, withHistory } from "jotai-history";
 import { uid } from "uid";
-import { identifyProject } from "$/modules/project/logic/project-info";
 import {
 	migrateLegacySections,
 	repairSectionIntegrity,
 } from "$/modules/lyric-editor/utils/section-system";
+import { identifyProject } from "$/modules/project/logic/project-info";
 import type { TTMLLyric } from "../types/ttml";
 
 export enum DarkMode {

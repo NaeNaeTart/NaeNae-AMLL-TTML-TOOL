@@ -12,17 +12,17 @@ import {
 	timelineDragAtom,
 } from "$/modules/spectrogram/states/dnd.ts";
 import {
-	timeShiftPreviewOffsetAtom,
-	timeShiftPreviewActiveAtom,
-	timeShiftPreviewScopeAtom,
-	timeShiftPreviewCustomRangeAtom,
-} from "$/states/dialogs.ts";
-import {
 	commitUpdatedLine,
 	getUpdatedLineForDivider,
 	getUpdatedLineForLinePan,
 	getUpdatedLineForWordPan,
 } from "$/modules/spectrogram/utils/timeline-mutations.ts";
+import {
+	timeShiftPreviewActiveAtom,
+	timeShiftPreviewCustomRangeAtom,
+	timeShiftPreviewOffsetAtom,
+	timeShiftPreviewScopeAtom,
+} from "$/states/dialogs.ts";
 import { selectedLinesAtom, showUnselectedLinesAtom } from "$/states/main.ts";
 import { globalStore } from "$/states/store.ts";
 import { LyricLineSegment } from "./LyricLineSegment";
@@ -291,7 +291,8 @@ export const LyricTimelineOverlay: FC<LyricTimelineOverlayProps> = ({
 							(l) => l.id === line.id,
 						);
 						shouldShowGhost =
-							firstSelectedIndex !== -1 && currentLineIndex >= firstSelectedIndex;
+							firstSelectedIndex !== -1 &&
+							currentLineIndex >= firstSelectedIndex;
 					} else if (previewScope === "custom") {
 						const currentLineIndex = processedLines.findIndex(
 							(l) => l.id === line.id,
