@@ -55,6 +55,66 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="iris">
+								v0.10.3 Updates (Linked Projects)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Linked Projects:</strong> When the app offers to create a project, choose Keep files in place to leave your TTML and audio where they are. The project only stores their locations, and reopening works from Projects. Nothing is written on linking or autosave: only an explicit save writes the TTML back to the original file, after keeping a one-time backup of the original in the project's data folder.
+								</Text>
+								<Text size="2">
+									<strong>Projects Window:</strong> Added a Linked tab with an Open projects folder button, a search field for Recent, Linked, and Workspace projects, and labels that show whether a project is a folder or linked files.
+								</Text>
+								<Text size="2">
+									<strong>Settings Search:</strong> Preferences has a search field. Typing a setting name filters the categories, opens the best match, and highlights the closest setting.
+								</Text>
+								<Text size="2">
+									<strong>Backup Contents Preview:</strong> Added an expandable
+									preview dropdown before exporting settings and data backups,
+									displaying category counts, item lists, and estimated total file
+									size.
+								</Text>
+								<Text size="2">
+									<strong>Backup Assets:</strong> Appearance presets and the custom font
+									are now exported and restored with the Assets category.
+								</Text>
+								<Text size="2">
+									<strong>Preferences UI Polish &amp; Icons:</strong> Clarified
+									preset actions with dedicated apply/delete icons and tooltips,
+									harmonized semantic icons across General, Editor, Files, Audio,
+									Keybindings, Appearance, Developer, and Custom Background tabs,
+									and improved contrast for advanced configuration resets.
+								</Text>
+								<Text size="2">
+									<strong>Spectrogram Divider Styling:</strong> Decluttered
+									touching dividers when adjacent lyric lines meet by shortening
+									handle indicators and removing corner notches for seamless
+									line boundaries.
+								</Text>
+								<Text size="2">
+									<strong>Backup Safety:</strong> API keys (Genius and AI
+									Sidebar) now have their own opt-in "API keys" category, off by
+									default, and are never included with Settings. The last workspace
+									folder and recent project paths are not exported because they only
+									make sense on the original device.
+								</Text>
+								<Text size="2">
+									<strong>Timing Overview Header:</strong> Kept the timing overview
+									header compact and readable when resizing to narrow side
+									panels, and remember whether the side preview is open between sessions.
+								</Text>
+								<Text size="2">
+									<strong>Domain Move Complete:</strong> The old tool addresses
+									now redirect to tool.community.spicylyrics.org, so the
+									one-time data transfer from them has been removed.
+								</Text>
+								<Text size="2">
+									<strong>Backup Tab Translation:</strong> The Backup settings tab is
+									now fully translated to Spanish.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="green">
 								v0.10.2 Updates (Windows Install Fix)
 							</Heading>

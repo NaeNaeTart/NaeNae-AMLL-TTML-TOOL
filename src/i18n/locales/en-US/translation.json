@@ -121,7 +121,9 @@
       "title": "Create a project?",
       "description": "Keep the audio and lyrics together in a project folder.",
       "ignore": "Ignore",
-      "create": "Create"
+      "create": "Create folder",
+      "link": "Keep files in place",
+      "linkDescription": "Or keep the files where they are: the project only remembers their locations, and only an explicit save writes the TTML back to its original file."
     },
     "mp3Conversion": {
       "title": "Convert MP3 to FLAC?",
@@ -133,7 +135,47 @@
       "converting": "Converting MP3 to FLAC...",
       "success": "Conversion successful",
       "failed": "Conversion failed: {error}"
+    },
+    "linkProject": {
+      "audioTitle": "Select the audio file you loaded",
+      "lyricTitle": "Choose the TTML file this project saves to"
     }
+  },
+  "projectsDialog": {
+    "title": "Projects",
+    "tabProject": "Project",
+    "tabRecent": "Recent",
+    "tabWorkspace": "Workspace",
+    "tabLinked": "Linked",
+    "linkedHint": "Projects that keep their TTML and audio in their original folders. Create one by choosing Keep files in place when the app offers to create a project.",
+    "noLinked": "No linked projects yet",
+    "createNew": "New Project",
+    "folderBadge": "Project folder",
+    "linkedBadge": "Linked files",
+    "openFolder": "Open Folder",
+    "openLinkedFolder": "Open projects folder",
+    "save": "Save",
+    "browse": "Browse...",
+    "loading": "Loading...",
+    "noRecent": "No recent projects",
+    "noProject": "No project is currently open",
+    "noMatches": "No projects match your search",
+    "searchPlaceholder": "Search by name or location",
+    "removeLinkTitle": "Remove linked project?",
+    "removeLinkDescription": "The project entry is removed from the app. Your TTML and audio files are not deleted."
+  },
+  "projectBrowser": {
+    "fileMissing": "{file} (missing)",
+    "noAudio": "No audio",
+    "noLyric": "No lyrics"
+  },
+  "workspace": {
+    "empty": "No projects found. Select a workspace folder to scan.",
+    "foundCount": "{count} project(s) found",
+    "importable": "Importable",
+    "scanning": "Scanning...",
+    "selectFolder": "Select workspace folder...",
+    "unknown": "Unknown"
   },
   "ribbonBar": {
     "editMode": {
@@ -341,7 +383,10 @@
         "title": "Appearance Presets",
         "namePlaceholder": "Theme Name...",
         "save": "Save Current",
-        "empty": "No saved presets yet."
+        "empty": "No saved presets yet.",
+        "active": "Active",
+        "load": "Apply preset",
+        "delete": "Delete preset"
       },
       "theme": "Theme",
       "useCustomAccent": "Custom Accent Color",
@@ -370,6 +415,7 @@
       "currentFont": "Current Font",
       "changeFont": "Change Font...",
       "advanced": {
+        "resetToDefault": "Reset to default",
         "projectColors": "Project Colors",
         "primaryText": "Primary Text Color",
         "primaryTextDesc": "Global primary text override.",
@@ -487,15 +533,20 @@
         "keybindings": "Keybindings",
         "assets": "Appearance assets",
         "projects": "Projects & history",
-        "plugins": "Plugins"
+        "plugins": "Plugins",
+        "apiKeys": "API keys"
       },
       "hint": {
         "settings": "{count} stored values",
         "keybindings": "{count} keybindings",
         "assetsSet": "Custom background image set",
-        "assetsNone": "No custom background image",
+        "assetsNone": "No custom assets",
+        "presetsCount": "{count} presets",
+        "backgroundSet": "Custom background",
+        "fontSet": "Custom font",
         "projects": "{count} projects",
-        "plugins": "{count} plugins"
+        "plugins": "{count} plugins",
+        "apiKeys": "{count} keys"
       },
       "exportSuccess": "Backup exported",
       "exportFailed": "Failed to export backup",
@@ -506,6 +557,16 @@
       "exportTitle": "Export",
       "exportDesc": "Save your settings and data to a file you can restore later or move to another device.",
       "exportButton": "Export backup",
+      "previewToggle": "Preview contents",
+      "previewLoading": "Loading preview…",
+      "previewEmpty": "Nothing selected to preview",
+      "previewCategoryEmpty": "Nothing to export in this category",
+      "previewMore": "+{count} more",
+      "previewTotal": "Estimated total size",
+      "previewPresetPrefix": "Preset",
+      "previewFontPrefix": "Custom Font",
+      "previewVersions": "{count} versions",
+      "apiKeysWarning": "API keys are saved as plain text in the backup file. Keep it private.",
       "importTitle": "Import",
       "importDesc": "Restore settings and data from a backup file. Existing values will be replaced.",
       "importButton": "Choose backup file…",
@@ -637,6 +698,9 @@
     "moveWordToNewLine": "Move {count} word(s) to new line"
   },
   "settingsDialog": {
+    "search": "Search settings",
+    "clearSearch": "Clear search",
+    "noSearchResults": "No matching categories",
     "title": "Preferences",
     "common": {
       "latencyTest": "Audio/input latency test"
@@ -710,7 +774,9 @@
   "error": {
     "unsupportedFileFormat": "Unsupported file format: {ext}",
     "openFileFailed": "Failed to open file",
-    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing."
+    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing.",
+    "linkedProjectInvalidPath": "The selected files cannot be linked. Choose a .ttml file and an audio file on a local drive. Network shares are not supported.",
+    "linkedProjectBackupFailed": "Could not back up the original TTML file, so it was not overwritten"
   },
   "audio": {
     "marker": "Marker",

@@ -133,16 +133,16 @@ const LineRow = memo(({ line, index, currentTime, totalDuration, onRowClick, onW
 			onClick={() => onRowClick(line)}
 			style={{ display: "flex", borderBottom: "1px solid var(--gray-4)" }}
 		>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "40px", padding: "8px 12px" }}>{index + 1}</div>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.startTime)}</div>
-			<div className={classNames(styles.monospaced, styles.cell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.endTime)}</div>
-			<div className={styles.cell} style={{ width: "80px", padding: "8px 12px" }}>
+			<div className={classNames(styles.monospaced, styles.cell, styles.fixedCell)} style={{ width: "40px", padding: "8px 12px" }}>{index + 1}</div>
+			<div className={classNames(styles.monospaced, styles.cell, styles.fixedCell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.startTime)}</div>
+			<div className={classNames(styles.monospaced, styles.cell, styles.fixedCell)} style={{ width: "100px", padding: "8px 12px" }}>{msToTimestamp(line.endTime)}</div>
+			<div className={classNames(styles.cell, styles.fixedCell)} style={{ width: "80px", padding: "8px 12px" }}>
 				<Flex direction="column" gap="1">
 					<Text size="1" className={styles.monospaced}>{(duration / 1000).toFixed(3)}s</Text>
 					<div className={styles.durationBar} style={{ width: `${Math.min(100, durationPercent * 10)}%` }} />
 				</Flex>
 			</div>
-			<div className={styles.cell} style={{ flexGrow: 1, padding: "8px 12px", minWidth: 0 }}>
+			<div className={styles.cell} style={{ flexGrow: 1, padding: "8px 12px", minWidth: 240 }}>
 				<Box>
 					<Flex align="center" gap="2" mb="1">
 						<Text className={styles.lineText}>{line.words.map((w: any) => w.word).join("")}</Text>
@@ -343,8 +343,8 @@ export const TimingOverview = memo(() => {
 	return (
 		<Card className={styles.timingOverview}>
 			<div className={styles.header}>
-				<Text size="2" weight="bold">{t("timingOverview.title", "Technical Timing Overview")}</Text>
-				<div className={styles.stats} style={{ alignItems: "center" }}>
+				<Text size="2" weight="bold" style={{ minWidth: 0 }}>{t("timingOverview.title", "Technical Timing Overview")}</Text>
+				<div className={styles.stats} style={{ alignItems: "center", minWidth: 0 }}>
 					<div className={styles.statItem}>
 						<Text size="1">{t("timingOverview.lines", "Lines")}:</Text>
 						<Text size="1" weight="bold">{stats.lineCount}</Text>
@@ -392,13 +392,13 @@ export const TimingOverview = memo(() => {
 				</div>
 			</div>
 			<div className={styles.scrollArea} ref={scrollRef}>
-				<div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+				<div style={{ display: "flex", flexDirection: "column", minWidth: 560 }}>
 					<div className={styles.tableHeader} style={{ display: "flex", borderBottom: "1px solid var(--gray-6)", background: "var(--gray-2)", position: "sticky", top: 0, zIndex: 10 }}>
-						<div style={{ width: "40px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>#</div>
-						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.start", "Start")}</div>
-						<div style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.end", "End")}</div>
-						<div style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.duration", "Duration")}</div>
-						<div style={{ flexGrow: 1, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}</div>
+						<div className={styles.fixedCell} style={{ width: "40px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>#</div>
+						<div className={styles.fixedCell} style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.start", "Start")}</div>
+						<div className={styles.fixedCell} style={{ width: "100px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.end", "End")}</div>
+						<div className={styles.fixedCell} style={{ width: "80px", padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.duration", "Duration")}</div>
+						<div style={{ flexGrow: 1, minWidth: 240, padding: "8px 12px", fontWeight: 500, color: "var(--gray-11)", fontSize: "12px" }}>{t("timingOverview.lyricsAndTimings", "Lyrics & Word Timings")}</div>
 					</div>
 					<ViewportList ref={viewportListRef} items={displayedLines} viewportRef={scrollRef}>
 						{(line, index) => (

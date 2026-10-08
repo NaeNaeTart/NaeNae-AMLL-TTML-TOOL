@@ -17,10 +17,13 @@ import { uid } from "uid";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { convertMp3ToFlac } from "$/modules/audio/utils/mp3-converter";
 import { getProjectList } from "$/modules/project/autosave/autosave";
+import { isSafeLinkedPath } from "$/modules/project/folder-project/manifest";
 import { maybePromptCreateProject } from "$/modules/project/folder-project/project-create";
 import {
 	activeProjectDirAtom,
 	pendingAudioFileAtom,
+	pendingAudioPathAtom,
+	pendingLyricSourceAtom,
 	projectAudioFileAtom,
 } from "$/modules/project/folder-project/state";
 import { getSuggestedTtmlFileName } from "$/modules/project/logic/metadata-filename";
@@ -54,6 +57,11 @@ const LYRIC_PARSERS: Record<string, (text: string) => LyricLine[]> = {
 	qrc: parseQrc,
 	yrc: parseYrc,
 	lys: parseLys,
+};
+
+const getDialogPath = (file: File): string | null => {
+	const path = (file as File & { path?: unknown }).path;
+	return isSafeLinkedPath(path) ? path : null;
 };
 
 const AUDIO_EXTENSIONS = new Set([
@@ -288,6 +296,16 @@ export const useFileOpener = () => {
 				const nextFileName =
 					ext === "ttml" ? file.name : (suggestedFile?.fileName ?? file.name);
 				setSaveFileName(nextFileName);
+				const lyricPath = ext === "ttml" ? getDialogPath(file) : null;
+				store.set(
+					pendingLyricSourceAtom,
+					lyricPath
+						? {
+								path: lyricPath,
+								lineIds: lyricData.lyricLines.map((line) => line.id),
+							}
+						: null,
+				);
 			} catch (e) {
 				logError(`Failed to open file: ${file.name}`, e);
 				toast.error(t("error.openFileFailed", "打开文件失败"));
@@ -312,7 +330,10 @@ export const useFileOpener = () => {
 		async (file: File, forceExt?: string) => {
 			const rawExt = file.name.split(".").pop()?.toLowerCase() || "";
 			const ext = forceExt ? forceExt.toLowerCase() : rawExt;
-			if (AUDIO_EXTENSIONS.has(ext)) store.set(pendingAudioFileAtom, file);
+			if (AUDIO_EXTENSIONS.has(ext)) {
+				store.set(pendingAudioFileAtom, file);
+				store.set(pendingAudioPathAtom, getDialogPath(file));
+			}
 			await performOpenFileInner(file, forceExt);
 			maybePromptCreateProject(store);
 		},

@@ -25,7 +25,7 @@ You can also use the Tauri desktop version built via GitHub Actions; see the [La
 
 ## New Editor Features over the Original AMLL TTML Tool
 
-- **Folder Projects** — The opt-in desktop feature keeps lyrics and audio together in a project folder with a `project.json` manifest, recent projects, workspace scanning, project-wide Ctrl+S saving, and file tracking that survives renames made outside the app.
+- **Folder Projects** — The opt-in desktop feature keeps lyrics and audio together in a project folder with a `project.json` manifest, recent projects, workspace scanning, project-wide Ctrl+S saving, and file tracking that survives renames made outside the app. Linked projects leave the TTML and audio where they are, and only an explicit save writes back to the original, after keeping a one-time backup.
 - **Guided Beginner Workflow** — Learn audio import, lyric review, timing, credits, export, and local testing through focused, state-aware steps using your own song; move the guide around the viewport or tuck it into a compact edge tab while working.
 - **Compact Lyric Workspace** — Use edge-to-edge audio and lyric areas, visually connected word and romanization groups, and compact whitespace chips sized by their space count, with an optional legacy label style.
 - **Discord Rich Presence & PreMiD Bridge** — The opt-in Tauri integration shares the current file or track, editor mode, line progress, playback state, and speed-aware timeline with Discord, preserves per-project elapsed time across app restarts, and exposes the same live state to PreMiD on the website while retaining a compatibility fallback for the original editor.

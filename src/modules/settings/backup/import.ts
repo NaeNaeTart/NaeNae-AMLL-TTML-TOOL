@@ -2,19 +2,13 @@ import { savePlugin } from "$/modules/plugins/plugin-store";
 import { restoreProjectsData } from "$/modules/project/autosave/autosave";
 import { writeCustomBackgroundBlob } from "$/modules/settings/modals/customBackground";
 import { base64ToBlob } from "./binary";
+import { isDeniedKey, isSecretKey } from "./denylist";
+import type { BackupAssetsCounts } from "./export";
 import {
 	type BackupCategoryId,
 	type BackupFile,
 	validateBackupFile,
 } from "./types";
-
-const DENYLIST_EXACT = new Set<string>(["customBackgroundImage"]);
-const DENYLIST_PREFIXES = ["sentry", "__", "va-", "i18next"];
-
-function isDeniedKey(key: string): boolean {
-	if (DENYLIST_EXACT.has(key)) return true;
-	return DENYLIST_PREFIXES.some((prefix) => key.startsWith(prefix));
-}
 
 /**
  * @description 解析并校验备份文件文本，非法时抛出 {@link BackupValidationError}。
@@ -39,13 +33,29 @@ export function getPresentCategories(file: BackupFile): BackupCategoryId[] {
  */
 export function describeBackup(
 	file: BackupFile,
-): Partial<Record<BackupCategoryId, number | boolean>> {
-	const result: Partial<Record<BackupCategoryId, number | boolean>> = {};
+): Partial<Record<BackupCategoryId, number | boolean | BackupAssetsCounts>> {
+	const result: Partial<
+		Record<BackupCategoryId, number | boolean | BackupAssetsCounts>
+	> = {};
 	const c = file.categories;
 	if (c.settings) result.settings = Object.keys(c.settings.localStorage).length;
 	if (c.keybindings)
 		result.keybindings = Object.keys(c.keybindings.localStorage).length;
-	if (c.assets) result.assets = c.assets.backgroundImage !== null;
+	if (c.apiKeys)
+		result.apiKeys = Object.keys(c.apiKeys.localStorage).filter(
+			isSecretKey,
+		).length;
+	if (c.assets) {
+		result.assets = {
+			background:
+				c.assets.backgroundImage !== null &&
+				c.assets.backgroundImage !== undefined,
+			presets: Array.isArray(c.assets.appearancePresets)
+				? c.assets.appearancePresets.length
+				: 0,
+			font: Boolean(c.assets.customFont),
+		};
+	}
 	if (c.projects) result.projects = c.projects.projects.length;
 	if (c.plugins) result.plugins = c.plugins.plugins.length;
 	return result;
@@ -76,12 +86,33 @@ export async function applyBackup(
 		applyLocalStorage(c.keybindings.localStorage);
 	}
 
+	if (selected.has("apiKeys") && c.apiKeys) {
+		for (const [key, value] of Object.entries(c.apiKeys.localStorage)) {
+			if (isSecretKey(key)) localStorage.setItem(key, value);
+		}
+	}
+
 	if (selected.has("assets") && c.assets) {
 		const bg = c.assets.backgroundImage;
 		if (bg) {
 			await writeCustomBackgroundBlob(base64ToBlob(bg.dataBase64, bg.mime));
-		} else {
+		} else if (bg === null) {
 			await writeCustomBackgroundBlob(null);
+		}
+
+		if (
+			c.assets.appearancePresets &&
+			Array.isArray(c.assets.appearancePresets)
+		) {
+			localStorage.setItem(
+				"appearancePresets",
+				JSON.stringify(c.assets.appearancePresets),
+			);
+		}
+
+		if (c.assets.customFont) {
+			localStorage.setItem("customFontName", c.assets.customFont.name);
+			localStorage.setItem("customFontData", c.assets.customFont.data);
 		}
 	}
 

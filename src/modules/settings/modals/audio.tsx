@@ -1,5 +1,7 @@
 import {
 	ArchiveRegular,
+	ArrowResetRegular,
+	ArrowSync24Regular,
 	DeleteRegular,
 	SaveRegular,
 } from "@fluentui/react-icons";
@@ -191,6 +193,7 @@ export const AudioSettingsTab = () => {
 						size="1"
 						onClick={() => handlePresetChange("Flat")}
 					>
+						<ArrowResetRegular fontSize="14" />
 						{t("settings.audio.reset", "Reset")}
 					</Button>
 				</Flex>
@@ -262,6 +265,7 @@ export const AudioSettingsTab = () => {
 
 			<Card>
 				<Flex gap="3" align="center">
+					<ArrowSync24Regular />
 					<Box flexGrow="1">
 						<Flex align="center" justify="between" gap="4">
 							<Flex direction="column" gap="1">

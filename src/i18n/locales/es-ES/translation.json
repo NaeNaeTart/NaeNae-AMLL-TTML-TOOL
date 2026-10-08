@@ -99,7 +99,9 @@
       "title": "¿Crear un proyecto?",
       "description": "Guarda el audio y la letra juntos en una carpeta de proyecto.",
       "ignore": "Ignorar",
-      "create": "Crear"
+      "create": "Crear carpeta",
+      "link": "Mantener archivos en su sitio",
+      "linkDescription": "O deja los archivos donde están: el proyecto solo recuerda sus ubicaciones y solo un guardado explícito escribe el TTML en su archivo original."
     },
     "mp3Conversion": {
       "title": "Convert MP3 to FLAC?",
@@ -111,7 +113,47 @@
       "converting": "Converting MP3 to FLAC...",
       "success": "Conversion successful",
       "failed": "Conversion failed: {error}"
+    },
+    "linkProject": {
+      "audioTitle": "Selecciona el archivo de audio que cargaste",
+      "lyricTitle": "Elige el archivo TTML en el que guardará este proyecto"
     }
+  },
+  "projectsDialog": {
+    "title": "Proyectos",
+    "tabProject": "Proyecto",
+    "tabRecent": "Recientes",
+    "tabWorkspace": "Espacio de trabajo",
+    "tabLinked": "Vinculados",
+    "linkedHint": "Proyectos que conservan su TTML y su audio en sus carpetas originales. Crea uno eligiendo Mantener archivos en su sitio cuando la app ofrezca crear un proyecto.",
+    "noLinked": "Aún no hay proyectos vinculados",
+    "createNew": "Nuevo proyecto",
+    "folderBadge": "Carpeta de proyecto",
+    "linkedBadge": "Archivos vinculados",
+    "openFolder": "Abrir carpeta",
+    "openLinkedFolder": "Abrir carpeta de proyectos",
+    "save": "Guardar",
+    "browse": "Explorar…",
+    "loading": "Cargando…",
+    "noRecent": "Sin proyectos recientes",
+    "noProject": "No hay ningún proyecto abierto",
+    "noMatches": "Ningún proyecto coincide con la búsqueda",
+    "searchPlaceholder": "Buscar por nombre o ubicación",
+    "removeLinkTitle": "¿Quitar proyecto vinculado?",
+    "removeLinkDescription": "La entrada del proyecto se elimina de la app. Tus archivos TTML y de audio no se borran."
+  },
+  "projectBrowser": {
+    "fileMissing": "{file} (falta)",
+    "noAudio": "Sin audio",
+    "noLyric": "Sin letra"
+  },
+  "workspace": {
+    "empty": "No se encontraron proyectos. Selecciona una carpeta de espacio de trabajo para escanear.",
+    "foundCount": "{count} proyecto(s) encontrados",
+    "importable": "Importable",
+    "scanning": "Escaneando…",
+    "selectFolder": "Seleccionar carpeta de espacio de trabajo…",
+    "unknown": "Desconocido"
   },
   "ribbonBar": {
     "editMode": {
@@ -301,7 +343,10 @@
         "title": "Appearance Presets",
         "namePlaceholder": "Theme Name...",
         "save": "Save Current",
-        "empty": "No saved presets yet."
+        "empty": "No saved presets yet.",
+        "active": "Activo",
+        "load": "Aplicar preajuste",
+        "delete": "Eliminar preajuste"
       },
       "theme": "Theme",
       "useCustomAccent": "Custom Accent Color",
@@ -330,6 +375,7 @@
       "currentFont": "Current Font",
       "changeFont": "Change Font...",
       "advanced": {
+        "resetToDefault": "Restablecer valor predeterminado",
         "projectColors": "Project Colors",
         "primaryText": "Primary Text Color",
         "primaryTextDesc": "Global primary text override.",
@@ -431,37 +477,52 @@
     },
     "backup": {
       "category": {
-        "settings": "Settings",
-        "keybindings": "Keybindings",
-        "assets": "Appearance assets",
-        "projects": "Projects & history",
-        "plugins": "Plugins"
+        "settings": "Ajustes",
+        "keybindings": "Atajos de teclado",
+        "assets": "Recursos de apariencia",
+        "projects": "Proyectos e historial",
+        "plugins": "Plugins",
+        "apiKeys": "Claves de API"
       },
       "hint": {
-        "settings": "{count} stored values",
-        "keybindings": "{count} keybindings",
-        "assetsSet": "Custom background image set",
-        "assetsNone": "No custom background image",
-        "projects": "{count} projects",
-        "plugins": "{count} plugins"
+        "settings": "{count} valores guardados",
+        "keybindings": "{count} atajos",
+        "assetsSet": "Fondo personalizado configurado",
+        "assetsNone": "Sin recursos personalizados",
+        "presetsCount": "{count} preajustes",
+        "backgroundSet": "Fondo personalizado",
+        "fontSet": "Fuente personalizada",
+        "projects": "{count} proyectos",
+        "plugins": "{count} plugins",
+        "apiKeys": "{count} claves"
       },
-      "exportSuccess": "Backup exported",
-      "exportFailed": "Failed to export backup",
-      "newerVersion": "This backup was created by a newer version of the app",
-      "invalidFile": "Invalid or corrupted backup file",
-      "importSuccess": "Backup imported, reloading…",
-      "importFailed": "Failed to import backup. Some data may have been partially applied.",
-      "exportTitle": "Export",
-      "exportDesc": "Save your settings and data to a file you can restore later or move to another device.",
-      "exportButton": "Export backup",
-      "importTitle": "Import",
-      "importDesc": "Restore settings and data from a backup file. Existing values will be replaced.",
-      "importButton": "Choose backup file…",
-      "confirmTitle": "Confirm import",
-      "exportedAt": "Exported",
-      "confirmReplaceWarning": "Imported values will replace your current ones. The app will reload after importing.",
-      "cancelButton": "Cancel",
-      "applyButton": "Import & reload"
+      "exportSuccess": "Copia de seguridad exportada",
+      "exportFailed": "Error al exportar la copia de seguridad",
+      "newerVersion": "Esta copia de seguridad fue creada por una versión más reciente",
+      "invalidFile": "Archivo de copia de seguridad inválido o dañado",
+      "importSuccess": "Copia de seguridad importada, recargando…",
+      "importFailed": "Error al importar la copia. Algunos datos pueden haberse aplicado parcialmente.",
+      "exportTitle": "Exportar",
+      "exportDesc": "Guarda tus ajustes y datos en un archivo para restaurarlos más tarde o transferirlos a otro dispositivo.",
+      "exportButton": "Exportar copia de seguridad",
+      "previewToggle": "Previsualizar contenido",
+      "previewLoading": "Cargando previsualización…",
+      "previewEmpty": "Nada seleccionado para previsualizar",
+      "previewCategoryEmpty": "Nada que exportar en esta categoría",
+      "previewMore": "+{count} más",
+      "previewTotal": "Tamaño total estimado",
+      "previewPresetPrefix": "Preajuste",
+      "previewFontPrefix": "Fuente personalizada",
+      "previewVersions": "{count} versiones",
+      "apiKeysWarning": "Las claves de API se guardan en texto plano en el archivo de copia. Mantenlo privado.",
+      "importTitle": "Importar",
+      "importDesc": "Restaura ajustes y datos desde un archivo de copia de seguridad. Los valores existentes serán reemplazados.",
+      "importButton": "Elegir archivo de copia…",
+      "confirmTitle": "Confirmar importación",
+      "exportedAt": "Exportado el",
+      "confirmReplaceWarning": "Los valores importados reemplazarán los actuales. La aplicación se recargará tras importar.",
+      "cancelButton": "Cancelar",
+      "applyButton": "Importar y recargar"
     },
     "dev": {
       "previewPerformance": "Preview Performance",
@@ -652,7 +713,9 @@
   "error": {
     "unsupportedFileFormat": "Unsupported file format: {ext}",
     "openFileFailed": "Failed to open file",
-    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing."
+    "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing.",
+    "linkedProjectInvalidPath": "Los archivos seleccionados no se pueden vincular. Elige un archivo .ttml y un archivo de audio en una unidad local. Los recursos compartidos de red no son compatibles.",
+    "linkedProjectBackupFailed": "No se pudo hacer una copia de seguridad del archivo TTML original, así que no se sobrescribió"
   },
   "audio": {
     "marker": "Marker",

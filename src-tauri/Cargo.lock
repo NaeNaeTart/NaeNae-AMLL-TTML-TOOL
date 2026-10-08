@@ -51,7 +51,7 @@ dependencies = [
 
 [[package]]
 name = "amll-ttml-tool"
-version = "0.10.2"
+version = "0.10.3"
 dependencies = [
  "discord-rich-presence",
  "log",
@@ -70,7 +70,9 @@ dependencies = [
  "tauri-plugin-shell",
  "tauri-plugin-updater",
  "tauri-plugin-window-state",
+ "webview2-com",
  "window-vibrancy 0.7.1",
+ "windows 0.61.3",
 ]
 
 [[package]]

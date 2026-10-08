@@ -3,7 +3,9 @@ import {
 	exists,
 	mkdir,
 	readDir,
+	readTextFile,
 	remove,
+	rename,
 	writeTextFile,
 } from "@tauri-apps/plugin-fs";
 import type { getDefaultStore } from "jotai";
@@ -36,7 +38,7 @@ import {
 	getFileNameFromPath,
 	sanitizeFileName,
 } from "./manifest";
-import { syncProjectFolderName } from "./project-folder-sync";
+import { splitDirPath, syncProjectFolderName } from "./project-folder-sync";
 import { getSongInfo } from "./project-naming";
 import { loadProjectFromDir } from "./project-open";
 import { upsertRecentProject } from "./recent-projects";
@@ -46,6 +48,8 @@ import {
 	projectAudioFileAtom,
 } from "./state";
 import {
+	LINKED_LYRIC_BACKUP_FILENAME,
+	type LinkedProjectFiles,
 	PROJECT_MANIFEST_APP_ID,
 	PROJECT_MANIFEST_FILENAME,
 	type ProjectManifest,
@@ -105,6 +109,117 @@ async function removeReplacedFile(
 		return true;
 	} catch (e) {
 		logError(`Failed to remove replaced project file: ${oldName}`, e);
+		return false;
+	}
+}
+
+/**
+ * Keeps a one-time copy of the user's linked TTML before the app first
+ * overwrites it. The copy goes in the project's own app-data folder: the fs
+ * scope only covers the linked file itself, not its siblings.
+ * Returns false when the backup could not be made, so the caller must not
+ * overwrite the original.
+ */
+async function ensureLinkedBackup(
+	dir: string,
+	lyricPath: string,
+): Promise<boolean> {
+	try {
+		if (!(await exists(lyricPath))) return true;
+		const backupPath = assertSafePath(dir, LINKED_LYRIC_BACKUP_FILENAME);
+		if (await exists(backupPath)) return true;
+		const tempPath = assertSafePath(dir, `${LINKED_LYRIC_BACKUP_FILENAME}.tmp`);
+		await mkdir(dir, { recursive: true });
+		await writeTextFile(tempPath, await readTextFile(lyricPath));
+		await rename(tempPath, backupPath);
+		log(`Backed up linked lyric file to ${backupPath}`);
+		return true;
+	} catch (e) {
+		logError("Failed to back up linked lyric file", e);
+		return false;
+	}
+}
+
+async function saveLinkedProject(
+	store: Store,
+	t: TFunc,
+	dir: string,
+	manifest: ProjectManifest & { linked: LinkedProjectFiles },
+	options?: { silent?: boolean },
+): Promise<boolean> {
+	const lyric = store.get(lyricLinesAtom);
+	if (lyric.lyricLines.length === 0) {
+		if (!options?.silent) {
+			toast.info(
+				t(
+					"error.folderProjectNoLyric",
+					"Add a lyric file before saving the project",
+				),
+			);
+		}
+		return false;
+	}
+	const lyricText = generateLyricTextFromStore(store, t);
+	if (lyricText == null) return false;
+
+	// The linked file belongs to the user, not to the app: keep a one-time
+	// backup before the first overwrite, so a lossy TTML round-trip can never
+	// silently destroy the only copy.
+	if (!(await ensureLinkedBackup(dir, manifest.linked.lyricPath))) {
+		if (!options?.silent) {
+			toast.error(
+				t(
+					"error.linkedProjectBackupFailed",
+					"Could not back up the original TTML file, so it was not overwritten",
+				),
+			);
+		}
+		return false;
+	}
+
+	try {
+		const target = splitDirPath(manifest.linked.lyricPath);
+		await writeProjectLyricFile(target.parent, target.base, lyricText);
+
+		const suggested = getSuggestedTtmlFileName(lyric.metadata);
+		const nextManifest: ProjectManifest = {
+			...manifest,
+			app: PROJECT_MANIFEST_APP_ID,
+			projectId: manifest.projectId ?? uid(),
+			name: manifest.nameEdited
+				? manifest.name
+				: (suggested?.baseName ?? manifest.name),
+			song: getSongInfo(lyric.metadata, manifest.song?.audioSize),
+			updatedAt: Date.now(),
+		};
+		await mkdir(dir, { recursive: true });
+		const manifestPath = assertSafePath(dir, PROJECT_MANIFEST_FILENAME);
+		await writeTextFile(manifestPath, JSON.stringify(nextManifest, null, 2));
+
+		store.set(activeProjectDirAtom, dir);
+		store.set(activeProjectManifestAtom, nextManifest);
+		store.set(saveFileNameAtom, nextManifest.lyricFile);
+		store.set(markLyricsSavedAtom, lyric);
+
+		if (!options?.silent) {
+			toast.success(t("success.folderProjectSaved", "Project saved"));
+		}
+		log(`Saved linked project: ${nextManifest.name} (${dir})`);
+		await upsertRecentProject({
+			dir,
+			name: nextManifest.name,
+			audioFile: nextManifest.audioFile,
+			lyricFile: nextManifest.lyricFile,
+			lastOpened: Date.now(),
+			updatedAt: nextManifest.updatedAt,
+			linked: nextManifest.linked,
+		});
+		return true;
+	} catch (e) {
+		logError("Failed to save linked project", e);
+		if (!options?.silent) {
+			toast.error(t("error.folderProjectSaveFailed", "Failed to save project"));
+		}
 		return false;
 	}
 }
@@ -246,6 +361,12 @@ export async function saveProject(store: Store, t: TFunc): Promise<boolean> {
 	}
 
 	const manifest = store.get(activeProjectManifestAtom);
+	if (manifest?.linked) {
+		return saveLinkedProject(store, t, dir, {
+			...manifest,
+			linked: manifest.linked,
+		});
+	}
 	const audioFile = store.get(projectAudioFileAtom);
 	const lyric = store.get(lyricLinesAtom);
 	const hasLyricContent = lyric.lyricLines.length > 0;
@@ -363,6 +484,19 @@ export async function saveLyricsOnly(
 		return true;
 	}
 	if (!isTauri()) return true;
+	if (manifest.linked) {
+		// Linked projects point at the user's own files, so autosave must
+		// never touch them. Only an explicit save writes the linked file.
+		if (options?.silent) return false;
+		await saveLinkedProject(
+			store,
+			t,
+			activeDir,
+			{ ...manifest, linked: manifest.linked },
+			options,
+		);
+		return false;
+	}
 
 	const lyric = store.get(lyricLinesAtom);
 	if (lyric.lyricLines.length === 0) {
@@ -474,6 +608,7 @@ export async function renameProject(
 		lyricFile: nextManifest.lyricFile,
 		lastOpened: Date.now(),
 		updatedAt: nextManifest.updatedAt,
+		linked: nextManifest.linked,
 	});
 	toast.success(t("success.folderProjectSaved", "Project saved"));
 	return true;

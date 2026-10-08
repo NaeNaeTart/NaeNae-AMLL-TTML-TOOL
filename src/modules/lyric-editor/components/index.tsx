@@ -36,6 +36,7 @@ import {
 	syncTabPositionAtom,
 } from "$/modules/settings/states/sync.ts";
 import { keyLocateActiveLineAtom } from "$/states/keybindings.ts";
+import { LYRIC_FILE_FILTERS, openFileWithDialog } from "$/utils/fileDialog";
 import { useKeyBindingAtom } from "$/utils/keybindings.ts";
 import {
 	folderProjectsEnabledAtom,
@@ -153,15 +154,12 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const setProjectsDialog = useSetAtom(projectsDialogAtom);
 	const folderProjectsEnabled = useAtomValue(folderProjectsEnabledAtom);
 	const { openFile } = useFileOpener();
-	const openExistingTtml = useCallback(() => {
-		const input = document.createElement("input");
-		input.type = "file";
-		input.accept = ".ttml,*/*";
-		input.addEventListener("change", () => {
-			const file = input.files?.[0];
-			if (file) openFile(file);
-		}, { once: true });
-		input.click();
+	const openExistingTtml = useCallback(async () => {
+		const file = await openFileWithDialog({
+			multiple: false,
+			filters: LYRIC_FILE_FILTERS,
+		});
+		if (file && !Array.isArray(file)) openFile(file);
 	}, [openFile]);
 
 	useEffect(() => {

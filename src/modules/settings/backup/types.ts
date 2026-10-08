@@ -1,8 +1,8 @@
+import type { WASMPlugin } from "$/modules/plugins/types";
 import type {
 	ProjectInfo,
 	ProjectVersion,
 } from "$/modules/project/autosave/autosave";
-import type { WASMPlugin } from "$/modules/plugins/types";
 
 /**
  * @description 备份文件的应用标识，用于拒绝非本应用的文件
@@ -22,7 +22,8 @@ export type BackupCategoryId =
 	| "keybindings"
 	| "assets"
 	| "projects"
-	| "plugins";
+	| "plugins"
+	| "apiKeys";
 
 export const BACKUP_CATEGORY_IDS: BackupCategoryId[] = [
 	"settings",
@@ -30,6 +31,7 @@ export const BACKUP_CATEGORY_IDS: BackupCategoryId[] = [
 	"assets",
 	"projects",
 	"plugins",
+	"apiKeys",
 ];
 
 /**
@@ -49,6 +51,11 @@ export type BackupPlugin = Omit<WASMPlugin, "blob"> & {
 	blobMime: string;
 };
 
+export interface BackupCustomFont {
+	name: string;
+	data: string;
+}
+
 /**
  * @description 备份文件的完整结构
  */
@@ -60,7 +67,12 @@ export interface BackupFile {
 	categories: {
 		settings?: { localStorage: Record<string, string> };
 		keybindings?: { localStorage: Record<string, string> };
-		assets?: { backgroundImage: BackupBackgroundImage | null };
+		apiKeys?: { localStorage: Record<string, string> };
+		assets?: {
+			backgroundImage: BackupBackgroundImage | null;
+			appearancePresets?: unknown[];
+			customFont?: BackupCustomFont | null;
+		};
 		projects?: {
 			projects: ProjectInfo[];
 			versions: Omit<ProjectVersion, "id">[];
@@ -134,16 +146,39 @@ export function validateBackupFile(data: unknown): asserts data is BackupFile {
 		}
 	}
 
+	if (categories.apiKeys !== undefined) {
+		if (
+			!isPlainObject(categories.apiKeys) ||
+			!isStringRecord(categories.apiKeys.localStorage)
+		) {
+			throw new BackupValidationError("malformedCategories");
+		}
+	}
+
 	if (categories.assets !== undefined) {
 		if (!isPlainObject(categories.assets)) {
 			throw new BackupValidationError("malformedCategories");
 		}
 		const bg = categories.assets.backgroundImage;
-		if (bg !== null) {
+		if (bg !== null && bg !== undefined) {
 			if (
 				!isPlainObject(bg) ||
 				typeof bg.mime !== "string" ||
 				typeof bg.dataBase64 !== "string"
+			) {
+				throw new BackupValidationError("malformedCategories");
+			}
+		}
+		const presets = categories.assets.appearancePresets;
+		if (presets !== undefined && !Array.isArray(presets)) {
+			throw new BackupValidationError("malformedCategories");
+		}
+		const font = categories.assets.customFont;
+		if (font !== null && font !== undefined) {
+			if (
+				!isPlainObject(font) ||
+				typeof font.name !== "string" ||
+				typeof font.data !== "string"
 			) {
 				throw new BackupValidationError("malformedCategories");
 			}

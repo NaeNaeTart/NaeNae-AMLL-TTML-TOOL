@@ -1,3 +1,4 @@
+import { Add20Regular, Delete20Regular } from "@fluentui/react-icons";
 import { Button, Flex, Select, Text, TextField } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
@@ -159,11 +160,13 @@ export const SettingsSpectrogramTab = () => {
 										onClick={() => handleRemoveStop(index)}
 										style={{ marginLeft: "auto" }}
 									>
+										<Delete20Regular />
 										{t("common.remove", "Remove")}
 									</Button>
 								</Flex>
 							))}
 							<Button variant="outline" onClick={handleAddStop}>
+								<Add20Regular />
 								{t("settings.spectrogram.addStop", "Add Color Stop")}
 							</Button>
 						</Flex>

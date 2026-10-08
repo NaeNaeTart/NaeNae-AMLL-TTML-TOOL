@@ -26,6 +26,21 @@
 	font-size: var(--font-size-3);
 }
 
+.searchField {
+	margin: 0 var(--space-2) var(--space-3);
+	flex-shrink: 0;
+}
+
+.noResults {
+	padding: var(--space-2) var(--space-3);
+}
+
+.searchHighlight {
+	outline: 2px solid var(--accent-9);
+	outline-offset: 3px;
+	border-radius: var(--radius-3);
+}
+
 .navigation {
 	display: flex;
 	flex-direction: column;

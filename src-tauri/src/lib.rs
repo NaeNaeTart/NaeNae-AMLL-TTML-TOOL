@@ -41,6 +41,40 @@ impl Default for DiscordConnection {
 #[derive(Default)]
 struct DiscordState(Mutex<DiscordConnection>);
 
+#[cfg(windows)]
+const LINKABLE_EXTENSIONS: &[&str] = &[
+    "ttml", "flac", "wav", "mp3", "m4a", "aac", "ogg", "opus", "webm", "weba",
+    "oga", "mid", "aiff", "wma", "au",
+];
+#[cfg(windows)]
+const MAX_REMEMBERED_DROPS: usize = 64;
+#[cfg(windows)]
+const DROPPED_FILES_MESSAGE_PREFIX: &str = "amll-dropped-files:";
+
+/// Real paths of linkable files that were dropped on the window. A path can
+/// only be granted filesystem access (`allow_dropped_file`) if it is in here.
+#[derive(Default)]
+struct DroppedPaths(Mutex<Vec<String>>);
+
+#[cfg(windows)]
+#[derive(Clone, serde::Serialize)]
+struct DroppedFilePathsPayload {
+    id: String,
+    paths: Vec<String>,
+}
+
+#[cfg(windows)]
+fn is_linkable_path(path: &str) -> bool {
+    std::path::Path::new(path)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .is_some_and(|ext| {
+            LINKABLE_EXTENSIONS
+                .iter()
+                .any(|linkable| linkable.eq_ignore_ascii_case(ext))
+        })
+}
+
 fn connect_discord() -> Result<DiscordIpcClient, String> {
     let mut client = DiscordIpcClient::new(DISCORD_CLIENT_ID);
     client.connect().map_err(|e| e.to_string())?;
@@ -228,6 +262,140 @@ fn get_open_file_data() -> Option<OpenFileData> {
     None
 }
 
+#[tauri::command]
+#[allow(clippy::needless_pass_by_value)]
+fn open_linked_projects_folder(app: tauri::AppHandle) -> Result<(), String> {
+    use tauri::Manager;
+
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("app data folder is unavailable: {e}"))?
+        .join("projects");
+    fs::create_dir_all(&dir).map_err(|e| format!("failed to create {}: {e}", dir.display()))?;
+    #[cfg(target_os = "windows")]
+    let program = "explorer";
+    #[cfg(target_os = "macos")]
+    let program = "open";
+    #[cfg(all(unix, not(target_os = "macos")))]
+    let program = "xdg-open";
+    std::process::Command::new(program)
+        .arg(&dir)
+        .spawn()
+        .map_err(|e| format!("failed to open {}: {e}", dir.display()))?;
+    Ok(())
+}
+
+/// Grants filesystem access to a file the user dropped on the window.
+///
+/// Called only once the user actually links that file to a project, and only
+/// for paths the host itself saw in a real drop, so a forged invoke cannot
+/// widen the scope to arbitrary files.
+///
+/// Returns `false` (and grants nothing) for paths that were not dropped, such
+/// as files picked with a native dialog, which already have their own access.
+#[tauri::command]
+#[allow(clippy::needless_pass_by_value)]
+fn allow_dropped_file(
+    path: String,
+    window: tauri::Window,
+    dropped: tauri::State<'_, DroppedPaths>,
+) -> Result<bool, String> {
+    let known = dropped
+        .0
+        .lock()
+        .map_err(|_| "the dropped file list is unavailable".to_string())?
+        .contains(&path);
+    if !known {
+        return Ok(false);
+    }
+    window
+        .try_fs_scope()
+        .ok_or_else(|| "filesystem scope is unavailable".to_string())?
+        .allow_file(&path)
+        .map_err(|e| format!("failed to extend filesystem scope: {e}"))?;
+    Ok(true)
+}
+
+/// Receives files dropped on the page and reports their real paths.
+///
+/// HTML drops only hand the page file contents, and native drag-drop events
+/// stay off because they break in-page drag and drop on Windows. `WebView2` can
+/// still pass the dropped `File` objects to the host, which can read their
+/// paths. Paths are only remembered here (and reported to the page); the fs
+/// scope is granted later by `allow_dropped_file`, when a file is really linked.
+#[cfg(windows)]
+fn watch_dropped_file_paths(window: &tauri::WebviewWindow) -> tauri::Result<()> {
+    use tauri::{Emitter, Manager};
+    use webview2_com::{
+        Microsoft::Web::WebView2::Win32::{
+            ICoreWebView2File, ICoreWebView2WebMessageReceivedEventArgs2,
+        },
+        WebMessageReceivedEventHandler, take_pwstr,
+    };
+    use windows::core::{Interface, PWSTR};
+
+    let emitter = window.clone();
+    window.with_webview(move |webview| unsafe {
+        let Ok(core) = webview.controller().CoreWebView2() else {
+            return;
+        };
+        let handler = WebMessageReceivedEventHandler::create(Box::new(move |_, args| {
+            let Some(args) = args else {
+                return Ok(());
+            };
+            let mut message = PWSTR::null();
+            if args.TryGetWebMessageAsString(&raw mut message).is_err() {
+                return Ok(());
+            }
+            let text = take_pwstr(message);
+            let Some(request_id) = text.strip_prefix(DROPPED_FILES_MESSAGE_PREFIX) else {
+                return Ok(());
+            };
+            let request_id = request_id.to_owned();
+            let objects = args
+                .cast::<ICoreWebView2WebMessageReceivedEventArgs2>()?
+                .AdditionalObjects()?;
+            let mut count = 0;
+            objects.Count(&raw mut count)?;
+            let mut paths = Vec::new();
+            for index in 0..count {
+                let Ok(file) = objects
+                    .GetValueAtIndex(index)
+                    .and_then(|object| object.cast::<ICoreWebView2File>())
+                else {
+                    continue;
+                };
+                let mut path = PWSTR::null();
+                if file.Path(&raw mut path).is_ok() {
+                    paths.push(take_pwstr(path));
+                }
+            }
+            if let Ok(mut known) = emitter.state::<DroppedPaths>().0.lock() {
+                for path in paths.iter().filter(|path| is_linkable_path(path)) {
+                    if !known.contains(path) {
+                        known.push(path.clone());
+                    }
+                }
+                while known.len() > MAX_REMEMBERED_DROPS {
+                    known.remove(0);
+                }
+            }
+            let _ = emitter.emit_to(
+                emitter.label(),
+                "dropped-file-paths",
+                DroppedFilePathsPayload {
+                    id: request_id,
+                    paths,
+                },
+            );
+            Ok(())
+        }));
+        let mut token = 0;
+        let _ = core.add_WebMessageReceived(&handler, &raw mut token);
+    })
+}
+
 /// Shows a native folder picker and grants the picked project folder's parent
 /// (needed for folder create, auto-rename and sibling scans).
 ///
@@ -297,7 +465,16 @@ pub fn run() {
 
     builder
         .manage(DiscordState::default())
+        .manage(DroppedPaths::default())
         .setup(|app| {
+            #[cfg(windows)]
+            {
+                use tauri::Manager;
+
+                if let Some(window) = app.get_webview_window("main") {
+                    watch_dropped_file_paths(&window)?;
+                }
+            }
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
@@ -331,6 +508,8 @@ pub fn run() {
             set_discord_activity,
             clear_discord_activity,
             pick_project_folder,
+            open_linked_projects_folder,
+            allow_dropped_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
