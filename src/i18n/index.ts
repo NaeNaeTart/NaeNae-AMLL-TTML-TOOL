@@ -3,7 +3,9 @@ import i18n from "i18next";
 import ICU from "i18next-icu";
 import { initReactI18next } from "react-i18next";
 
-type TranslationResource = typeof resources;
+// en-US is the source language: new keys land there first, then Crowdin
+// translates them.
+type TranslationResource = typeof import("./locales/en-US/translation.json");
 
 declare module "i18next" {
 	interface CustomTypeOptions {

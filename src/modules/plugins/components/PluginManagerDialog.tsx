@@ -2,7 +2,6 @@ import {
 	Dismiss16Regular as Cross2Icon,
 	CloudArrowDown16Regular as DownloadIcon,
 	Info16Regular as InfoIcon,
-	CheckmarkCircle16Regular as InstalledIcon,
 	Add16Regular as PlusIcon,
 	ShoppingBag16Regular as StoreIcon,
 	Delete16Regular as TrashIcon,
@@ -22,8 +21,13 @@ import {
 	Tabs,
 	Text,
 } from "@radix-ui/themes";
-import type { FC } from "react";
-import React, { useCallback, useEffect, useState } from "react";
+import {
+	type ChangeEvent,
+	type FC,
+	useCallback,
+	useEffect,
+	useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { pluginManager } from "../plugin-manager";
 import {
@@ -83,9 +87,7 @@ export const PluginManagerDialog: FC = () => {
 		}
 	}, [activeTab, loadRemoteRegistry]);
 
-	const handleFileUpload = async (
-		event: React.ChangeEvent<HTMLInputElement>,
-	) => {
+	const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (!file) return;
 
@@ -428,7 +430,7 @@ export const PluginManagerDialog: FC = () => {
 														</Popover.Trigger>
 														<Popover.Content className={styles.customPopover}>
 															<Flex direction="column" gap="3">
-																<Text weight="bold" color="white">
+																<Text weight="bold" style={{ color: "white" }}>
 																	{entry.name} Details
 																</Text>
 																<Text size="2" style={{ color: "#B0B0B0" }}>

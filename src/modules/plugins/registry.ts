@@ -1,3 +1,5 @@
+import type { PluginRegistryEntry } from "./types";
+
 export type { PluginRegistryEntry } from "./types";
 
 // Replace this with your actual registry URL

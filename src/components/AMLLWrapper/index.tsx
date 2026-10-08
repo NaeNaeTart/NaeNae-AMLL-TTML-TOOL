@@ -4,7 +4,14 @@ import {
 } from "@applemusic-like-lyrics/react";
 import classNames from "classnames";
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import {
+	type CSSProperties,
+	memo,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import {
 	activeLineIdsAtom,
@@ -30,6 +37,7 @@ import {
 	projectIdentityAtom,
 	selectedLinesAtom,
 } from "$/states/main.ts";
+import type { LyricLine, LyricWord } from "$/types/ttml";
 import styles from "./index.module.css";
 
 const displayTimeAtom = atom(0);
@@ -39,16 +47,25 @@ const displayTimeAtom = atom(0);
  * This allows us to update the --progress CSS variable directly at high frequency
  * without triggering React re-renders.
  */
-const wordRegistry = new Map<string, { el: HTMLSpanElement; word: any }>();
+const wordRegistry = new Map<
+	string,
+	{ el: HTMLSpanElement; word: LyricWord }
+>();
 
 // A single word span - static version (no time subscription)
-const StaticWord = memo(({ word }: { word: any }) => (
+const StaticWord = memo(({ word }: { word: LyricWord }) => (
 	<span className={styles.wordStatic}>{word.word}</span>
 ));
 
 // A single word span - active version (subscribes to time at a lower frequency)
 const ActiveWord = memo(
-	({ word, onWordClick }: { word: any; onWordClick: (t: number) => void }) => {
+	({
+		word,
+		onWordClick,
+	}: {
+		word: LyricWord;
+		onWordClick: (t: number) => void;
+	}) => {
 		const currentTime = useAtomValue(displayTimeAtom);
 		const spanRef = useRef<HTMLSpanElement>(null);
 
@@ -83,6 +100,11 @@ const ActiveWord = memo(
 				? 1
 				: 0;
 		const progressPercent = (progress * 100).toFixed(2);
+		const wordStyle: CSSProperties &
+			Record<"--progress" | "--fade-width", string> = {
+			"--progress": `${progressPercent}%`,
+			"--fade-width": `${(fadeWidth * 20).toFixed(2)}px`, // Scale for visibility
+		};
 
 		return (
 			<span
@@ -93,12 +115,7 @@ const ActiveWord = memo(
 					isWordPast && styles.wordPast,
 				)}
 				data-active={isWordActive}
-				style={
-					{
-						"--progress": `${progressPercent}%`,
-						"--fade-width": `${(fadeWidth * 20).toFixed(2)}px`, // Scale for visibility
-					} as any
-				}
+				style={wordStyle}
 				onClick={(e) => {
 					e.stopPropagation();
 					onWordClick(word.startTime);
@@ -114,8 +131,8 @@ const ActiveWord = memo(
  * A "line group" = one main line + any co-timed BG lines beneath it.
  */
 interface LineGroup {
-	main: any;
-	bg: any[];
+	main: LyricLine;
+	bg: LyricLine[];
 }
 
 const StaticLineGroup = memo(
@@ -135,8 +152,8 @@ const StaticLineGroup = memo(
 				)}
 			>
 				<div className={styles.wordsContainer}>
-					{group.main.words.map((w: any, i: number) => (
-						<StaticWord key={i} word={w} />
+					{group.main.words.map((w) => (
+						<StaticWord key={w.id} word={w} />
 					))}
 				</div>
 			</div>
@@ -151,7 +168,7 @@ const StaticLineGroup = memo(
 					)}
 				>
 					<div className={styles.wordsContainer}>
-						{bgLine.words.map((w: any, wi: number) => (
+						{bgLine.words.map((w, wi) => (
 							<StaticWord key={w.id || wi} word={w} />
 						))}
 					</div>
@@ -188,7 +205,7 @@ const ActiveLineGroup = memo(
 					)}
 				>
 					<div className={styles.wordsContainer}>
-						{group.main.words.map((w: any, i: number) => (
+						{group.main.words.map((w, i) => (
 							<ActiveWord key={w.id || i} word={w} onWordClick={onWordClick} />
 						))}
 					</div>
@@ -213,7 +230,7 @@ const ActiveLineGroup = memo(
 						)}
 					>
 						<div className={styles.wordsContainer}>
-							{bgLine.words.map((w: any, wi: number) => (
+							{bgLine.words.map((w, wi) => (
 								<ActiveWord
 									key={w.id || wi}
 									word={w}
@@ -400,7 +417,7 @@ export const AMLLWrapper = memo(
 			}
 		}, [activeLineIdsSet, lineGroups]);
 
-		const handleLineClick = (line: any) => {
+		const handleLineClick = (line: LyricLine) => {
 			setCurrentTime(line.startTime);
 			setSelectedLines(new Set([line.id]));
 			audioEngine.seekMusic(line.startTime / 1000);

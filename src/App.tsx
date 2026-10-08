@@ -28,6 +28,7 @@ import { platform, version } from "@tauri-apps/plugin-os";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import {
+	type FC,
 	memo,
 	Suspense,
 	useCallback,
@@ -345,16 +346,17 @@ function App() {
 	const [boykisserUnlocked, setBoykisserUnlocked] = useAtom(
 		boykisserUnlockedAtom,
 	);
-	const [typedSequence, setTypedSequence] = useState("");
+	const [, setTypedSequence] = useState("");
 
 	useEffect(() => {
 		const isTauri =
 			typeof window !== "undefined" &&
-			(!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+			(("__TAURI__" in window && !!window.__TAURI__) ||
+				!!import.meta.env.TAURI_ENV_PLATFORM);
 		const isPwa =
 			typeof window !== "undefined" &&
 			(window.matchMedia("(display-mode: standalone)").matches ||
-				(window.navigator as any).standalone);
+				("standalone" in window.navigator && !!window.navigator.standalone));
 		const isApp = isTauri || isPwa;
 
 		if (!isApp) return;
@@ -390,11 +392,12 @@ function App() {
 	const isApp = useMemo(() => {
 		const isTauri =
 			typeof window !== "undefined" &&
-			(!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+			(("__TAURI__" in window && !!window.__TAURI__) ||
+				!!import.meta.env.TAURI_ENV_PLATFORM);
 		const isPwa =
 			typeof window !== "undefined" &&
 			(window.matchMedia("(display-mode: standalone)").matches ||
-				(window.navigator as any).standalone);
+				("standalone" in window.navigator && !!window.navigator.standalone));
 		return isTauri || isPwa;
 	}, []);
 
@@ -819,35 +822,21 @@ function App() {
 													<Flex height="100%" gap="2" p="2">
 														<Box flexGrow="1" overflow="hidden">
 															<AnimatePresence mode="wait">
-																{toolMode !== ToolMode.Preview && (
-																	<SuspensePlaceHolder key={toolMode}>
-																		<motion.div
-																			layout="position"
-																			style={{
-																				height: "100%",
-																				maxHeight: "100%",
-																				overflowY: "hidden",
-																			}}
-																			initial={{ opacity: 0 }}
-																			animate={{ opacity: 1 }}
-																			exit={{ opacity: 0 }}
-																		>
-																			<LyricLinesView key={toolMode} />
-																		</motion.div>
-																	</SuspensePlaceHolder>
-																)}
-																{toolMode === ToolMode.Preview && (
-																	<SuspensePlaceHolder key="preview-switcher">
-																		<motion.div
-																			layout="position"
-																			initial={{ opacity: 0 }}
-																			animate={{ opacity: 1 }}
-																			exit={{ opacity: 0 }}
-																		>
-																			<PreviewModeSwitcher />
-																		</motion.div>
-																	</SuspensePlaceHolder>
-																)}
+																<SuspensePlaceHolder key={toolMode}>
+																	<motion.div
+																		layout="position"
+																		style={{
+																			height: "100%",
+																			maxHeight: "100%",
+																			overflowY: "hidden",
+																		}}
+																		initial={{ opacity: 0 }}
+																		animate={{ opacity: 1 }}
+																		exit={{ opacity: 0 }}
+																	>
+																		<LyricLinesView key={toolMode} />
+																	</motion.div>
+																</SuspensePlaceHolder>
 															</AnimatePresence>
 														</Box>
 														<ResizablePanel>

@@ -12,7 +12,7 @@
 import { Card, Inset } from "@radix-ui/themes";
 import { AnimatePresence } from "framer-motion";
 import { useAtomValue } from "jotai";
-import { forwardRef, memo } from "react";
+import { type CSSProperties, forwardRef, memo } from "react";
 import SuspensePlaceHolder from "$/components/SuspensePlaceHolder";
 import { ToolMode, toolModeAtom } from "$/states/main.ts";
 import { lazy } from "$/utils/lazy.ts";
@@ -22,7 +22,10 @@ const SyncModeRibbonBar = lazy(() => import("./sync-mode"));
 const PreviewModeRibbonBar = lazy(() => import("./preview-mode"));
 
 export const RibbonBar = memo(
-	forwardRef<HTMLDivElement>(
+	forwardRef<
+		HTMLDivElement,
+		{ isSidebar?: boolean; position?: "top" | "bottom" | "left" | "right" }
+	>(
 		(
 			{
 				isSidebar,
@@ -34,34 +37,27 @@ export const RibbonBar = memo(
 			ref,
 		) => {
 			const toolMode = useAtomValue(toolModeAtom);
+			const cardStyle: CSSProperties & { "--card-background-color": string } = {
+				"--card-background-color":
+					"var(--ribbon-bg, var(--titlebar-bg, var(--color-panel-translucent)))",
+				minHeight: isSidebar ? "100%" : "fit-content",
+				minWidth: isSidebar ? "240px" : undefined,
+				maxWidth: isSidebar ? "240px" : undefined,
+				flexShrink: "0",
+				borderRadius: 0,
+				borderLeft: position === "right" ? "1px solid var(--gray-5)" : "none",
+				borderRight: position === "left" ? "1px solid var(--gray-5)" : "none",
+				borderTop: position === "bottom" ? "1px solid var(--gray-5)" : "none",
+				borderBottom: position === "top" ? "1px solid var(--gray-5)" : "none",
+				backgroundColor:
+					"var(--ribbon-bg, var(--titlebar-bg, var(--color-panel-translucent)))",
+				backdropFilter:
+					"blur(var(--custom-backdrop-blur, 16px)) saturate(160%)",
+				zIndex: 10,
+			};
 
 			return (
-				<Card
-					data-guide-target="ribbon"
-					style={{
-						"--card-background-color":
-							"var(--ribbon-bg, var(--titlebar-bg, var(--color-panel-translucent)))",
-						minHeight: isSidebar ? "100%" : "fit-content",
-						minWidth: isSidebar ? "240px" : undefined,
-						maxWidth: isSidebar ? "240px" : undefined,
-						flexShrink: "0",
-						borderRadius: 0,
-						borderLeft:
-							position === "right" ? "1px solid var(--gray-5)" : "none",
-						borderRight:
-							position === "left" ? "1px solid var(--gray-5)" : "none",
-						borderTop:
-							position === "bottom" ? "1px solid var(--gray-5)" : "none",
-						borderBottom:
-							position === "top" ? "1px solid var(--gray-5)" : "none",
-						backgroundColor:
-							"var(--ribbon-bg, var(--titlebar-bg, var(--color-panel-translucent)))",
-						backdropFilter:
-							"blur(var(--custom-backdrop-blur, 16px)) saturate(160%)",
-						zIndex: 10,
-					}}
-					ref={ref}
-				>
+				<Card data-guide-target="ribbon" style={cardStyle} ref={ref}>
 					<Inset>
 						<div
 							style={{

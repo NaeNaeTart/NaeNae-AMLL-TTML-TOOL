@@ -93,7 +93,7 @@ const lyricLinesOnlyAtom = splitAtom(
 	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
 );
 
-let modeAnchorLines: Record<ToolMode, number> = {
+const modeAnchorLines: Record<ToolMode, number> = {
 	[ToolMode.Edit]: -1,
 	[ToolMode.Sync]: -1,
 	[ToolMode.Preview]: -1,
@@ -624,7 +624,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				selectedLineIds: store.get(selectedLinesAtom),
 				currentTime: store.get(currentTimeAtom),
 				lines: store.get(lyricLinesAtom).lyricLines,
-				previousMode: store.get(previousToolModeAtom),
+				previousMode: store.get(previousToolModeAtom) ?? ToolMode.Edit,
 				syncFocusMainLine: store.get(syncFocusMainLineAtom),
 				findCurrentLineIndex,
 			});

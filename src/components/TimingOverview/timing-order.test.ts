@@ -24,12 +24,15 @@ describe("Timing Overview Ordering & Stats", () => {
 				startTime,
 				endTime,
 				emptyBeat: 0,
+				obscene: false,
+				romanWord: "",
 			},
 		],
 		translatedLyric: "",
 		romanLyric: "",
 		isBG: false,
 		isDuet: false,
+		ignoreSync: false,
 	});
 
 	const sampleLines: LyricLine[] = [

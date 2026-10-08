@@ -9,7 +9,7 @@ import {
 	Separator,
 	Text,
 } from "@radix-ui/themes";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import {
 	experimentalFeaturesDialogOpenAtom,
@@ -20,12 +20,10 @@ import {
 
 export const GeniusHeaderDetectionDialog = () => {
 	const { t } = useTranslation();
-	const [geniusCategorizationEnabled, setGeniusCategorizationEnabled] = useAtom(
+	const setGeniusCategorizationEnabled = useSetAtom(
 		geniusCategorizationEnabledAtom,
 	);
-	const [dialogShown, setDialogShown] = useAtom(
-		geniusHeaderDetectionDialogShownAtom,
-	);
+	const setDialogShown = useSetAtom(geniusHeaderDetectionDialogShownAtom);
 	const [isOpen, setIsOpen] = useAtom(geniusHeaderDetectionDialogOpenAtom);
 
 	// This is a bit tricky to trigger from here, maybe a separate atom for this specific dialog's open state

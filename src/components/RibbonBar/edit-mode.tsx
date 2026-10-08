@@ -9,10 +9,7 @@
  * https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/blob/main/LICENSE
  */
 
-import {
-	Beaker24Regular,
-	QuestionCircle16Regular,
-} from "@fluentui/react-icons";
+import { QuestionCircle16Regular } from "@fluentui/react-icons";
 import {
 	Button,
 	Checkbox,
@@ -46,7 +43,6 @@ import { grammarCheckDialogAtom } from "$/modules/lyric-editor/modals/GrammarChe
 import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
 import {
 	displayRomanizationInSyncAtom,
-	experimentalFeaturesDialogOpenAtom,
 	LayoutMode,
 	layoutModeAtom,
 	showLineRomanizationAtom,
@@ -65,10 +61,13 @@ import {
 	selectedLinesAtom,
 	selectedWordsAtom,
 	showEndTimeAsDurationAtom,
-	toolModeAtom,
 } from "$/states/main.ts";
 import { type LyricLine, type LyricWord, newLyricLine } from "$/types/ttml";
-import { buildLineRomanization, getPhoneticSyllables } from "$/utils/phonetic";
+import {
+	buildLineRomanization,
+	getPhoneticSyllables,
+	type PhoneticLanguage,
+} from "$/utils/phonetic";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
 import { RibbonFrame, RibbonSection } from "./common";
 
@@ -773,7 +772,7 @@ const PhoneticSection = () => {
 	const selectedWords = useAtomValue(selectedWordsAtom);
 	const store = useStore();
 	const [loading, setLoading] = useState(false);
-	const [lang, setLang] = useState<"auto" | "ja" | "zh" | "ko">("auto");
+	const [lang, setLang] = useState<PhoneticLanguage>("auto");
 
 	const handleAutoFetch = useCallback(async () => {
 		setLoading(true);
@@ -907,9 +906,17 @@ const PhoneticSection = () => {
 			<Grid columns="2" gap="2" align="center">
 				<Select.Root
 					value={lang}
-					onValueChange={(v) =>
-						setLang(v as "auto" | "ja" | "zh" | "ko" | "yue")
-					}
+					onValueChange={(v) => {
+						if (
+							v === "auto" ||
+							v === "ja" ||
+							v === "zh" ||
+							v === "ko" ||
+							v === "yue"
+						) {
+							setLang(v);
+						}
+					}}
 					size="1"
 				>
 					<Select.Trigger />
@@ -968,7 +975,6 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 	HTMLDivElement,
 	{ isSidebar?: boolean }
 >(({ isSidebar }, ref) => {
-	const store = useStore();
 	const editLyricLines = useSetImmerAtom(lyricLinesAtom);
 	const { t } = useTranslation();
 	const selectedLines = useAtomValue(selectedLinesAtom);
@@ -1107,7 +1113,7 @@ export const EditModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</RibbonSection>
 			)}
 			{showAdvanced && (selectedLines.size > 0 || selectedWords.size > 0) && (
-				<PhoneticSection isSidebar={isSidebar} />
+				<PhoneticSection />
 			)}
 			{selectedWords.size > 0 && (
 				<RibbonSection

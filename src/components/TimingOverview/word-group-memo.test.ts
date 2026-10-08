@@ -10,6 +10,8 @@ describe("areWordGroupPropsEqual (WordGroup memoization)", () => {
 			startTime: 1000,
 			endTime: 1500,
 			emptyBeat: 0,
+			obscene: false,
+			romanWord: "",
 		},
 		{
 			id: "w-2",
@@ -17,6 +19,8 @@ describe("areWordGroupPropsEqual (WordGroup memoization)", () => {
 			startTime: 1500,
 			endTime: 2000,
 			emptyBeat: 0,
+			obscene: false,
+			romanWord: "",
 		},
 	];
 

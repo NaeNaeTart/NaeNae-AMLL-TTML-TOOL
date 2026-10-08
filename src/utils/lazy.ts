@@ -1,12 +1,16 @@
-import { type ComponentType, lazy as reactLazy } from "react";
+import { type LazyExoticComponent, lazy as reactLazy } from "react";
+
+type LazyComponent = Awaited<
+	ReturnType<Parameters<typeof reactLazy>[0]>
+>["default"];
 
 /**
  * A wrapper around React.lazy that attempts to reload the page if a dynamic import fails.
  * This is common in single-page applications when a new version is deployed and asset hashes change.
  */
-export function lazy<T extends ComponentType<any>>(
+export function lazy<T extends LazyComponent>(
 	factory: () => Promise<{ default: T }>,
-): ComponentType<T> {
+): LazyExoticComponent<T> {
 	return reactLazy(() =>
 		factory().catch((error) => {
 			// Check if it's a dynamic import failure (network error or 404 for a JS chunk)

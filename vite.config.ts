@@ -143,7 +143,7 @@ export default defineConfig({
 		sourcemap: true,
 	},
 	resolve: {
-		alias: Object.assign(
+		alias: Object.assign<Record<string, string>, Record<string, string>>(
 			{
 				$: resolve(__dirname, "src"),
 				url: resolve(__dirname, "src/utils/url-shim.ts"),

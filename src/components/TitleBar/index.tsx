@@ -1,11 +1,5 @@
 import { Beaker24Regular } from "@fluentui/react-icons";
-import {
-	Button,
-	Flex,
-	IconButton,
-	SegmentedControl,
-	Text,
-} from "@radix-ui/themes";
+import { Flex, IconButton, SegmentedControl, Text } from "@radix-ui/themes";
 import { useAtom, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { type FC, useCallback, useMemo } from "react";
@@ -43,11 +37,12 @@ export const TitleBar: FC = () => {
 	const isApp = useMemo(() => {
 		const isTauri =
 			typeof window !== "undefined" &&
-			(!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+			(("__TAURI__" in window && !!window.__TAURI__) ||
+				!!import.meta.env.TAURI_ENV_PLATFORM);
 		const isPwa =
 			typeof window !== "undefined" &&
 			(window.matchMedia("(display-mode: standalone)").matches ||
-				(window.navigator as any).standalone);
+				("standalone" in window.navigator && !!window.navigator.standalone));
 		return isTauri || isPwa;
 	}, []);
 	const isUnlocked = !isApp || boykisserUnlocked;

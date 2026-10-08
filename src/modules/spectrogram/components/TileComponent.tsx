@@ -20,6 +20,7 @@ export const TileComponent = memo(
 		bitmap,
 	}: TileComponentProps) => {
 		const canvasRef = useRef<HTMLCanvasElement>(null);
+		// biome-ignore lint/correctness/useExhaustiveDependencies: React clears the canvas when its width or height prop changes, so redraw the bitmap after either changes.
 		useEffect(() => {
 			if (bitmap && canvasRef.current) {
 				const canvas = canvasRef.current;

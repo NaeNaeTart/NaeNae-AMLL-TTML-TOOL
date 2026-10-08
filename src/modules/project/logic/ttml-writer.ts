@@ -364,7 +364,10 @@ export default function exportTTMLText(
 			if (exportAsStandaloneBackground) {
 				lineP.setAttribute(
 					"end",
-					msToTimestamp(backgroundLines.at(-1)?.endTime ?? line.endTime),
+					msToTimestamp(
+						backgroundLines[backgroundLines.length - 1]?.endTime ??
+							line.endTime,
+					),
 				);
 			}
 			for (const bgLine of backgroundLines) {

@@ -1,3 +1,4 @@
+import type { LyricLine } from "$/types/ttml";
 import { getAllPlugins } from "./plugin-store";
 import type { IntegratedPlugin, PluginMetadata, WASMPlugin } from "./types";
 
@@ -5,7 +6,7 @@ export interface IPluginInstance {
 	metadata: PluginMetadata;
 	runImporter: (input: string) => Promise<string>;
 	runExporter: (data: string) => Promise<string>;
-	runTool?: (lines: any[]) => Promise<any[]>;
+	runTool?: (lines: LyricLine[]) => Promise<LyricLine[]>;
 }
 
 class WASMPluginInstance implements IPluginInstance {
@@ -63,7 +64,7 @@ class WASMPluginInstance implements IPluginInstance {
 		return result;
 	}
 
-	async runTool(lines: any[]): Promise<any[]> {
+	async runTool(lines: LyricLine[]): Promise<LyricLine[]> {
 		if (
 			this.metadata.type === "importer" ||
 			this.metadata.type === "exporter"
@@ -96,7 +97,7 @@ class IntegratedPluginInstance implements IPluginInstance {
 		return this.metadata.runExporter(data);
 	}
 
-	async runTool(lines: any[]): Promise<any[]> {
+	async runTool(lines: LyricLine[]): Promise<LyricLine[]> {
 		if (!this.metadata.runTool) throw new Error("Plugin does not support tool");
 		return this.metadata.runTool(lines);
 	}
@@ -147,13 +148,19 @@ class PluginManager {
 
 	getImporters() {
 		return Array.from(this.instances.values()).filter(
-			(i) => i.metadata.type !== "exporter" && i.metadata.runImporter,
+			(i) =>
+				i.metadata.type !== "exporter" &&
+				"runImporter" in i.metadata &&
+				i.metadata.runImporter,
 		);
 	}
 
 	getExporters() {
 		return Array.from(this.instances.values()).filter(
-			(i) => i.metadata.type !== "importer" && i.metadata.runExporter,
+			(i) =>
+				i.metadata.type !== "importer" &&
+				"runExporter" in i.metadata &&
+				i.metadata.runExporter,
 		);
 	}
 
@@ -176,7 +183,7 @@ class PluginManager {
 		);
 	}
 
-	async runTool(pluginId: string, lines: any[]) {
+	async runTool(pluginId: string, lines: LyricLine[]) {
 		const instance = this.instances.get(pluginId);
 		if (!instance || !instance.runTool)
 			throw new Error("Plugin not found or does not support tools");

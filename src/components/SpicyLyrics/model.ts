@@ -153,7 +153,7 @@ function makeTokens(
 
 	for (const word of words) {
 		if (/^\s+$/u.test(word.word)) {
-			const previous = tokens.at(-1);
+			const previous = tokens[tokens.length - 1];
 			if (previous) previous.spaceAfter = true;
 			continue;
 		}

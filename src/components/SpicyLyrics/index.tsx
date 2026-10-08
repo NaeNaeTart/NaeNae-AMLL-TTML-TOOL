@@ -161,7 +161,7 @@ function useCoverPalette(imageSource: string | null) {
 					canvas.width,
 					canvas.height,
 				);
-				let base = { red: 0, green: 0, blue: 0, weight: 0 };
+				const base = { red: 0, green: 0, blue: 0, weight: 0 };
 				let highlight = { red: 0, green: 0, blue: 0, saturation: -1 };
 				for (let index = 0; index < data.length; index += 4) {
 					const red = data[index];
@@ -361,7 +361,8 @@ export const SpicyLyrics = memo(() => {
 			let activeIndex = activeIndices[0] ?? -1;
 			if (activeIndices.length > 1) {
 				const firstActive = activeIndices[0] ?? -1;
-				const lastActive = activeIndices.at(-1) ?? firstActive;
+				const lastActive =
+					activeIndices[activeIndices.length - 1] ?? firstActive;
 				activeIndex = lastActive - firstActive <= 1 ? firstActive : lastActive;
 			}
 			const active = activeIndex >= 0 ? lines[activeIndex] : undefined;
@@ -810,7 +811,7 @@ export const SpicyLyrics = memo(() => {
 			);
 			const shouldForce =
 				lastLine.current === null || Math.abs(time - previousPosition) > 1000;
-			const scrollTarget = allSung ? lines.at(-1) : active;
+			const scrollTarget = allSung ? lines[lines.length - 1] : active;
 			const scrollNode = scrollTarget
 				? lineNodes.current.get(scrollTarget.id)
 				: undefined;

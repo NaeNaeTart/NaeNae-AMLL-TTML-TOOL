@@ -10,11 +10,6 @@ import { useTranslation } from "react-i18next";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { audioPlayingAtom } from "$/modules/audio/states/index.ts";
 import { customBackgroundImageAtom } from "$/modules/settings/modals/customBackground";
-import {
-	accentColorAtom,
-	customAccentColorAtom,
-	useCustomAccentAtom,
-} from "$/modules/settings/states/index.ts";
 import { isDarkThemeAtom, lyricLinesAtom } from "$/states/main.ts";
 import styles from "./AMLL.module.css";
 
@@ -28,14 +23,11 @@ export const AMLL = memo(() => {
 	const darkMode = useAtomValue(isDarkThemeAtom);
 	const albumImg = useAtomValue(customBackgroundImageAtom);
 	const isPlaying = useAtomValue(audioPlayingAtom);
-	const accentColor = useAtomValue(accentColorAtom);
 
 	const amllLines = useMemo(() => {
-		return (lyrics?.lyricLines as any) || [];
+		return lyrics.lyricLines;
 	}, [lyrics]);
 
-	const useCustomAccent = useAtomValue(useCustomAccentAtom);
-	const customAccentColor = useAtomValue(customAccentColorAtom);
 	const [currentTime, setCurrentTime] = useState(0);
 
 	useEffect(() => {
@@ -73,13 +65,6 @@ export const AMLL = memo(() => {
 		return () => cancelAnimationFrame(rafId);
 	}, []);
 
-	const fallbackColors = useMemo(() => {
-		if (useCustomAccent && customAccentColor) {
-			return [customAccentColor, "#121212", "#000000"];
-		}
-		return ["#f97316", "#8b5cf6", "#000000"];
-	}, [useCustomAccent, customAccentColor, accentColor]);
-
 	return (
 		<div
 			className={classNames(styles.amllContainer, darkMode && styles.isDark)}
@@ -89,7 +74,6 @@ export const AMLL = memo(() => {
 				<BackgroundRender
 					key={albumImg || "default"}
 					album={albumImg || undefined}
-					colors={fallbackColors}
 					playing={isPlaying}
 					fps={60}
 					renderScale={0.7}
