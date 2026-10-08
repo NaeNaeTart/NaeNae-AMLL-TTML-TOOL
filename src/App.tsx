@@ -124,6 +124,7 @@ import {
 	toolModeAtom,
 } from "./states/main.ts";
 import { generateGradient, generateRadixScale } from "./utils/colorScale.ts";
+import { attachDroppedFilePath } from "./utils/droppedFilePath.ts";
 import { useAppUpdate } from "./utils/useAppUpdate.ts";
 import { DiscordPresence } from "./modules/discord-presence/DiscordPresence";
 import { BeginnerGuide } from "./modules/onboarding/BeginnerGuide";
@@ -693,7 +694,8 @@ function App() {
 
 			const files = e.dataTransfer?.files;
 			if (files && files.length > 0) {
-				openFile(files[0]);
+				const file = files[0];
+				void attachDroppedFilePath(file).finally(() => openFile(file));
 			}
 		};
 

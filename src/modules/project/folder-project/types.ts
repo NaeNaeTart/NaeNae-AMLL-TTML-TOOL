@@ -6,6 +6,11 @@ export interface ProjectSongInfo {
 	audioSize?: number;
 }
 
+export interface LinkedProjectFiles {
+	lyricPath: string;
+	audioPath: string;
+}
+
 export interface ProjectManifest {
 	version: 1;
 	app?: typeof PROJECT_MANIFEST_APP_ID;
@@ -18,6 +23,7 @@ export interface ProjectManifest {
 	coverFile?: string;
 	song?: ProjectSongInfo;
 	folderName?: string;
+	linked?: LinkedProjectFiles;
 	createdAt?: number;
 	updatedAt?: number;
 }
@@ -29,6 +35,7 @@ export interface RecentProjectEntry {
 	lyricFile: string;
 	lastOpened: number;
 	updatedAt?: number;
+	linked?: LinkedProjectFiles;
 }
 
 export interface RecentProjectFileStatus {
@@ -38,3 +45,8 @@ export interface RecentProjectFileStatus {
 }
 
 export const PROJECT_MANIFEST_FILENAME = "project.json";
+
+export const LINKED_PROJECTS_DIRNAME = "projects";
+
+/** One-time copy of a linked TTML, kept in the project's app-data folder before the first overwrite. */
+export const LINKED_LYRIC_BACKUP_FILENAME = "original.ttml.bak";

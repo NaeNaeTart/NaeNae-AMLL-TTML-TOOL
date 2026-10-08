@@ -5,6 +5,11 @@ export interface OpenFileOptions {
 	multiple?: boolean;
 }
 
+export const LYRIC_FILE_FILTERS = [
+	{ name: "TTML", extensions: ["ttml"] },
+	{ name: "Lyrics", extensions: ["lrc", "eslrc", "qrc", "yrc", "lys"] },
+];
+
 export async function openFileWithDialog(
 	options: OpenFileOptions,
 ): Promise<File | File[] | null> {

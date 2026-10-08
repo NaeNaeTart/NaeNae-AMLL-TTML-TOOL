@@ -70,7 +70,9 @@ dependencies = [
  "tauri-plugin-shell",
  "tauri-plugin-updater",
  "tauri-plugin-window-state",
+ "webview2-com",
  "window-vibrancy 0.7.1",
+ "windows 0.61.3",
 ]
 
 [[package]]
