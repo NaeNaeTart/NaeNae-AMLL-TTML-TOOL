@@ -32,7 +32,10 @@ export const TileComponent = memo(
 					}
 				} catch (e) {
 					// Handle detached/closed bitmap silently
-					console.warn("TileComponent: Failed to draw bitmap (likely detached)", e);
+					console.warn(
+						"TileComponent: Failed to draw bitmap (likely detached)",
+						e,
+					);
 				}
 			}
 		}, [bitmap, canvasWidth, height]);

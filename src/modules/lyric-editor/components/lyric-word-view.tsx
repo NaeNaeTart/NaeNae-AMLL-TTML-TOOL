@@ -17,11 +17,7 @@ import {
 	SplitVerticalRegular,
 	TaskListLtrRegular,
 } from "@fluentui/react-icons";
-import {
-	ContextMenu,
-	IconButton,
-	TextField,
-} from "@radix-ui/themes";
+import { ContextMenu, IconButton, TextField } from "@radix-ui/themes";
 import classNames from "classnames";
 import { type Atom, atom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
@@ -508,8 +504,7 @@ const LyricWordViewEditAdvance = ({
 				if (!open) return;
 				const currentStore = store;
 				const currentSelectedWords = currentStore.get(selectedWordsAtom);
-				if (currentSelectedWords.has(currentWord.id))
-					return;
+				if (currentSelectedWords.has(currentWord.id)) return;
 				setSelectedWords((state) => {
 					state.clear();
 					state.add(currentWord.id);
@@ -690,7 +685,13 @@ const LyricWorldViewEdit = ({
 	const legacySpaceLabels = useAtomValue(legacySpaceLabelsAtom);
 	const useCompactSpace = isSpaceWord && !legacySpaceLabels;
 	// In Edit Mode, we always want to see the original word in the capsule.
-	const displayWord = getDisplayWordText(t, word.word, isWordBlank, word.romanWord, false);
+	const displayWord = getDisplayWordText(
+		t,
+		word.word,
+		isWordBlank,
+		word.romanWord,
+		false,
+	);
 	const spaceLabel = isSpaceWord
 		? t("lyricWordView.spaceCount", "空格 x{count}", {
 				count: word.word.length,
@@ -769,8 +770,7 @@ const LyricWorldViewEdit = ({
 				if (!open) return;
 				const currentStore = store;
 				const currentSelectedWords = currentStore.get(selectedWordsAtom);
-				if (currentSelectedWords.has(word.id))
-					return;
+				if (currentSelectedWords.has(word.id)) return;
 				setSelectedWords((state) => {
 					state.clear();
 					state.add(word.id);
@@ -997,7 +997,11 @@ const LyricSyncWordView: FC<{
 
 		document.addEventListener("pointerdown", commitOnOutsidePointerDown, true);
 		return () =>
-			document.removeEventListener("pointerdown", commitOnOutsidePointerDown, true);
+			document.removeEventListener(
+				"pointerdown",
+				commitOnOutsidePointerDown,
+				true,
+			);
 	}, [commitTextEdit, editingTextField]);
 
 	const commitTimeEdit = useCallback(
@@ -1167,7 +1171,6 @@ const LyricSyncWordView: FC<{
 		],
 	);
 
-
 	return (
 		<div
 			ref={wordContainerRef}
@@ -1238,7 +1241,9 @@ const LyricSyncWordView: FC<{
 				<div
 					className={classNames(styles.startTime)}
 					ref={startTimeRef}
-					title={enableManualTimestampEdit ? "Click to edit start time" : undefined}
+					title={
+						enableManualTimestampEdit ? "Click to edit start time" : undefined
+					}
 					style={{ cursor: enableManualTimestampEdit ? "text" : "default" }}
 					onClick={(e) => {
 						if (!enableManualTimestampEdit) return;
@@ -1279,7 +1284,10 @@ const LyricSyncWordView: FC<{
 			)}
 			{editingTextField ? (
 				<>
-					<span ref={editingTextMeasureRef} className={styles.syncWordInputMeasure}>
+					<span
+						ref={editingTextMeasureRef}
+						className={styles.syncWordInputMeasure}
+					>
 						{textForMeasurement}
 					</span>
 					<input
@@ -1318,7 +1326,9 @@ const LyricSyncWordView: FC<{
 				<div
 					className={classNames(styles.endTime)}
 					ref={endTimeRef}
-					title={enableManualTimestampEdit ? "Click to edit end time" : undefined}
+					title={
+						enableManualTimestampEdit ? "Click to edit end time" : undefined
+					}
 					style={{ cursor: enableManualTimestampEdit ? "text" : "default" }}
 					onClick={(e) => {
 						if (!enableManualTimestampEdit) return;
@@ -1441,51 +1451,53 @@ type LyricWordViewProps = {
 	lineIndex: number;
 };
 
-export const LyricWordView: FC<LyricWordViewProps & { isHeaderLine?: boolean }> = memo(
+export const LyricWordView: FC<
+	LyricWordViewProps & { isHeaderLine?: boolean }
+> = memo(
 	({ wordAtom, wordIndex, line, lineIndex, isHeaderLine }) => {
-	const word = useAtomValue(wordAtom);
-	const toolMode = useAtomValue(toolModeAtom);
-	const layoutMode = useAtomValue(layoutModeAtom);
+		const word = useAtomValue(wordAtom);
+		const toolMode = useAtomValue(toolModeAtom);
+		const layoutMode = useAtomValue(layoutModeAtom);
 
-	const isWordBlank = useWordBlank(word.word);
-	const hasRuby = word.ruby && word.ruby.length > 0;
+		const isWordBlank = useWordBlank(word.word);
+		const hasRuby = word.ruby && word.ruby.length > 0;
 
-	if (isHeaderLine) {
+		if (isHeaderLine) {
+			return (
+				<div className={styles.wordMainText} style={{ padding: "8px 0" }}>
+					{word.word}
+				</div>
+			);
+		}
+
 		return (
-			<div className={styles.wordMainText} style={{ padding: "8px 0" }}>
-				{word.word}
+			<div>
+				{toolMode === ToolMode.Edit && layoutMode === LayoutMode.Simple && (
+					<LyricWorldViewEdit
+						wordAtom={wordAtom}
+						line={line}
+						lineIndex={lineIndex}
+						wordIndex={wordIndex}
+					/>
+				)}
+				{toolMode === ToolMode.Edit && layoutMode === LayoutMode.Advance && (
+					<LyricWordViewEditAdvance
+						wordAtom={wordAtom}
+						line={line}
+						lineIndex={lineIndex}
+						wordIndex={wordIndex}
+					/>
+				)}
+				{toolMode === ToolMode.Sync && (hasRuby || !isWordBlank) && (
+					<LyricWorldViewSync
+						wordAtom={wordAtom}
+						line={line}
+						lineIndex={lineIndex}
+						wordIndex={wordIndex}
+					/>
+				)}
 			</div>
 		);
-	}
-
-	return (
-		<div>
-			{toolMode === ToolMode.Edit && layoutMode === LayoutMode.Simple && (
-				<LyricWorldViewEdit
-					wordAtom={wordAtom}
-					line={line}
-					lineIndex={lineIndex}
-					wordIndex={wordIndex}
-				/>
-			)}
-			{toolMode === ToolMode.Edit && layoutMode === LayoutMode.Advance && (
-				<LyricWordViewEditAdvance
-					wordAtom={wordAtom}
-					line={line}
-					lineIndex={lineIndex}
-					wordIndex={wordIndex}
-				/>
-			)}
-			{toolMode === ToolMode.Sync && (hasRuby || !isWordBlank) && (
-				<LyricWorldViewSync
-					wordAtom={wordAtom}
-					line={line}
-					lineIndex={lineIndex}
-					wordIndex={wordIndex}
-				/>
-			)}
-		</div>
-	);
 	},
 	// Custom comparator: line.id is stable (never changes after creation).
 	// Checking it instead of the full line object prevents all word views in a

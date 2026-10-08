@@ -21,6 +21,7 @@ import { useAtom } from "jotai";
 import { type FC, forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
 import {
 	hideObsceneWordsAtom,
 	instantHighlightFadeAtom,
@@ -35,9 +36,8 @@ import {
 	spicySimpleLyricsModeAtom,
 	vsyncAtom,
 } from "$/modules/settings/states/preview";
-import { RibbonFrame, RibbonSection } from "./common";
 import { timingOverviewAutoScrollAtom } from "$/modules/settings/states/sync.ts";
-import { advancedRibbonControlsAtom } from "$/modules/onboarding/states";
+import { RibbonFrame, RibbonSection } from "./common";
 
 export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 	HTMLDivElement,
@@ -112,7 +112,10 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 				</SegmentedControl.Root>
 			</RibbonSection>
 			{previewModeType === PreviewModeType.Spicy && (
-				<RibbonSection isSidebar={isSidebar} label={t("ribbonBar.previewMode.spicy", "Spicy")}>
+				<RibbonSection
+					isSidebar={isSidebar}
+					label={t("ribbonBar.previewMode.spicy", "Spicy")}
+				>
 					<Grid
 						columns="max-content auto"
 						gap="2"
@@ -120,21 +123,36 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 						flexGrow="1"
 						align="center"
 					>
-						<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
 							{t("ribbonBar.previewMode.simpleLyrics", "Simple lyrics")}
 						</Text>
 						<Checkbox
 							checked={spicySimpleMode}
 							onCheckedChange={(v) => setSpicySimpleMode(!!v)}
 						/>
-						<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
-							{t("ribbonBar.previewMode.forceLineRendering", "Force line rendering")}
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
+							{t(
+								"ribbonBar.previewMode.forceLineRendering",
+								"Force line rendering",
+							)}
 						</Text>
 						<Checkbox
 							checked={spicyForceLineSynced}
 							onCheckedChange={(v) => setSpicyForceLineSynced(!!v)}
 						/>
-						<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
 							{t("ribbonBar.previewMode.background", "Background")}
 						</Text>
 						<SegmentedControl.Root
@@ -147,7 +165,9 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 							<SegmentedControl.Item value="animated">
 								{t("ribbonBar.previewMode.backgroundAnimated", "Animated")}
 							</SegmentedControl.Item>
-							<SegmentedControl.Item value="color">{t("ribbonBar.previewMode.backgroundColor", "Color")}</SegmentedControl.Item>
+							<SegmentedControl.Item value="color">
+								{t("ribbonBar.previewMode.backgroundColor", "Color")}
+							</SegmentedControl.Item>
 							<SegmentedControl.Item value="static">
 								{t("ribbonBar.previewMode.backgroundStatic", "Static")}
 							</SegmentedControl.Item>
@@ -192,21 +212,33 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					flexGrow="1"
 					align="center"
 				>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+					<Text
+						wrap="nowrap"
+						size="1"
+						style={{ color: "var(--ribbon-label-color)" }}
+					>
 						{t("ribbonBar.previewMode.showTranslation", "显示翻译")}
 					</Text>
 					<Checkbox
 						checked={showTranslationLine}
 						onCheckedChange={(v) => setShowTranslationLine(!!v)}
 					/>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+					<Text
+						wrap="nowrap"
+						size="1"
+						style={{ color: "var(--ribbon-label-color)" }}
+					>
 						{t("ribbonBar.previewMode.showRoman", "显示音译")}
 					</Text>
 					<Checkbox
 						checked={showRomanLine}
 						onCheckedChange={(v) => setShowRomanLine(!!v)}
 					/>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+					<Text
+						wrap="nowrap"
+						size="1"
+						style={{ color: "var(--ribbon-label-color)" }}
+					>
 						{t("ribbonBar.previewMode.maskObsceneWords", "屏蔽不雅用语")}
 					</Text>
 					<Checkbox
@@ -226,7 +258,11 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					flexGrow="1"
 					align="center"
 				>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+					<Text
+						wrap="nowrap"
+						size="1"
+						style={{ color: "var(--ribbon-label-color)" }}
+					>
 						{t("ribbonBar.previewMode.fadeWidth", "过渡宽度")}
 					</Text>
 					<TextField.Root
@@ -244,7 +280,11 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 							}
 						}}
 					/>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
+					<Text
+						wrap="nowrap"
+						size="1"
+						style={{ color: "var(--ribbon-label-color)" }}
+					>
 						{t("ribbonBar.previewMode.instantFade", "即时淡出")}
 					</Text>
 					<Checkbox
@@ -253,41 +293,59 @@ export const PreviewModeRibbonBar: FC<{ isSidebar?: boolean }> = forwardRef<
 					/>
 				</Grid>
 			</RibbonSection>
-			{showAdvanced && <RibbonSection
+			{showAdvanced && (
+				<RibbonSection
+					isSidebar={isSidebar}
+					label={t("ribbonBar.previewMode.render", "渲染")}
+				>
+					<Grid
+						columns="max-content auto"
+						gap="2"
+						gapY="1"
+						flexGrow="1"
+						align="center"
+					>
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
+							{"V-Sync"}
+						</Text>
+						<Checkbox checked={vsync} onCheckedChange={(v) => setVsync(!!v)} />
+					</Grid>
+				</RibbonSection>
+			)}
+			{showAdvanced && (
+				<RibbonSection
+					isSidebar={isSidebar}
+					label={t("ribbonBar.previewMode.dev", "Dev")}
+				>
+					<Grid
+						columns="max-content auto"
+						gap="2"
+						gapY="1"
+						flexGrow="1"
+						align="center"
+					>
+						<Text
+							wrap="nowrap"
+							size="1"
+							style={{ color: "var(--ribbon-label-color)" }}
+						>
+							{t("ribbonBar.previewMode.showFps", "Show FPS")}
+						</Text>
+						<Checkbox
+							checked={showFps}
+							onCheckedChange={(v) => setShowFps(!!v)}
+						/>
+					</Grid>
+				</RibbonSection>
+			)}
+			<RibbonSection
+				label={t("ribbonBar.advanced", "Advanced")}
 				isSidebar={isSidebar}
-				label={t("ribbonBar.previewMode.render", "渲染")}
 			>
-				<Grid
-					columns="max-content auto"
-					gap="2"
-					gapY="1"
-					flexGrow="1"
-					align="center"
-				>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
-						{"V-Sync"}
-					</Text>
-					<Checkbox checked={vsync} onCheckedChange={(v) => setVsync(!!v)} />
-				</Grid>
-			</RibbonSection>}
-			{showAdvanced && <RibbonSection isSidebar={isSidebar} label={t("ribbonBar.previewMode.dev", "Dev")}>
-				<Grid
-					columns="max-content auto"
-					gap="2"
-					gapY="1"
-					flexGrow="1"
-					align="center"
-				>
-					<Text wrap="nowrap" size="1" style={{ color: "var(--ribbon-label-color)" }}>
-						{t("ribbonBar.previewMode.showFps", "Show FPS")}
-					</Text>
-					<Checkbox
-						checked={showFps}
-						onCheckedChange={(v) => setShowFps(!!v)}
-					/>
-				</Grid>
-			</RibbonSection>}
-			<RibbonSection label={t("ribbonBar.advanced", "Advanced")} isSidebar={isSidebar}>
 				<Switch checked={showAdvanced} onCheckedChange={setShowAdvanced} />
 			</RibbonSection>
 		</RibbonFrame>

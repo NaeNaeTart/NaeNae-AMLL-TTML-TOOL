@@ -486,17 +486,14 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			translatedLyric: "",
 			romanLyric: "",
 			isBG,
-			isDuet: isBG
-				? isDuet
-				: !!agentId && agentId !== mainAgentId,
+			isDuet: isBG ? isDuet : !!agentId && agentId !== mainAgentId,
 			agent: agentId || undefined,
 			startTime: parsedStartTime,
 			endTime: parsedEndTime,
 			ignoreSync: false,
 			isLineSynced: Array.from(lineEl.childNodes).some(
 				(node) =>
-					node.nodeType === Node.TEXT_NODE &&
-					!!node.textContent?.trim(),
+					node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim(),
 			),
 			sectionId: getAttr(lineEl, "section") || parentSectionId,
 		};

@@ -35,7 +35,11 @@
 	z-index: 2;
 	/* PERF: Removed backdrop-filter: blur — causes full GPU re-composite every frame.
 	   Using a solid semi-transparent gradient overlay instead. */
-	background: radial-gradient(circle at center, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.65) 100%);
+	background: radial-gradient(
+		circle at center,
+		rgba(0, 0, 0, 0.15) 0%,
+		rgba(0, 0, 0, 0.65) 100%
+	);
 }
 
 .header {
@@ -43,7 +47,11 @@
 	z-index: 10;
 	/* PERF: transition: all watches every CSS property. Scoped to opacity only. */
 	transition: opacity 0.4s ease;
-	background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+	background: linear-gradient(
+		to bottom,
+		rgba(0, 0, 0, 0.6) 0%,
+		transparent 100%
+	);
 }
 
 .header h3 {
@@ -153,9 +161,6 @@
 	opacity: 1 !important;
 }
 
-
-
-
 .wordsContainer {
 	display: flex;
 	flex-wrap: wrap;
@@ -164,10 +169,15 @@
 	overflow: visible;
 }
 
-.line .wordsContainer { justify-content: flex-start; }
-.lineDuetR .wordsContainer { justify-content: flex-end; }
+.line .wordsContainer {
+	justify-content: flex-start;
+}
+.lineDuetR .wordsContainer {
+	justify-content: flex-end;
+}
 
-.wordStatic, .word {
+.wordStatic,
+.word {
 	font-size: 3.8rem; /* Increased size for cinematic look */
 	font-weight: 850;
 	color: rgba(255, 255, 255, 0.15);
@@ -177,7 +187,11 @@
 	display: inline-block;
 	cursor: pointer;
 	line-height: 1.15;
-	transition: filter 0.6s ease, transform 0.8s cubic-bezier(0.34, 1.2, 0.64, 1), color 0.4s ease, opacity 0.4s ease !important;
+	transition:
+		filter 0.6s ease,
+		transform 0.8s cubic-bezier(0.34, 1.2, 0.64, 1),
+		color 0.4s ease,
+		opacity 0.4s ease !important;
 	/* PERF: Removed will-change from ALL words — promoting every static word to a GPU
 	   layer wastes VRAM. will-change is applied only to .wordActive below. */
 	transform: scale(1);
@@ -203,7 +217,9 @@
 	text-shadow: 0 0 18px rgba(255, 255, 255, 0.5);
 	will-change: transform;
 	transform: scale(1.03);
-	transition: text-shadow 0s, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+	transition:
+		text-shadow 0s,
+		transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
 .wordPast {
@@ -245,7 +261,8 @@
 	opacity: 0.25 !important; /* Darker, more subtle background for Toxi mode */
 }
 
-.isToxi .wordStatic, .isToxi .word {
+.isToxi .wordStatic,
+.isToxi .word {
 	font-size: 2.2rem;
 	font-weight: 700;
 	letter-spacing: -0.01em;
@@ -257,9 +274,11 @@
 	will-change: transform, filter;
 }
 
-.isToxi .wordActive, .isToxi .wordPast {
-	background: linear-gradient(to right, 
-		#fff var(--progress), 
+.isToxi .wordActive,
+.isToxi .wordPast {
+	background: linear-gradient(
+		to right,
+		#fff var(--progress),
 		rgba(255, 255, 255, 0.1) calc(var(--progress) + var(--fade-width))
 	);
 	-webkit-background-clip: text;
@@ -291,14 +310,21 @@
 	margin-bottom: 8px;
 }
 
-.isToxi .lineBG .wordStatic, .isToxi .lineBG .word {
+.isToxi .lineBG .wordStatic,
+.isToxi .lineBG .word {
 	font-size: 1.6rem !important;
 }
 
 @keyframes toxi-float {
-	0% { transform: translateY(0); }
-	35% { transform: translateY(8px); }
-	100% { transform: translateY(0); }
+	0% {
+		transform: translateY(0);
+	}
+	35% {
+		transform: translateY(8px);
+	}
+	100% {
+		transform: translateY(0);
+	}
 }
 
 /* ── Instant Fade Out Logic ──────────────────────────────── */

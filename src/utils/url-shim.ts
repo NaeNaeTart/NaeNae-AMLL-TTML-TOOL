@@ -1,8 +1,8 @@
 export const format = (urlObj: any) => {
-	if (typeof urlObj === 'string') return urlObj;
+	if (typeof urlObj === "string") return urlObj;
 	const { protocol, host, pathname, search, hash } = urlObj;
 	let url = "";
-	if (protocol) url += protocol + (protocol.endsWith(':') ? '//' : '://');
+	if (protocol) url += protocol + (protocol.endsWith(":") ? "//" : "://");
 	if (host) url += host;
 	if (pathname) url += pathname;
 	if (search) url += search;

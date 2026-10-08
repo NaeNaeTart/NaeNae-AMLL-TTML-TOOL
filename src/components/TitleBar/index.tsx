@@ -1,11 +1,21 @@
-import { Button, Flex, IconButton, SegmentedControl, Text } from "@radix-ui/themes";
+import { Beaker24Regular } from "@fluentui/react-icons";
+import {
+	Button,
+	Flex,
+	IconButton,
+	SegmentedControl,
+	Text,
+} from "@radix-ui/themes";
 import { useAtom, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
 import { type FC, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import WindowControls from "$/components/WindowControls";
-import { boykisserModeAtom, boykisserUnlockedAtom, experimentalFeaturesDialogOpenAtom } from "$/modules/settings/states";
-import { Beaker24Regular } from "@fluentui/react-icons";
+import {
+	boykisserModeAtom,
+	boykisserUnlockedAtom,
+	experimentalFeaturesDialogOpenAtom,
+} from "$/modules/settings/states";
 import {
 	keySwitchEditModeAtom,
 	keySwitchPreviewModeAtom,
@@ -31,12 +41,19 @@ export const TitleBar: FC = () => {
 	const [boykisserMode, setBoykisserMode] = useAtom(boykisserModeAtom);
 	const [boykisserUnlocked] = useAtom(boykisserUnlockedAtom);
 	const isApp = useMemo(() => {
-		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		const isTauri =
+			typeof window !== "undefined" &&
+			(!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa =
+			typeof window !== "undefined" &&
+			(window.matchMedia("(display-mode: standalone)").matches ||
+				(window.navigator as any).standalone);
 		return isTauri || isPwa;
 	}, []);
 	const isUnlocked = !isApp || boykisserUnlocked;
-	const setExperimentalDialogOpen = useSetAtom(experimentalFeaturesDialogOpenAtom);
+	const setExperimentalDialogOpen = useSetAtom(
+		experimentalFeaturesDialogOpenAtom,
+	);
 
 	const switchMode = useCallback(
 		(targetMode: ToolMode) => {
@@ -84,31 +101,35 @@ export const TitleBar: FC = () => {
 			endChildren={
 				!import.meta.env.TAURI_ENV_PLATFORM && (
 					<Flex align="center" gap="2" mr="2">
-						{isUnlocked && !window.location.href.includes("spicylyrics.org") && (
-							<button
-								type="button"
-								style={{
-									display: "none",
-									width: "6px",
-									height: "6px",
-									borderRadius: "50%",
-									background: "var(--accent-9)",
-									border: "none",
-									cursor: "pointer",
-									opacity: 0.2,
-									transition: "opacity 0.2s",
-									outline: "none",
-									marginRight: "4px",
-								}}
-								onClick={() => setBoykisserMode(!boykisserMode)}
-								title={t("topBar.boykisser", "boykisser")}
-							/>
-						)}
+						{isUnlocked &&
+							!window.location.href.includes("spicylyrics.org") && (
+								<button
+									type="button"
+									style={{
+										display: "none",
+										width: "6px",
+										height: "6px",
+										borderRadius: "50%",
+										background: "var(--accent-9)",
+										border: "none",
+										cursor: "pointer",
+										opacity: 0.2,
+										transition: "opacity 0.2s",
+										outline: "none",
+										marginRight: "4px",
+									}}
+									onClick={() => setBoykisserMode(!boykisserMode)}
+									title={t("topBar.boykisser", "boykisser")}
+								/>
+							)}
 						<IconButton
 							variant="ghost"
 							color="gray"
 							onClick={() => setExperimentalDialogOpen(true)}
-							title={t("ribbonBar.experimentalFeatures", "Experimental Features")}
+							title={t(
+								"ribbonBar.experimentalFeatures",
+								"Experimental Features",
+							)}
 						>
 							<Beaker24Regular />
 						</IconButton>

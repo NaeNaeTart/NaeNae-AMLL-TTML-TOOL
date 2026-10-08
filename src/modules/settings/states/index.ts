@@ -245,7 +245,10 @@ export const aiSidebarBaseUrlAtom = atomWithStorage(
 	"aiSidebarBaseUrl",
 	"https://api.openai.com/v1",
 );
-export const aiSidebarModelAtom = atomWithStorage("aiSidebarModel", "gpt-4o-mini");
+export const aiSidebarModelAtom = atomWithStorage(
+	"aiSidebarModel",
+	"gpt-4o-mini",
+);
 export const aiSidebarPersistKeyAtom = atomWithStorage(
 	"aiSidebarPersistKey",
 	false,
@@ -353,15 +356,36 @@ export const advEditorBgAtom = atomWithStorage("advEditorBg", "");
 export const advActiveLineBgAtom = atomWithStorage("advActiveLineBg", "");
 export const advLineHoverBgAtom = atomWithStorage("advLineHoverBg", "");
 
-export const advChipBorderRadiusAtom = atomWithStorage("advChipBorderRadius", 8);
+export const advChipBorderRadiusAtom = atomWithStorage(
+	"advChipBorderRadius",
+	8,
+);
 export const advChipGapAtom = atomWithStorage("advChipGap", 8);
-export const advChipPaddingVerticalAtom = atomWithStorage("advChipPaddingVertical", 2);
-export const advChipPaddingHorizontalAtom = atomWithStorage("advChipPaddingHorizontal", 8);
-export const legacySpaceLabelsAtom = atomWithStorage("legacySpaceLabels", false);
+export const advChipPaddingVerticalAtom = atomWithStorage(
+	"advChipPaddingVertical",
+	2,
+);
+export const advChipPaddingHorizontalAtom = atomWithStorage(
+	"advChipPaddingHorizontal",
+	8,
+);
+export const legacySpaceLabelsAtom = atomWithStorage(
+	"legacySpaceLabels",
+	false,
+);
 
-export const advRomanizationColorAtom = atomWithStorage("advRomanizationColor", "");
-export const advTranslationColorAtom = atomWithStorage("advTranslationColor", "");
-export const advGeniusHeaderColorAtom = atomWithStorage("advGeniusHeaderColor", "");
+export const advRomanizationColorAtom = atomWithStorage(
+	"advRomanizationColor",
+	"",
+);
+export const advTranslationColorAtom = atomWithStorage(
+	"advTranslationColor",
+	"",
+);
+export const advGeniusHeaderColorAtom = atomWithStorage(
+	"advGeniusHeaderColor",
+	"",
+);
 
 export const advAudioBarBgAtom = atomWithStorage("advAudioBarBg", "");
 export const advAudioBarTextAtom = atomWithStorage("advAudioBarText", "");
@@ -370,21 +394,28 @@ export const advScrollbarColorAtom = atomWithStorage("advScrollbarColor", "");
 export const advDialogBgAtom = atomWithStorage("advDialogBg", "");
 export const advDialogBorderAtom = atomWithStorage("advDialogBorder", "");
 
-export const advGlobalBorderRadiusAtom = atomWithStorage("advGlobalBorderRadius", 12);
-export const advGlobalBorderWidthAtom = atomWithStorage("advGlobalBorderWidth", 1);
+export const advGlobalBorderRadiusAtom = atomWithStorage(
+	"advGlobalBorderRadius",
+	12,
+);
+export const advGlobalBorderWidthAtom = atomWithStorage(
+	"advGlobalBorderWidth",
+	1,
+);
 export const advShadowIntensityAtom = atomWithStorage("advShadowIntensity", 1);
 export const advSelectionColorAtom = atomWithStorage("advSelectionColor", "");
 export const advBackdropBlurAtom = atomWithStorage("advBackdropBlur", 16);
 
-export const appLayoutOrderAtom = atomWithStorage<string[]>(
-	"appLayoutOrder",
-	["titlebar", "ribbonbar", "editor", "audio-controls"],
-);
+export const appLayoutOrderAtom = atomWithStorage<string[]>("appLayoutOrder", [
+	"titlebar",
+	"ribbonbar",
+	"editor",
+	"audio-controls",
+]);
 
-export const vRibbonPositionAtom = atomWithStorage<"top" | "bottom" | "left" | "right">(
-	"vRibbonPosition",
-	"top",
-);
+export const vRibbonPositionAtom = atomWithStorage<
+	"top" | "bottom" | "left" | "right"
+>("vRibbonPosition", "top");
 
 export interface AppearancePreset {
 	id: string;

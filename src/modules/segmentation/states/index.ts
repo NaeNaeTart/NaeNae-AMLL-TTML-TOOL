@@ -73,10 +73,8 @@ export const segmentationCustomRulesAtom = atom<
 	},
 );
 
-const segmentationLearnedRulesStorageAtom = atomWithStorage<LearnedRulesStorage>(
-	"segmentation.learnedRules",
-	[],
-);
+const segmentationLearnedRulesStorageAtom =
+	atomWithStorage<LearnedRulesStorage>("segmentation.learnedRules", []);
 
 export const segmentationLearnedRulesAtom = atom<
 	Map<string, number[]>,
@@ -84,7 +82,8 @@ export const segmentationLearnedRulesAtom = atom<
 	void
 >(
 	(get) => new Map(get(segmentationLearnedRulesStorageAtom)),
-	(_get, set, rules) => set(segmentationLearnedRulesStorageAtom, Array.from(rules.entries())),
+	(_get, set, rules) =>
+		set(segmentationLearnedRulesStorageAtom, Array.from(rules.entries())),
 );
 
 export const splitWordApplyToAllAtom = atomWithStorage(

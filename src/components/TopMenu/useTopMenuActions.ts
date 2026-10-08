@@ -250,7 +250,11 @@ export const useTopMenuActions = () => {
 				const ttmlText = exportTTMLText(
 					currentLyrics,
 					store.get(lyricTextNormalizationOptionsAtom),
-					{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
+					{
+						allowConsecutiveBackgroundLines: store.get(
+							allowConsecutiveBackgroundLinesAtom,
+						),
+					},
 				);
 				const savedName = await saveFile(ttmlText, {
 					suggestedName: saveFileName,
@@ -349,7 +353,11 @@ export const useTopMenuActions = () => {
 				const ttml = exportTTMLText(
 					lyric,
 					store.get(lyricTextNormalizationOptionsAtom),
-					{ allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) },
+					{
+						allowConsecutiveBackgroundLines: store.get(
+							allowConsecutiveBackgroundLinesAtom,
+						),
+					},
 				);
 				await navigator.clipboard.writeText(ttml);
 			} catch (e) {

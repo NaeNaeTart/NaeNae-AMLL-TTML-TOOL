@@ -35,7 +35,9 @@ export async function saveFile(
 	}
 
 	const b =
-		typeof content === "string" ? new Blob([content], { type: "text/plain" }) : content;
+		typeof content === "string"
+			? new Blob([content], { type: "text/plain" })
+			: content;
 	await saveFileFromLib(b, suggestedName || "file");
 	return suggestedName;
 }

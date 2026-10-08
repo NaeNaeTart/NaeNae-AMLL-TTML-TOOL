@@ -99,10 +99,10 @@ export function parseLrc(lrcContent: string): LyricLine[] {
 				extraWord.startTime = currentTime;
 				extraWord.endTime = endTime;
 
-			extraLine.words = [extraWord];
-			extraLine.startTime = currentTime;
-			extraLine.endTime = endTime;
-			extraLine.isLineSynced = true;
+				extraLine.words = [extraWord];
+				extraLine.startTime = currentTime;
+				extraLine.endTime = endTime;
+				extraLine.isLineSynced = true;
 
 				validLyricLines.push(extraLine);
 			}

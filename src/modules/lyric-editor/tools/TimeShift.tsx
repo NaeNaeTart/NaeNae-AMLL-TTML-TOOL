@@ -1,30 +1,30 @@
 import {
+	AddRegular,
 	ArrowLeftRegular,
 	ArrowRightRegular,
 	SubtractRegular,
-	AddRegular,
 } from "@fluentui/react-icons";
 import {
+	Box,
 	Button,
 	Dialog,
 	Flex,
 	IconButton,
 	RadioGroup,
+	Slider,
 	Text,
 	TextField,
-	Slider,
-	Box,
 } from "@radix-ui/themes";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useSetImmerAtom } from "jotai-immer";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	timeShiftDialogAtom,
-	timeShiftPreviewOffsetAtom,
 	timeShiftPreviewActiveAtom,
-	timeShiftPreviewScopeAtom,
 	timeShiftPreviewCustomRangeAtom,
+	timeShiftPreviewOffsetAtom,
+	timeShiftPreviewScopeAtom,
 } from "$/states/dialogs.ts";
 import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
 

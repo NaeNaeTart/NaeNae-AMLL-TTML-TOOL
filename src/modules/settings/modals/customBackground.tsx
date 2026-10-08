@@ -238,7 +238,13 @@ export const SettingsCustomBackgroundSettings = ({
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
 						<Flex align="center" gap="2">
-							<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>
+							<Box
+								style={{
+									color: "var(--accent-9)",
+									display: "flex",
+									alignItems: "center",
+								}}
+							>
 								<Eye24Regular />
 							</Box>
 							<Text>
@@ -282,7 +288,13 @@ export const SettingsCustomBackgroundSettings = ({
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
 						<Flex align="center" gap="2">
-							<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>
+							<Box
+								style={{
+									color: "var(--accent-9)",
+									display: "flex",
+									alignItems: "center",
+								}}
+							>
 								<Layer24Regular />
 							</Box>
 							<Text>{t("settings.common.customBackgroundMask", "Mask")}</Text>
@@ -316,10 +328,18 @@ export const SettingsCustomBackgroundSettings = ({
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
 						<Flex align="center" gap="2">
-							<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>
+							<Box
+								style={{
+									color: "var(--accent-9)",
+									display: "flex",
+									alignItems: "center",
+								}}
+							>
 								<Blur24Regular />
 							</Box>
-							<Text>{t("settings.common.customBackgroundBlur", "Blur Radius")}</Text>
+							<Text>
+								{t("settings.common.customBackgroundBlur", "Blur Radius")}
+							</Text>
 						</Flex>
 						<Flex align="center" gap="2">
 							<Text wrap="nowrap" color="gray" size="1">
@@ -350,7 +370,13 @@ export const SettingsCustomBackgroundSettings = ({
 				<Flex direction="column" gap="2">
 					<Flex align="center" justify="between">
 						<Flex align="center" gap="2">
-							<Box style={{ color: "var(--accent-9)", display: "flex", alignItems: "center" }}>
+							<Box
+								style={{
+									color: "var(--accent-9)",
+									display: "flex",
+									alignItems: "center",
+								}}
+							>
 								<WeatherSunny24Regular />
 							</Box>
 							<Text>
@@ -400,10 +426,15 @@ export const SettingsCustomBackgroundCard = ({
 				<Box flexGrow="1">
 					<Flex align="center" justify="between" gap="4">
 						<Flex direction="column" gap="1">
-							<Text>{t("settings.common.customBackground", "Custom Background")}</Text>
+							<Text>
+								{t("settings.common.customBackground", "Custom Background")}
+							</Text>
 							<Text size="1" color="gray">
 								{customBackgroundImage
-									? t("settings.common.customBackgroundEnabled", "Background applied")
+									? t(
+											"settings.common.customBackgroundEnabled",
+											"Background applied",
+										)
 									: t(
 											"settings.common.customBackgroundDesc",
 											"Select an image to use as background.",

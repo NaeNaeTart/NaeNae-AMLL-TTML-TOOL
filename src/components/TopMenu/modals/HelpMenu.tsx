@@ -3,6 +3,7 @@ import { useSetAtom } from "jotai";
 import { Toolbar } from "radix-ui";
 import type { CSSProperties } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import { guideWelcomeOpenAtom } from "$/modules/onboarding/states";
 import {
 	changelogDialogAtom,
 	settingsDialogAtom,
@@ -10,7 +11,6 @@ import {
 	whatsNewDialogAtom,
 } from "$/states/dialogs.ts";
 import { useTopMenuActions } from "../useTopMenuActions";
-import { guideWelcomeOpenAtom } from "$/modules/onboarding/states";
 
 type HelpMenuProps = {
 	variant: "toolbar" | "submenu";

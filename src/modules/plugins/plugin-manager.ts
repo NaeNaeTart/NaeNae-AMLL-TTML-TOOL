@@ -1,5 +1,5 @@
 import { getAllPlugins } from "./plugin-store";
-import type { WASMPlugin, IntegratedPlugin, PluginMetadata } from "./types";
+import type { IntegratedPlugin, PluginMetadata, WASMPlugin } from "./types";
 
 export interface IPluginInstance {
 	metadata: PluginMetadata;
@@ -11,7 +11,7 @@ export interface IPluginInstance {
 class WASMPluginInstance implements IPluginInstance {
 	constructor(
 		public metadata: WASMPlugin,
-		private instance: WebAssembly.Instance
+		private instance: WebAssembly.Instance,
 	) {}
 
 	private get exports() {
@@ -44,7 +44,8 @@ class WASMPluginInstance implements IPluginInstance {
 	}
 
 	async runImporter(input: string): Promise<string> {
-		if (this.metadata.type === "exporter") throw new Error("Plugin is not an importer");
+		if (this.metadata.type === "exporter")
+			throw new Error("Plugin is not an importer");
 		const { ptr, len } = this.copyStringToWasm(input);
 		const resPtr = this.exports.run_importer(ptr, len);
 		const result = this.readStringFromWasm(resPtr);
@@ -53,7 +54,8 @@ class WASMPluginInstance implements IPluginInstance {
 	}
 
 	async runExporter(data: string): Promise<string> {
-		if (this.metadata.type === "importer") throw new Error("Plugin is not an exporter");
+		if (this.metadata.type === "importer")
+			throw new Error("Plugin is not an exporter");
 		const { ptr, len } = this.copyStringToWasm(data);
 		const resPtr = this.exports.run_exporter(ptr, len);
 		const result = this.readStringFromWasm(resPtr);
@@ -62,10 +64,14 @@ class WASMPluginInstance implements IPluginInstance {
 	}
 
 	async runTool(lines: any[]): Promise<any[]> {
-		if (this.metadata.type === "importer" || this.metadata.type === "exporter") {
+		if (
+			this.metadata.type === "importer" ||
+			this.metadata.type === "exporter"
+		) {
 			throw new Error("Plugin does not support tool operations");
 		}
-		if (!this.exports.run_tool) throw new Error("WASM plugin does not export run_tool");
+		if (!this.exports.run_tool)
+			throw new Error("WASM plugin does not export run_tool");
 
 		const { ptr, len } = this.copyStringToWasm(JSON.stringify(lines));
 		const resPtr = this.exports.run_tool(ptr, len);
@@ -79,12 +85,14 @@ class IntegratedPluginInstance implements IPluginInstance {
 	constructor(public metadata: IntegratedPlugin) {}
 
 	async runImporter(input: string): Promise<string> {
-		if (!this.metadata.runImporter) throw new Error("Plugin does not support import");
+		if (!this.metadata.runImporter)
+			throw new Error("Plugin does not support import");
 		return this.metadata.runImporter(input);
 	}
 
 	async runExporter(data: string): Promise<string> {
-		if (!this.metadata.runExporter) throw new Error("Plugin does not support export");
+		if (!this.metadata.runExporter)
+			throw new Error("Plugin does not support export");
 		return this.metadata.runExporter(data);
 	}
 
@@ -118,12 +126,17 @@ class PluginManager {
 			const { instance } = await WebAssembly.instantiate(arrayBuffer, {
 				env: {
 					log: (ptr: number) => {
-						const memory = new Uint8Array((instance.exports.memory as WebAssembly.Memory).buffer);
+						const memory = new Uint8Array(
+							(instance.exports.memory as WebAssembly.Memory).buffer,
+						);
 						let end = ptr;
 						while (memory[end] !== 0) end++;
-						console.log(`[Plugin: ${plugin.name}]`, new TextDecoder().decode(memory.slice(ptr, end)));
-					}
-				}
+						console.log(
+							`[Plugin: ${plugin.name}]`,
+							new TextDecoder().decode(memory.slice(ptr, end)),
+						);
+					},
+				},
 			});
 
 			this.instances.set(plugin.id, new WASMPluginInstance(plugin, instance));
@@ -133,11 +146,15 @@ class PluginManager {
 	}
 
 	getImporters() {
-		return Array.from(this.instances.values()).filter(i => i.metadata.type !== "exporter" && i.metadata.runImporter);
+		return Array.from(this.instances.values()).filter(
+			(i) => i.metadata.type !== "exporter" && i.metadata.runImporter,
+		);
 	}
 
 	getExporters() {
-		return Array.from(this.instances.values()).filter(i => i.metadata.type !== "importer" && i.metadata.runExporter);
+		return Array.from(this.instances.values()).filter(
+			(i) => i.metadata.type !== "importer" && i.metadata.runExporter,
+		);
 	}
 
 	async runImporter(pluginId: string, input: string) {
@@ -153,12 +170,16 @@ class PluginManager {
 	}
 
 	getTools() {
-		return Array.from(this.instances.values()).filter(i => (i.metadata.type === "tool" || i.metadata.type === "both") && i.runTool);
+		return Array.from(this.instances.values()).filter(
+			(i) =>
+				(i.metadata.type === "tool" || i.metadata.type === "both") && i.runTool,
+		);
 	}
 
 	async runTool(pluginId: string, lines: any[]) {
 		const instance = this.instances.get(pluginId);
-		if (!instance || !instance.runTool) throw new Error("Plugin not found or does not support tools");
+		if (!instance || !instance.runTool)
+			throw new Error("Plugin not found or does not support tools");
 		return instance.runTool(lines);
 	}
 }

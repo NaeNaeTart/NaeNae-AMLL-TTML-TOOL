@@ -190,7 +190,10 @@ export const HistoryRestoreDialog = () => {
 						{t("historyRestoreDialog.projects", "最近项目")}
 					</Dialog.Title>
 					<Dialog.Description>
-						{t("historyRestoreDialog.confirm.description", "恢复或管理项目历史快照")}
+						{t(
+							"historyRestoreDialog.confirm.description",
+							"恢复或管理项目历史快照",
+						)}
 					</Dialog.Description>
 				</VisuallyHidden>
 				<Flex style={{ height: 700 }}>

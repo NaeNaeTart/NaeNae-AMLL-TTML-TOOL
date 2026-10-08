@@ -58,9 +58,14 @@ export const AutoSegmentDialog = () => {
 	return (
 		<Dialog.Root open={open} onOpenChange={setOpen}>
 			<Dialog.Content maxWidth="500px">
-				<Dialog.Title>{t("autoSegmentDialog.title", "Auto Segment")}</Dialog.Title>
+				<Dialog.Title>
+					{t("autoSegmentDialog.title", "Auto Segment")}
+				</Dialog.Title>
 				<Dialog.Description>
-					{t("autoSegmentDialog.description", "Choose a syllabification engine for all lyric lines.")}
+					{t(
+						"autoSegmentDialog.description",
+						"Choose a syllabification engine for all lyric lines.",
+					)}
 				</Dialog.Description>
 				<Flex direction="column" gap="3" mt="4">
 					<Select.Root

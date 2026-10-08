@@ -34,47 +34,50 @@ export const normalizeLyricText = (
 	lyrics: TTMLLyric,
 	options: LyricTextNormalizationOptions,
 ): TTMLLyric => {
-	if (!options.normalizeApostrophes && !options.normalizeCyrillicEs) return lyrics;
+	if (!options.normalizeApostrophes && !options.normalizeCyrillicEs)
+		return lyrics;
 
 	const normalize = (text: string) => {
 		let normalized = text;
-		if (options.normalizeApostrophes) normalized = normalizeApostrophes(normalized);
-		if (options.normalizeCyrillicEs) normalized = normalizeCyrillicEs(normalized);
+		if (options.normalizeApostrophes)
+			normalized = normalizeApostrophes(normalized);
+		if (options.normalizeCyrillicEs)
+			normalized = normalizeCyrillicEs(normalized);
 		return normalized;
 	};
 
 	return {
-	...lyrics,
-	metadata: lyrics.metadata.map((entry) => ({
-		...entry,
-		value: entry.value.map(normalize),
-	})),
-	marks: lyrics.marks?.map((mark) => ({
-		...mark,
-		label: normalizeOptionalText(mark.label, normalize),
-		description: normalizeOptionalText(mark.description, normalize),
-	})),
-	sections: lyrics.sections?.map((section) => ({
-		...section,
-		label: normalize(section.label),
-		notes: normalizeOptionalText(section.notes, normalize),
-		vocalist: normalizeOptionalText(section.vocalist, normalize),
-	})),
-	lyricLines: lyrics.lyricLines.map((line) => ({
-		...line,
-		translatedLyric: normalize(line.translatedLyric ?? ""),
-		romanLyric: normalize(line.romanLyric ?? ""),
-		geniusHeader: normalizeOptionalText(line.geniusHeader, normalize),
-		words: line.words.map((word) => ({
-			...word,
-			word: normalize(word.word),
-			romanWord: normalize(word.romanWord ?? ""),
-			ruby: word.ruby?.map((rubyWord) => ({
-				...rubyWord,
-				word: normalize(rubyWord.word),
+		...lyrics,
+		metadata: lyrics.metadata.map((entry) => ({
+			...entry,
+			value: entry.value.map(normalize),
+		})),
+		marks: lyrics.marks?.map((mark) => ({
+			...mark,
+			label: normalizeOptionalText(mark.label, normalize),
+			description: normalizeOptionalText(mark.description, normalize),
+		})),
+		sections: lyrics.sections?.map((section) => ({
+			...section,
+			label: normalize(section.label),
+			notes: normalizeOptionalText(section.notes, normalize),
+			vocalist: normalizeOptionalText(section.vocalist, normalize),
+		})),
+		lyricLines: lyrics.lyricLines.map((line) => ({
+			...line,
+			translatedLyric: normalize(line.translatedLyric ?? ""),
+			romanLyric: normalize(line.romanLyric ?? ""),
+			geniusHeader: normalizeOptionalText(line.geniusHeader, normalize),
+			words: line.words.map((word) => ({
+				...word,
+				word: normalize(word.word),
+				romanWord: normalize(word.romanWord ?? ""),
+				ruby: word.ruby?.map((rubyWord) => ({
+					...rubyWord,
+					word: normalize(rubyWord.word),
+				})),
 			})),
 		})),
-	})),
 	};
 };
 

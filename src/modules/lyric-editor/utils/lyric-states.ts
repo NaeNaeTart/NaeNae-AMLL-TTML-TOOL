@@ -70,7 +70,6 @@ export const getSynchronizableUnits = (line: LyricLine) =>
 		return text.trim().length > 0;
 	});
 
-
 export const getFirstSynchronizableUnit = (line: LyricLine) =>
 	getSynchronizableUnits(line)[0];
 

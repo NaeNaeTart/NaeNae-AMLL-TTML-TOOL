@@ -57,10 +57,7 @@ function getContrastColor(l: number): string {
 	return l > 65 ? "black" : "white";
 }
 
-export function generateRadixScale(
-	baseHex: string,
-	isDark?: boolean,
-) {
+export function generateRadixScale(baseHex: string, isDark?: boolean) {
 	const { h, s, l: baseL } = hexToHsl(baseHex);
 	const effectiveIsDark = isDark ?? baseL < 50;
 
@@ -98,17 +95,17 @@ export function generateRadixScale(
 	// Custom alpha opacities to match Radix-like behavior
 	const alphaOpacities = [
 		0.05, // 1
-		0.1,  // 2
+		0.1, // 2
 		0.15, // 3: Soft background
-		0.2,  // 4: Soft hover
-		0.3,  // 5: Soft active
+		0.2, // 4: Soft hover
+		0.3, // 5: Soft active
 		0.45, // 6: Border
-		0.6,  // 7: Higher contrast border
-		0.8,  // 8: Solid border
-		1.0,  // 9: Solid
-		1.0,  // 10: Solid hover
-		1.0,  // 11: Low contrast text
-		1.0,  // 12: High contrast text
+		0.6, // 7: Higher contrast border
+		0.8, // 8: Solid border
+		1.0, // 9: Solid
+		1.0, // 10: Solid hover
+		1.0, // 11: Low contrast text
+		1.0, // 12: High contrast text
 	];
 
 	const variables: Record<string, string> = {
@@ -130,7 +127,11 @@ export function generateRadixScale(
 	const greyH = h;
 	const greyS = Math.max(5, Math.min(s, 50)); // Thematic saturation
 
-	variables["--gray-surface"] = hslToCss(greyH, greyS, effectiveIsDark ? 10 : 99);
+	variables["--gray-surface"] = hslToCss(
+		greyH,
+		greyS,
+		effectiveIsDark ? 10 : 99,
+	);
 
 	for (let i = 0; i < 12; i++) {
 		const step = i + 1;

@@ -272,7 +272,8 @@ export const RubyEditor = ({
 							<Text size="4" align="center">
 								如果仍要在不支持的解析器中使用，可能会出现缺少文字等现象
 							</Text>
-							<Dialog.Close><Button>我已了解</Button>
+							<Dialog.Close>
+								<Button>我已了解</Button>
 							</Dialog.Close>
 						</Flex>
 					</Flex>
@@ -280,7 +281,9 @@ export const RubyEditor = ({
 			</Dialog.Root>
 			<span className={classNames(styles.rubyEditor, className)}>
 				{showIcon && (
-					<IconButton size="1" variant="soft" onClick={applyRubyToAllSameWords}><TranslateRegular /></IconButton>
+					<IconButton size="1" variant="soft" onClick={applyRubyToAllSameWords}>
+						<TranslateRegular />
+					</IconButton>
 				)}
 				{rubyWords.map((rubyWord, index) => (
 					<AutoSizeTextField
@@ -312,7 +315,9 @@ export const RubyEditor = ({
 						}}
 					/>
 				))}
-				<IconButton size="1" variant="soft" onClick={addRubyWord}><Add20Regular /></IconButton>
+				<IconButton size="1" variant="soft" onClick={addRubyWord}>
+					<Add20Regular />
+				</IconButton>
 			</span>
 		</>
 	);

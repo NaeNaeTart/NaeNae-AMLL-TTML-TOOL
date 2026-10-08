@@ -75,7 +75,11 @@ export const resolveAnchorLineIndex = ({
 
 	let targetLineIndex = -1;
 	if (previousMode === ToolMode.Preview && currentTime > 0) {
-		targetLineIndex = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
+		targetLineIndex = findCurrentLineIndex(
+			lines,
+			currentTime,
+			syncFocusMainLine,
+		);
 		if (targetLineIndex === -1) {
 			const upcoming = lines.findIndex((l) => l.startTime >= currentTime);
 			if (upcoming !== -1) targetLineIndex = upcoming;
@@ -85,7 +89,11 @@ export const resolveAnchorLineIndex = ({
 			targetLineIndex = lines.findIndex((l) => selectedLineIds.has(l.id));
 		}
 		if (targetLineIndex === -1 && currentTime > 0) {
-			targetLineIndex = findCurrentLineIndex(lines, currentTime, syncFocusMainLine);
+			targetLineIndex = findCurrentLineIndex(
+				lines,
+				currentTime,
+				syncFocusMainLine,
+			);
 			if (targetLineIndex === -1) {
 				const upcoming = lines.findIndex((l) => l.startTime >= currentTime);
 				if (upcoming !== -1) targetLineIndex = upcoming;
@@ -99,4 +107,3 @@ export const resolveAnchorLineIndex = ({
 
 	return targetLineIndex;
 };
-

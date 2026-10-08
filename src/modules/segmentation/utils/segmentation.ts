@@ -13,8 +13,8 @@ import {
 } from "./charUtils";
 import { applyLearnedRule } from "./learned-rules";
 import {
-	getSyllabificationEngine,
 	getHyphenationLanguage,
+	getSyllabificationEngine,
 	splitJapaneseText,
 } from "./syllabification-engines";
 

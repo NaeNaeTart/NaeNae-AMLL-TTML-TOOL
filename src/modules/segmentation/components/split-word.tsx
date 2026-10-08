@@ -31,16 +31,16 @@ import type {
 	SegmentationConfig,
 } from "$/modules/segmentation/types";
 import { loadHyphenator } from "$/modules/segmentation/utils/hyphen-loader.ts";
-import { getHyphenationLanguage } from "$/modules/segmentation/utils/syllabification-engines";
-import {
-	recalculateWordTime,
-	segmentWord,
-} from "$/modules/segmentation/utils/segmentation.ts";
 import {
 	applyLearnedRule,
 	createLearnedRule,
 	getLearnedWordParts,
 } from "$/modules/segmentation/utils/learned-rules";
+import {
+	recalculateWordTime,
+	segmentWord,
+} from "$/modules/segmentation/utils/segmentation.ts";
+import { getHyphenationLanguage } from "$/modules/segmentation/utils/syllabification-engines";
 import { splitWordDialogAtom } from "$/states/dialogs.ts";
 import { editingWordStateAtom, lyricLinesAtom } from "$/states/main";
 import type { LyricWord } from "$/types/ttml";

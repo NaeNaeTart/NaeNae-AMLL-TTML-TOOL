@@ -60,30 +60,43 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Linked Projects:</strong> When the app offers to create a project, choose Keep files in place to leave your TTML and audio where they are. The project only stores their locations, and reopening works from Projects. Nothing is written on linking or autosave: only an explicit save writes the TTML back to the original file, after keeping a one-time backup of the original in the project's data folder.
+									<strong>Linked Projects:</strong> When the app offers to
+									create a project, choose Keep files in place to leave your
+									TTML and audio where they are. The project only stores their
+									locations, and reopening works from Projects. Nothing is
+									written on linking or autosave: only an explicit save writes
+									the TTML back to the original file, after keeping a one-time
+									backup of the original in the project's data folder.
 								</Text>
 								<Text size="2">
-									<strong>Projects Window:</strong> Added a Linked tab with an Open projects folder button, a search field for Recent, Linked, and Workspace projects, and labels that show whether a project is a folder or linked files.
+									<strong>Projects Window:</strong> Added a Linked tab with an
+									Open projects folder button, a search field for Recent,
+									Linked, and Workspace projects, and labels that show whether a
+									project is a folder or linked files.
 								</Text>
 								<Text size="2">
-									<strong>Settings Search:</strong> Preferences has a search field. Typing a setting name filters the categories, opens the best match, and highlights the closest setting.
+									<strong>Settings Search:</strong> Preferences has a search
+									field. Typing a setting name filters the categories, opens the
+									best match, and highlights the closest setting.
 								</Text>
 								<Text size="2">
 									<strong>Backup Contents Preview:</strong> Added an expandable
 									preview dropdown before exporting settings and data backups,
-									displaying category counts, item lists, and estimated total file
-									size.
+									displaying category counts, item lists, and estimated total
+									file size.
 								</Text>
 								<Text size="2">
-									<strong>Backup Assets:</strong> Appearance presets and the custom font
-									are now exported and restored with the Assets category.
+									<strong>Backup Assets:</strong> Appearance presets and the
+									custom font are now exported and restored with the Assets
+									category.
 								</Text>
 								<Text size="2">
 									<strong>Preferences UI Polish &amp; Icons:</strong> Clarified
 									preset actions with dedicated apply/delete icons and tooltips,
-									harmonized semantic icons across General, Editor, Files, Audio,
-									Keybindings, Appearance, Developer, and Custom Background tabs,
-									and improved contrast for advanced configuration resets.
+									harmonized semantic icons across General, Editor, Files,
+									Audio, Keybindings, Appearance, Developer, and Custom
+									Background tabs, and improved contrast for advanced
+									configuration resets.
 								</Text>
 								<Text size="2">
 									<strong>Spectrogram Divider Styling:</strong> Decluttered
@@ -94,14 +107,15 @@ export function ChangelogDialog() {
 								<Text size="2">
 									<strong>Backup Safety:</strong> API keys (Genius and AI
 									Sidebar) now have their own opt-in "API keys" category, off by
-									default, and are never included with Settings. The last workspace
-									folder and recent project paths are not exported because they only
-									make sense on the original device.
+									default, and are never included with Settings. The last
+									workspace folder and recent project paths are not exported
+									because they only make sense on the original device.
 								</Text>
 								<Text size="2">
-									<strong>Timing Overview Header:</strong> Kept the timing overview
-									header compact and readable when resizing to narrow side
-									panels, and remember whether the side preview is open between sessions.
+									<strong>Timing Overview Header:</strong> Kept the timing
+									overview header compact and readable when resizing to narrow
+									side panels, and remember whether the side preview is open
+									between sessions.
 								</Text>
 								<Text size="2">
 									<strong>Domain Move Complete:</strong> The old tool addresses
@@ -109,8 +123,8 @@ export function ChangelogDialog() {
 									one-time data transfer from them has been removed.
 								</Text>
 								<Text size="2">
-									<strong>Backup Tab Translation:</strong> The Backup settings tab is
-									now fully translated to Spanish.
+									<strong>Backup Tab Translation:</strong> The Backup settings
+									tab is now fully translated to Spanish.
 								</Text>
 							</Flex>
 						</Box>
@@ -120,7 +134,13 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Duplicate Desktop Installs:</strong> v0.10.0 and v0.10.1 were installed as "NaeNae AMLL TTML Tool Fork" next to the existing "AMLL TTML Tool" instead of replacing it. The installed app is named "AMLL TTML Tool" again, and the Windows installers, .deb, and .rpm packages now remove the extra copy. Your settings and projects are kept, and Winget recognizes the app again.
+									<strong>Duplicate Desktop Installs:</strong> v0.10.0 and
+									v0.10.1 were installed as "NaeNae AMLL TTML Tool Fork" next to
+									the existing "AMLL TTML Tool" instead of replacing it. The
+									installed app is named "AMLL TTML Tool" again, and the Windows
+									installers, .deb, and .rpm packages now remove the extra copy.
+									Your settings and projects are kept, and Winget recognizes the
+									app again.
 								</Text>
 							</Flex>
 						</Box>
@@ -130,10 +150,16 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>App Icon Shape:</strong> The purple app icon is a rounded tile with transparent padding again instead of a sharp full-bleed square, so it matches other apps on the taskbar, dock, and in browser tabs.
+									<strong>App Icon Shape:</strong> The purple app icon is a
+									rounded tile with transparent padding again instead of a sharp
+									full-bleed square, so it matches other apps on the taskbar,
+									dock, and in browser tabs.
 								</Text>
 								<Text size="2">
-									<strong>macOS Downloads:</strong> Releases now ship separate Apple Silicon (aarch64) and Intel (x64) DMGs only. The universal DMG is no longer built, which makes releases noticeably faster to publish.
+									<strong>macOS Downloads:</strong> Releases now ship separate
+									Apple Silicon (aarch64) and Intel (x64) DMGs only. The
+									universal DMG is no longer built, which makes releases
+									noticeably faster to publish.
 								</Text>
 							</Flex>
 						</Box>
@@ -143,28 +169,56 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Folder Projects (Opt-In):</strong> Open, save, and organize lyrics as project folders from the File menu (Projects), with a project.json manifest, recent projects, and workspace scanning. Enable it under Files &amp; Storage settings; it stays off by default and the app behaves exactly as before while disabled.
+									<strong>Folder Projects (Opt-In):</strong> Open, save, and
+									organize lyrics as project folders from the File menu
+									(Projects), with a project.json manifest, recent projects, and
+									workspace scanning. Enable it under Files &amp; Storage
+									settings; it stays off by default and the app behaves exactly
+									as before while disabled.
 								</Text>
 								<Text size="2">
-									<strong>Create Project Prompt:</strong> Loading a lyric file together with audio now offers to create a project. Choosing Create asks for a location and builds a folder named after the song, or Untitled Song-1, Untitled Song-2, and so on when no name is available.
+									<strong>Create Project Prompt:</strong> Loading a lyric file
+									together with audio now offers to create a project. Choosing
+									Create asks for a location and builds a folder named after the
+									song, or Untitled Song-1, Untitled Song-2, and so on when no
+									name is available.
 								</Text>
 								<Text size="2">
-									<strong>Automatic Folder Naming:</strong> The project folder follows the song metadata when you save. Folders you rename yourself are never touched, and existing folders are never renamed unless the app created them.
+									<strong>Automatic Folder Naming:</strong> The project folder
+									follows the song metadata when you save. Folders you rename
+									yourself are never touched, and existing folders are never
+									renamed unless the app created them.
 								</Text>
 								<Text size="2">
-									<strong>Project-Wide Saving:</strong> Ctrl+S inside a project saves the project instead of exporting standalone TTML, without prompting when nothing changed, and unsaved changes still trigger a warning before opening another file or project.
+									<strong>Project-Wide Saving:</strong> Ctrl+S inside a project
+									saves the project instead of exporting standalone TTML,
+									without prompting when nothing changed, and unsaved changes
+									still trigger a warning before opening another file or
+									project.
 								</Text>
 								<Text size="2">
-									<strong>Resilient Project Manifest:</strong> project.json now carries a project identifier and a song fingerprint, so the lyric and audio files are found again after being renamed outside the app. Older manifests keep working.
+									<strong>Resilient Project Manifest:</strong> project.json now
+									carries a project identifier and a song fingerprint, so the
+									lyric and audio files are found again after being renamed
+									outside the app. Older manifests keep working.
 								</Text>
 								<Text size="2">
-									<strong>Safe File Access:</strong> All project paths are validated against traversal and reserved names, file sizes are capped, and folder access is granted only through folders you pick in the native dialog.
+									<strong>Safe File Access:</strong> All project paths are
+									validated against traversal and reserved names, file sizes are
+									capped, and folder access is granted only through folders you
+									pick in the native dialog.
 								</Text>
 								<Text size="2">
-									<strong>Saved-State Tracking:</strong> Saving now clears the unsaved-changes warning while keeping your undo history, edits made during a save stay marked as unsaved, and undoing back to the saved version reads as saved again.
+									<strong>Saved-State Tracking:</strong> Saving now clears the
+									unsaved-changes warning while keeping your undo history, edits
+									made during a save stay marked as unsaved, and undoing back to
+									the saved version reads as saved again.
 								</Text>
 								<Text size="2">
-									<strong>Lyric File Import:</strong> Fixed file dialog triggers for LRC, ESLRC, QRC, YRC, and Lyricify Syllable formats so clicking import options in the File menu immediately opens the file picker.
+									<strong>Lyric File Import:</strong> Fixed file dialog triggers
+									for LRC, ESLRC, QRC, YRC, and Lyricify Syllable formats so
+									clicking import options in the File menu immediately opens the
+									file picker.
 								</Text>
 							</Flex>
 						</Box>
@@ -174,37 +228,65 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Link Embeds:</strong> Added short link embeds for Discord, Google, social sharing, and search previews.
+									<strong>Link Embeds:</strong> Added short link embeds for
+									Discord, Google, social sharing, and search previews.
 								</Text>
 								<Text size="2">
-									<strong>New App Logo &amp; Naming:</strong> Replaced the red icon
-									across the website, PWA, desktop, and mobile assets with the new
-									multicolor logo, using platform-specific padding and masks. The
-									app now consistently uses NaeNae&apos;s AMLL TTML Tool Fork, with
-									the full Apple Music-like Lyrics name where space permits.
+									<strong>New App Logo &amp; Naming:</strong> Replaced the red
+									icon across the website, PWA, desktop, and mobile assets with
+									the new multicolor logo, using platform-specific padding and
+									masks. The app now consistently uses NaeNae&apos;s AMLL TTML
+									Tool Fork, with the full Apple Music-like Lyrics name where
+									space permits.
 								</Text>
 								<Text size="2">
-									<strong>Themed Glassmorphic Toast Notifications:</strong> Toast notifications now feature glassmorphic translucent styling with background blur, follow the app's global radius, and synchronize icon and progress bar colors with the active theme accent.
+									<strong>Themed Glassmorphic Toast Notifications:</strong>{" "}
+									Toast notifications now feature glassmorphic translucent
+									styling with background blur, follow the app's global radius,
+									and synchronize icon and progress bar colors with the active
+									theme accent.
 								</Text>
 								<Text size="2">
-									<strong>Updated Beginner Guide Links:</strong> In-app onboarding and
-									Genius token help now open the current Spicy Lyrics guides instead
-									of the retired documentation site.
+									<strong>Updated Beginner Guide Links:</strong> In-app
+									onboarding and Genius token help now open the current Spicy
+									Lyrics guides instead of the retired documentation site.
 								</Text>
 								<Text size="2">
-									<strong>Timing Overview Syllable Seeking:</strong> Clicking any syllable or word in the Technical Timing Overview now seeks directly to that word's timestamp and displays its active frame, while table auto-scroll smoothly follows playback without getting stuck.
+									<strong>Timing Overview Syllable Seeking:</strong> Clicking
+									any syllable or word in the Technical Timing Overview now
+									seeks directly to that word's timestamp and displays its
+									active frame, while table auto-scroll smoothly follows
+									playback without getting stuck.
 								</Text>
 								<Text size="2">
-									<strong>Cross-Tab Position Sync:</strong> Switching between Edit, Time, and Preview tabs maintains playback position and keeps the active line centered, with anchor restoration scoped to tab mounting to prevent view jitter during word and line synchronization.
+									<strong>Cross-Tab Position Sync:</strong> Switching between
+									Edit, Time, and Preview tabs maintains playback position and
+									keeps the active line centered, with anchor restoration scoped
+									to tab mounting to prevent view jitter during word and line
+									synchronization.
 								</Text>
 								<Text size="2">
-									<strong>Wrapped Line Borders &amp; Highlight Persistence:</strong> Wrapped lyric rows without timestamps now display their left border indicator, active syllable highlights remain synchronized across selection and pause states, and auto-scroll easing uses a smooth sine curve with proportional duration.
+									<strong>
+										Wrapped Line Borders &amp; Highlight Persistence:
+									</strong>{" "}
+									Wrapped lyric rows without timestamps now display their left
+									border indicator, active syllable highlights remain
+									synchronized across selection and pause states, and
+									auto-scroll easing uses a smooth sine curve with proportional
+									duration.
 								</Text>
 								<Text size="2">
-									<strong>Timing Overview Order Mode:</strong> Added a toggle in the Technical Timing Overview between chronological order and natural textual document order, keeping unsynchronized lines in their original lyrical sequence.
+									<strong>Timing Overview Order Mode:</strong> Added a toggle in
+									the Technical Timing Overview between chronological order and
+									natural textual document order, keeping unsynchronized lines
+									in their original lyrical sequence.
 								</Text>
 								<Text size="2">
-									<strong>Test Runner &amp; Spectrogram Optimization:</strong> Configured standard test runner scripts for Vitest and full-suite runs, eliminated redundant spectrogram tile re-renders during resizing, and removed unused dependencies across spectrogram components.
+									<strong>Test Runner &amp; Spectrogram Optimization:</strong>{" "}
+									Configured standard test runner scripts for Vitest and
+									full-suite runs, eliminated redundant spectrogram tile
+									re-renders during resizing, and removed unused dependencies
+									across spectrogram components.
 								</Text>
 							</Flex>
 						</Box>
@@ -218,39 +300,41 @@ export function ChangelogDialog() {
 									the Time tab now wrap onto multiple lines instead of
 									overflowing horizontally. Toggle "Wrap Words in Time Mode"
 									from the Display Options ribbon or the Editor &amp; Sync
-									settings. Wrapping is on by default and animates smoothly
-									with a fade-in reflow.
+									settings. Wrapping is on by default and animates smoothly with
+									a fade-in reflow.
 								</Text>
 								<Text size="2">
 									<strong>Playback Auto-Scroll:</strong> While playing back in
-									the Time tab the editor automatically scrolls to keep the active
-									lyric line centered. Auto-scroll can be toggled from Editor &amp;
-									Sync settings and defaults to on.
+									the Time tab the editor automatically scrolls to keep the
+									active lyric line centered. Auto-scroll can be toggled from
+									Editor &amp; Sync settings and defaults to on.
 								</Text>
 								<Text size="2">
 									<strong>Main Vocal Focus Priority:</strong> When auto-scroll
 									is active the editor focuses on the main (v1) vocal line and
 									disregards background vocals unless no main vocal is ongoing.
-									This can be toggled via "Focus Main Line During Playback", which
-									greys out when auto-scroll is disabled.
+									This can be toggled via "Focus Main Line During Playback",
+									which greys out when auto-scroll is disabled.
 								</Text>
 								<Text size="2">
-									<strong>User-Scroll Pause &amp; Resume:</strong> Scrolling with
-									the mouse wheel suspends auto-scroll for one second before
-									smoothly resuming to the active line. Auto-scroll and resume timers
-									remain inactive while playback is paused.
+									<strong>User-Scroll Pause &amp; Resume:</strong> Scrolling
+									with the mouse wheel suspends auto-scroll for one second
+									before smoothly resuming to the active line. Auto-scroll and
+									resume timers remain inactive while playback is paused.
 								</Text>
 								<Text size="2">
 									<strong>Sync to Spectrogram Cursor:</strong> Added an opt-in
-									setting to record timing trigger keys (F, G, H) at the spectrogram
-									hover cursor position instead of the current audio playback time.
+									setting to record timing trigger keys (F, G, H) at the
+									spectrogram hover cursor position instead of the current audio
+									playback time.
 								</Text>
 								<Text size="2">
-									<strong>Dynamic Spectrogram Height &amp; Dividers:</strong> The
-									spectrogram height slider now dynamically measures titlebar and playback
-									controls to prevent pushing UI controls offscreen. Word divider
-									dragging no longer imposes artificial zoom-dependent minimum duration
-									limits, and FFT resolution uses a clean inline selector.
+									<strong>Dynamic Spectrogram Height &amp; Dividers:</strong>{" "}
+									The spectrogram height slider now dynamically measures
+									titlebar and playback controls to prevent pushing UI controls
+									offscreen. Word divider dragging no longer imposes artificial
+									zoom-dependent minimum duration limits, and FFT resolution
+									uses a clean inline selector.
 								</Text>
 							</Flex>
 						</Box>
@@ -260,25 +344,27 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Focused Default Dark Theme:</strong> Reworked the modern
-									dark theme with clearer charcoal layers, quieter labels, tighter
-									lyric cards, and crimson reserved for active states and primary
-									actions. The legacy theme remains unchanged.
+									<strong>Focused Default Dark Theme:</strong> Reworked the
+									modern dark theme with clearer charcoal layers, quieter
+									labels, tighter lyric cards, and crimson reserved for active
+									states and primary actions. The legacy theme remains
+									unchanged.
 								</Text>
 								<Text size="2">
-									<strong>Adjustable Interface Scale:</strong> Resize the whole app
-									from Appearance settings or with Ctrl/Cmd +, -, and 0 shortcuts,
-									with the chosen scale remembered across sessions.
+									<strong>Adjustable Interface Scale:</strong> Resize the whole
+									app from Appearance settings or with Ctrl/Cmd +, -, and 0
+									shortcuts, with the chosen scale remembered across sessions.
 								</Text>
 								<Text size="2">
 									<strong>Remembered Background Vocal Export:</strong> Fixed
-									exports sometimes ignoring the saved consecutive and standalone
-									background-vocal setting until it was toggled again.
+									exports sometimes ignoring the saved consecutive and
+									standalone background-vocal setting until it was toggled
+									again.
 								</Text>
 								<Text size="2">
-									<strong>Stable Mode Switching:</strong> Switching between Edit and
-									Time mode now keeps the same lyric line in view without centering
-									lines selected while editing.
+									<strong>Stable Mode Switching:</strong> Switching between Edit
+									and Time mode now keeps the same lyric line in view without
+									centering lines selected while editing.
 								</Text>
 							</Flex>
 						</Box>
@@ -288,21 +374,21 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Clearer Beginner Guide:</strong> Added a preparation step
-									that pairs the in-app walkthrough with the full TTML guide,
-									provides compact lyric-source cards, and fixes guide navigation
-									and documentation links.
+									<strong>Clearer Beginner Guide:</strong> Added a preparation
+									step that pairs the in-app walkthrough with the full TTML
+									guide, provides compact lyric-source cards, and fixes guide
+									navigation and documentation links.
 								</Text>
 								<Text size="2">
-									<strong>Flexible Background Vocal Export:</strong> Added an optional
-									Spicy Lyrics-compatible export mode for consecutive and standalone
-									background-vocal lines, with reliable re-importing and empty editor
-									lines ignored during export.
+									<strong>Flexible Background Vocal Export:</strong> Added an
+									optional Spicy Lyrics-compatible export mode for consecutive
+									and standalone background-vocal lines, with reliable
+									re-importing and empty editor lines ignored during export.
 								</Text>
 								<Text size="2">
-									<strong>Remembered Lyric Import Options:</strong> Process Lyrics and
-									Genius songwriter and header options now persist across import
-									sources and app sessions.
+									<strong>Remembered Lyric Import Options:</strong> Process
+									Lyrics and Genius songwriter and header options now persist
+									across import sources and app sessions.
 								</Text>
 							</Flex>
 						</Box>
@@ -330,8 +416,8 @@ export function ChangelogDialog() {
 							<Flex direction="column" gap="3">
 								<Text size="2">
 									<strong>Organized Settings:</strong> Replaced the crowded tab
-									strip with sidebar navigation, grouped editor, file, audio, and
-									appearance controls by purpose, consolidated AI setup, and
+									strip with sidebar navigation, grouped editor, file, audio,
+									and appearance controls by purpose, consolidated AI setup, and
 									collapsed advanced configuration until it is needed.
 								</Text>
 								<Text size="2">
@@ -342,18 +428,19 @@ export function ChangelogDialog() {
 									configurable period of inactivity.
 								</Text>
 								<Text size="2">
-									<strong>Quick Combine Words:</strong> Shift-click Combine Words
-									to skip the confirmation dialog and immediately use the
+									<strong>Quick Combine Words:</strong> Shift-click Combine
+									Words to skip the confirmation dialog and immediately use the
 									last-used combination options.
 								</Text>
 								<Text size="2">
-									<strong>Reliable Rapid Undo:</strong> Undo and redo now wait for
-									the editor to paint between full-project history updates,
+									<strong>Reliable Rapid Undo:</strong> Undo and redo now wait
+									for the editor to paint between full-project history updates,
 									preventing repeated shortcuts from freezing the app window.
 								</Text>
 								<Text size="2">
-									<strong>Discord Status Badge:</strong> Play and pause badges now use
-									valid image assets so the selected status icon appears in Discord.
+									<strong>Discord Status Badge:</strong> Play and pause badges
+									now use valid image assets so the selected status icon appears
+									in Discord.
 								</Text>
 							</Flex>
 						</Box>
@@ -381,15 +468,16 @@ export function ChangelogDialog() {
 									systems.
 								</Text>
 								<Text size="2">
-									<strong>Optional Time Mode Double-Click Editing:</strong> Added
-									an Assistant setting to disable inline word and romanization
-									editing on double-click while keeping the Split Word shortcut.
+									<strong>Optional Time Mode Double-Click Editing:</strong>{" "}
+									Added an Assistant setting to disable inline word and
+									romanization editing on double-click while keeping the Split
+									Word shortcut.
 								</Text>
 								<Text size="2">
-									<strong>Official Domain Migration:</strong> Old web domains now
-									offer a private browser-to-browser transfer for settings,
-									projects, history, backgrounds, keybindings, and plugins before
-									moving to tool.community.spicylyrics.org.
+									<strong>Official Domain Migration:</strong> Old web domains
+									now offer a private browser-to-browser transfer for settings,
+									projects, history, backgrounds, keybindings, and plugins
+									before moving to tool.community.spicylyrics.org.
 								</Text>
 							</Flex>
 						</Box>
@@ -399,7 +487,9 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Classic Dark Theme:</strong> Added an Advanced Customization toggle for restoring the lighter dark palette used before the Intonated Black redesign.
+									<strong>Classic Dark Theme:</strong> Added an Advanced
+									Customization toggle for restoring the lighter dark palette
+									used before the Intonated Black redesign.
 								</Text>
 							</Flex>
 						</Box>
@@ -426,13 +516,22 @@ export function ChangelogDialog() {
 							</Heading>
 							<Flex direction="column" gap="3">
 								<Text size="2">
-									<strong>Intonated Black Theme:</strong> Revamped the default dark theme with a premium, deep-black aesthetic, eliminating washed-out gray hues and introducing elegant translucent panel overlays.
+									<strong>Intonated Black Theme:</strong> Revamped the default
+									dark theme with a premium, deep-black aesthetic, eliminating
+									washed-out gray hues and introducing elegant translucent panel
+									overlays.
 								</Text>
 								<Text size="2">
-									<strong>Master Theme Reset:</strong> Added a single-click button in the basic appearance settings to completely reset all colors, backgrounds, custom gradients, and advanced granular overrides back to their defaults.
+									<strong>Master Theme Reset:</strong> Added a single-click
+									button in the basic appearance settings to completely reset
+									all colors, backgrounds, custom gradients, and advanced
+									granular overrides back to their defaults.
 								</Text>
 								<Text size="2">
-									<strong>Onboarding Enhancements:</strong> Added a "Before you start" tip box to step one of the beginner guide, direct links to appearance settings, a sleek hover-based edge restore button, and smooth fade transitions when tucking the guide.
+									<strong>Onboarding Enhancements:</strong> Added a "Before you
+									start" tip box to step one of the beginner guide, direct links
+									to appearance settings, a sleek hover-based edge restore
+									button, and smooth fade transitions when tucking the guide.
 								</Text>
 							</Flex>
 						</Box>
@@ -448,8 +547,9 @@ export function ChangelogDialog() {
 								</Text>
 								<Text size="2">
 									<strong>Import Source Chooser:</strong> The empty editor now
-									offers clear Plain Text, LRCLIB, Lyrically, and Genius cards so
-									you can choose an import source before opening its workflow.
+									offers clear Plain Text, LRCLIB, Lyrically, and Genius cards
+									so you can choose an import source before opening its
+									workflow.
 								</Text>
 								<Text size="2">
 									<strong>Linux Audio Playback:</strong> Desktop audio now loads
@@ -460,9 +560,9 @@ export function ChangelogDialog() {
 									<strong>Reliable Word Double-Clicks:</strong> Selecting a word
 									in Edit mode no longer recenters the lyric line or word before
 									the second click lands. The horizontal ribbon also keeps a
-									stable height as selection-specific controls appear, while Time
-									mode tracking and explicit navigation retain their existing
-									centering behavior.
+									stable height as selection-specific controls appear, while
+									Time mode tracking and explicit navigation retain their
+									existing centering behavior.
 								</Text>
 							</Flex>
 						</Box>
@@ -496,20 +596,21 @@ export function ChangelogDialog() {
 									now span the full workspace width without an outer inset.
 								</Text>
 								<Text size="2">
-									<strong>Edge-to-Edge Lyric Lines:</strong> Lyric line cards now
-									extend to both sides of the editor without outer margins.
+									<strong>Edge-to-Edge Lyric Lines:</strong> Lyric line cards
+									now extend to both sides of the editor without outer margins.
 								</Text>
 								<Text size="2">
 									<strong>Connected Word Groups:</strong> Split words and other
 									adjacent words without a space now join edge-to-edge, with
 									rounded corners only at the outside of each group. Per-word
-									romanization follows the same grouping and appearance controls.
+									romanization follows the same grouping and appearance
+									controls.
 								</Text>
 								<Text size="2">
 									<strong>Compact Space Chips:</strong> Blank words in Edit mode
 									now use empty chips whose width reflects the number of spaces,
-									while keeping the count on hover and offering a legacy Space xN
-									display option in Appearance settings.
+									while keeping the count on hover and offering a legacy Space
+									xN display option in Appearance settings.
 								</Text>
 							</Flex>
 						</Box>
@@ -552,10 +653,11 @@ export function ChangelogDialog() {
 									changes, pauses, project switches, and app restarts.
 								</Text>
 								<Text size="2">
-									<strong>Romanization Performance & Accuracy:</strong> Conversion
-									uses bounded remote requests and retryable fallbacks, maps
-									contextual Mandarin readings to individual Han characters, and
-									preserves source spacing in mixed-language line romanization.
+									<strong>Romanization Performance & Accuracy:</strong>{" "}
+									Conversion uses bounded remote requests and retryable
+									fallbacks, maps contextual Mandarin readings to individual Han
+									characters, and preserves source spacing in mixed-language
+									line romanization.
 								</Text>
 								<Text size="2">
 									<strong>Global Text Normalization:</strong> The apostrophe and

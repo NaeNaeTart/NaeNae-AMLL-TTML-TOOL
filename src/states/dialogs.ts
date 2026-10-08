@@ -52,7 +52,9 @@ export const lyricallyImportLyricsDialogAtom = atom(false);
 export const projectsDialogAtom = atom(false);
 export const timeShiftPreviewOffsetAtom = atom(0);
 export const timeShiftPreviewActiveAtom = atom(false);
-export const timeShiftPreviewScopeAtom = atom<"all" | "selected" | "selected-following" | "custom">("all");
+export const timeShiftPreviewScopeAtom = atom<
+	"all" | "selected" | "selected-following" | "custom"
+>("all");
 export const timeShiftPreviewCustomRangeAtom = atom<[number, number]>([1, 1]);
 export const mp3ConversionDialogAtom = atom<{
 	open: boolean;

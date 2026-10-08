@@ -34,11 +34,12 @@ async function startApp() {
 	}
 
 	try {
-		if ("wasm_start" in AMLLLyric && typeof AMLLLyric.wasm_start === "function") {
+		if (
+			"wasm_start" in AMLLLyric &&
+			typeof AMLLLyric.wasm_start === "function"
+		) {
 			(AMLLLyric.wasm_start as () => void)();
 		}
-		
-
 
 		await pluginManager.loadEnabledPlugins();
 	} catch (e) {

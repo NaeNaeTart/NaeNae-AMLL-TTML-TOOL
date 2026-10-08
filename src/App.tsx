@@ -27,8 +27,15 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { platform, version } from "@tauri-apps/plugin-os";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
-import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { lazy } from "$/utils/lazy.ts";
+import {
+	memo,
+	Suspense,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { ToastContainer, toast } from "react-toastify";
@@ -37,73 +44,77 @@ import semverGt from "semver/functions/gt";
 import { backgroundGradients } from "$/modules/settings/states/gradients";
 import {
 	accentColorAtom,
+	advActiveLineBgAtom,
+	advAudioBarBgAtom,
+	advAudioBarTextAtom,
+	advancedPrimaryTextColorAtom,
+	advancedSecondaryTextColorAtom,
+	advancedWaveformColorAtom,
+	advancedWaveformProgressColorAtom,
+	advBackdropBlurAtom,
+	advChipBorderRadiusAtom,
+	advChipGapAtom,
+	advChipPaddingHorizontalAtom,
+	advChipPaddingVerticalAtom,
+	advDialogBgAtom,
+	advDialogBorderAtom,
+	advEditorBgAtom,
+	advGlobalBorderRadiusAtom,
+	advGlobalBorderWidthAtom,
+	advLineHoverBgAtom,
+	advMenuHoverBgAtom,
+	advRomanizationColorAtom,
+	advScrollbarColorAtom,
+	advSelectionColorAtom,
+	advShadowIntensityAtom,
+	advSidebarActiveAtom,
+	advSidebarBgAtom,
+	advTitlebarBgAtom,
+	advTranslationColorAtom,
+	aiSidebarEnabledAtom,
+	allowConsecutiveBackgroundLinesAtom,
+	appFontAtom,
+	appFontStyleAtom,
+	appFontWeightAtom,
+	appLayoutOrderAtom,
 	backgroundModeAtom,
 	boykisserModeAtom,
 	boykisserUnlockedAtom,
 	customAccentColorAtom,
+	customFontDataAtom,
+	customFontNameAtom,
 	customGradientAngleAtom,
 	customGradientCenterAtom,
 	customGradientColorsAtom,
 	customGradientOpacityAtom,
 	customGradientSizeAtom,
 	customGradientTypeAtom,
+	glassmorphismBlurAtom,
+	legacyDarkThemeAtom,
+	lyricTextNormalizationOptionsAtom,
 	selectedGradientAtom,
 	useCustomAccentAtom,
 	useCustomGradientAtom,
-	appFontAtom,
-	glassmorphismBlurAtom,
-	advancedPrimaryTextColorAtom,
-	advancedSecondaryTextColorAtom,
-	advancedWaveformColorAtom,
-	advancedWaveformProgressColorAtom,
-	advTitlebarBgAtom,
-	advSidebarBgAtom,
-	advSidebarActiveAtom,
-	advMenuHoverBgAtom,
-	advEditorBgAtom,
-	advActiveLineBgAtom,
-	advLineHoverBgAtom,
-	advChipBorderRadiusAtom,
-	advChipGapAtom,
-	advChipPaddingVerticalAtom,
-	advChipPaddingHorizontalAtom,
-	advRomanizationColorAtom,
-	advTranslationColorAtom,
-	advAudioBarBgAtom,
-	advAudioBarTextAtom,
-	advScrollbarColorAtom,
-	advDialogBgAtom,
-	advDialogBorderAtom,
-	advGlobalBorderRadiusAtom,
-	advGlobalBorderWidthAtom,
-	advShadowIntensityAtom,
-	advSelectionColorAtom,
-	advBackdropBlurAtom,
-	appFontWeightAtom,
-	appFontStyleAtom,
-	customFontDataAtom,
-	customFontNameAtom,
-	appLayoutOrderAtom,
 	vRibbonPositionAtom,
-	aiSidebarEnabledAtom,
-	allowConsecutiveBackgroundLinesAtom,
-	lyricTextNormalizationOptionsAtom,
-	legacyDarkThemeAtom,
 } from "$/modules/settings/states/index.ts";
+import { lazy } from "$/utils/lazy.ts";
 import styles from "./App.module.css";
 import DarkThemeDetector from "./components/DarkThemeDetector";
+import { ResizablePanel } from "./components/ResizablePanel";
 import RibbonBar from "./components/RibbonBar";
 import { TitleBar } from "./components/TitleBar";
-import { ResizablePanel } from "./components/ResizablePanel";
-import { AiSidebar } from "./modules/ai-sidebar/AiSidebar";
 import { useFileOpener } from "./hooks/useFileOpener.ts";
+import { AiSidebar } from "./modules/ai-sidebar/AiSidebar";
 import AudioControls from "./modules/audio/components/index.tsx";
 import { useAudioFeedback } from "./modules/audio/hooks/useAudioFeedback.ts";
+import { DiscordPresence } from "./modules/discord-presence/DiscordPresence";
 import { SyncKeyBinding } from "./modules/lyric-editor/components/sync-keybinding.tsx";
 import { UrbanDictionaryKeybinding } from "./modules/lyric-editor/components/urban-dictionary-keybinding.tsx";
+import { BeginnerGuide } from "./modules/onboarding/BeginnerGuide";
 import { AutosaveManager } from "./modules/project/autosave/AutosaveManager.tsx";
 import exportTTMLText from "./modules/project/logic/ttml-writer.ts";
 import { GlobalDragOverlay } from "./modules/project/modals/GlobalDragOverlay.tsx";
+import { InterfaceScaleManager } from "./modules/settings/components/InterfaceScaleManager";
 import {
 	customBackgroundBlurAtom,
 	customBackgroundBrightnessAtom,
@@ -115,23 +126,22 @@ import {
 import { showTouchSyncPanelAtom } from "./modules/settings/states/sync.ts";
 import { settingsDialogAtom, settingsTabAtom } from "./states/dialogs.ts";
 import {
+	aiSidebarWidthAtom,
 	isDarkThemeAtom,
 	isGlobalFileDraggingAtom,
 	lyricLinesAtom,
 	showPreviewPanelAtom,
-	aiSidebarWidthAtom,
 	ToolMode,
 	toolModeAtom,
 } from "./states/main.ts";
 import { generateGradient, generateRadixScale } from "./utils/colorScale.ts";
 import { attachDroppedFilePath } from "./utils/droppedFilePath.ts";
 import { useAppUpdate } from "./utils/useAppUpdate.ts";
-import { DiscordPresence } from "./modules/discord-presence/DiscordPresence";
-import { BeginnerGuide } from "./modules/onboarding/BeginnerGuide";
-import { InterfaceScaleManager } from "./modules/settings/components/InterfaceScaleManager";
 
 const LyricLinesView = lazy(() => import("./modules/lyric-editor/components"));
-const PreviewModeSwitcher = lazy(() => import("./components/PreviewModeSwitcher"));
+const PreviewModeSwitcher = lazy(
+	() => import("./components/PreviewModeSwitcher"),
+);
 const Dialogs = lazy(() => import("./components/Dialogs"));
 
 const AppErrorPage = ({
@@ -158,7 +168,15 @@ const AppErrorPage = ({
 					<Button
 						onClick={() => {
 							try {
-								const ttmlText = exportTTMLText(store.get(lyricLinesAtom), store.get(lyricTextNormalizationOptionsAtom), { allowConsecutiveBackgroundLines: store.get(allowConsecutiveBackgroundLinesAtom) });
+								const ttmlText = exportTTMLText(
+									store.get(lyricLinesAtom),
+									store.get(lyricTextNormalizationOptionsAtom),
+									{
+										allowConsecutiveBackgroundLines: store.get(
+											allowConsecutiveBackgroundLinesAtom,
+										),
+									},
+								);
 								const b = new Blob([ttmlText], { type: "text/plain" });
 								saveFile(b, "lyric.ttml").catch(logError);
 							} catch (e) {
@@ -217,8 +235,7 @@ const RainEffect: FC<{ isRaining: boolean }> = memo(({ isRaining }) => {
 			}
 			const columnIndex = shuffled[counterRef.current % columns];
 			const x =
-				(columnIndex * (100 / columns)) +
-				(Math.random() * (100 / columns) * 0.8);
+				columnIndex * (100 / columns) + Math.random() * (100 / columns) * 0.8;
 			setImages((prev) => [
 				...prev,
 				{ id: Math.random().toString(36).substring(7), x },
@@ -258,7 +275,6 @@ const RainEffect: FC<{ isRaining: boolean }> = memo(({ isRaining }) => {
 	);
 });
 
-
 function App() {
 	const isDarkTheme = useAtomValue(isDarkThemeAtom);
 	const legacyDarkTheme = useAtomValue(legacyDarkThemeAtom);
@@ -269,8 +285,7 @@ function App() {
 	// Preview mode already owns the entire editor area. Keep the sync preview
 	// pane's setting intact for when the user returns, but never render a second
 	// preview beside it.
-	const previewPanelVisible =
-		showPreviewPanel && toolMode !== ToolMode.Preview;
+	const previewPanelVisible = showPreviewPanel && toolMode !== ToolMode.Preview;
 	const customBackgroundImage = useAtomValue(customBackgroundImageAtom);
 	const customBackgroundOpacity = useAtomValue(customBackgroundOpacityAtom);
 	const customBackgroundMask = useAtomValue(customBackgroundMaskAtom);
@@ -299,7 +314,7 @@ function App() {
 	const advSecondaryText = useAtomValue(advancedSecondaryTextColorAtom);
 	const advWaveformColor = useAtomValue(advancedWaveformColorAtom);
 	const advWaveformProgress = useAtomValue(advancedWaveformProgressColorAtom);
-	
+
 	const vTitlebarBg = useAtomValue(advTitlebarBgAtom);
 	const vSidebarBg = useAtomValue(advSidebarBgAtom);
 	const vSidebarActive = useAtomValue(advSidebarActiveAtom);
@@ -327,14 +342,21 @@ function App() {
 	const vRibbonPosition = useAtomValue(vRibbonPositionAtom);
 
 	const boykisserMode = useAtomValue(boykisserModeAtom);
-	const [boykisserUnlocked, setBoykisserUnlocked] = useAtom(boykisserUnlockedAtom);
+	const [boykisserUnlocked, setBoykisserUnlocked] = useAtom(
+		boykisserUnlockedAtom,
+	);
 	const [typedSequence, setTypedSequence] = useState("");
 
 	useEffect(() => {
-		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		const isTauri =
+			typeof window !== "undefined" &&
+			(!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa =
+			typeof window !== "undefined" &&
+			(window.matchMedia("(display-mode: standalone)").matches ||
+				(window.navigator as any).standalone);
 		const isApp = isTauri || isPwa;
-		
+
 		if (!isApp) return;
 
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -366,8 +388,13 @@ function App() {
 	}, [setBoykisserUnlocked]);
 
 	const isApp = useMemo(() => {
-		const isTauri = typeof window !== "undefined" && (!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
-		const isPwa = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone);
+		const isTauri =
+			typeof window !== "undefined" &&
+			(!!(window as any).__TAURI__ || !!import.meta.env.TAURI_ENV_PLATFORM);
+		const isPwa =
+			typeof window !== "undefined" &&
+			(window.matchMedia("(display-mode: standalone)").matches ||
+				(window.navigator as any).standalone);
 		return isTauri || isPwa;
 	}, []);
 
@@ -380,8 +407,6 @@ function App() {
 		setIsRaining(true);
 		setTimeout(() => setIsRaining(false), 3000);
 	}, [isRaining]);
-
-
 
 	useEffect(() => {
 		// Extract font name from appFont string (e.g., '"Inter", sans-serif' -> 'Inter')
@@ -562,7 +587,12 @@ function App() {
 			backgroundMode !== "none" &&
 				!!(customBackgroundImage || selectedGradient || useCustomGradient),
 		);
-	}, [backgroundMode, customBackgroundImage, selectedGradient, useCustomGradient]);
+	}, [
+		backgroundMode,
+		customBackgroundImage,
+		selectedGradient,
+		useCustomGradient,
+	]);
 	const { checkUpdate, status, update } = useAppUpdate();
 	const hasNotifiedRef = useRef(false);
 	const setSettingsOpen = useSetAtom(settingsDialogAtom);
@@ -670,7 +700,6 @@ function App() {
 		};
 	}, [store]);
 
-
 	useEffect(() => {
 		const handleDragEnter = (e: DragEvent) => {
 			if (e.dataTransfer?.types.includes("Files")) {
@@ -775,7 +804,10 @@ function App() {
 					<Flex direction="column" height="100vh">
 						{appLayoutOrder.map((id) => {
 							if (id === "titlebar") return <TitleBar key="titlebar" />;
-							if (id === "ribbonbar" && (vRibbonPosition === "top" || vRibbonPosition === "bottom")) {
+							if (
+								id === "ribbonbar" &&
+								(vRibbonPosition === "top" || vRibbonPosition === "bottom")
+							) {
 								return <RibbonBar key="ribbonbar" position={vRibbonPosition} />;
 							}
 							if (id === "editor") {
@@ -784,8 +816,55 @@ function App() {
 										<Flex height="100%" overflow="hidden">
 											<Box flexGrow="1" minWidth="0" overflow="hidden">
 												{previewPanelVisible ? (
-											<Flex height="100%" gap="2" p="2">
-												<Box flexGrow="1" overflow="hidden">
+													<Flex height="100%" gap="2" p="2">
+														<Box flexGrow="1" overflow="hidden">
+															<AnimatePresence mode="wait">
+																{toolMode !== ToolMode.Preview && (
+																	<SuspensePlaceHolder key={toolMode}>
+																		<motion.div
+																			layout="position"
+																			style={{
+																				height: "100%",
+																				maxHeight: "100%",
+																				overflowY: "hidden",
+																			}}
+																			initial={{ opacity: 0 }}
+																			animate={{ opacity: 1 }}
+																			exit={{ opacity: 0 }}
+																		>
+																			<LyricLinesView key={toolMode} />
+																		</motion.div>
+																	</SuspensePlaceHolder>
+																)}
+																{toolMode === ToolMode.Preview && (
+																	<SuspensePlaceHolder key="preview-switcher">
+																		<motion.div
+																			layout="position"
+																			initial={{ opacity: 0 }}
+																			animate={{ opacity: 1 }}
+																			exit={{ opacity: 0 }}
+																		>
+																			<PreviewModeSwitcher />
+																		</motion.div>
+																	</SuspensePlaceHolder>
+																)}
+															</AnimatePresence>
+														</Box>
+														<ResizablePanel>
+															<SuspensePlaceHolder key="preview-panel">
+																<motion.div
+																	layout="position"
+																	initial={{ opacity: 0 }}
+																	animate={{ opacity: 1 }}
+																	exit={{ opacity: 0 }}
+																	style={{ height: "100%" }}
+																>
+																	<PreviewModeSwitcher />
+																</motion.div>
+															</SuspensePlaceHolder>
+														</ResizablePanel>
+													</Flex>
+												) : (
 													<AnimatePresence mode="wait">
 														{toolMode !== ToolMode.Preview && (
 															<SuspensePlaceHolder key={toolMode}>
@@ -806,71 +885,34 @@ function App() {
 														)}
 														{toolMode === ToolMode.Preview && (
 															<SuspensePlaceHolder key="preview-switcher">
-																<motion.div
-																	layout="position"
-																	initial={{ opacity: 0 }}
-																	animate={{ opacity: 1 }}
-																	exit={{ opacity: 0 }}
+																<Box
+																	height="100%"
+																	key="preview-switcher"
+																	p="2"
+																	asChild
 																>
-																	<PreviewModeSwitcher />
-																</motion.div>
+																	<motion.div
+																		layout="position"
+																		initial={{ opacity: 0 }}
+																		animate={{ opacity: 1 }}
+																		exit={{ opacity: 0 }}
+																	>
+																		<PreviewModeSwitcher />
+																	</motion.div>
+																</Box>
 															</SuspensePlaceHolder>
 														)}
 													</AnimatePresence>
-												</Box>
-												<ResizablePanel>
-													<SuspensePlaceHolder key="preview-panel">
-														<motion.div
-															layout="position"
-															initial={{ opacity: 0 }}
-															animate={{ opacity: 1 }}
-															exit={{ opacity: 0 }}
-															style={{ height: "100%" }}
-														>
-															<PreviewModeSwitcher />
-														</motion.div>
-													</SuspensePlaceHolder>
-												</ResizablePanel>
-											</Flex>
-										) : (
-											<AnimatePresence mode="wait">
-												{toolMode !== ToolMode.Preview && (
-													<SuspensePlaceHolder key={toolMode}>
-														<motion.div
-															layout="position"
-															style={{
-																height: "100%",
-																maxHeight: "100%",
-																overflowY: "hidden",
-															}}
-															initial={{ opacity: 0 }}
-															animate={{ opacity: 1 }}
-															exit={{ opacity: 0 }}
-														>
-															<LyricLinesView key={toolMode} />
-														</motion.div>
-													</SuspensePlaceHolder>
-												)}
-												{toolMode === ToolMode.Preview && (
-													<SuspensePlaceHolder key="preview-switcher">
-														<Box height="100%" key="preview-switcher" p="2" asChild>
-															<motion.div
-																layout="position"
-																initial={{ opacity: 0 }}
-																animate={{ opacity: 1 }}
-																exit={{ opacity: 0 }}
-															>
-																<PreviewModeSwitcher />
-															</motion.div>
-														</Box>
-													</SuspensePlaceHolder>
-												)}
-											</AnimatePresence>
 												)}
 											</Box>
 											{aiSidebarEnabled &&
-												(toolMode === ToolMode.Edit || toolMode === ToolMode.Sync) && (
-													<ResizablePanel widthAtom={aiSidebarWidthAtom} minWidth={280} maxWidth={560}>
+												(toolMode === ToolMode.Edit ||
+													toolMode === ToolMode.Sync) && (
+													<ResizablePanel
+														widthAtom={aiSidebarWidthAtom}
+														minWidth={280}
+														maxWidth={560}
+													>
 														<AiSidebar />
 													</ResizablePanel>
 												)}
@@ -880,14 +922,19 @@ function App() {
 
 								if (vRibbonPosition === "left" || vRibbonPosition === "right") {
 									return (
-										<Flex direction="row" flexGrow="1" overflow="hidden" key="editor-row">
+										<Flex
+											direction="row"
+											flexGrow="1"
+											overflow="hidden"
+											key="editor-row"
+										>
 											{vRibbonPosition === "left" && (
-                                                <RibbonBar isSidebar position="left" />
-                                            )}
+												<RibbonBar isSidebar position="left" />
+											)}
 											{editorContent}
 											{vRibbonPosition === "right" && (
-                                                <RibbonBar isSidebar position="right" />
-                                            )}
+												<RibbonBar isSidebar position="right" />
+											)}
 										</Flex>
 									);
 								}
@@ -895,9 +942,9 @@ function App() {
 							}
 							if (id === "audio-controls") {
 								return (
-                                    <Box flexShrink="0" key="audio-controls">
-                                        <AudioControls />
-                                    </Box>
+									<Box flexShrink="0" key="audio-controls">
+										<AudioControls />
+									</Box>
 								);
 							}
 							return null;
@@ -910,25 +957,27 @@ function App() {
 						<Dialogs />
 					</Suspense>
 					<ToastContainer theme={effectiveTheme} />
-					{boykisserMode && isUnlocked && !window.location.href.includes("spicylyrics.org") && (
-						<img
-							src="https://images.weserv.nl/?url=https://files.catbox.moe/5n0ofa.gif&n=-1"
-							alt=""
-							referrerPolicy="no-referrer"
-							onClick={startRain}
-							style={{
-								position: "fixed",
-								top: "28px",
-								right: "120px",
-								width: "20px",
-								height: "20px",
-								pointerEvents: "auto",
-								cursor: "pointer",
-								zIndex: 9999,
-								objectFit: "contain",
-							}}
-						/>
-					)}
+					{boykisserMode &&
+						isUnlocked &&
+						!window.location.href.includes("spicylyrics.org") && (
+							<img
+								src="https://images.weserv.nl/?url=https://files.catbox.moe/5n0ofa.gif&n=-1"
+								alt=""
+								referrerPolicy="no-referrer"
+								onClick={startRain}
+								style={{
+									position: "fixed",
+									top: "28px",
+									right: "120px",
+									width: "20px",
+									height: "20px",
+									pointerEvents: "auto",
+									cursor: "pointer",
+									zIndex: 9999,
+									objectFit: "contain",
+								}}
+							/>
+						)}
 				</div>
 				<RainEffect isRaining={isRaining} />
 			</ErrorBoundary>

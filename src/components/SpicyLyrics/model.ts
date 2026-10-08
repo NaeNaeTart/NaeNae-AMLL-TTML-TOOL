@@ -95,8 +95,7 @@ export function groupSpicyTokens(tokens: SpicyToken[]): SpicyWordGroup[] {
 		) {
 			groups.push({
 				items,
-				hasTrailingSpace:
-					!!token.spaceAfter && wordIndex < tokens.length - 1,
+				hasTrailingSpace: !!token.spaceAfter && wordIndex < tokens.length - 1,
 			});
 			items = [];
 		}

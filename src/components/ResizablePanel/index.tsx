@@ -1,5 +1,5 @@
+import { type PrimitiveAtom, useAtom } from "jotai";
 import { type FC, useCallback, useRef, useState } from "react";
-import { useAtom, type PrimitiveAtom } from "jotai";
 import { previewPanelWidthAtom } from "$/states/main.ts";
 
 interface ResizablePanelProps {

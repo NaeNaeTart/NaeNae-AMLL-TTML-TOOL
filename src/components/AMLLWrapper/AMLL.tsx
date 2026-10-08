@@ -1,22 +1,22 @@
-import { 
-    LyricPlayer, 
-    BackgroundRender,
-    MeshGradientRenderer,
+import {
+	BackgroundRender,
+	LyricPlayer,
+	MeshGradientRenderer,
 } from "@applemusic-like-lyrics/react";
+import classNames from "classnames";
 import { useAtomValue } from "jotai";
 import { memo, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { audioEngine } from "$/modules/audio/audio-engine";
-import { 
-	accentColorAtom, 
-	useCustomAccentAtom, 
-	customAccentColorAtom 
-} from "$/modules/settings/states/index.ts";
 import { audioPlayingAtom } from "$/modules/audio/states/index.ts";
-import { isDarkThemeAtom, lyricLinesAtom } from "$/states/main.ts";
 import { customBackgroundImageAtom } from "$/modules/settings/modals/customBackground";
+import {
+	accentColorAtom,
+	customAccentColorAtom,
+	useCustomAccentAtom,
+} from "$/modules/settings/states/index.ts";
+import { isDarkThemeAtom, lyricLinesAtom } from "$/states/main.ts";
 import styles from "./AMLL.module.css";
-import classNames from "classnames";
 
 /**
  * @description The high-performance AMLL player utilizing the local rendering engine.
@@ -31,8 +31,8 @@ export const AMLL = memo(() => {
 	const accentColor = useAtomValue(accentColorAtom);
 
 	const amllLines = useMemo(() => {
-        return (lyrics?.lyricLines as any) || [];
-    }, [lyrics]);
+		return (lyrics?.lyricLines as any) || [];
+	}, [lyrics]);
 
 	const useCustomAccent = useAtomValue(useCustomAccentAtom);
 	const customAccentColor = useAtomValue(customAccentColorAtom);
@@ -81,36 +81,40 @@ export const AMLL = memo(() => {
 	}, [useCustomAccent, customAccentColor, accentColor]);
 
 	return (
-		<div className={classNames(styles.amllContainer, darkMode && styles.isDark)}>
-            {/* Fluid Background Layer */}
-            <div className={styles.bgLayer}>
-                <BackgroundRender 
+		<div
+			className={classNames(styles.amllContainer, darkMode && styles.isDark)}
+		>
+			{/* Fluid Background Layer */}
+			<div className={styles.bgLayer}>
+				<BackgroundRender
 					key={albumImg || "default"}
-                    album={albumImg || undefined}
+					album={albumImg || undefined}
 					colors={fallbackColors}
-                    playing={isPlaying}
-                    fps={60}
-                    renderScale={0.7}
-                    renderer={MeshGradientRenderer}
-                />
-            </div>
+					playing={isPlaying}
+					fps={60}
+					renderScale={0.7}
+					renderer={MeshGradientRenderer}
+				/>
+			</div>
 
-            {/* Lyrics Content Layer */}
-            <div className={styles.lyricsLayer}>
-                {amllLines.length > 0 ? (
-                    <LyricPlayer
-                        lyricLines={amllLines}
-                        currentTime={currentTime}
-                        className="amll-player-instance"
-                        enableSpring={false}
-                        enableBlur={false}
-                        enableScale={true}
-                        playing={isPlaying}
-                    />
-                ) : (
-					<div className={styles.noLyrics}>{t("amll.noLyrics", "No lyrics available in store")}</div>
-                )}
-            </div>
+			{/* Lyrics Content Layer */}
+			<div className={styles.lyricsLayer}>
+				{amllLines.length > 0 ? (
+					<LyricPlayer
+						lyricLines={amllLines}
+						currentTime={currentTime}
+						className="amll-player-instance"
+						enableSpring={false}
+						enableBlur={false}
+						enableScale={true}
+						playing={isPlaying}
+					/>
+				) : (
+					<div className={styles.noLyrics}>
+						{t("amll.noLyrics", "No lyrics available in store")}
+					</div>
+				)}
+			</div>
 		</div>
 	);
 });

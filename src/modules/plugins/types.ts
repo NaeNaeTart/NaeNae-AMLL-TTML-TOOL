@@ -19,7 +19,8 @@ export interface WASMPlugin extends PluginMetadata {
 	sha256?: string; // Optional hash for integrity verification
 }
 
-export interface PluginRegistryEntry extends Omit<PluginMetadata, 'isEnabled' | 'createdAt' | 'blob'> {
+export interface PluginRegistryEntry
+	extends Omit<PluginMetadata, "isEnabled" | "createdAt" | "blob"> {
 	downloadUrl: string;
 	sha256: string;
 }

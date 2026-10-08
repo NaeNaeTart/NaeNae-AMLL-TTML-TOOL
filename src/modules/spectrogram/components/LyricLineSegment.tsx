@@ -1,6 +1,6 @@
+import classNames from "classnames";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, { type FC, useCallback, useContext } from "react";
-import classNames from "classnames";
 import type { ProcessedLyricLine } from "$/modules/segmentation/utils/segment-processing.ts";
 import {
 	previewLineAtom,
@@ -30,7 +30,8 @@ export const LyricLineSegment: FC<LyricLineSegmentProps> = ({
 	const previewLine = useAtomValue(previewLineAtom);
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
 	const setSelectedWordId = useSetAtom(selectedWordIdAtom);
-	const { scrollContainerRef, zoom, scrollLeft } = useContext(SpectrogramContext);
+	const { scrollContainerRef, zoom, scrollLeft } =
+		useContext(SpectrogramContext);
 	const editingTimeField = useAtomValue(editingTimeFieldAtom);
 	const setTimelineDrag = useSetAtom(timelineDragAtom);
 
@@ -153,7 +154,12 @@ export const LyricLineSegment: FC<LyricLineSegmentProps> = ({
 							isGhost={isGhost}
 						/>
 					) : (
-						<GapSegment segment={segment} lineStartTime={startTime} offset={offset} isGhost={isGhost} />
+						<GapSegment
+							segment={segment}
+							lineStartTime={startTime}
+							offset={offset}
+							isGhost={isGhost}
+						/>
 					)}
 					{!isGhost && (
 						<DividerSegment
