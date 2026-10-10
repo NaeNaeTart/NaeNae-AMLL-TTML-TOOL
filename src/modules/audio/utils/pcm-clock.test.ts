@@ -49,4 +49,47 @@ describe("PCM clock", () => {
 		).toBe(false);
 		expect(clock.frameAt(100, 44100)).toBe(500);
 	});
+	it("keeps audible history across a speed change that continues from the rendered frame", () => {
+		const clock = new PcmClock();
+		clock.reset(1, 0);
+		clock.push({
+			generation: 1,
+			startFrame: 0,
+			endFrame: 128,
+			contextTime: 0,
+			renderedFrames: 128,
+			ended: false,
+		});
+		clock.push({
+			generation: 1,
+			startFrame: 128,
+			endFrame: 256,
+			contextTime: 128 / 44100,
+			renderedFrames: 128,
+			ended: false,
+		});
+		expect(clock.renderedFrame).toBe(256);
+		clock.continueAs(2);
+		expect(
+			clock.push({
+				generation: 1,
+				startFrame: 256,
+				endFrame: 384,
+				contextTime: 1,
+				renderedFrames: 128,
+				ended: false,
+			}),
+		).toBe(false);
+		// Audio still in flight from the old speed keeps its own timing.
+		expect(clock.frameAt(64 / 44100, 44100)).toBeCloseTo(64);
+		clock.push({
+			generation: 2,
+			startFrame: 256,
+			endFrame: 320,
+			contextTime: 256 / 44100,
+			renderedFrames: 128,
+			ended: false,
+		});
+		expect(clock.frameAt(256 / 44100 + 64 / 44100, 44100)).toBeCloseTo(288);
+	});
 });

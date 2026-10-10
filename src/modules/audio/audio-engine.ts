@@ -260,11 +260,13 @@ export class AudioEngine extends EventTarget {
 		frame: number,
 		playing: boolean,
 		endFrame = this.musicBuffer?.length ?? 0,
+		continuous = false,
 	) {
 		const generation =
 			voice === "music" ? ++this.musicGeneration : ++this.auditionGeneration;
 		this.cancelStart(voice);
-		this.clock(voice).reset(generation, frame);
+		if (continuous) this.clock(voice).continueAs(generation);
+		else this.clock(voice).reset(generation, frame);
 		if (voice === "music") this.musicEndReport = null;
 		else this.auditionEndReport = null;
 		this.post({
@@ -281,24 +283,28 @@ export class AudioEngine extends EventTarget {
 		});
 		return generation;
 	}
+	/**
+	 * Speed or pitch mode changed. While playing, carry on from the last frame
+	 * already sent to the device and keep the clock's history, so the audio in
+	 * flight is neither replayed nor skipped.
+	 */
 	private refreshVoices() {
 		if (!this.musicBuffer) return;
-		const frame = seekFrame(
-			this.musicCurrentTime,
-			this.musicBuffer.sampleRate,
-			this.musicBuffer.length,
-		);
-		this.setVoice("music", frame, this.playing);
+		const frame = this.playing
+			? Math.round(this.musicClock.renderedFrame)
+			: seekFrame(
+					this.musicCurrentTime,
+					this.musicBuffer.sampleRate,
+					this.musicBuffer.length,
+				);
+		this.setVoice("music", frame, this.playing, undefined, this.playing);
 		if (this.auditionPlaying) {
-			const auditionFrame = this.auditionClock.frameAt(
-				this.audibleContextTime,
-				this.musicBuffer.sampleRate,
-			);
 			this.setVoice(
 				"audition",
-				Math.round(auditionFrame),
+				Math.round(this.auditionClock.renderedFrame),
 				true,
 				this.auditionEnd,
+				true,
 			);
 		}
 	}

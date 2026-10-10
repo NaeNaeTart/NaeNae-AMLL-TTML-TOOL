@@ -21,6 +21,16 @@ export class PcmClock {
 		this.reports = [];
 	}
 
+	/** Keep the history and accept a generation that resumes where the last one stopped. */
+	continueAs(generation: number) {
+		this.generation = generation;
+	}
+
+	/** The last frame handed to the device, ahead of what is audible by the output latency. */
+	get renderedFrame() {
+		return this.reports[this.reports.length - 1]?.endFrame ?? this.initialFrame;
+	}
+
 	push(report: RenderReport) {
 		if (report.generation !== this.generation) return false;
 		this.reports.push(report);

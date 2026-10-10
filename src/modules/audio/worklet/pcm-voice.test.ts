@@ -218,6 +218,31 @@ describe("decoded PCM playback", () => {
 		}
 		voice.destroy();
 	});
+	it.each([
+		0.25, 0.5, 0.75, 1.25,
+	])("starts stretched audio at full level after a reset at %sx", (rate) => {
+		const sampleRate = 44100;
+		const pcm = Float32Array.from(
+			{ length: sampleRate * 3 },
+			(_, i) => 0.5 * Math.sin((2 * Math.PI * 440 * i) / sampleRate),
+		);
+		const voice = realVoice([pcm], sampleRate);
+		voice.setState(state({ frame: sampleRate, endFrame: pcm.length, rate }));
+		const heard: number[] = [];
+		const output = [new Float32Array(128)];
+		for (let block = 0; block < 80; block++) {
+			voice.render(output, block);
+			heard.push(...output[0]);
+		}
+		const rms = (from: number, to: number) =>
+			Math.sqrt(
+				heard.slice(from, to).reduce((sum, v) => sum + v * v, 0) / (to - from),
+			);
+		const steady = rms(sampleRate * 0.15, sampleRate * 0.2);
+		// The first 10 ms used to be a fade-in from near silence.
+		expect(rms(0, sampleRate * 0.01)).toBeGreaterThan(steady * 0.8);
+		voice.destroy();
+	});
 	it("switches from buffered stretching to direct PCM at the audible seek frame", () => {
 		const pcm = Float32Array.from({ length: 44100 }, (_, i) =>
 			Math.sin(i * 0.062),

@@ -26,6 +26,13 @@ export function spectralLeadFrames(tempo: number, sampleRate: number) {
 	return Math.round(((90 - 60 * tempo) / 1000) * sampleRate);
 }
 
+/**
+ * Spectral also fades in over ~65 ms of output after every reset. This much
+ * output is rendered and discarded first, so a seek or speed change starts at
+ * full level instead of with a dip.
+ */
+const PREROLL_SECONDS = 0.08;
+
 export class PcmVoice {
 	private state: VoiceState;
 	private appliedGeneration = -1;
@@ -35,6 +42,7 @@ export class PcmVoice {
 	private renderedSinceSeek = 0;
 	private processor: StretchProcessor | null = null;
 	private inputChunk = 0;
+	private discardFrames = 0;
 
 	constructor(
 		private channels: Float32Array[],
@@ -78,7 +86,10 @@ export class PcmVoice {
 				this.inputChunk = this.processor.getInputChunkSize();
 				if (this.inputChunk <= 0)
 					throw new Error("Invalid SoundTouch input size");
-				this.readFrame -= spectralLeadFrames(this.state.rate, this.sampleRate);
+				this.discardFrames = Math.round(PREROLL_SECONDS * this.sampleRate);
+				this.readFrame -=
+					spectralLeadFrames(this.state.rate, this.sampleRate) +
+					Math.round(this.discardFrames * this.state.rate);
 			}
 		}
 		for (const channel of output) channel.fill(0);
@@ -144,7 +155,30 @@ export class PcmVoice {
 	) {
 		const processor = this.processor;
 		if (!processor) return 0;
-		while (processor.numSamples() < allowed) {
+		while (this.discardFrames > 0) {
+			const frames = Math.min(this.discardFrames, 128);
+			this.feed(processor, frames, end);
+			const dropped = processor.extractOutput(frames);
+			// Nothing to drop yet: retry next block rather than stall the audio thread.
+			if (dropped <= 0) return 0;
+			this.discardFrames -= dropped;
+		}
+		this.feed(processor, allowed, end);
+		const extracted = processor.extractOutput(allowed);
+		for (let c = 0; c < output.length; c++) {
+			output[c].set(
+				new Float32Array(
+					this.memory.buffer,
+					processor.getOutputPtr(c),
+					extracted,
+				),
+			);
+		}
+		return extracted;
+	}
+
+	private feed(processor: StretchProcessor, frames: number, end: number) {
+		while (processor.numSamples() < frames) {
 			const remaining = end - this.readFrame;
 			const count =
 				remaining > 0 ? Math.min(this.inputChunk, remaining) : this.inputChunk;
@@ -178,16 +212,5 @@ export class PcmVoice {
 			processor.processInput(count);
 			this.readFrame += Math.max(0, Math.min(count, remaining));
 		}
-		const extracted = processor.extractOutput(allowed);
-		for (let c = 0; c < output.length; c++) {
-			output[c].set(
-				new Float32Array(
-					this.memory.buffer,
-					processor.getOutputPtr(c),
-					extracted,
-				),
-			);
-		}
-		return extracted;
 	}
 }
