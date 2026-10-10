@@ -1,0 +1,174 @@
+import type { RenderReport, VoiceState } from "./protocol";
+
+/** The narrow interface also lets clock/seek tests run without a browser audio device. */
+export interface StretchProcessor {
+	clear(): void;
+	free(): void;
+	setTempo(tempo: number): void;
+	setPitch(pitch: number): void;
+	setRate(rate: number): void;
+	getInputChunkSize(): number;
+	getInputPtr(channel: number): number;
+	getOutputPtr(channel: number): number;
+	processInput(frames: number): void;
+	numSamples(): number;
+	extractOutput(frames: number): number;
+}
+
+export class PcmVoice {
+	private state: VoiceState;
+	private appliedGeneration = -1;
+	private position = 0;
+	private readFrame = 0;
+	private paddedFrames = 0;
+	private renderedSinceSeek = 0;
+	private processor: StretchProcessor | null = null;
+	private inputChunk = 0;
+
+	constructor(
+		private channels: Float32Array[],
+		private sampleRate: number,
+		private memory: WebAssembly.Memory,
+		private createProcessor: () => StretchProcessor,
+	) {
+		this.state = {
+			generation: 0,
+			frame: 0,
+			endFrame: channels[0].length,
+			playing: false,
+			rate: 1,
+			preservesPitch: true,
+		};
+	}
+
+	setState(state: VoiceState) {
+		if (state.generation <= this.state.generation) return;
+		this.state = state;
+	}
+
+	destroy() {
+		this.processor?.free();
+		this.processor = null;
+	}
+
+	render(output: Float32Array[], contextTime: number): RenderReport | null {
+		if (this.appliedGeneration !== this.state.generation) {
+			this.processor?.clear();
+			this.position = this.state.frame;
+			this.readFrame = this.state.frame;
+			this.paddedFrames = 0;
+			this.renderedSinceSeek = 0;
+			this.appliedGeneration = this.state.generation;
+			if (this.state.preservesPitch && this.state.rate !== 1) {
+				this.processor ??= this.createProcessor();
+				this.processor.setTempo(this.state.rate);
+				this.processor.setPitch(1);
+				this.processor.setRate(1);
+				this.inputChunk = this.processor.getInputChunkSize();
+				if (this.inputChunk <= 0)
+					throw new Error("Invalid SoundTouch input size");
+			}
+		}
+		for (const channel of output) channel.fill(0);
+		if (!this.state.playing) return null;
+
+		const startFrame = this.position;
+		const end = Math.min(this.state.endFrame, this.channels[0].length);
+		const allowed = Math.min(
+			output[0].length,
+			Math.max(
+				0,
+				Math.ceil(
+					(end - this.state.frame) / this.state.rate - this.renderedSinceSeek,
+				),
+			),
+		);
+		let rendered = 0;
+		if (allowed > 0) {
+			if (
+				this.state.preservesPitch &&
+				this.state.rate !== 1 &&
+				this.processor
+			) {
+				rendered = this.renderStretched(output, allowed, end);
+			} else {
+				for (let i = 0; i < allowed; i++) {
+					const position = this.position + i * this.state.rate;
+					// The last block can land on `end`; never read past the source.
+					const index = Math.min(Math.floor(position), end - 1);
+					const fraction = position - index;
+					for (let c = 0; c < output.length; c++) {
+						const source = this.channels[c];
+						const next = Math.min(index + 1, end - 1);
+						output[c][i] =
+							source[index] + (source[next] - source[index]) * fraction;
+					}
+				}
+				rendered = allowed;
+			}
+		}
+		// Retain fractional source frames, and never count underrun silence.
+		this.renderedSinceSeek += rendered;
+		this.position = Math.min(
+			end,
+			this.state.frame + this.renderedSinceSeek * this.state.rate,
+		);
+		const ended = this.position >= end;
+		if (ended) this.state = { ...this.state, playing: false };
+		return {
+			generation: this.appliedGeneration,
+			startFrame,
+			endFrame: this.position,
+			contextTime,
+			renderedFrames: rendered,
+			ended,
+		};
+	}
+
+	private renderStretched(
+		output: Float32Array[],
+		allowed: number,
+		end: number,
+	) {
+		const processor = this.processor;
+		if (!processor) return 0;
+		while (processor.numSamples() < allowed) {
+			const remaining = end - this.readFrame;
+			const count =
+				remaining > 0 ? Math.min(this.inputChunk, remaining) : this.inputChunk;
+			// The wrapper has no flush API. Bounded zero padding drains delayed real audio;
+			// extraction is still capped at the exact source endpoint, never at padded EOF.
+			if (remaining <= 0) {
+				this.paddedFrames += count;
+				if (this.paddedFrames > this.sampleRate * 2) {
+					throw new Error("SoundTouch failed to drain its output");
+				}
+			}
+			for (let c = 0; c < this.channels.length; c++) {
+				const input = new Float32Array(
+					this.memory.buffer,
+					processor.getInputPtr(c),
+					count,
+				);
+				if (remaining > 0)
+					input.set(
+						this.channels[c].subarray(this.readFrame, this.readFrame + count),
+					);
+				else input.fill(0);
+			}
+			processor.processInput(count);
+			this.readFrame += Math.max(0, Math.min(count, remaining));
+		}
+		const extracted = processor.extractOutput(allowed);
+		for (let c = 0; c < output.length; c++) {
+			output[c].set(
+				new Float32Array(
+					this.memory.buffer,
+					processor.getOutputPtr(c),
+					extracted,
+				),
+			);
+		}
+		return extracted;
+	}
+}

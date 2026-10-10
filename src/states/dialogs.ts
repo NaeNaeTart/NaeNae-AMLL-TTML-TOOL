@@ -51,17 +51,6 @@ export const timeShiftPreviewScopeAtom = atom<
 	"all" | "selected" | "selected-following" | "custom"
 >("all");
 export const timeShiftPreviewCustomRangeAtom = atom<[number, number]>([1, 1]);
-export const mp3ConversionDialogAtom = atom<{
-	open: boolean;
-	fileName: string;
-	onConvert: () => void;
-	onSkip: () => void;
-}>({
-	open: false,
-	fileName: "",
-	onConvert: () => {},
-	onSkip: () => {},
-});
 export const suggestedSplitsDialogAtom = atom<{
 	open: boolean;
 	lineId?: string;

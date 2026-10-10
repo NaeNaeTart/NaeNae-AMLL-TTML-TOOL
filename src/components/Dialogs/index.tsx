@@ -33,7 +33,6 @@ import { ConfirmationDialog } from "./confirmation.tsx";
 import { CreateProjectPromptDialog } from "./create-project-prompt.tsx";
 import { GeniusHeaderDetectionDialog } from "./genius-header-detection.tsx";
 import { ImportLyricsChooserDialog } from "./import-lyrics-chooser.tsx";
-import { Mp3ConversionDialog } from "./mp3-conversion.tsx";
 import { WhatsNewDialog } from "./whats-new.tsx";
 
 export const Dialogs = () => {
@@ -52,7 +51,6 @@ export const Dialogs = () => {
 			<LatencyTestDialog />
 			<TTMLChecklistDialog />
 			<ConfirmationDialog />
-			<Mp3ConversionDialog />
 			<CreateProjectPromptDialog />
 			<HistoryRestoreDialog />
 			<Suspense fallback={null}>

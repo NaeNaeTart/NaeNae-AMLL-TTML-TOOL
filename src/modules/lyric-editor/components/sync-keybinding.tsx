@@ -12,7 +12,6 @@ import {
 } from "$/modules/lyric-editor/utils/lyric-states";
 import {
 	highlightActiveWordAtom,
-	SyncJudgeMode,
 	smartFirstWordAtom,
 	smartLastWordAtom,
 	syncJudgeModeAtom,
@@ -58,6 +57,7 @@ import {
 	type KeyBindingEvent,
 	useKeyBindingAtom,
 } from "$/utils/keybindings.ts";
+import { calculateJudgeTime } from "../utils/judge-time";
 
 const getUnitStartTime = (unit: {
 	word: LyricWord;
@@ -146,35 +146,15 @@ export const SyncKeyBinding: FC = () => {
 				}
 			}
 
-			const syncTimeOffset = store.get(syncTimeOffsetAtom);
-			const processingDelay = performance.now() - evt.triggerTime;
-			const audioTimeNow =
-				audioEngine.interpolatedCurrentTime * 1000 -
-				processingDelay * audioEngine.musicPlayBackRate;
-
-			const syncJudgeMode = store.get(syncJudgeModeAtom);
-			if (syncJudgeMode === SyncJudgeMode.FirstKeyDownTimeLegacy) {
-				return Math.round(
-					Math.max(0, audioTimeNow - evt.downTimeOffset + syncTimeOffset),
-				);
-			}
-			let timeAdjustment = 0;
-			if (audioEngine.musicPlaying) {
-				switch (syncJudgeMode) {
-					case SyncJudgeMode.FirstKeyDownTime:
-						timeAdjustment -= evt.downTimeOffset;
-						break;
-					case SyncJudgeMode.LastKeyUpTime:
-						break;
-					case SyncJudgeMode.MiddleKeyTime:
-						timeAdjustment -= evt.downTimeOffset / 2;
-						break;
-				}
-				timeAdjustment *= audioEngine.musicPlayBackRate;
-			}
-			return Math.round(
-				Math.max(0, audioTimeNow + timeAdjustment + syncTimeOffset),
-			);
+			return calculateJudgeTime({
+				playheadSeconds: audioEngine.interpolatedCurrentTime,
+				playing: audioEngine.musicPlaying,
+				rate: audioEngine.musicPlayBackRate,
+				processingDelay: performance.now() - evt.triggerTime,
+				downTimeOffset: evt.downTimeOffset,
+				syncOffset: store.get(syncTimeOffsetAtom),
+				mode: store.get(syncJudgeModeAtom),
+			});
 		},
 		[store],
 	);

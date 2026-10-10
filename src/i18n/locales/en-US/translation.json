@@ -119,17 +119,6 @@
       "link": "Keep files in place",
       "linkDescription": "Or keep the files where they are: the project only remembers their locations, and only an explicit save writes the TTML back to its original file."
     },
-    "mp3Conversion": {
-      "title": "Convert MP3 to FLAC?",
-      "description": "You are importing an MP3 file: {fileName}",
-      "warning": "MP3 files may cause audio desyncing in this app. Converting to FLAC is recommended for better compatibility.",
-      "dontShowAgain": "Don't show this warning again",
-      "skip": "Use MP3",
-      "convert": "Convert to FLAC",
-      "converting": "Converting MP3 to FLAC...",
-      "success": "Conversion successful",
-      "failed": "Conversion failed: {error}"
-    },
     "linkProject": {
       "audioTitle": "Select the audio file you loaded",
       "lyricTitle": "Choose the TTML file this project saves to"
@@ -504,12 +493,7 @@
       "customPresets": "Custom",
       "reset": "Reset",
       "newPresetName": "New Preset Name",
-      "save": "Save Preset",
-      "mp3Conversion": "MP3 to FLAC",
-      "mp3ConversionDesc": "Convert MP3 to FLAC when importing for better sync",
-      "mp3ConversionAsk": "Ask",
-      "mp3ConversionAlways": "Auto",
-      "mp3ConversionNever": "Off"
+      "save": "Save Preset"
     },
     "backup": {
       "category": {
@@ -759,7 +743,11 @@
       "processing": "Processing..."
     },
     "error": {
-      "workerError": "Error processing audio"
+      "workerError": "Error processing audio",
+      "noAudio": "Please load an audio file first.",
+      "contextStart": "Audio could not start. Try pressing Play again.",
+      "workletInit": "The audio player could not initialize.",
+      "workletStart": "The audio player did not start playback."
     }
   },
   "audioPanel": {

@@ -245,18 +245,6 @@ export const lyricTextNormalizationOptionsAtom = atom((get) => ({
 	normalizeCyrillicEs: get(normalizeCyrillicEsOnImportAtom),
 }));
 
-export enum Mp3ConversionMode {
-	Never = "never",
-	Always = "always",
-	Ask = "ask",
-}
-
-export const mp3ConversionModeAtom = atomWithMigratedStorage<Mp3ConversionMode>(
-	"mp3ConversionMode",
-	Mp3ConversionMode.Ask,
-	{ obsoleteKeys: ["hideMp3ConversionWarning"] },
-);
-
 export const glassmorphismBlurAtom = atomWithMigratedStorage<number>(
 	"glassmorphismBlur",
 	24,

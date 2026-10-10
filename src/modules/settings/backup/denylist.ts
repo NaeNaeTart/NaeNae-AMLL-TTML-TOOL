@@ -7,6 +7,7 @@ const LOCAL_ONLY_KEYS = ["lastWorkspaceDir", "amll-ttml:recent-projects"];
 const LEGACY_KEYS = ["customBackgroundImage", "hideMp3ConversionWarning"];
 // Old feature values stay orphaned locally and must not travel in new backups.
 const REMOVED_SETTING_KEYS = [
+	"mp3ConversionMode",
 	"hideSubmitAMLLDBWarning",
 	"syncGradientToAccent",
 	"importAddSpaces",

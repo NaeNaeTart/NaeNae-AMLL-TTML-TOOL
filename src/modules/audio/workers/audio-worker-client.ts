@@ -19,12 +19,14 @@ export interface WorkerUIHandlers {
 
 export class AudioWorkerClient {
 	private worker: Worker;
+	private fatalError: Error | null = null;
 
 	private pendingRequests = new Map<
 		number,
 		{
 			resolve: (value: WorkerResponseValue) => void;
 			reject: (reason?: Error) => void;
+			isCurrent: () => boolean;
 		}
 	>();
 
@@ -38,7 +40,11 @@ export class AudioWorkerClient {
 		this.worker.onmessage = this.handleMessage.bind(this);
 		this.worker.onerror = (e) => {
 			console.error("[Worker Error]", e);
-			this.uiHandlers.onError("An error occurred");
+			this.fatalError = new Error(e.message || "Audio worker failed");
+			for (const pending of this.pendingRequests.values()) {
+				pending.reject(this.fatalError);
+			}
+			this.pendingRequests.clear();
 		};
 	}
 
@@ -70,7 +76,7 @@ export class AudioWorkerClient {
 				} else if (msg.type === "EOF") {
 					// 暂不处理
 				} else if (msg.type === "EXPORT_WAV_PROGRESS") {
-					this.uiHandlers.onTaskProgress(msg.progress);
+					if (pending.isCurrent()) this.uiHandlers.onTaskProgress(msg.progress);
 				}
 
 				if (isFinished) {
@@ -84,38 +90,55 @@ export class AudioWorkerClient {
 		type: T,
 		payload: WorkerRequestPayload<T>,
 		transfer: Transferable[] = [],
+		isCurrent: () => boolean = () => true,
 	): Promise<WorkerResponseMap[T]> {
+		if (this.fatalError) return Promise.reject(this.fatalError);
 		const id = this.messageIdCounter++;
 
 		return new Promise((resolve, reject) => {
 			this.pendingRequests.set(id, {
 				resolve: resolve as (value: WorkerResponseValue) => void,
 				reject,
+				isCurrent,
 			});
 
 			const req = { type, id, ...payload } as WorkerRequest;
 
-			this.worker.postMessage(req, transfer);
+			try {
+				this.worker.postMessage(req, transfer);
+			} catch (error) {
+				this.pendingRequests.delete(id);
+				reject(error);
+			}
 		});
 	}
 
-	public async transcodeToWav(file: File | Blob): Promise<Blob> {
+	public async transcodeToWav(
+		file: File | Blob,
+		isCurrent: () => boolean = () => true,
+	): Promise<Blob> {
 		const fileObj =
 			file instanceof File
 				? file
 				: new File([file], "temp.bin", { type: file.type });
 
-		this.uiHandlers.onTaskStart("TRANSCODING");
+		if (isCurrent()) this.uiHandlers.onTaskStart("TRANSCODING");
 
 		try {
-			const blob = await this.postRequest("EXPORT_WAV", { file: fileObj });
-			this.uiHandlers.onTaskEnd();
+			const blob = await this.postRequest(
+				"EXPORT_WAV",
+				{ file: fileObj },
+				[],
+				isCurrent,
+			);
+			if (isCurrent()) this.uiHandlers.onTaskEnd();
 			return blob;
 		} catch (error) {
-			this.uiHandlers.onError(
-				`Transcoding failed: ${error instanceof Error ? error.message : String(error)}`,
-			);
-			this.uiHandlers.onTaskEnd();
+			if (isCurrent())
+				this.uiHandlers.onError(
+					`Transcoding failed: ${error instanceof Error ? error.message : String(error)}`,
+				);
+			if (isCurrent()) this.uiHandlers.onTaskEnd();
 			throw error;
 		}
 	}
@@ -129,6 +152,7 @@ export class AudioWorkerClient {
 	}
 
 	public terminate() {
+		this.fatalError = new Error("Worker terminated");
 		this.worker.terminate();
 		for (const [_, pending] of this.pendingRequests) {
 			pending.reject(new Error("Worker terminated"));

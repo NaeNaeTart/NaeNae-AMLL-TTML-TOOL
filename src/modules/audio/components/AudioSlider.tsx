@@ -273,11 +273,11 @@ export const AudioSlider = memo(() => {
 			dragToSeek: true,
 			cursorWidth: 0,
 			barHeight: 0.8,
-			media: audioEngine.audioEl,
 			peaks: peaks,
 			duration: duration,
 			interact: true,
 		});
+		ws.on("interaction", (time) => audioEngine.seekMusic(time));
 		waveSurferRef.current = ws;
 		return ws;
 	}, [audioBuffer]);
@@ -298,7 +298,7 @@ export const AudioSlider = memo(() => {
 	}, []);
 
 	useEffect(() => {
-		if (audioBuffer && audioEngine.audioEl) {
+		if (audioBuffer) {
 			destroyWaveSurfer();
 			setCurrentDuration((audioBuffer.duration * 1000) | 0);
 			createWaveSurfer();
@@ -314,37 +314,20 @@ export const AudioSlider = memo(() => {
 		};
 
 		let frameId: number | null = null;
-		let anchorAudioTime = 0;
-		let anchorRealTime = performance.now();
 		let isDestroyed = false;
 
 		const syncClock = () => {
-			anchorAudioTime = audioEngine.musicCurrentTime;
-			anchorRealTime = performance.now();
-			setCurrentTime(Math.round(anchorAudioTime * 1000));
+			const time = audioEngine.interpolatedCurrentTime;
+			setCurrentTime(Math.round(time * 1000));
+			waveSurferRef.current?.setTime(time);
 		};
-
-		const handleTimeUpdate = () => {
-			const elapsed = (performance.now() - anchorRealTime) / 1000;
-			const interpolatedTime =
-				anchorAudioTime + elapsed * audioEngine.musicPlayBackRate;
-
-			// Correct stalls and long frame gaps without resetting the smooth clock.
-			if (Math.abs(audioEngine.musicCurrentTime - interpolatedTime) > 0.1) {
-				syncClock();
-			}
-		};
-
+		const handleTimeUpdate = syncClock;
 		const onFrame = () => {
 			if (isDestroyed || !audioEngine.musicPlaying) {
 				frameId = null;
 				return;
 			}
-
-			const elapsed = (performance.now() - anchorRealTime) / 1000;
-			const currentTime =
-				anchorAudioTime + elapsed * audioEngine.musicPlayBackRate;
-			setCurrentTime(Math.round(currentTime * 1000));
+			syncClock();
 			frameId = requestAnimationFrame(onFrame);
 		};
 
