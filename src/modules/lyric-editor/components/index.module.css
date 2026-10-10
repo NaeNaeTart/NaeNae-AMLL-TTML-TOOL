@@ -261,6 +261,7 @@
 	padding: 0.05em 0.5em;
 	border-radius: var(--radius-4);
 	color: var(--white-a6);
+	font-variant-numeric: tabular-nums;
 }
 
 .startTime {
@@ -705,7 +706,22 @@
 :global(.radix-themes.light) .lyricWord.selected .untimedTimestamp {
 	background-color: var(--gray-a3);
 	color: var(--gray-11);
-	border: 1px dashed var(--gray-a8);
+	/* An outline, unlike a border, keeps untimed pills the size of timed ones. */
+	outline: 1px dashed var(--gray-a8);
+	outline-offset: -1px;
+}
+
+.untimedText {
+	display: inline-grid;
+	justify-items: center;
+}
+
+.untimedText > * {
+	grid-area: 1 / 1;
+}
+
+.timestampSizer {
+	visibility: hidden;
 }
 
 .lyricWord.sync.active {

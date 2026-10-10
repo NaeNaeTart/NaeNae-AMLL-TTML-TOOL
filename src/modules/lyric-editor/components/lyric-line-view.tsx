@@ -109,6 +109,7 @@ import {
 	UnassignedSectionContextMenuItems,
 } from "./SectionActions.tsx";
 import { shouldAutoCenterSelection } from "./selection-scroll";
+import { UntimedTimestamp } from "./untimed-timestamp";
 
 const parseRubyShortcut = (value: string) => {
 	if (value.endsWith("|")) {
@@ -1227,9 +1228,11 @@ export const LyricLineView: FC<{
 										)}
 										ref={startTimeRef}
 									>
-										{hasNoTiming(line)
-											? "--:--.---"
-											: msToTimestamp(line.startTime)}
+										{hasNoTiming(line) ? (
+											<UntimedTimestamp />
+										) : (
+											msToTimestamp(line.startTime)
+										)}
 									</div>
 									<button
 										type="button"
@@ -1248,7 +1251,7 @@ export const LyricLineView: FC<{
 											}}
 										>
 											{line.endTime === 0 ? (
-												"--:--.---"
+												<UntimedTimestamp />
 											) : endTimeLinked ? (
 												<LinkMultiple20Regular />
 											) : showEndTimeAsDuration ? (

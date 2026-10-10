@@ -78,6 +78,7 @@ import { hasNoTiming } from "../utils/timing-status";
 import styles from "./index.module.css";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import { LyricWordMenu } from "./lyric-word-menu";
+import { UntimedTimestamp } from "./untimed-timestamp";
 
 const isDraggingAtom = atom(false);
 
@@ -1034,14 +1035,18 @@ const LyricSyncWordView: FC<{
 
 	const startUntimed = hasNoTiming({ startTime, endTime });
 	const endUntimed = endTime === 0;
-	const startTimeDisplay = startUntimed
-		? "--:--.---"
-		: msToTimestamp(startTime);
-	const endTimeDisplay = endUntimed
-		? "--:--.---"
-		: showEndTimeAsDuration
-			? `+${endTime - startTime}ms`
-			: msToTimestamp(endTime);
+	const startTimeDisplay = startUntimed ? (
+		<UntimedTimestamp />
+	) : (
+		msToTimestamp(startTime)
+	);
+	const endTimeDisplay = endUntimed ? (
+		<UntimedTimestamp />
+	) : showEndTimeAsDuration ? (
+		`+${endTime - startTime}ms`
+	) : (
+		msToTimestamp(endTime)
+	);
 
 	// Optimized render loop for pre-playback word ambient highlighting
 	useEffect(() => {
