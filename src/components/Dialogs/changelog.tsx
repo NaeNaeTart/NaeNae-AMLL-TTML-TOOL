@@ -68,6 +68,11 @@ export function ChangelogDialog() {
 									project.
 								</Text>
 								<Text size="2">
+									<strong>Contributors in About:</strong> The About tab lists
+									everyone who has contributed to this fork, with their GitHub
+									profiles and a link to the full contributor graph.
+								</Text>
+								<Text size="2">
 									<strong>Sync Timing:</strong> Synced times no longer drift
 									when the audio stalls, buffers or changes speed, and the delay
 									between pressing a sync key and the app handling it is removed

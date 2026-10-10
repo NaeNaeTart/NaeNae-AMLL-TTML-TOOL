@@ -25,12 +25,9 @@ import {
 	Tooltip,
 } from "@radix-ui/themes";
 import { open } from "@tauri-apps/plugin-shell";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	fetchContributors,
-	type RepositoryContributor,
-} from "$/modules/settings/utils/contributor-count";
+import { getContributors } from "$/modules/settings/utils/contributor-count";
 import { clearWebsiteCache, forceWebsiteRefresh } from "$/utils/pwa";
 import { useAppUpdate } from "$/utils/useAppUpdate";
 
@@ -52,25 +49,7 @@ export const SettingsAboutTab = () => {
 	const [recoveryAction, setRecoveryAction] = useState<
 		"refresh" | "clear" | null
 	>(null);
-	const [contributors, setContributors] = useState<
-		RepositoryContributor[] | null
-	>(null);
-	const [contributorCountUnavailable, setContributorCountUnavailable] =
-		useState(false);
-
-	useEffect(() => {
-		let active = true;
-		fetchContributors()
-			.then((nextContributors) => {
-				if (active) setContributors(nextContributors);
-			})
-			.catch(() => {
-				if (active) setContributorCountUnavailable(true);
-			});
-		return () => {
-			active = false;
-		};
-	}, []);
+	const contributors = getContributors();
 
 	const showUpdateCard = ["available", "downloading", "ready"].includes(status);
 	const isWebsite = !import.meta.env.TAURI_ENV_PLATFORM;
@@ -213,12 +192,7 @@ export const SettingsAboutTab = () => {
 								<Text weight="bold" size="2">
 									{t("aboutModal.contributors", "Contributors")}
 								</Text>
-								<Badge variant="soft" aria-live="polite">
-									{contributorCountUnavailable
-										? t("aboutModal.contributorsUnavailable", "Unavailable")
-										: (contributors?.length ??
-											t("aboutModal.contributorsLoading", "Loading..."))}
-								</Badge>
+								<Badge variant="soft">{contributors.length}</Badge>
 							</Flex>
 							<Button asChild variant="ghost" size="1">
 								<a
@@ -237,7 +211,7 @@ export const SettingsAboutTab = () => {
 								</a>
 							</Button>
 						</Flex>
-						{contributors && (
+						{contributors.length > 0 && (
 							<Flex
 								gap="2"
 								wrap="wrap"
