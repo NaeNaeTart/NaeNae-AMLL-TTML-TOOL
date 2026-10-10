@@ -56,6 +56,21 @@ export function ChangelogDialog() {
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
 							<Heading size="4" mb="2" color="iris">
+								Unreleased Updates
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Linked Project Backup:</strong> Linked projects show a
+									header icon that restores the one-time backup of the original
+									TTML after confirming (the backup is removed once restored),
+									and the Linked tab can open the folder that holds it. The
+									header also shows an unsaved changes button that saves the
+									project.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
+							<Heading size="4" mb="2" color="iris">
 								v0.10.3 Updates (Linked Projects)
 							</Heading>
 							<Flex direction="column" gap="3">

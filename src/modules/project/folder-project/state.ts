@@ -30,3 +30,5 @@ export const pendingLyricSourceAtom = atom<{
 	path: string;
 	lineIds: string[];
 } | null>(null);
+
+export const linkedBackupAvailableAtom = atom<boolean>(false);

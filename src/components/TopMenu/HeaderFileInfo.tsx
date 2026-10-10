@@ -1,20 +1,52 @@
-import { HistoryRegular } from "@fluentui/react-icons";
-import { Box, Button, Flex, Text, TextField } from "@radix-ui/themes";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+	ArrowUndoRegular,
+	FolderOpenRegular,
+	HistoryRegular,
+	LinkRegular,
+	SaveEditRegular,
+} from "@fluentui/react-icons";
+import {
+	Box,
+	Button,
+	Flex,
+	IconButton,
+	Text,
+	TextField,
+} from "@radix-ui/themes";
+import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+	linkedBackupExists,
+	restoreLinkedBackup,
+} from "$/modules/project/folder-project/linked-backup";
+import {
+	activeProjectDirAtom,
+	activeProjectManifestAtom,
+	linkedBackupAvailableAtom,
+} from "$/modules/project/folder-project/state";
 import { getSuggestedTtmlFileName } from "$/modules/project/logic/metadata-filename";
 import { confirmDialogAtom, historyRestoreDialogAtom } from "$/states/dialogs";
 import {
+	isDirtyAtom,
 	lastSavedTimeAtom,
 	lyricLinesAtom,
 	saveFileNameAtom,
 } from "$/states/main";
+import { useTopMenuActions } from "./useTopMenuActions";
 
 export const HeaderFileInfo = () => {
 	const { t } = useTranslation();
+	const store = useStore();
+	const { onSaveFile } = useTopMenuActions();
 	const [filename, setFilename] = useAtom(saveFileNameAtom);
 	const lastSavedTime = useAtomValue(lastSavedTimeAtom);
+	const isDirty = useAtomValue(isDirtyAtom);
+	const activeProjectDir = useAtomValue(activeProjectDirAtom);
+	const activeProjectManifest = useAtomValue(activeProjectManifestAtom);
+	const [backupAvailable, setBackupAvailable] = useAtom(
+		linkedBackupAvailableAtom,
+	);
 	const setHistoryDialogOpen = useSetAtom(historyRestoreDialogAtom);
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 	const metadata = useAtomValue(lyricLinesAtom).metadata;
@@ -68,6 +100,56 @@ export const HeaderFileInfo = () => {
 		}, 4000);
 		return () => window.clearTimeout(timer);
 	}, [lastSavedTime]);
+
+	useEffect(() => {
+		if (!activeProjectDir) {
+			setBackupAvailable(false);
+			return;
+		}
+		let cancelled = false;
+		if (!activeProjectManifest?.linked) {
+			setBackupAvailable(false);
+			return;
+		}
+		void linkedBackupExists(activeProjectDir).then((found) => {
+			if (!cancelled) setBackupAvailable(found);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [activeProjectDir, activeProjectManifest, setBackupAvailable]);
+
+	const handleRestoreBackup = useCallback(() => {
+		if (!activeProjectDir || !activeProjectManifest?.linked) return;
+		const dir = activeProjectDir;
+		const manifest = {
+			...activeProjectManifest,
+			linked: activeProjectManifest.linked,
+		};
+		const plainT = (key: string, fallback?: string) => t(key, fallback ?? key);
+		setConfirmDialog({
+			open: true,
+			title: t("header.backup.confirmTitle", "Restore linked backup?"),
+			description: t(
+				"header.backup.confirmDescription",
+				"The original TTML saved before the first overwrite will replace the current song file and the backup will be removed. Unsaved changes in the editor will be lost.",
+			),
+			onConfirm: () => {
+				void restoreLinkedBackup(store, plainT, dir, manifest).then(
+					async () => {
+						setBackupAvailable(await linkedBackupExists(dir));
+					},
+				);
+			},
+		});
+	}, [
+		activeProjectDir,
+		activeProjectManifest,
+		setConfirmDialog,
+		setBackupAvailable,
+		store,
+		t,
+	]);
 
 	const handleNameClick = useCallback(() => {
 		const isDefaultName = filename.toLowerCase() === "lyric.ttml";
@@ -175,6 +257,49 @@ export const HeaderFileInfo = () => {
 					</Button>
 				)}
 			</Box>
+
+			{activeProjectDir && (
+				<IconButton
+					size="1"
+					variant="soft"
+					color={activeProjectManifest?.linked ? "iris" : "gray"}
+					title={
+						activeProjectManifest?.linked
+							? t("header.project.linked", "Linked project")
+							: t("header.project.folder", "Folder project")
+					}
+					style={{ cursor: "default" }}
+				>
+					{activeProjectManifest?.linked ? (
+						<LinkRegular />
+					) : (
+						<FolderOpenRegular />
+					)}
+				</IconButton>
+			)}
+			{activeProjectManifest?.linked && backupAvailable && (
+				<IconButton
+					size="1"
+					variant="soft"
+					color="iris"
+					onClick={handleRestoreBackup}
+					title={t("header.backup.restore", "Restore backup")}
+				>
+					<ArrowUndoRegular />
+				</IconButton>
+			)}
+			{isDirty && (
+				<IconButton
+					size="1"
+					variant="soft"
+					color="amber"
+					onClick={onSaveFile}
+					title={t("header.status.unsavedChanges", "Unsaved changes")}
+					aria-label={t("header.status.unsavedChanges", "Unsaved changes")}
+				>
+					<SaveEditRegular />
+				</IconButton>
+			)}
 		</Flex>
 	);
 };

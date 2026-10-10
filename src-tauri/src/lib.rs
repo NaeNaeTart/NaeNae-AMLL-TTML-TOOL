@@ -286,6 +286,79 @@ fn open_linked_projects_folder(app: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+/// `canonicalize` returns `\\?\C:\...` paths on Windows, which Explorer does not
+/// reliably open or select, so hand it the plain drive path instead.
+#[cfg(target_os = "windows")]
+fn without_verbatim_prefix(path: &std::path::Path) -> std::path::PathBuf {
+    let text = path.to_string_lossy();
+    match text.strip_prefix(r"\\?\") {
+        Some(rest) if !rest.starts_with("UNC\\") => std::path::PathBuf::from(rest),
+        _ => path.to_path_buf(),
+    }
+}
+
+/// Opens a linked project's data folder, selecting the one-time backup
+/// (`original.ttml.bak`, see `LINKED_LYRIC_BACKUP_FILENAME` in
+/// `folder-project/types.ts`) in Explorer when it exists.
+#[tauri::command]
+#[allow(clippy::needless_pass_by_value)]
+fn open_linked_project_dir(app: tauri::AppHandle, dir: String) -> Result<(), String> {
+    use std::path::PathBuf;
+    use tauri::Manager;
+
+    let base_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("app data folder is unavailable: {e}"))?
+        .join("projects");
+    if !base_dir.exists() {
+        std::fs::create_dir_all(&base_dir)
+            .map_err(|e| format!("failed to create projects folder: {e}"))?;
+    }
+    let canonical_base = base_dir
+        .canonicalize()
+        .map_err(|e| format!("projects directory is unavailable: {e}"))?;
+    let path = PathBuf::from(&dir);
+    let canonical_path = path
+        .canonicalize()
+        .map_err(|e| format!("invalid project directory: {e}"))?;
+
+    if !canonical_path.starts_with(&canonical_base) || canonical_path == canonical_base {
+        return Err("access denied: path outside projects directory".into());
+    }
+
+    let backup_file = canonical_path.join("original.ttml.bak");
+    #[cfg(target_os = "windows")]
+    {
+        use std::process::Command;
+        if backup_file.exists() {
+            let win_path = without_verbatim_prefix(&backup_file)
+                .to_string_lossy()
+                .replace('/', "\\");
+            let _ = Command::new("explorer")
+                .args(["/select,", &win_path])
+                .spawn();
+            return Ok(());
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    let program = "explorer";
+    #[cfg(target_os = "macos")]
+    let program = "open";
+    #[cfg(all(unix, not(target_os = "macos")))]
+    let program = "xdg-open";
+    #[cfg(target_os = "windows")]
+    let open_path = without_verbatim_prefix(&canonical_path);
+    #[cfg(not(target_os = "windows"))]
+    let open_path = canonical_path;
+    std::process::Command::new(program)
+        .arg(&open_path)
+        .spawn()
+        .map_err(|e| format!("failed to open {}: {e}", open_path.display()))?;
+    Ok(())
+}
+
 /// Grants filesystem access to a file the user dropped on the window.
 ///
 /// Called only once the user actually links that file to a project, and only
@@ -509,6 +582,7 @@ pub fn run() {
             clear_discord_activity,
             pick_project_folder,
             open_linked_projects_folder,
+            open_linked_project_dir,
             allow_dropped_file,
         ])
         .run(tauri::generate_context!())
