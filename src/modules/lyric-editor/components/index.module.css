@@ -258,12 +258,15 @@
 
 .startTime,
 .endTime {
-	padding: 0.05em 0.5em;
+	padding: 0.15em 0.45em;
 	border-radius: var(--radius-4);
 	color: var(--white-a6);
-	/* Monospace like the Timing Overview: every timestamp, timed or not, is the same width. */
+	/* Monospace like the Timing Overview: every timestamp, timed or not, is the same width.
+	   Mono digits are wide, so a smaller size keeps short syllables from growing. */
 	font-family: var(--timestamp-font-family);
+	font-size: 0.8em;
 	font-weight: 500;
+	letter-spacing: -0.02em;
 }
 
 .startTime {
@@ -285,6 +288,7 @@
 	font: inherit;
 	font-family: var(--timestamp-font-family);
 	font-weight: 500;
+	font-size: 0.8em;
 	color: inherit;
 }
 
