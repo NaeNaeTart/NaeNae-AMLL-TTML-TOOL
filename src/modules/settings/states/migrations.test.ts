@@ -67,15 +67,4 @@ describe("obsolete preference migration", () => {
 		expect(createStore().get(glassmorphismBlurAtom)).toBe(64);
 		expect(values.get("glassmorphismBlur")).toBe("64");
 	});
-	it("clears the dead MP3 flag while retaining the actual saved conversion preference", async () => {
-		values.set("hideMp3ConversionWarning", "true");
-		values.set("mp3ConversionMode", '"never"');
-		const { mp3ConversionModeAtom, Mp3ConversionMode } = await import(
-			"./index"
-		);
-		expect(createStore().get(mp3ConversionModeAtom)).toBe(
-			Mp3ConversionMode.Never,
-		);
-		expect(values.has("hideMp3ConversionWarning")).toBe(false);
-	});
 });

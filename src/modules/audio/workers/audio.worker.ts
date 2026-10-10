@@ -15,6 +15,9 @@ function getModule(): Promise<AudioDecoderModule> {
 				path.endsWith(".wasm") ? "/decode-audio.wasm" : path,
 			print: (text: string) => console.log("[WASM]", text),
 			printErr: (text: string) => console.error("[WASM Error]", text),
+		}).catch((error: unknown) => {
+			ffmpegModulePromise = null;
+			throw error;
 		}) as Promise<AudioDecoderModule>;
 	}
 	return ffmpegModulePromise;
@@ -449,10 +452,22 @@ self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
 			}
 			break;
 		case "EXPORT_WAV":
-			handleExportWav(req);
+			void handleExportWav(req).catch((error: unknown) => {
+				self.postMessage({
+					type: "ERROR",
+					id: req.id,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			});
 			break;
 		case "READ_METADATA":
-			handleReadMetadata(req);
+			void handleReadMetadata(req).catch((error: unknown) => {
+				self.postMessage({
+					type: "ERROR",
+					id: req.id,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			});
 			break;
 	}
 };

@@ -47,14 +47,37 @@ describe("calculateSyncTime", () => {
 		).toBe(9_875);
 	});
 
-	it("preserves legacy key-down adjustment while playback is paused", () => {
+	it.each(
+		Object.values(SyncJudgeMode),
+	)("uses the paused playhead plus offsets in %s", (judgeMode) => {
+		for (const delay of [0, 4, 75]) {
+			for (const downTimeOffset of [0, 100, 999]) {
+				expect(
+					calculateSyncTime({
+						...baseOptions,
+						isPlaying: false,
+						playbackRate: 0.5,
+						event: { downTimeOffset, triggerTime: 1_000 },
+						performanceTime: 1_000 + delay,
+						syncTimeOffset: -25,
+						actionOffset: 5,
+						judgeMode,
+					}),
+				).toBe(9_980);
+			}
+		}
+	});
+
+	it("clamps a paused offset before zero", () => {
 		expect(
 			calculateSyncTime({
 				...baseOptions,
+				audioTimeSeconds: 0.01,
 				isPlaying: false,
+				syncTimeOffset: -100,
 				judgeMode: SyncJudgeMode.FirstKeyDownTimeLegacy,
 			}),
-		).toBe(9_750);
+		).toBe(0);
 	});
 
 	it("normalizes epoch-based event timestamps", () => {

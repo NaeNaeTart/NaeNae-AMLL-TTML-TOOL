@@ -1,4 +1,4 @@
-import { convertFileSrc } from "@tauri-apps/api/core";
+import i18next from "i18next";
 import {
 	type AudioTaskType,
 	audioBufferAtom,
@@ -11,21 +11,43 @@ import {
 	equalizerGainsAtom,
 	loadedAudioAtom,
 } from "$/modules/audio/states/index.ts";
-import { MediaTimeInterpolator } from "$/modules/audio/utils/media-time-interpolator";
-import { bufferSliceToWav } from "$/modules/audio/utils/wav-slice";
 import { AudioWorkerClient } from "$/modules/audio/workers/audio-worker-client";
 import { globalStore } from "$/states/store.ts";
 import { log } from "$/utils/logging";
+import { PcmClock, replayFrame, seekFrame } from "./utils/pcm-clock";
+import { clampPlaybackRate } from "./utils/playback-rate";
+import type { AudioMetadata } from "./workers/types";
+import playerUrl from "./worklet/audio.worklet.ts?worker&url";
+import type {
+	PlayerCommand,
+	PlayerEvent,
+	RenderReport,
+	VoiceId,
+} from "./worklet/protocol";
+import wasmUrl from "./worklet/vendor/soundtouch_bg.wasm?url";
 
-// Magic, pending original dev's explanation
-// Even don't know where should I put this after refactoring
-// const DELAY = 0.05; // 50ms
+interface PendingStart {
+	generation: number;
+	resolve: () => void;
+	reject: (error: Error) => void;
+	timer: ReturnType<typeof setTimeout>;
+}
 
-let auditionRafId: number | null = null;
+const AUDIO_ERRORS = {
+	noAudio: "Please load an audio file first.",
+	contextStart: "Audio could not start. Try pressing Play again.",
+	workletInit: "The audio player could not initialize.",
+	workletStart: "The audio player did not start playback.",
+} as const;
 
-class AudioEngine extends EventTarget {
+function audioErrorMessage(key: keyof typeof AUDIO_ERRORS) {
+	return (
+		i18next.t(`audio.error.${key}`, AUDIO_ERRORS[key]) || AUDIO_ERRORS[key]
+	);
+}
+
+export class AudioEngine extends EventTarget {
 	public workerClient: AudioWorkerClient;
-
 	//#region Audio context basics
 	private _ctx: AudioContext | null = null;
 	get ctx() {
@@ -117,186 +139,91 @@ class AudioEngine extends EventTarget {
 	constructor() {
 		super();
 		this.workerClient = new AudioWorkerClient({
-			onTaskStart: (type: AudioTaskType) => {
-				globalStore.set(audioTaskStateAtom, { type, progress: 0 });
-			},
+			onTaskStart: (type: AudioTaskType) =>
+				globalStore.set(audioTaskStateAtom, { type, progress: 0 }),
 			onTaskProgress: (progress: number) => {
 				const current = globalStore.get(audioTaskStateAtom);
-				if (current) {
+				if (current)
 					globalStore.set(audioTaskStateAtom, { ...current, progress });
-				}
 			},
-			onTaskEnd: () => {
-				globalStore.set(audioTaskStateAtom, null);
-			},
-			onError: (errorMessage: string) => {
-				console.error("[AudioEngine] Worker Error:", errorMessage);
-				globalStore.set(audioTaskStateAtom, null);
-				globalStore.set(audioErrorAtom, errorMessage);
-			},
+			onTaskEnd: () => globalStore.set(audioTaskStateAtom, null),
+			onError: (message: string) => globalStore.set(audioErrorAtom, message),
 		});
 	}
 
-	//#region Audio element
-	// Since an element is required to sync with waveform.js,
-	// all audio playback is done through this element
-	private _audioEl: HTMLAudioElement | null = null;
-	get audioEl() {
-		if (this._audioEl) return this._audioEl;
-		this._audioEl = document.createElement("audio");
-		this._audioEl.crossOrigin = "anonymous";
-		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
-			this._audioEl.volume = this._volume;
-		}
-		this._audioEl.preload = "metadata";
-		return this._audioEl;
-	}
-
-	private _auditionBlobUrl: string | null = null;
-	private _auditionAudioEl: HTMLAudioElement | null = null;
-	private get auditionAudioEl() {
-		if (this._auditionAudioEl) return this._auditionAudioEl;
-		this._auditionAudioEl = document.createElement("audio");
-		this._auditionAudioEl.crossOrigin = "anonymous";
-		this._auditionAudioEl.preload = "auto";
-		this._auditionAudioEl.volume = this._volume;
-		return this._auditionAudioEl;
-	}
-
-	private _mediaSourceNode: MediaElementAudioSourceNode | null = null;
-
-	private connectAudioToContext() {
-		if (!this._audioEl || !this.ctx || this._audioEl.src === "") return;
-		if (this._mediaSourceNode) return; // already connected!
-
-		// Bypass on Linux due to WebKitGTK / GStreamer bugs with MediaElementAudioSourceNode
-		// which causes audio to be silent and seeking to fail/jump back.
-		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
-			console.warn(
-				"[AudioEngine] Bypassing createMediaElementSource on Linux to prevent playback bugs.",
-			);
-			return;
-		}
-		try {
-			this._mediaSourceNode = this.ctx.createMediaElementSource(this._audioEl);
-			this._mediaSourceNode.connect(this.eqEntryPoint);
-			log("AudioElement connected to AudioContext (via EQ)");
-		} catch (e) {
-			log("Failed to connect AudioElement:", e);
-		}
-	}
-
-	/** Handle browser autoplay policy */
-	private async resumeContext() {
-		if (this.ctx.state !== "running") {
-			await this.ctx.resume();
-			log("AudioContext resumed");
-		}
-	}
-
-	private _listenersSetup = false;
-
-	/** Link audio element events into engine events */
-	private setupAudioListeners() {
-		if (this._listenersSetup) return;
-		const audioEl = this._audioEl;
-		if (!audioEl) return;
-
-		this._listenersSetup = true;
-
-		const events = {
-			play: "music-resume",
-			pause: "music-pause",
-			timeupdate: "music-timeupdate",
-			ended: "music-pause",
-			seeked: "music-seeked",
-			volumechange: "volume-change",
-			ratechange: "music-playback-rate-change",
-		};
-		Object.entries(events).forEach(([event, engineEvent]) => {
-			audioEl.addEventListener(event, () => {
-				this.dispatchEvent(new Event(engineEvent));
-			});
-		});
-	}
-	//#endregion
-
-	//#region Playback
-	private auditionSourceNode: AudioBufferSourceNode | null = null;
+	public musicBuffer: AudioBuffer | null = null;
+	/** Raw parsed tags (title/artist/album included when present); music-metadata signals availability. */
+	public musicMetadata: AudioMetadata | null = null;
+	private node: AudioWorkletNode | null = null;
+	private playerReady: Promise<void> | null = null;
+	private loadGeneration = 0;
+	private loadAbort: AbortController | null = null;
+	private workletReady: Promise<void> | null = null;
+	private wasmBytes: Promise<ArrayBuffer> | null = null;
+	private musicClock = new PcmClock();
+	private auditionClock = new PcmClock();
+	private musicGeneration = 0;
+	private auditionGeneration = 0;
+	private playing = false;
+	private auditionPlaying = false;
+	private auditionEnd = 0;
+	private musicEndReport: RenderReport | null = null;
+	private auditionEndReport: RenderReport | null = null;
+	private updateTimer: ReturnType<typeof setTimeout> | null = null;
+	private pendingStarts = new Map<VoiceId, PendingStart>();
+	private _musicPlayBackRate = 1;
+	private _preservesPitch = true;
 
 	get musicLoaded() {
-		return !!this.musicBuffer;
+		return this.musicBuffer !== null;
 	}
-
 	get musicPlaying() {
-		if (!this._audioEl) return false;
-		return !this._audioEl.paused && !this._audioEl.ended;
+		return this.playing && this.ctx.state === "running";
 	}
-
+	get musicDuration() {
+		return this.musicBuffer?.duration ?? 0;
+	}
 	get musicCurrentTime() {
-		return this._audioEl?.currentTime ?? 0;
-	}
-
-	private mediaTimeInterpolator = new MediaTimeInterpolator();
-
-	get interpolatedCurrentTime() {
-		if (!this._audioEl) return 0;
-		const canExtrapolate =
-			this.musicPlaying &&
-			!this._audioEl.seeking &&
-			this._audioEl.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA;
-		return this.mediaTimeInterpolator.sample(
-			this._audioEl.currentTime,
-			performance.now(),
-			this._musicPlayBackRate,
-			canExtrapolate,
+		if (!this.musicBuffer) return 0;
+		return (
+			this.musicClock.frameAt(
+				this.audibleContextTime,
+				this.musicBuffer.sampleRate,
+			) / this.musicBuffer.sampleRate
 		);
 	}
-
-	get musicDuration() {
-		return this._audioEl?.duration ?? 0;
+	/** Compatibility name: interpolation occurs only inside confirmed rendered blocks. */
+	get interpolatedCurrentTime() {
+		return this.musicCurrentTime;
 	}
-
-	private _musicPlayBackRate = 1;
 	get musicPlayBackRate() {
 		return this._musicPlayBackRate;
 	}
-	set musicPlayBackRate(v: number) {
-		if (this._audioEl) {
-			this._audioEl.playbackRate = v;
-		}
-		if (this._auditionAudioEl) {
-			this._auditionAudioEl.playbackRate = v;
-		}
-		this._musicPlayBackRate = v;
-		this.mediaTimeInterpolator.reset(this.musicCurrentTime, performance.now());
+	set musicPlayBackRate(value: number) {
+		const rate = clampPlaybackRate(value);
+		if (rate === this._musicPlayBackRate) return;
+		this._musicPlayBackRate = rate;
+		this.refreshVoices();
 		this.dispatchEvent(new Event("music-playback-rate-change"));
 	}
-
+	get preservesPitch() {
+		return this._preservesPitch;
+	}
+	set preservesPitch(value: boolean) {
+		if (value === this._preservesPitch) return;
+		this._preservesPitch = value;
+		this.refreshVoices();
+		this.dispatchEvent(new Event("music-preserves-pitch-change"));
+	}
 	get volume() {
 		return this._volume;
 	}
-	set volume(v: number) {
-		if (this._volume === v) return;
-		this._volume = v;
-		if (import.meta.env.TAURI_ENV_PLATFORM === "linux") {
-			if (this._audioEl) this._audioEl.volume = v;
-		} else {
-			this.gain.gain.value = v;
-		}
-		if (this._auditionAudioEl) this._auditionAudioEl.volume = v;
+	set volume(value: number) {
+		if (!Number.isFinite(value)) return;
+		this._volume = Math.max(0, Math.min(1, value));
+		this.gain.gain.value = this._volume;
 		this.dispatchEvent(new Event("volume-change"));
 	}
-
-	get preservesPitch() {
-		return this.audioEl.preservesPitch;
-	}
-	set preservesPitch(v: boolean) {
-		this.audioEl.preservesPitch = v;
-		if (this._auditionAudioEl) this._auditionAudioEl.preservesPitch = v;
-		this.dispatchEvent(new Event("music-preserves-pitch-change"));
-	}
-
 	get ctxCurrentTime() {
 		return this.ctx.currentTime;
 	}
@@ -304,310 +231,516 @@ class AudioEngine extends EventTarget {
 		return this.ctx.baseLatency;
 	}
 	get ctxOutputLatency() {
-		return this.ctx.outputLatency;
+		return this.ctx.outputLatency ?? 0;
+	}
+	private get audibleContextTime() {
+		// getOutputTimestamp supplies the device's audible context time, including graph/device latency.
+		const stamp = this.ctx.getOutputTimestamp?.();
+		if (stamp?.performanceTime && stamp.contextTime !== undefined) {
+			return Math.min(
+				this.ctx.currentTime,
+				stamp.contextTime +
+					Math.max(0, performance.now() - stamp.performanceTime) / 1000,
+			);
+		}
+		return Math.max(
+			0,
+			this.ctx.currentTime - this.ctxBaseLatency - this.ctxOutputLatency,
+		);
 	}
 
+	private post(command: PlayerCommand) {
+		this.node?.port.postMessage(command);
+	}
+	private clock(voice: VoiceId) {
+		return voice === "music" ? this.musicClock : this.auditionClock;
+	}
+	private setVoice(
+		voice: VoiceId,
+		frame: number,
+		playing: boolean,
+		endFrame = this.musicBuffer?.length ?? 0,
+	) {
+		const generation =
+			voice === "music" ? ++this.musicGeneration : ++this.auditionGeneration;
+		this.cancelStart(voice);
+		this.clock(voice).reset(generation, frame);
+		if (voice === "music") this.musicEndReport = null;
+		else this.auditionEndReport = null;
+		this.post({
+			type: "voice",
+			voice,
+			state: {
+				generation,
+				frame,
+				endFrame,
+				playing,
+				rate: this._musicPlayBackRate,
+				preservesPitch: this._preservesPitch,
+			},
+		});
+		return generation;
+	}
+	private refreshVoices() {
+		if (!this.musicBuffer) return;
+		const frame = seekFrame(
+			this.musicCurrentTime,
+			this.musicBuffer.sampleRate,
+			this.musicBuffer.length,
+		);
+		this.setVoice("music", frame, this.playing);
+		if (this.auditionPlaying) {
+			const auditionFrame = this.auditionClock.frameAt(
+				this.audibleContextTime,
+				this.musicBuffer.sampleRate,
+			);
+			this.setVoice(
+				"audition",
+				Math.round(auditionFrame),
+				true,
+				this.auditionEnd,
+			);
+		}
+	}
 	seekMusic(offset: number) {
-		if (this._audioEl) {
-			this._audioEl.currentTime = offset;
-			this.mediaTimeInterpolator.reset(offset, performance.now());
-			this.dispatchEvent(new Event("music-seeked"));
-		}
+		if (!this.musicBuffer) return;
+		const frame = seekFrame(
+			offset,
+			this.musicBuffer.sampleRate,
+			this.musicBuffer.length,
+		);
+		this.setVoice("music", frame, this.playing);
+		this.dispatchEvent(new Event("music-seeked"));
 	}
 
-	async resumeOrSeekMusic(offset = this.musicCurrentTime) {
-		if (!this._audioEl) return;
+	private async resumeContext() {
+		if (this.ctx.state !== "running") {
+			await this.withTimeout(
+				this.ctx.resume(),
+				audioErrorMessage("contextStart"),
+			);
+		}
+		if (this.ctx.state !== "running")
+			throw new Error(audioErrorMessage("contextStart"));
+	}
+	resumeOrSeekMusic(offset = this.musicCurrentTime) {
+		return this.observePlayback(this.startMusic(offset), "music");
+	}
+	private async startMusic(offset: number) {
+		if (!this.musicBuffer || !this.node)
+			throw new Error(audioErrorMessage("noAudio"));
+		const load = this.loadGeneration;
+		const request = this.musicGeneration;
 		await this.resumeContext();
-		this._audioEl.currentTime = offset;
-		this.mediaTimeInterpolator.reset(offset, performance.now());
-		this._audioEl.play();
-		this.dispatchEvent(new Event("music-resume"));
+		if (this.playerReady)
+			await this.withTimeout(
+				this.playerReady,
+				audioErrorMessage("workletInit"),
+			);
+		if (load !== this.loadGeneration || request !== this.musicGeneration)
+			throw new DOMException("Playback replaced", "AbortError");
+		const frame = replayFrame(
+			seekFrame(offset, this.musicBuffer.sampleRate, this.musicBuffer.length),
+			this.musicBuffer.sampleRate,
+			this.musicBuffer.length,
+		);
+		const generation = this.setVoice("music", frame, true);
+		this.dispatchEvent(new Event("music-seeked"));
+		await this.waitForStart("music", generation);
 	}
-
-	stopAudition() {
-		if (auditionRafId) {
-			cancelAnimationFrame(auditionRafId);
-			auditionRafId = null;
-		}
-		if (this._auditionAudioEl) {
-			this._auditionAudioEl.pause();
-			this._auditionAudioEl.currentTime = 0;
-		}
-		if (this._auditionBlobUrl) {
-			URL.revokeObjectURL(this._auditionBlobUrl);
-			this._auditionBlobUrl = null;
-		}
-		if (this.auditionSourceNode) {
-			try {
-				this.auditionSourceNode.stop(0);
-				this.auditionSourceNode.disconnect();
-			} catch {
-				// ignore
-			}
-			this.auditionSourceNode = null;
-		}
-		globalStore.set(auditionTimeAtom, null);
+	play() {
+		return this.resumeOrSeekMusic();
 	}
-
+	private observePlayback(operation: Promise<void>, voice: VoiceId) {
+		const generation = this.loadGeneration;
+		// UI event handlers can discard the promise; callers that await it still see rejection.
+		void operation.catch((error: unknown) => {
+			if (
+				generation !== this.loadGeneration ||
+				(error instanceof Error && error.name === "AbortError")
+			)
+				return;
+			if (voice === "music") this.pauseMusic();
+			else this.stopAudition();
+			globalStore.set(
+				audioErrorAtom,
+				error instanceof Error ? error.message : String(error),
+			);
+		});
+		return operation;
+	}
+	private waitForStart(voice: VoiceId, generation: number) {
+		return new Promise<void>((resolve, reject) => {
+			const timer = setTimeout(() => {
+				this.pendingStarts.delete(voice);
+				if (voice === "music") this.pauseMusic();
+				else this.stopAudition();
+				reject(new Error(audioErrorMessage("workletStart")));
+			}, 10000);
+			this.pendingStarts.set(voice, { generation, resolve, reject, timer });
+		});
+	}
+	private cancelStart(
+		voice: VoiceId,
+		error: Error = new DOMException("Playback cancelled", "AbortError"),
+	) {
+		const pending = this.pendingStarts.get(voice);
+		if (!pending) return;
+		clearTimeout(pending.timer);
+		this.pendingStarts.delete(voice);
+		pending.reject(error);
+	}
 	pauseMusic() {
-		if (!this._audioEl) return;
-		this._audioEl.pause();
+		if (this.musicBuffer) {
+			const frame = seekFrame(
+				this.musicCurrentTime,
+				this.musicBuffer.sampleRate,
+				this.musicBuffer.length,
+			);
+			this.setVoice("music", frame, false);
+		} else this.cancelStart("music");
+		this.playing = false;
 		this.stopAudition();
+		this.stopUpdates();
+		this.dispatchEvent(new Event("music-timeupdate"));
 		this.dispatchEvent(new Event("music-pause"));
 	}
-
-	unloadMusic() {
-		this.coverArtRequest++;
-		try {
-			this.pauseMusic();
-		} catch {}
-		this.stopAudition();
-		this.musicBuffer = null;
-		globalStore.set(audioBufferAtom, null);
-		globalStore.set(loadedAudioAtom, new Blob([]));
-		this.setEmbeddedCoverArt(null);
-		if (this._audioEl) {
-			try {
-				this._audioEl.pause();
-			} catch {}
-			this._audioEl.removeAttribute("src");
-			this._audioEl.src = "";
-			try {
-				this._audioEl.load();
-			} catch {}
-		}
-		this.dispatchEvent(new Event("music-unload"));
+	stopAudition() {
+		this.setVoice("audition", 0, false);
+		this.auditionPlaying = false;
+		globalStore.set(auditionTimeAtom, null);
+		if (!this.playing) this.stopUpdates();
 	}
-
-	/**
-	 * 试听一个音频片段
-	 *
-	 * @param startTimeInSeconds 音频片段的开始时间
-	 * @param endTimeInSeconds 音频片段的结束时间
-	 * @returns
-	 */
-	async auditionRange(startTimeInSeconds: number, endTimeInSeconds: number) {
-		if (!this.musicBuffer) {
-			console.warn("musicBuffer 为 null, 无法预览音频");
-			return;
-		}
-
-		const totalDuration = this.musicBuffer.duration;
-		const validStartTime = Math.max(
-			0,
-			Math.min(startTimeInSeconds, totalDuration),
-		);
-		const validEndTime = Math.max(
-			validStartTime,
-			Math.min(endTimeInSeconds, totalDuration),
-		);
-		const durationInSeconds = validEndTime - validStartTime;
-
-		if (durationInSeconds <= 0) {
-			return;
-		}
-
+	auditionRange(start: number, end: number) {
+		return this.observePlayback(this.startAudition(start, end), "audition");
+	}
+	private async startAudition(start: number, end: number) {
+		if (!this.musicBuffer || !this.node)
+			throw new Error(audioErrorMessage("noAudio"));
+		const load = this.loadGeneration;
 		this.stopAudition();
-
-		try {
-			const wavBlob = bufferSliceToWav(
-				this.musicBuffer,
-				validStartTime,
-				validEndTime,
+		const request = this.auditionGeneration;
+		const startFrame = seekFrame(
+			start,
+			this.musicBuffer.sampleRate,
+			this.musicBuffer.length,
+		);
+		const endFrame = seekFrame(
+			end,
+			this.musicBuffer.sampleRate,
+			this.musicBuffer.length,
+		);
+		if (endFrame <= startFrame) return;
+		await this.resumeContext();
+		if (this.playerReady)
+			await this.withTimeout(
+				this.playerReady,
+				audioErrorMessage("workletInit"),
 			);
-			const blobUrl = URL.createObjectURL(wavBlob);
-			this._auditionBlobUrl = blobUrl;
-
-			const auditionEl = this.auditionAudioEl;
-			auditionEl.src = blobUrl;
-			auditionEl.volume = this._volume;
-			auditionEl.playbackRate = this._musicPlayBackRate;
-			auditionEl.preservesPitch = this.preservesPitch;
-
-			const startTimeWall = performance.now();
-			const durationMS = (durationInSeconds / this._musicPlayBackRate) * 1000;
-
-			const progressLoop = () => {
-				const elapsedMS = performance.now() - startTimeWall;
-				const progressRatio = Math.min(1, elapsedMS / durationMS);
-				const currentAuditionTime =
-					validStartTime + progressRatio * durationInSeconds;
-
-				if (progressRatio >= 1 || auditionEl.paused || auditionEl.ended) {
-					globalStore.set(auditionTimeAtom, null);
-					auditionRafId = null;
-					this.stopAudition();
-				} else {
-					globalStore.set(auditionTimeAtom, currentAuditionTime);
-					auditionRafId = requestAnimationFrame(progressLoop);
-				}
-			};
-
-			auditionEl.onended = () => {
-				this.stopAudition();
-			};
-
-			await auditionEl.play();
-			auditionRafId = requestAnimationFrame(progressLoop);
-		} catch (e) {
-			console.error("[AudioEngine] Audition failed:", e);
-			this.stopAudition();
-		}
+		if (load !== this.loadGeneration || request !== this.auditionGeneration)
+			throw new DOMException("Audition replaced", "AbortError");
+		this.auditionEnd = endFrame;
+		const generation = this.setVoice("audition", startFrame, true, endFrame);
+		await this.waitForStart("audition", generation);
 	}
 
-	//#endregion
-
-	//#region Load sound
-	private musicBuffer: AudioBuffer | null = null;
-	private coverArtRequest = 0;
+	private receiveReport(voice: VoiceId, report: RenderReport) {
+		if (!this.clock(voice).push(report)) return;
+		const pending = this.pendingStarts.get(voice);
+		if (
+			pending &&
+			pending.generation === report.generation &&
+			report.renderedFrames > 0
+		) {
+			clearTimeout(pending.timer);
+			this.pendingStarts.delete(voice);
+			if (voice === "music") {
+				this.playing = true;
+				this.dispatchEvent(new Event("music-resume"));
+			} else this.auditionPlaying = true;
+			pending.resolve();
+			this.startUpdates();
+		}
+		if (report.ended) {
+			if (voice === "music") this.musicEndReport = report;
+			else this.auditionEndReport = report;
+			this.startUpdates();
+		}
+	}
+	private startUpdates() {
+		if (this.updateTimer !== null) return;
+		const tick = () => {
+			this.updateTimer = null;
+			const sampleRate = this.musicBuffer?.sampleRate ?? this.ctx.sampleRate;
+			const audible = this.audibleContextTime;
+			const hasEnded = (report: RenderReport | null) =>
+				report &&
+				audible >= report.contextTime + report.renderedFrames / sampleRate;
+			if (hasEnded(this.musicEndReport)) {
+				const report = this.musicEndReport;
+				if (report)
+					this.musicClock.reset(this.musicGeneration, report.endFrame);
+				this.musicEndReport = null;
+				this.playing = false;
+				this.dispatchEvent(new Event("music-timeupdate"));
+				this.dispatchEvent(new Event("music-pause"));
+			} else if (this.playing)
+				this.dispatchEvent(new Event("music-timeupdate"));
+			if (hasEnded(this.auditionEndReport)) this.stopAudition();
+			else if (this.auditionPlaying) {
+				globalStore.set(
+					auditionTimeAtom,
+					this.auditionClock.frameAt(audible, sampleRate) / sampleRate,
+				);
+			}
+			if (
+				this.playing ||
+				this.auditionPlaying ||
+				this.musicEndReport ||
+				this.auditionEndReport
+			) {
+				this.updateTimer = setTimeout(tick, 16);
+			}
+		};
+		this.updateTimer = setTimeout(tick, 0);
+	}
+	private stopUpdates() {
+		if (this.updateTimer !== null) clearTimeout(this.updateTimer);
+		this.updateTimer = null;
+	}
 
 	private setEmbeddedCoverArt(coverUrl: string | null) {
 		const previous = globalStore.get(audioCoverArtAtom);
 		if (previous && previous !== coverUrl) URL.revokeObjectURL(previous);
 		globalStore.set(audioCoverArtAtom, coverUrl);
 	}
-
-	async loadMusic(src: Blob, isRetry = false): Promise<HTMLAudioElement> {
-		const audioEl = this.audioEl;
-
-		if (!isRetry) {
-			const request = ++this.coverArtRequest;
-			this.setEmbeddedCoverArt(null);
-			void this.workerClient
-				.readMetadata(src)
-				.then((metadata) => {
-					if (request !== this.coverArtRequest) {
-						if (metadata.coverUrl) URL.revokeObjectURL(metadata.coverUrl);
-						return;
-					}
-					this.setEmbeddedCoverArt(metadata.coverUrl ?? null);
-				})
-				.catch(() => {
-					// Audio playback is still valid when a format has no readable tags.
-				});
-			if (this.musicBuffer) {
-				this.pauseMusic();
-				this.stopAudition();
-				this.musicBuffer = null;
-				globalStore.set(audioBufferAtom, null);
-				globalStore.set(loadedAudioAtom, new Blob([]));
-				audioEl.src = "";
-				this.dispatchEvent(new Event("music-unload"));
-			}
-			this.dispatchEvent(new Event("music-loading"));
-		}
-
+	unloadMusic() {
+		++this.loadGeneration;
+		this.loadAbort?.abort();
+		this.loadAbort = null;
+		this.pauseMusic();
+		this.post({ type: "destroy" });
+		this.node?.disconnect();
+		if (this.node) this.node.port.close();
+		this.node = null;
+		this.playerReady = null;
+		this.musicBuffer = null;
+		this.musicMetadata = null;
+		this.musicClock.reset(++this.musicGeneration, 0);
+		globalStore.set(audioBufferAtom, null);
+		globalStore.set(loadedAudioAtom, new Blob([]));
+		globalStore.set(audioTaskStateAtom, null);
+		this.setEmbeddedCoverArt(null);
+		this.dispatchEvent(new Event("music-unload"));
+	}
+	private withTimeout<T>(operation: Promise<T>, message: string): Promise<T> {
 		return new Promise((resolve, reject) => {
-			audioEl.onloadedmetadata = null;
-			audioEl.onerror = null;
-
-			const handleError = (errorMsg: string, errorCode?: number) => {
-				console.warn(
-					`[AudioEngine] Load error. Retry: ${isRetry}. Code: ${errorCode}. Msg: ${errorMsg}`,
-				);
-
-				const canRetry =
-					!isRetry &&
-					(errorCode === MediaError.MEDIA_ERR_DECODE ||
-						errorCode === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED);
-
-				if (canRetry) {
-					this.performTranscodeFallback(src, resolve, reject);
-				} else {
-					this.dispatchEvent(new Event("music-load-error"));
-					reject(new Error(`Audio load error: ${errorMsg}`));
-				}
-			};
-
-			audioEl.onerror = (e: Event | string) => {
-				const error = audioEl.error;
-				const msg = error?.message || e.toString();
-				handleError(msg, error?.code);
-			};
-
-			audioEl.onloadedmetadata = async () => {
-				try {
-					const audioData = await src.arrayBuffer();
-					this.musicBuffer = await this.ctx.decodeAudioData(audioData);
-					globalStore.set(audioBufferAtom, this.musicBuffer);
-					globalStore.set(loadedAudioAtom, src);
-
-					this.connectAudioToContext();
-					this.setupAudioListeners();
-
-					audioEl.onloadedmetadata = null;
-					audioEl.onerror = null;
-
-					audioEl.playbackRate = this._musicPlayBackRate;
-
-					this.dispatchEvent(new Event("music-load"));
-					resolve(audioEl);
-				} catch (err) {
-					console.warn("[AudioEngine] decodeAudioData failed:", err);
-
-					if (!isRetry) {
-						this.performTranscodeFallback(src, resolve, reject);
-					} else {
-						reject(err);
-					}
-				}
-			};
-
-			const filePath = (src as Blob & { path?: string }).path;
-			if (filePath && import.meta.env.TAURI_ENV_PLATFORM) {
-				audioEl.src = convertFileSrc(filePath);
-			} else {
-				audioEl.src = URL.createObjectURL(src);
-			}
+			const timer = setTimeout(() => reject(new Error(message)), 10000);
+			operation.then(
+				(value) => {
+					clearTimeout(timer);
+					resolve(value);
+				},
+				(error) => {
+					clearTimeout(timer);
+					reject(error);
+				},
+			);
 		});
 	}
-
-	private async performTranscodeFallback(
-		src: Blob,
-		resolve: (value: HTMLAudioElement | PromiseLike<HTMLAudioElement>) => void,
-		reject: (reason?: Error) => void,
-	) {
-		console.log("[AudioEngine] Attempting transcoding fallback...");
-		try {
-			const wavBlob = await this.workerClient.transcodeToWav(src);
-
-			const el = await this.loadMusic(wavBlob, true);
-			resolve(el);
-		} catch (error) {
-			console.error("[AudioEngine] Transcoding fallback failed:", error);
-			reject(error as Error);
-		}
+	private async prepareWorklet() {
+		this.workletReady ??= this.ctx.audioWorklet
+			.addModule(playerUrl)
+			.catch((error) => {
+				this.workletReady = null;
+				throw error;
+			});
+		this.wasmBytes ??= fetch(wasmUrl)
+			.then(async (response) => {
+				if (!response.ok)
+					throw new Error(`SoundTouch download failed: ${response.status}`);
+				const bytes = await response.arrayBuffer();
+				await WebAssembly.compile(bytes);
+				return bytes;
+			})
+			.catch((error) => {
+				this.wasmBytes = null;
+				throw error;
+			});
+		const [, wasm] = await Promise.all([this.workletReady, this.wasmBytes]);
+		return wasm;
 	}
-
+	async loadMusic(src: Blob): Promise<AudioBuffer> {
+		this.unloadMusic();
+		const generation = this.loadGeneration;
+		const abort = new AbortController();
+		this.loadAbort = abort;
+		const current = () =>
+			generation === this.loadGeneration && !abort.signal.aborted;
+		const assertCurrent = () => {
+			if (!current())
+				throw new DOMException("Audio load replaced", "AbortError");
+		};
+		globalStore.set(audioErrorAtom, null);
+		globalStore.set(audioTaskStateAtom, { type: "LOADING", progress: 0 });
+		this.dispatchEvent(new Event("music-loading"));
+		void this.workerClient
+			.readMetadata(src)
+			.then((metadata) => {
+				if (!current()) {
+					if (metadata.coverUrl) URL.revokeObjectURL(metadata.coverUrl);
+					return;
+				}
+				this.musicMetadata = metadata;
+				this.setEmbeddedCoverArt(metadata.coverUrl ?? null);
+				this.dispatchEvent(new Event("music-metadata"));
+			})
+			.catch(() => {
+				/* Tag-less files remain playable. */
+			});
+		let node: AudioWorkletNode | null = null;
+		let rejectInit: ((error: Error) => void) | null = null;
+		const operation = async () => {
+			let buffer: AudioBuffer;
+			const bytes = await src.arrayBuffer();
+			assertCurrent();
+			try {
+				buffer = await this.ctx.decodeAudioData(bytes);
+			} catch {
+				assertCurrent();
+				const wav = await this.workerClient.transcodeToWav(src, current);
+				assertCurrent();
+				const wavBytes = await wav.arrayBuffer();
+				assertCurrent();
+				buffer = await this.ctx.decodeAudioData(wavBytes);
+			}
+			assertCurrent();
+			const wasm = await this.withTimeout(
+				this.prepareWorklet(),
+				audioErrorMessage("workletInit"),
+			);
+			assertCurrent();
+			node = new AudioWorkletNode(this.ctx, "pcm-player", {
+				numberOfInputs: 0,
+				numberOfOutputs: 1,
+				outputChannelCount: [buffer.numberOfChannels],
+			});
+			const ownedNode = node;
+			const ready = new Promise<void>((resolve, reject) => {
+				rejectInit = reject;
+				ownedNode.onprocessorerror = () => {
+					const error = new Error("Audio worklet processor failed");
+					reject(error);
+					if (current() && this.node === ownedNode) this.failPlayback(error);
+				};
+				ownedNode.port.onmessage = (event: MessageEvent<PlayerEvent>) => {
+					if (!current()) return;
+					const message = event.data;
+					if (message.type === "ready") resolve();
+					else if (message.type === "error") {
+						const error = new Error(message.message);
+						reject(error);
+						if (this.node === ownedNode) this.failPlayback(error);
+					} else this.receiveReport(message.voice, message.report);
+				};
+			});
+			// Chromium services worklet control messages only while the context runs.
+			// Prepare a suspended song now; acknowledge DSP initialization on its first play.
+			const cancelReady = () =>
+				rejectInit?.(new DOMException("Audio load replaced", "AbortError"));
+			abort.signal.addEventListener("abort", cancelReady, { once: true });
+			void ready.then(
+				() => abort.signal.removeEventListener("abort", cancelReady),
+				() => abort.signal.removeEventListener("abort", cancelReady),
+			);
+			ownedNode.connect(this.eqEntryPoint);
+			// Transfer one copy; neither structured cloning nor audition duplicates the full PCM.
+			const channels = Array.from(
+				{ length: buffer.numberOfChannels },
+				(_, channel) => buffer.getChannelData(channel).slice(),
+			);
+			// Compiled WASM modules do not reliably deserialize in Chromium AudioWorklet.
+			const command: PlayerCommand = { type: "init", channels, wasm };
+			ownedNode.port.postMessage(
+				command,
+				channels.map((channel) => channel.buffer),
+			);
+			if (this.ctx.state === "running") {
+				await this.withTimeout(ready, audioErrorMessage("workletInit"));
+			}
+			assertCurrent();
+			this.node = ownedNode;
+			this.playerReady = ready;
+			this.musicBuffer = buffer;
+			globalStore.set(audioBufferAtom, buffer);
+			globalStore.set(loadedAudioAtom, src);
+			globalStore.set(audioTaskStateAtom, null);
+			this.dispatchEvent(new Event("music-load"));
+			return buffer;
+		};
+		return new Promise<AudioBuffer>((resolve, reject) => {
+			const cancel = () => {
+				const error = new DOMException("Audio load replaced", "AbortError");
+				rejectInit?.(error);
+				if (node) {
+					node.port.postMessage({ type: "destroy" });
+					node.disconnect();
+					node.port.close();
+				}
+				reject(error);
+			};
+			abort.signal.addEventListener("abort", cancel, { once: true });
+			operation()
+				.then(resolve, (error) => {
+					if (node) {
+						node.port.postMessage({ type: "destroy" });
+						node.disconnect();
+						node.port.close();
+					}
+					if (current()) {
+						this.node = null;
+						globalStore.set(audioTaskStateAtom, null);
+						globalStore.set(
+							audioErrorAtom,
+							error instanceof Error ? error.message : String(error),
+						);
+						this.dispatchEvent(new Event("music-load-error"));
+						// Failed sessions no longer own pending metadata/fallback callbacks.
+						abort.signal.removeEventListener("abort", cancel);
+						abort.abort();
+					}
+					reject(error);
+				})
+				.finally(() => abort.signal.removeEventListener("abort", cancel));
+		});
+	}
+	private failPlayback(error: Error) {
+		this.cancelStart("music", error);
+		this.cancelStart("audition", error);
+		this.unloadMusic();
+		globalStore.set(audioErrorAtom, error.message);
+		this.dispatchEvent(new Event("music-load-error"));
+	}
 	async playSound(
 		audioBuffer: AudioBuffer,
 		when?: number,
 		offset?: number,
 		duration?: number,
 	) {
-		if (!this.ctx) return;
 		await this.resumeContext();
 		const source = this.ctx.createBufferSource();
 		source.buffer = audioBuffer;
 		source.connect(this.eqEntryPoint);
 		source.start(when, offset, duration);
-		source.addEventListener("ended", () => {
-			source.disconnect();
-		});
+		source.addEventListener("ended", () => source.disconnect());
 	}
-
 	async playNode(node: AudioScheduledSourceNode, when?: number, stop?: number) {
 		await this.resumeContext();
 		node.connect(this.eqEntryPoint);
 		node.start(when);
-		node.addEventListener("ended", () => {
-			node.disconnect();
-		});
+		node.addEventListener("ended", () => node.disconnect());
 		if (stop) node.stop(stop);
 	}
-	//#endregion
-
-	//#region Misc
 	decodeAudioData(
 		audioData: ArrayBuffer,
 		successCallback?: DecodeSuccessCallback | null,
@@ -615,7 +748,6 @@ class AudioEngine extends EventTarget {
 	): Promise<AudioBuffer> {
 		return this.ctx.decodeAudioData(audioData, successCallback, errorCallback);
 	}
-	//#endregion
 }
 
 export const audioEngine = new AudioEngine();

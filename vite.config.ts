@@ -123,7 +123,7 @@ export default defineConfig({
 	clearScreen: false,
 	optimizeDeps: {
 		include: ["jotai"],
-		exclude: ["url", "@ffmpeg/ffmpeg", "@ffmpeg/util", "hangul-romanize"],
+		exclude: ["url", "hangul-romanize"],
 	},
 	server: {
 		watch: {

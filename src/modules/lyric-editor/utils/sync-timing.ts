@@ -38,6 +38,14 @@ export function calculateSyncTime({
 	performanceTime,
 	performanceTimeOrigin = 0,
 }: CalculateSyncTimeOptions) {
+	// A paused playhead does not move while the key is held or handled, so there
+	// is no delay to compensate: every press gives the same time.
+	if (!isPlaying) {
+		return Math.round(
+			Math.max(0, audioTimeSeconds * 1000 + syncTimeOffset + actionOffset),
+		);
+	}
+
 	const eventTime = eventTimeOnPerformanceClock(
 		event.triggerTime,
 		performanceTimeOrigin,

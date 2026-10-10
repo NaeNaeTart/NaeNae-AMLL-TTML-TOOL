@@ -186,62 +186,6 @@ struct OpenFileData {
 }
 
 #[tauri::command]
-fn convert_audio_mp3_to_flac(input_data: Vec<u8>, filename: String) -> Result<Vec<u8>, String> {
-    let temp_dir = std::env::temp_dir();
-    let input_path = temp_dir.join(format!("ttml_tool_input_{}", filename));
-    let output_path = temp_dir.join("ttml_tool_output.flac");
-
-    if let Err(e) = fs::write(&input_path, &input_data) {
-        return Err(format!("Failed to write temp input file: {}", e));
-    }
-
-    let ffmpeg_result = std::process::Command::new("ffmpeg")
-        .args([
-            "-y",
-            "-i",
-            input_path.to_str().unwrap(),
-            "-codec:a",
-            "flac",
-            "-sample-rate",
-            "44100",
-            output_path.to_str().unwrap(),
-        ])
-        .output();
-
-    let _ = fs::remove_file(&input_path);
-
-    match ffmpeg_result {
-        Ok(result) => {
-            if result.status.success() {
-                match fs::read(&output_path) {
-                    Ok(converted_data) => {
-                        let _ = fs::remove_file(&output_path);
-                        Ok(converted_data)
-                    }
-                    Err(e) => Err(format!("Failed to read converted file: {}", e))
-                }
-            } else {
-                let stderr_output = String::from_utf8_lossy(&result.stderr);
-                let stdout_output = String::from_utf8_lossy(&result.stdout);
-                if stderr_output.contains("not found") || stderr_output.is_empty() && stdout_output.is_empty() {
-                    Err("ffmpeg not found. Please install ffmpeg and ensure it's in your PATH.".to_string())
-                } else {
-                    Err(format!("FFmpeg conversion failed: {}\nStdout: {}", stderr_output, stdout_output))
-                }
-            }
-        }
-        Err(e) => {
-            let error_msg = if e.kind() == std::io::ErrorKind::NotFound {
-                "ffmpeg not found. Please install ffmpeg and ensure it's in your PATH.".to_string()
-            } else {
-                format!("Failed to run ffmpeg: {}. Make sure ffmpeg is installed and in your PATH.", e)
-            };
-            Err(error_msg)
-        }
-    }
-}
-
-#[tauri::command]
 fn get_open_file_data() -> Option<OpenFileData> {
     let filename = std::env::args().nth(1);
     if let Some(filename) = filename {
@@ -577,7 +521,6 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             get_open_file_data,
-            convert_audio_mp3_to_flac,
             set_discord_activity,
             clear_discord_activity,
             pick_project_folder,
