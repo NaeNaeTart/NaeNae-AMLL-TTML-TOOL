@@ -10,6 +10,7 @@
 		"test": "vitest run",
 		"test:all": "vitest run && pnpm run test:versioning",
 		"version:bump": "node scripts/bump-version.mjs",
+		"changelog:compile": "node scripts/compile-changelog.mjs",
 		"test:versioning": "node --test scripts/version-utils.test.mjs",
 		"lint": "biome lint",
 		"fmt": "biome format --write ./src",

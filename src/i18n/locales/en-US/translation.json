@@ -1,4 +1,7 @@
 {
+  "changeNotes": {
+    "highlightsDescription": "Release highlights and recent improvements for NaeNae users"
+  },
   "app": {
     "error": {
       "title": "Oops, an error occurred!",

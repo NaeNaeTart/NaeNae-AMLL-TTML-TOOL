@@ -41,7 +41,7 @@ You can also use the Tauri desktop version built via GitHub Actions; see the [La
 - **Time Stretch** — Scale every TTML timestamp to fit a new song duration, with support for reading durations from audio files.
 - **Unified Lyrics Import** — Choose Plain Text, LRCLIB, Lyrically, or Genius from clear cards in the empty editor, then use one consistent preparation, replacement-confirmation, and formatting workflow.
 - **Genius Header Categorization & Section Tools** — Preserve headers such as `[Chorus]` and `[Verse]` as color-coded section metadata, with whole-section timing controls.
-- **Backup & Restore** — Export and restore selected settings, keybindings, appearance assets, projects and history, and plugins in a portable backup file.
+- **Backup & Restore** — Export and restore selected settings, keybindings, appearance assets, projects and history in a portable backup file.
 - **Bouncy Word Indicator** — Long-duration syllables in Sync mode get a subtle bouncing dot, making held words easier to spot while timing.
 - **Toxi Lyrics Engine** — High-fidelity jump-down animations, instant-on bloom with smooth fade-out, and adjustable wipe softness.
 - **144Hz+ Rendering** — A dedicated interpolation engine for ultra-high refresh rates that bypasses React bottlenecks.
@@ -54,7 +54,6 @@ You can also use the Tauri desktop version built via GitHub Actions; see the [La
 - **Integrated Audio Bridge** — Built-in FFmpeg.wasm MP3-to-FLAC conversion to reduce decoding drift.
 - **Appearance Editor** — More than 40 visual parameters and theme presets for customizing the editor.
 - **Global Localization** — Full i18n support with community-driven translations.
-- **Community Plugin Store** — Browse and install community-made WASM importers and exporters.
 
 ## Contribution
 
