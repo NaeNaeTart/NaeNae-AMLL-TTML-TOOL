@@ -189,6 +189,11 @@
 	background-color: var(--gray-a9);
 }
 
+.Toastify__toast-container {
+	/* Radix modals disable pointer events on body; toast controls remain usable. */
+	pointer-events: auto;
+}
+
 .Toastify__toast {
 	font-family: var(--default-font-family, inherit) !important;
 	border-radius: var(--global-radius, 12px) !important;

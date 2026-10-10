@@ -27,6 +27,7 @@ function fillRubyTimingFromWord(word: Draft<LyricWord>) {
 	}
 }
 
+// Gap preview/direction handling adapted from apoint123's upstream ecd0594f (GPLv3).
 export function getUpdatedLineForDivider(
 	originalLine: ProcessedLyricLine,
 	/**
@@ -41,6 +42,7 @@ export function getUpdatedLineForDivider(
 	newTime: number,
 	isGapCreation: boolean,
 	_zoom?: number,
+	lockedGapDirection?: "left" | "right" | null,
 ): ProcessedLyricLine {
 	const segments = [...originalLine.segments];
 	let newStartTime = originalLine.startTime;
@@ -99,14 +101,35 @@ export function getUpdatedLineForDivider(
 		}
 	} else {
 		const originalTime = leftSegment.endTime;
-		if (isGapCreation) {
+		if (
+			isGapCreation &&
+			leftSegment.type === "word" &&
+			rightSegment.type === "word"
+		) {
+			if (lockedGapDirection === "right") {
+				clampedTime = Math.max(originalTime, clampedTime);
+			} else if (lockedGapDirection === "left") {
+				clampedTime = Math.min(originalTime, clampedTime);
+			}
 			if (clampedTime > originalTime) {
 				newSegments[segmentIndex + 1] = {
 					...rightSegment,
 					startTime: clampedTime,
 				};
+				newSegments.splice(segmentIndex + 1, 0, {
+					type: "gap",
+					id: `preview-gap-${leftSegment.id}`,
+					startTime: originalTime,
+					endTime: clampedTime,
+				});
 			} else if (clampedTime < originalTime) {
 				newSegments[segmentIndex] = { ...leftSegment, endTime: clampedTime };
+				newSegments.splice(segmentIndex + 1, 0, {
+					type: "gap",
+					id: `preview-gap-${leftSegment.id}`,
+					startTime: clampedTime,
+					endTime: originalTime,
+				});
 			}
 		} else {
 			newSegments[segmentIndex] = { ...leftSegment, endTime: clampedTime };

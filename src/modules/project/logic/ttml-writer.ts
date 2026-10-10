@@ -286,10 +286,6 @@ export default function exportTTMLText(
 
 	const guessDuration = lyric[lyric.length - 1]?.endTime ?? 0;
 	body.setAttribute("dur", msToTimestamp(guessDuration));
-	const isDynamicLyric = lyric.some(
-		(line) => line.words.filter((v) => v.word.trim().length > 0).length > 1,
-	);
-
 	for (const param of params) {
 		const paramDiv = doc.createElement("div");
 		const beginTime = param[0]?.startTime ?? 0;
@@ -326,30 +322,17 @@ export default function exportTTMLText(
 				lineP.appendChild(
 					doc.createTextNode(line.words.map((word) => word.word).join("")),
 				);
-			} else if (isDynamicLyric) {
-				let beginTime = Number.POSITIVE_INFINITY;
-				let endTime = 0;
+			} else {
 				for (const word of line.words) {
 					if (word.word.trim().length === 0 && !hasRuby(word)) {
 						lineP.appendChild(doc.createTextNode(word.word));
 					} else {
 						const span = createWordElement(word);
 						lineP.appendChild(span);
-						beginTime = Math.min(beginTime, word.startTime);
-						endTime = Math.max(endTime, word.endTime);
 					}
 				}
 				lineP.setAttribute("begin", msToTimestamp(line.startTime));
 				lineP.setAttribute("end", msToTimestamp(line.endTime));
-			} else {
-				const word = line.words[0];
-				if (word.word.trim().length === 0 && !hasRuby(word)) {
-					lineP.appendChild(doc.createTextNode(word.word));
-				} else {
-					lineP.appendChild(createWordElement(word));
-				}
-				lineP.setAttribute("begin", msToTimestamp(word.startTime));
-				lineP.setAttribute("end", msToTimestamp(word.endTime));
 			}
 
 			const followingBackgroundLines = collectFollowingBackgroundLines(
@@ -382,7 +365,7 @@ export default function exportTTMLText(
 							`(${bgLine.words.map((word) => word.word).join("")})`,
 						),
 					);
-				} else if (isDynamicLyric) {
+				} else {
 					let beginTime = Number.POSITIVE_INFINITY;
 					let endTime = 0;
 
@@ -415,17 +398,6 @@ export default function exportTTMLText(
 					}
 					bgLineSpan.setAttribute("begin", msToTimestamp(beginTime));
 					bgLineSpan.setAttribute("end", msToTimestamp(endTime));
-				} else {
-					const word = bgLine.words[0];
-					if (word.word.trim().length === 0 && !hasRuby(word)) {
-						bgLineSpan.appendChild(doc.createTextNode(`(${word.word})`));
-					} else {
-						const span = createWordElement(word);
-						addWrapperToElement(span, "(", ")");
-						bgLineSpan.appendChild(span);
-					}
-					bgLineSpan.setAttribute("begin", msToTimestamp(word.startTime));
-					bgLineSpan.setAttribute("end", msToTimestamp(word.endTime));
 				}
 
 				if (bgLine.translatedLyric) {
