@@ -74,6 +74,7 @@ import {
 	getSynchronizableUnits,
 } from "../utils/lyric-states.ts";
 import { normalizeLineTime } from "../utils/normalize-line-time.ts";
+import { hasNoTiming } from "../utils/timing-status";
 import styles from "./index.module.css";
 import { LyricLineMenu } from "./lyric-line-menu.tsx";
 import { LyricWordMenu } from "./lyric-word-menu";
@@ -1031,10 +1032,16 @@ const LyricSyncWordView: FC<{
 		[editLyricLines, line.id, wordIndex, rubyIndex],
 	);
 
-	const startTimeDisplay = msToTimestamp(startTime);
-	const endTimeDisplay = showEndTimeAsDuration
-		? `+${endTime - startTime}ms`
-		: msToTimestamp(endTime);
+	const startUntimed = hasNoTiming({ startTime, endTime });
+	const endUntimed = endTime === 0;
+	const startTimeDisplay = startUntimed
+		? "--:--.---"
+		: msToTimestamp(startTime);
+	const endTimeDisplay = endUntimed
+		? "--:--.---"
+		: showEndTimeAsDuration
+			? `+${endTime - startTime}ms`
+			: msToTimestamp(endTime);
 
 	// Optimized render loop for pre-playback word ambient highlighting
 	useEffect(() => {
@@ -1238,7 +1245,10 @@ const LyricSyncWordView: FC<{
 			/>
 			{showTimestamps && (
 				<div
-					className={classNames(styles.startTime)}
+					className={classNames(
+						styles.startTime,
+						startUntimed && styles.untimedTimestamp,
+					)}
 					ref={startTimeRef}
 					title={
 						enableManualTimestampEdit ? "Click to edit start time" : undefined
@@ -1247,7 +1257,7 @@ const LyricSyncWordView: FC<{
 					onClick={(e) => {
 						if (!enableManualTimestampEdit) return;
 						e.stopPropagation();
-						setEditingInput(startTimeDisplay);
+						setEditingInput(msToTimestamp(startTime));
 						setEditingTime("start");
 					}}
 				>
@@ -1323,7 +1333,10 @@ const LyricSyncWordView: FC<{
 			)}
 			{showTimestamps && (
 				<div
-					className={classNames(styles.endTime)}
+					className={classNames(
+						styles.endTime,
+						endUntimed && styles.untimedTimestamp,
+					)}
 					ref={endTimeRef}
 					title={
 						enableManualTimestampEdit ? "Click to edit end time" : undefined
@@ -1332,9 +1345,7 @@ const LyricSyncWordView: FC<{
 					onClick={(e) => {
 						if (!enableManualTimestampEdit) return;
 						e.stopPropagation();
-						setEditingInput(
-							showEndTimeAsDuration ? msToTimestamp(endTime) : endTimeDisplay,
-						);
+						setEditingInput(msToTimestamp(endTime));
 						setEditingTime("end");
 					}}
 				>

@@ -20,6 +20,7 @@ import {
 	useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useTopMenuActions } from "$/components/TopMenu/useTopMenuActions";
 import { useFileOpener } from "$/hooks/useFileOpener";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { currentDurationAtom } from "$/modules/audio/states";
@@ -49,19 +50,21 @@ import {
 	ToolMode,
 	toolModeAtom,
 } from "$/states/main";
-import { LYRIC_FILE_FILTERS, openFileWithDialog } from "$/utils/fileDialog";
+import { openFileWithDialog } from "$/utils/fileDialog";
 import { saveFile } from "$/utils/fileSystem";
 import {
 	GUIDE_STEP_IDS,
 	getGuideProgress,
 	getGuideStepNumber,
 	getGuideUrl,
+	getWordTimingProgress,
 	hasCompleteTiming,
 	hasImportedLyrics,
 	hasNoEmptyLyricLines,
 	hasSongwriters,
 } from "./logic";
 import {
+	exitBeginnerGuideAtom,
 	guideCompletionAtom,
 	guideExportedAtom,
 	guidePanelOpenAtom,
@@ -127,7 +130,10 @@ export const BeginnerGuide = () => {
 	const [exported, setExported] = useAtom(guideExportedAtom);
 	const [completion, setCompletion] = useAtom(guideCompletionAtom);
 	const [tucked, setTucked] = useState(false);
-	const [position, setPosition] = useState({ x: 16, y: 88 });
+	const [position, setPosition] = useState(() => ({
+		x: Math.max(8, window.innerWidth - 336),
+		y: 200,
+	}));
 	const dragOffset = useRef({ x: 0, y: 0 });
 	const setImportText = useSetAtom(importFromTextDialogAtom);
 	const setImportGenius = useSetAtom(geniusImportLyricsDialogAtom);
@@ -138,13 +144,9 @@ export const BeginnerGuide = () => {
 	const setSettingsOpen = useSetAtom(settingsDialogAtom);
 	const setSettingsTab = useSetAtom(settingsTabAtom);
 	const { openFile } = useFileOpener();
-
-	useEffect(() => {
-		setPosition((current) => ({
-			x: current.x === 16 ? Math.max(8, window.innerWidth - 336) : current.x,
-			y: current.y,
-		}));
-	}, []);
+	const { onOpenFile } = useTopMenuActions();
+	const exitGuide = useSetAtom(exitBeginnerGuideAtom);
+	const timingProgress = getWordTimingProgress(lyrics);
 
 	useEffect(() => {
 		const keepOnScreen = () =>
@@ -204,15 +206,10 @@ export const BeginnerGuide = () => {
 	}, [setExported, setPanelOpen, setStep, setWelcomeOpen]);
 
 	const openExisting = useCallback(() => {
-		void openFileWithDialog({
-			multiple: false,
-			filters: LYRIC_FILE_FILTERS,
-		}).then((file) => {
-			if (file && !Array.isArray(file)) openFile(file);
-		});
+		void onOpenFile();
 		setCompletion("dismissed");
 		setWelcomeOpen(false);
-	}, [openFile, setCompletion, setWelcomeOpen]);
+	}, [onOpenFile, setCompletion, setWelcomeOpen]);
 
 	const stepComplete = useMemo(() => {
 		const id = GUIDE_STEP_IDS[step];
@@ -332,6 +329,14 @@ export const BeginnerGuide = () => {
 
 	useEffect(() => {
 		if (!panelOpen) return;
+		const ribbon = document.querySelector('[data-guide-target="ribbon"]');
+		if (ribbon) {
+			const bottom = ribbon.getBoundingClientRect().bottom + 12;
+			setPosition((current) => ({
+				...current,
+				y: Math.max(current.y, bottom),
+			}));
+		}
 		const selector =
 			currentId === "audio"
 				? '[data-guide-target="audio"]'
@@ -372,7 +377,7 @@ export const BeginnerGuide = () => {
 							{t("beginnerGuide.welcome.own", "Guide me through my first TTML")}
 						</Button>
 						<Button variant="outline" onClick={openExisting}>
-							{t("beginnerGuide.welcome.open", "Open an existing TTML")}
+							{t("beginnerGuide.welcome.open", "Open lyrics file")}
 						</Button>
 						<Button
 							variant="ghost"
@@ -453,6 +458,8 @@ export const BeginnerGuide = () => {
 								boxShadow: "var(--shadow-5)",
 								backgroundColor: "var(--color-panel-solid)",
 								backdropFilter: "none",
+								maxHeight: `calc(100vh - ${position.y + 12}px)`,
+								overflowY: "auto",
 							}}
 						>
 							<Flex direction="column" gap="3">
@@ -485,16 +492,22 @@ export const BeginnerGuide = () => {
 											size="1"
 											variant="ghost"
 											color="gray"
-											onClick={() => {
-												setCompletion("dismissed");
-												setPanelOpen(false);
-											}}
+											onClick={exitGuide}
 										>
 											<DismissRegular /> {t("beginnerGuide.exit", "Exit guide")}
 										</Button>
 									</Flex>
 								</Flex>
 								<Progress value={getGuideProgress(step)} />
+								{currentId === "sync" && (
+									<Text size="2" role="status">
+										{t(
+											"beginnerGuide.sync.wordProgress",
+											"{timed} / {total} words timed",
+											timingProgress,
+										)}
+									</Text>
+								)}
 								<Box>
 									<Heading size="4">
 										{t(`beginnerGuide.steps.${currentId}.title`, copy.title)}

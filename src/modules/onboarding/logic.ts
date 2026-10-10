@@ -79,6 +79,28 @@ export const hasCompleteTiming = (lyrics: TTMLLyric) => {
 	);
 };
 
+export const getWordTimingProgress = (lyrics: TTMLLyric) => {
+	let timed = 0;
+	let total = 0;
+	for (const line of lyrics.lyricLines) {
+		if (line.ignoreSync) continue;
+		const validLine = line.startTime >= 0 && line.endTime > line.startTime;
+		for (const word of line.words) {
+			if (!word.word.trim()) continue;
+			total++;
+			if (
+				validLine &&
+				(line.isLineSynced ||
+					(word.endTime > word.startTime &&
+						word.startTime >= line.startTime &&
+						word.endTime <= line.endTime))
+			)
+				timed++;
+		}
+	}
+	return { timed, total };
+};
+
 export const hasSongwriters = (lyrics: TTMLLyric) =>
 	lyrics.metadata.some(
 		(entry) =>

@@ -20,6 +20,18 @@
       "description": "Add new lyric lines in the top panel or open/import existing lyrics from the menu"
     }
   },
+  "onlineImport": {
+    "processDescription": "On import, splits text into words, cleans punctuation and spacing, and turns parenthesized vocals into background lines."
+  },
+  "preview": {
+    "untimedLines": "{count, plural, one {# line has no timing yet} other {# lines have no timing yet}}",
+    "jumpToUntimed": "Time the first untimed line"
+  },
+  "beginnerGuide": {
+    "empty": { "open": "Open lyrics file" },
+    "welcome": { "open": "Open lyrics file" },
+    "sync": { "wordProgress": "{timed} / {total} words timed" }
+  },
   "importChooser": {
     "title": "Import lyrics",
     "description": "Choose where you want to import your lyrics from.",
@@ -626,8 +638,9 @@
       },
       "exportLyric": {
         "export": "Export lyrics",
-        "toLyRiC": "Export to LyRiC",
-        "toESLyRiC": "Export to ESLyRiC",
+        "toTTML": "TTML",
+        "toLRC": "LRC",
+        "toESLRC": "ESLRC",
         "toQRC": "Export to QRC",
         "toYRC": "Export to YRC",
         "toLrcfySylb": "Export to Lyricify Syllable",
@@ -864,7 +877,8 @@
     "placeholder": "Title Artist...",
     "notFound": "No results found, please try different keywords",
     "noResult": "Enter keywords to start searching",
-    "title": "Import Lyric from LRCLIB"
+    "title": "Import Lyric from LRCLIB",
+    "matchesAudio": "Matches your audio"
   },
   "lyricEditor": {
     "locate": "Locate"

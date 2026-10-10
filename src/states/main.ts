@@ -121,6 +121,9 @@ export const undoableLyricLinesAtom = withHistory(lyricLinesAtom, 10);
  */
 export const savedLyricLinesAtom = atom<TTMLLyric | null>(null);
 export const isDirtyAtom = atom((get) => {
+	// An empty editor has no lyrics for Open/Import to discard. Audio and the
+	// suggested filename are separate state and survive an online import.
+	if (get(lyricLinesAtom).lyricLines.length === 0) return false;
 	const saved = get(savedLyricLinesAtom);
 	if (saved === null) return get(undoableLyricLinesAtom).canUndo;
 	return get(lyricLinesAtom) !== saved;

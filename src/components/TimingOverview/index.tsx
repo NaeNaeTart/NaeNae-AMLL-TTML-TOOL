@@ -12,6 +12,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
+import { timedPreviewLyricsAtom } from "$/components/PreviewModeSwitcher/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import { AUTO_SCROLL_PAUSE_MS } from "$/modules/lyric-editor/components/selection-scroll";
@@ -20,7 +21,8 @@ import {
 	timingOverviewAutoScrollAtom,
 	timingOverviewOrderModeAtom,
 } from "$/modules/settings/states/sync.ts";
-import { lyricLinesAtom, selectedLinesAtom } from "$/states/main.ts";
+import { selectedLinesAtom } from "$/states/main.ts";
+import type { LyricLine, LyricWord } from "$/types/ttml";
 import { msToTimestamp } from "$/utils/timestamp";
 import styles from "./index.module.css";
 import {
@@ -37,10 +39,10 @@ const WordPill = memo(
 		isGrouped,
 		onWordClick,
 	}: {
-		word: any;
+		word: LyricWord;
 		currentTime: number;
 		isGrouped?: boolean;
-		onWordClick?: (word: any) => void;
+		onWordClick?: (word: LyricWord) => void;
 	}) => {
 		const { t } = useTranslation();
 		const isWordActive =
@@ -131,9 +133,9 @@ const WordGroup = memo(
 		currentTime,
 		onWordClick,
 	}: {
-		words: any[];
+		words: LyricWord[];
 		currentTime: number;
-		onWordClick?: (word: any) => void;
+		onWordClick?: (word: LyricWord) => void;
 	}) => {
 		const isActive = words.some(
 			(w) => currentTime >= w.startTime && currentTime <= w.endTime,
@@ -175,12 +177,12 @@ const LineRow = memo(
 		onRowClick,
 		onWordClick,
 	}: {
-		line: any;
+		line: LyricLine;
 		index: number;
 		currentTime: number;
 		totalDuration: number;
-		onRowClick: (line: any) => void;
-		onWordClick: (word: any, line: any) => void;
+		onRowClick: (line: LyricLine) => void;
+		onWordClick: (word: LyricWord, line: LyricLine) => void;
 	}) => {
 		const { t } = useTranslation();
 		const isActive =
@@ -191,12 +193,11 @@ const LineRow = memo(
 			: 0;
 
 		const wordGroups = useMemo(() => {
-			const groups: {
-				type: "words" | "whitespace";
-				items?: any[];
-				word?: any;
-			}[] = [];
-			let currentGroup: any[] = [];
+			const groups: (
+				| { type: "words"; items: LyricWord[] }
+				| { type: "whitespace"; word: LyricWord }
+			)[] = [];
+			let currentGroup: LyricWord[] = [];
 
 			for (const word of line.words) {
 				const isWhitespace = !word.word || word.word.trim() === "";
@@ -274,7 +275,7 @@ const LineRow = memo(
 					<Box>
 						<Flex align="center" gap="2" mb="1">
 							<Text className={styles.lineText}>
-								{line.words.map((w: any) => w.word).join("")}
+								{line.words.map((w) => w.word).join("")}
 							</Text>
 							{line.isBG && (
 								<Text
@@ -296,7 +297,7 @@ const LineRow = memo(
 								group.type === "words" ? (
 									<WordGroup
 										key={group.items?.[0]?.id || `g-${gIdx}`}
-										words={group.items!}
+										words={group.items}
 										currentTime={currentTime}
 										onWordClick={(word) => onWordClick(word, line)}
 									/>
@@ -333,7 +334,7 @@ const LineRow = memo(
 
 export const TimingOverview = memo(() => {
 	const { t } = useTranslation();
-	const lyrics = useAtomValue(lyricLinesAtom);
+	const lyrics = useAtomValue(timedPreviewLyricsAtom);
 	const currentTime = useAtomValue(currentTimeAtom);
 	const setCurrentTime = useSetAtom(currentTimeAtom);
 	const setSelectedLines = useSetAtom(selectedLinesAtom);
@@ -357,7 +358,7 @@ export const TimingOverview = memo(() => {
 	const totalDuration = stats.totalMs;
 
 	const handleRowClick = useMemo(
-		() => (line: any) => {
+		() => (line: LyricLine) => {
 			userScrolledAtRef.current = Date.now();
 			setCurrentTime(line.startTime);
 			setSelectedLines(new Set([line.id]));
@@ -367,7 +368,7 @@ export const TimingOverview = memo(() => {
 	);
 
 	const handleWordClick = useCallback(
-		(word: any, line: any) => {
+		(word: LyricWord, line: LyricLine) => {
 			const targetTime =
 				typeof word.startTime === "number" && word.startTime >= 0
 					? word.startTime
@@ -398,7 +399,7 @@ export const TimingOverview = memo(() => {
 			if (Math.abs(distance) < 2) return;
 
 			const startTime = performance.now();
-			const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+			const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 
 			const step = (now: number) => {
 				const elapsed = now - startTime;

@@ -1,5 +1,6 @@
 import { Search16Regular, Search24Regular } from "@fluentui/react-icons";
 import {
+	Badge,
 	Box,
 	Button,
 	Card,
@@ -15,10 +16,11 @@ import {
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 
 import { useImmerAtom } from "jotai-immer";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { uid } from "uid";
+import { currentDurationAtom, loadedAudioAtom } from "$/modules/audio/states";
 import { GeniusApi } from "$/modules/genius/api/client";
 import { getBetterGeniusCoverArt } from "$/modules/genius/utils/image";
 import { LrcLibApi } from "$/modules/lrclib/api/client";
@@ -30,6 +32,11 @@ import {
 	fetchImportedSongwritersAtom,
 	processImportedLyricsAtom,
 } from "$/modules/lyrics-import/states";
+import { getAudioSearchQuery } from "$/modules/project/logic/song-metadata";
+import {
+	applyConfirmedImportMetadataAtom,
+	loadedAudioSongAtom,
+} from "$/modules/project/song-metadata-state";
 import {
 	geniusApiKeyAtom,
 	geniusCategorizationEnabledAtom,
@@ -45,7 +52,6 @@ import {
 import {
 	isDirtyAtom,
 	lyricLinesAtom,
-	saveFileNameAtom,
 	selectedLinesAtom,
 	selectedWordsAtom,
 } from "$/states/main.ts";
@@ -56,6 +62,11 @@ import {
 } from "$/utils/apostrophe-normalization";
 import { getGeniusKeyGuideUrl } from "$/utils/genius-guide";
 import { prepareLyricLine } from "$/utils/lyric-prep";
+import {
+	formatTrackDuration,
+	matchesAudioDuration,
+	prioritizeMatchingTracks,
+} from "../track-duration";
 import {
 	hasReviewableSections,
 	type ReviewedSection,
@@ -69,6 +80,7 @@ type ImportTrack = {
 	name: string;
 	artist: string;
 	album?: string;
+	duration?: number;
 	cover?: string;
 	lyrics?: string;
 	source?: string;
@@ -86,6 +98,16 @@ export const ImportLyricsDialog = ({
 }) => {
 	const { t } = useTranslation();
 	const store = useStore();
+	const audio = useAtomValue(loadedAudioAtom);
+	const audioSong = useAtomValue(loadedAudioSongAtom);
+	const audioDuration = useAtomValue(currentDurationAtom) / 1000;
+	const suggestedQuery = getAudioSearchQuery(
+		audioSong?.audio === audio ? audioSong.song : {},
+		audio instanceof File ? audio.name : "",
+	);
+	const prefilledQuery = useRef("");
+	const suggestedQueryRef = useRef(suggestedQuery);
+	suggestedQueryRef.current = suggestedQuery;
 
 	const dialogAtom =
 		source === "genius"
@@ -95,7 +117,7 @@ export const ImportLyricsDialog = ({
 				: lyricallyImportLyricsDialogAtom;
 	const [isOpen, setIsOpen] = useAtom(dialogAtom);
 	const [, setLyricLines] = useImmerAtom(lyricLinesAtom);
-	const setSaveFileName = useSetAtom(saveFileNameAtom);
+	const applyImportMetadata = useSetAtom(applyConfirmedImportMetadataAtom);
 	const isDirty = useAtomValue(isDirtyAtom);
 	const normalizeApostrophesOnImport = useAtomValue(
 		normalizeApostrophesOnImportAtom,
@@ -108,6 +130,10 @@ export const ImportLyricsDialog = ({
 	// Search
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState<ImportTrack[]>([]);
+	const sortedResults = useMemo(
+		() => prioritizeMatchingTracks(results, audioDuration),
+		[results, audioDuration],
+	);
 	const [searching, setSearching] = useState(false);
 	const [hasSearched, setHasSearched] = useState(false);
 
@@ -134,6 +160,8 @@ export const ImportLyricsDialog = ({
 
 	useEffect(() => {
 		if (isOpen) {
+			prefilledQuery.current = suggestedQueryRef.current;
+			setQuery(suggestedQueryRef.current);
 			setHasSearched(false);
 			setResults([]);
 			setSelectedHit(null);
@@ -143,7 +171,18 @@ export const ImportLyricsDialog = ({
 				inputRef.current?.focus();
 			}, 50);
 		}
+		// Tags can arrive after the dialog opens; don't replace a user's query.
+		// Opening the dialog resets the search, while tag updates are handled below.
 	}, [isOpen]);
+
+	useEffect(() => {
+		if (!isOpen || hasSearched) return;
+		const previousPrefill = prefilledQuery.current;
+		setQuery((current) =>
+			current === previousPrefill ? suggestedQuery : current,
+		);
+		prefilledQuery.current = suggestedQuery;
+	}, [hasSearched, isOpen, suggestedQuery]);
 
 	const handleSearch = useCallback(async () => {
 		if (!query.trim()) return;
@@ -229,6 +268,7 @@ export const ImportLyricsDialog = ({
 								name: track.name,
 								artist: track.artistName,
 								album: track.albumName,
+								duration: track.duration,
 								lyrics:
 									track.plainLyrics ||
 									(track.syncedLyrics
@@ -268,29 +308,6 @@ export const ImportLyricsDialog = ({
 			setEditableLyrics("");
 			setIsEditing(false);
 
-			// Set TTML metadata and file name immediately
-			const title = hit.name;
-			const artist = hit.artist;
-			const safeFileName = `${artist} - ${title}.ttml`
-				.replace(/[/\\?%*:|"<>]/g, "-")
-				.trim();
-
-			setSaveFileName(safeFileName);
-			setLyricLines((prev) => {
-				const upsert = (key: string, value: string) => {
-					const existing = prev.metadata.find((m) => m.key === key);
-					if (existing) {
-						existing.value = [value];
-					} else {
-						prev.metadata.push({ key, value: [value] });
-					}
-				};
-				upsert("musicName", title);
-				upsert("artists", artist);
-				if (hit.album) upsert("album", hit.album);
-				if (hit.cover) upsert("cover_art", hit.cover);
-			});
-
 			try {
 				const lyrics =
 					hit.lyrics?.trim() ||
@@ -313,7 +330,7 @@ export const ImportLyricsDialog = ({
 				setFetchingLyrics(false);
 			}
 		},
-		[setSaveFileName, setLyricLines, t],
+		[t],
 	);
 
 	const performImport = useCallback(
@@ -366,6 +383,16 @@ export const ImportLyricsDialog = ({
 						current.metadata.push({ key: "songwriter", value: writers });
 					}
 				});
+			};
+			const fillImportMetadata = () => {
+				if (!selectedHit) return;
+				const song = {
+					title: selectedHit.name,
+					artist: selectedHit.artist,
+					album: selectedHit.album,
+					cover: selectedHit.cover,
+				};
+				applyImportMetadata(song);
 			};
 
 			if (processLyrics) {
@@ -420,6 +447,7 @@ export const ImportLyricsDialog = ({
 					applyReviewedSections(prev, reviewed);
 				});
 				if (categorizeGeniusHeaders) setGeniusCategorizationEnabled(true);
+				fillImportMetadata();
 				try {
 					await importSongwriters();
 				} catch (error) {
@@ -508,6 +536,7 @@ export const ImportLyricsDialog = ({
 				applyReviewedSections(prev, reviewed);
 			});
 			if (categorizeGeniusHeaders) setGeniusCategorizationEnabled(true);
+			fillImportMetadata();
 			try {
 				await importSongwriters();
 			} catch (error) {
@@ -551,6 +580,7 @@ export const ImportLyricsDialog = ({
 			fetchSongwriters,
 			selectedHit,
 			setGeniusCategorizationEnabled,
+			applyImportMetadata,
 		],
 	);
 
@@ -778,6 +808,7 @@ export const ImportLyricsDialog = ({
 														)}
 													</Text>
 													<Checkbox
+														aria-describedby="online-import-processing-description"
 														size="1"
 														checked={processLyrics}
 														onCheckedChange={(checked: boolean) =>
@@ -803,6 +834,16 @@ export const ImportLyricsDialog = ({
 													</Flex>
 												)}
 											</Flex>
+											<Text
+												id="online-import-processing-description"
+												size="1"
+												color="gray"
+											>
+												{t(
+													"onlineImport.processDescription",
+													"On import, splits text into words, cleans punctuation and spacing, and turns parenthesized vocals into background lines.",
+												)}
+											</Text>
 											{source === "genius" && (
 												<Flex gap="2" align="center">
 													<Text size="1" color="gray">
@@ -911,7 +952,7 @@ export const ImportLyricsDialog = ({
 						)}
 
 						{!searching &&
-							results.map((hit, i) => (
+							sortedResults.map((hit, i) => (
 								<Card
 									key={`${hit.artist}-${hit.name}-${i}`}
 									onClick={() => handleSelectSong(hit)}
@@ -960,6 +1001,22 @@ export const ImportLyricsDialog = ({
 													{hit.source}
 												</Text>
 											)}
+											{hit.duration !== undefined &&
+												Number.isFinite(hit.duration) && (
+													<Flex align="center" gap="2" wrap="wrap">
+														<Text size="1" color="gray">
+															{formatTrackDuration(hit.duration)}
+														</Text>
+														{matchesAudioDuration(
+															hit.duration,
+															audioDuration,
+														) && (
+															<Badge color="green">
+																{t("lrclib.matchesAudio", "Matches your audio")}
+															</Badge>
+														)}
+													</Flex>
+												)}
 										</Flex>
 									</Flex>
 								</Card>

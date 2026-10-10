@@ -12,6 +12,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { timedPreviewLyricsAtom } from "$/components/PreviewModeSwitcher/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import {
 	activeLineIdsAtom,
@@ -29,7 +30,6 @@ import {
 } from "$/modules/settings/states/preview";
 import {
 	isDarkThemeAtom,
-	lyricLinesAtom,
 	projectIdentityAtom,
 	selectedLinesAtom,
 } from "$/states/main.ts";
@@ -336,7 +336,7 @@ export const AMLLWrapper = memo(
 			return () => cancelAnimationFrame(rafId);
 		}, [vsync, setDisplayTime]);
 
-		const lyrics = useAtomValue(lyricLinesAtom);
+		const lyrics = useAtomValue(timedPreviewLyricsAtom);
 		const activeLineIds = useAtomValue(activeLineIdsAtom);
 		const darkMode = useAtomValue(isDarkThemeAtom);
 		const projectIdentity = useAtomValue(projectIdentityAtom);

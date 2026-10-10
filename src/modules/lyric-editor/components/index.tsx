@@ -24,7 +24,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { ViewportList, type ViewportListRef } from "react-viewport-list";
-import { useFileOpener } from "$/hooks/useFileOpener";
+import { useTopMenuActions } from "$/components/TopMenu/useTopMenuActions";
 import { audioPlayingAtom, currentTimeAtom } from "$/modules/audio/states";
 import {
 	guidePanelOpenAtom,
@@ -58,7 +58,6 @@ import {
 	toolModeAtom,
 } from "$/states/main.ts";
 import type { LyricLine } from "$/types/ttml.ts";
-import { LYRIC_FILE_FILTERS, openFileWithDialog } from "$/utils/fileDialog";
 import { useKeyBindingAtom } from "$/utils/keybindings.ts";
 import {
 	hasGeniusHeaderAtom,
@@ -161,14 +160,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const setImportChooser = useSetAtom(importLyricsChooserDialogAtom);
 	const setProjectsDialog = useSetAtom(projectsDialogAtom);
 	const folderProjectsEnabled = useAtomValue(folderProjectsEnabledAtom);
-	const { openFile } = useFileOpener();
-	const openExistingTtml = useCallback(async () => {
-		const file = await openFileWithDialog({
-			multiple: false,
-			filters: LYRIC_FILE_FILTERS,
-		});
-		if (file && !Array.isArray(file)) openFile(file);
-	}, [openFile]);
+	const { onOpenFile } = useTopMenuActions();
 
 	useEffect(() => {
 		if (toolMode === ToolMode.Preview) {
@@ -1017,8 +1009,8 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 					<Button variant="soft" onClick={() => setImportChooser(true)}>
 						{t("beginnerGuide.empty.import", "Import Lyrics")}
 					</Button>
-					<Button variant="outline" onClick={openExistingTtml}>
-						{t("beginnerGuide.empty.open", "Open TTML")}
+					<Button variant="outline" onClick={onOpenFile}>
+						{t("beginnerGuide.empty.open", "Open lyrics file")}
 					</Button>
 					{folderProjectsEnabled && (
 						<Button variant="outline" onClick={() => setProjectsDialog(true)}>

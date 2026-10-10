@@ -1,17 +1,18 @@
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
-import type { TTMLLyric } from "$/types/ttml";
+import { newLyricLine, newLyricWord, type TTMLLyric } from "$/types/ttml";
 import {
 	isDirtyAtom,
 	lyricLinesAtom,
 	markLyricsSavedAtom,
+	saveFileNameAtom,
 	startFreshLyricDocumentAtom,
 	undoableLyricLinesAtom,
 	undoLyricLinesAtom,
 } from "./main";
 
 const lyric = (id: string): TTMLLyric => ({
-	lyricLines: [],
+	lyricLines: [{ ...newLyricLine(), words: [{ ...newLyricWord(), word: id }] }],
 	metadata: [{ key: "id", value: [id] }],
 });
 
@@ -25,6 +26,23 @@ const mountedStore = () => {
 };
 
 describe("dirty state", () => {
+	it("does not warn for an empty editor with metadata or a custom name", () => {
+		const store = mountedStore();
+		store.set(lyricLinesAtom, {
+			lyricLines: [],
+			metadata: [{ key: "musicName", value: ["Tagged audio"] }],
+		});
+		store.set(saveFileNameAtom, "My song.ttml");
+		expect(store.get(isDirtyAtom)).toBe(false);
+	});
+
+	it("renaming a saved lyric document does not dirty its lyrics", () => {
+		const store = mountedStore();
+		store.set(lyricLinesAtom, lyric("a"));
+		store.set(startFreshLyricDocumentAtom);
+		store.set(saveFileNameAtom, "Renamed.ttml");
+		expect(store.get(isDirtyAtom)).toBe(false);
+	});
 	it("tracks edits via undo history before any save", () => {
 		const store = mountedStore();
 		expect(store.get(isDirtyAtom)).toBe(false);
