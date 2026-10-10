@@ -22,11 +22,15 @@ import {
 	Link,
 	Progress,
 	Text,
+	Tooltip,
 } from "@radix-ui/themes";
 import { open } from "@tauri-apps/plugin-shell";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { fetchContributorCount } from "$/modules/settings/utils/contributor-count";
+import {
+	fetchContributors,
+	type RepositoryContributor,
+} from "$/modules/settings/utils/contributor-count";
 import { clearWebsiteCache, forceWebsiteRefresh } from "$/utils/pwa";
 import { useAppUpdate } from "$/utils/useAppUpdate";
 
@@ -48,20 +52,24 @@ export const SettingsAboutTab = () => {
 	const [recoveryAction, setRecoveryAction] = useState<
 		"refresh" | "clear" | null
 	>(null);
-	const [contributorCount, setContributorCount] = useState<number | null>(null);
+	const [contributors, setContributors] = useState<
+		RepositoryContributor[] | null
+	>(null);
 	const [contributorCountUnavailable, setContributorCountUnavailable] =
 		useState(false);
 
 	useEffect(() => {
-		const controller = new AbortController();
-		fetchContributorCount(controller.signal)
-			.then(setContributorCount)
-			.catch((error: unknown) => {
-				if (error instanceof DOMException && error.name === "AbortError")
-					return;
-				setContributorCountUnavailable(true);
+		let active = true;
+		fetchContributors()
+			.then((nextContributors) => {
+				if (active) setContributors(nextContributors);
+			})
+			.catch(() => {
+				if (active) setContributorCountUnavailable(true);
 			});
-		return () => controller.abort();
+		return () => {
+			active = false;
+		};
 	}, []);
 
 	const showUpdateCard = ["available", "downloading", "ready"].includes(status);
@@ -106,7 +114,7 @@ export const SettingsAboutTab = () => {
 			<Card>
 				<Flex direction="column" gap="3">
 					<Heading size="3">
-						{t("aboutModal.maintainers", "Fork Maintainers")}
+						{t("aboutModal.maintainers", "Fork Maintainers & Contributors")}
 					</Heading>
 					<Text size="2" color="gray">
 						{t(
@@ -196,37 +204,89 @@ export const SettingsAboutTab = () => {
 							</Flex>
 						</Box>
 					</Flex>
-					<Flex align="center" justify="between" gap="3" wrap="wrap" pt="1">
-						<Flex align="center" gap="2">
-							<Box style={{ color: "var(--accent-11)", display: "flex" }}>
-								<PeopleTeam24Regular />
-							</Box>
-							<Text weight="bold" size="2">
-								{t("aboutModal.contributors", "Contributors")}
-							</Text>
-							<Badge variant="soft" aria-live="polite">
-								{contributorCountUnavailable
-									? t("aboutModal.contributorsUnavailable", "Unavailable")
-									: (contributorCount ??
-										t("aboutModal.contributorsLoading", "Loading..."))}
-							</Badge>
+					<Flex direction="column" gap="2" pt="1">
+						<Flex align="center" justify="between" gap="3" wrap="wrap">
+							<Flex align="center" gap="2">
+								<Box style={{ color: "var(--accent-11)", display: "flex" }}>
+									<PeopleTeam24Regular />
+								</Box>
+								<Text weight="bold" size="2">
+									{t("aboutModal.contributors", "Contributors")}
+								</Text>
+								<Badge variant="soft" aria-live="polite">
+									{contributorCountUnavailable
+										? t("aboutModal.contributorsUnavailable", "Unavailable")
+										: (contributors?.length ??
+											t("aboutModal.contributorsLoading", "Loading..."))}
+								</Badge>
+							</Flex>
+							<Button asChild variant="ghost" size="1">
+								<a
+									href={CONTRIBUTORS_URL}
+									target="_blank"
+									rel="noreferrer"
+									onClick={(event) => {
+										if (import.meta.env.TAURI_ENV_PLATFORM) {
+											event.preventDefault();
+											openExternal(CONTRIBUTORS_URL);
+										}
+									}}
+								>
+									{t("aboutModal.viewContributors", "View contributors")}
+									<Open16Regular />
+								</a>
+							</Button>
 						</Flex>
-						<Button asChild variant="ghost" size="1">
-							<a
-								href={CONTRIBUTORS_URL}
-								target="_blank"
-								rel="noreferrer"
-								onClick={(event) => {
-									if (import.meta.env.TAURI_ENV_PLATFORM) {
-										event.preventDefault();
-										openExternal(CONTRIBUTORS_URL);
-									}
-								}}
+						{contributors && (
+							<Flex
+								gap="2"
+								wrap="wrap"
+								aria-label={t(
+									"aboutModal.contributorProfiles",
+									"Contributor profiles",
+								)}
 							>
-								{t("aboutModal.viewContributors", "View contributors")}
-								<Open16Regular />
-							</a>
-						</Button>
+								{contributors.map((contributor) => (
+									<Tooltip
+										key={contributor.login}
+										content={t("aboutModal.contributorTooltip", {
+											defaultValue: "{name} - {count} contributions",
+											name: contributor.login,
+											count: contributor.contributions,
+										})}
+									>
+										<a
+											href={contributor.profileUrl}
+											target="_blank"
+											rel="noreferrer"
+											aria-label={t("aboutModal.openContributorProfile", {
+												defaultValue: "Open {name}'s GitHub profile",
+												name: contributor.login,
+											})}
+											onClick={(event) => {
+												if (import.meta.env.TAURI_ENV_PLATFORM) {
+													event.preventDefault();
+													openExternal(contributor.profileUrl);
+												}
+											}}
+											style={{
+												display: "inline-flex",
+												borderRadius: "var(--radius-full)",
+												outlineOffset: "2px",
+											}}
+										>
+											<Avatar
+												src={contributor.avatarUrl}
+												fallback={contributor.login.slice(0, 1).toUpperCase()}
+												alt={contributor.login}
+												size="2"
+												radius="full"
+											/>
+										</a>
+									</Tooltip>
+								))}
+							</Flex>
+						)}
 					</Flex>
 				</Flex>
 			</Card>
