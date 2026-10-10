@@ -11,6 +11,11 @@
 				"body": "Linked projects show a header icon that restores the one-time backup of the original TTML after confirming (the backup is removed once restored), and the Linked tab can open the folder that holds it. The header also shows an unsaved changes button that saves the project."
 			},
 			{
+				"type": "feature",
+				"title": "Contributors in About",
+				"body": "The About tab lists everyone who has contributed to this fork, with their GitHub profiles and a link to the full contributor graph."
+			},
+			{
 				"type": "fix",
 				"title": "Sync Timing",
 				"body": "Synced times no longer drift when the audio stalls, buffers or changes speed, and the delay between pressing a sync key and the app handling it is removed at every playback speed. Syncing into the next line no longer leaves its first word with an old end time."

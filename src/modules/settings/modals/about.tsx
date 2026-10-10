@@ -5,6 +5,7 @@ import {
 	CloudArrowDown24Regular,
 	MusicNote1Regular,
 	Open16Regular,
+	PeopleTeam24Regular,
 	SettingsRegular,
 	StarRegular,
 } from "@fluentui/react-icons";
@@ -21,12 +22,17 @@ import {
 	Link,
 	Progress,
 	Text,
+	Tooltip,
 } from "@radix-ui/themes";
 import { open } from "@tauri-apps/plugin-shell";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getContributors } from "$/modules/settings/utils/contributor-count";
 import { clearWebsiteCache, forceWebsiteRefresh } from "$/utils/pwa";
 import { useAppUpdate } from "$/utils/useAppUpdate";
+
+const CONTRIBUTORS_URL =
+	"https://github.com/NaeNaeTart/NaeNae-AMLL-TTML-TOOL/graphs/contributors";
 
 const openExternal = async (url: string) => {
 	if (import.meta.env.TAURI_ENV_PLATFORM) {
@@ -43,6 +49,7 @@ export const SettingsAboutTab = () => {
 	const [recoveryAction, setRecoveryAction] = useState<
 		"refresh" | "clear" | null
 	>(null);
+	const contributors = getContributors();
 
 	const showUpdateCard = ["available", "downloading", "ready"].includes(status);
 	const isWebsite = !import.meta.env.TAURI_ENV_PLATFORM;
@@ -86,7 +93,7 @@ export const SettingsAboutTab = () => {
 			<Card>
 				<Flex direction="column" gap="3">
 					<Heading size="3">
-						{t("aboutModal.maintainers", "Fork Maintainers")}
+						{t("aboutModal.maintainers", "Fork Maintainers & Contributors")}
 					</Heading>
 					<Text size="2" color="gray">
 						{t(
@@ -175,6 +182,85 @@ export const SettingsAboutTab = () => {
 								</Button>
 							</Flex>
 						</Box>
+					</Flex>
+					<Flex direction="column" gap="2" pt="1">
+						<Flex align="center" justify="between" gap="3" wrap="wrap">
+							<Flex align="center" gap="2">
+								<Box style={{ color: "var(--accent-11)", display: "flex" }}>
+									<PeopleTeam24Regular />
+								</Box>
+								<Text weight="bold" size="2">
+									{t("aboutModal.contributors", "Contributors")}
+								</Text>
+								<Badge variant="soft">{contributors.length}</Badge>
+							</Flex>
+							<Button asChild variant="ghost" size="1">
+								<a
+									href={CONTRIBUTORS_URL}
+									target="_blank"
+									rel="noreferrer"
+									onClick={(event) => {
+										if (import.meta.env.TAURI_ENV_PLATFORM) {
+											event.preventDefault();
+											openExternal(CONTRIBUTORS_URL);
+										}
+									}}
+								>
+									{t("aboutModal.viewContributors", "View contributors")}
+									<Open16Regular />
+								</a>
+							</Button>
+						</Flex>
+						{contributors.length > 0 && (
+							<Flex
+								gap="2"
+								wrap="wrap"
+								aria-label={t(
+									"aboutModal.contributorProfiles",
+									"Contributor profiles",
+								)}
+							>
+								{contributors.map((contributor) => (
+									<Tooltip
+										key={contributor.login}
+										content={t("aboutModal.contributorTooltip", {
+											defaultValue: "{name} - {count} contributions",
+											name: contributor.login,
+											count: contributor.contributions,
+										})}
+									>
+										<a
+											href={contributor.profileUrl}
+											target="_blank"
+											rel="noreferrer"
+											aria-label={t("aboutModal.openContributorProfile", {
+												defaultValue: "Open {name}'s GitHub profile",
+												name: contributor.login,
+											})}
+											onClick={(event) => {
+												if (import.meta.env.TAURI_ENV_PLATFORM) {
+													event.preventDefault();
+													openExternal(contributor.profileUrl);
+												}
+											}}
+											style={{
+												display: "inline-flex",
+												borderRadius: "var(--radius-full)",
+												outlineOffset: "2px",
+											}}
+										>
+											<Avatar
+												src={contributor.avatarUrl}
+												fallback={contributor.login.slice(0, 1).toUpperCase()}
+												alt={contributor.login}
+												size="2"
+												radius="full"
+											/>
+										</a>
+									</Tooltip>
+								))}
+							</Flex>
+						)}
 					</Flex>
 				</Flex>
 			</Card>

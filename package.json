@@ -1,7 +1,7 @@
 {
 	"name": "amll-ttml-tool",
 	"private": true,
-	"version": "0.10.3",
+	"version": "0.10.4",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -11,7 +11,8 @@
 		"test:all": "vitest run && pnpm run test:versioning",
 		"version:bump": "node scripts/bump-version.mjs",
 		"changelog:compile": "node scripts/compile-changelog.mjs",
-		"test:versioning": "node --test scripts/version-utils.test.mjs",
+		"test:versioning": "node --test scripts/version-utils.test.mjs scripts/generate-contributors.test.mjs",
+		"contributors:update": "node scripts/generate-contributors.mjs",
 		"lint": "biome lint",
 		"fmt": "biome format --write ./src",
 		"preview": "vite preview",

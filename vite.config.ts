@@ -178,6 +178,10 @@ export default defineConfig({
 		global: "globalThis",
 	},
 	test: {
-		exclude: [...configDefaults.exclude, "scripts/version-utils.test.mjs"],
+		exclude: [
+			...configDefaults.exclude,
+			"scripts/version-utils.test.mjs",
+			"scripts/generate-contributors.test.mjs",
+		],
 	},
 });
