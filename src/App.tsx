@@ -97,6 +97,7 @@ import { DiscordPresence } from "./modules/discord-presence/DiscordPresence";
 import { SyncKeyBinding } from "./modules/lyric-editor/components/sync-keybinding.tsx";
 import { UrbanDictionaryKeybinding } from "./modules/lyric-editor/components/urban-dictionary-keybinding.tsx";
 import { BeginnerGuide } from "./modules/onboarding/BeginnerGuide";
+import { AudioMetadataPrefill } from "./modules/project/audio-metadata";
 import { AutosaveManager } from "./modules/project/autosave/AutosaveManager.tsx";
 import exportTTMLText from "./modules/project/logic/ttml-writer.ts";
 import { GlobalDragOverlay } from "./modules/project/modals/GlobalDragOverlay.tsx";
@@ -600,6 +601,7 @@ function App() {
 			{import.meta.env.TAURI_ENV_PLATFORM && <InterfaceScaleManager />}
 			<DiscordPresence />
 			<BeginnerGuide />
+			<AudioMetadataPrefill />
 			{customStyleString ? <style>{customStyleString}</style> : null}
 			<ErrorBoundary
 				FallbackComponent={AppErrorPage}

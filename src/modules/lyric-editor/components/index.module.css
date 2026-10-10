@@ -699,6 +699,15 @@
 	}
 }
 
+.startTime.untimedTimestamp,
+.endTime.untimedTimestamp,
+.lyricWord.selected .untimedTimestamp,
+:global(.radix-themes.light) .lyricWord.selected .untimedTimestamp {
+	background-color: var(--gray-a3);
+	color: var(--gray-11);
+	border: 1px dashed var(--gray-a8);
+}
+
 .lyricWord.sync.active {
 	background-color: var(--accent-a9);
 	transition: background-color 0s;

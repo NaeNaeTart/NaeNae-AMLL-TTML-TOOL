@@ -5,6 +5,7 @@ import {
 	getGuideProgress,
 	getGuideStepNumber,
 	getGuideUrl,
+	getWordTimingProgress,
 	hasCompleteTiming,
 	hasImportedLyrics,
 	hasNoEmptyLyricLines,
@@ -18,6 +19,36 @@ const createLyrics = (): TTMLLyric => {
 };
 
 describe("beginner guide predicates", () => {
+	it("counts applicable words using the same bounds as the completion gate", () => {
+		const lyrics = createLyrics();
+		const line = lyrics.lyricLines[0];
+		line.startTime = 0;
+		line.endTime = 2000;
+		line.words = [
+			{ ...newLyricWord(), word: "Hello", startTime: 0, endTime: 500 },
+			{ ...newLyricWord(), word: " ", startTime: 0, endTime: 0 },
+			{ ...newLyricWord(), word: "world", startTime: 0, endTime: 0 },
+		];
+		lyrics.lyricLines.push({ ...line, id: "ignored", ignoreSync: true });
+		expect(getWordTimingProgress(lyrics)).toEqual({ timed: 1, total: 2 });
+		expect(hasCompleteTiming(lyrics)).toBe(false);
+		line.words[2].startTime = 500;
+		line.words[2].endTime = 1500;
+		expect(getWordTimingProgress(lyrics)).toEqual({ timed: 2, total: 2 });
+		expect(hasCompleteTiming(lyrics)).toBe(true);
+		line.words[2].endTime = 2500;
+		expect(getWordTimingProgress(lyrics)).toEqual({ timed: 1, total: 2 });
+	});
+
+	it("counts words in a line-synced lyric once the line is timed", () => {
+		const lyrics = createLyrics();
+		const line = lyrics.lyricLines[0];
+		line.isLineSynced = true;
+		expect(getWordTimingProgress(lyrics)).toEqual({ timed: 0, total: 1 });
+		line.endTime = 1000;
+		expect(getWordTimingProgress(lyrics)).toEqual({ timed: 1, total: 1 });
+		expect(hasCompleteTiming(lyrics)).toBe(true);
+	});
 	it("recognizes imported, non-empty lyrics", () => {
 		const lyrics = createLyrics();
 		expect(hasImportedLyrics(lyrics)).toBe(true);

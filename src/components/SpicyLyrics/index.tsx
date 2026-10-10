@@ -13,6 +13,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { timedPreviewLyricsAtom } from "$/components/PreviewModeSwitcher/states";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import { audioCoverArtAtom, currentTimeAtom } from "$/modules/audio/states";
 import { customBackgroundImageAtom } from "$/modules/settings/modals/customBackground";
@@ -28,7 +29,6 @@ import {
 	spicyForceLineSyncedAtom,
 	spicySimpleLyricsModeAtom,
 } from "$/modules/settings/states/preview";
-import { lyricLinesAtom } from "$/states/main";
 import styles from "./index.module.css";
 import { CubicSpline, progressAt, Spring, stateAt } from "./math";
 import {
@@ -252,7 +252,7 @@ function useKawarpBackground(
 }
 
 export const SpicyLyrics = memo(() => {
-	const lyrics = useAtomValue(lyricLinesAtom);
+	const lyrics = useAtomValue(timedPreviewLyricsAtom);
 	const simple = useAtomValue(spicySimpleLyricsModeAtom);
 	const forceLineSynced = useAtomValue(spicyForceLineSyncedAtom);
 	const romanized = useAtomValue(showRomanLinesAtom);

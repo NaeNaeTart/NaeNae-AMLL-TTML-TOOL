@@ -24,7 +24,11 @@ import { normalizeLyricText } from "$/utils/apostrophe-normalization";
 import { saveFile } from "$/utils/fileSystem.ts";
 import { error } from "$/utils/logging.ts";
 
-export const ImportExportLyric = () => {
+export const ImportExportLyric = ({
+	onSaveTtml,
+}: {
+	onSaveTtml: () => void | Promise<void>;
+}) => {
 	const store = useStore();
 	const setImportFromTextDialog = useSetAtom(importFromTextDialogAtom);
 	const setImportFromLRCLIBDialog = useSetAtom(importFromLRCLIBDialogAtom);
@@ -121,11 +125,14 @@ export const ImportExportLyric = () => {
 					{t("topBar.menu.exportLyric.export", "导出歌词...")}
 				</DropdownMenu.SubTrigger>
 				<DropdownMenu.SubContent>
+					<DropdownMenu.Item onSelect={onSaveTtml}>
+						{t("topBar.menu.exportLyric.toTTML", "TTML")}
+					</DropdownMenu.Item>
 					<DropdownMenu.Item onClick={onExportLyric(stringifyLrc, "lrc")}>
-						{t("topBar.menu.exportLyric.toLyRiC", "导出到 LyRiC")}
+						{t("topBar.menu.exportLyric.toLRC", "LRC")}
 					</DropdownMenu.Item>
 					<DropdownMenu.Item onClick={onExportLyric(stringifyEslrc, "eslrc")}>
-						{t("topBar.menu.exportLyric.toESLyRiC", "导出到 ESLyRiC")}
+						{t("topBar.menu.exportLyric.toESLRC", "ESLRC")}
 					</DropdownMenu.Item>
 					<DropdownMenu.Item onClick={onExportLyric(stringifyQrc, "qrc")}>
 						{t("topBar.menu.exportLyric.toQRC", "导出到 QRC")}

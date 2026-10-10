@@ -87,6 +87,7 @@ import {
 	duplicateLinesWithSections,
 	repairSectionIntegrity,
 } from "../utils/section-system.ts";
+import { hasNoTiming } from "../utils/timing-status";
 import { getWordConnections } from "../utils/word-connections.ts";
 import styles from "./index.module.css";
 import { LineTimingMenuItems } from "./line-timing-menu.tsx";
@@ -1212,20 +1213,22 @@ export const LyricLineView: FC<{
 								</div>
 								{toolMode === ToolMode.Edit && (
 									<>
-										{showTranslation && (
-											<SubLineEdit
-												lineAtom={lineAtom}
-												lineIndex={lineIndex}
-												type="translatedLyric"
-											/>
-										)}
-										{showRomanization && (
-											<SubLineEdit
-												lineAtom={lineAtom}
-												lineIndex={lineIndex}
-												type="romanLyric"
-											/>
-										)}
+										{showTranslation &&
+											(lineSelected || line.translatedLyric?.trim()) && (
+												<SubLineEdit
+													lineAtom={lineAtom}
+													lineIndex={lineIndex}
+													type="translatedLyric"
+												/>
+											)}
+										{showRomanization &&
+											(lineSelected || line.romanLyric?.trim()) && (
+												<SubLineEdit
+													lineAtom={lineAtom}
+													lineIndex={lineIndex}
+													type="romanLyric"
+												/>
+											)}
 									</>
 								)}
 							</div>
@@ -1247,12 +1250,24 @@ export const LyricLineView: FC<{
 							)}
 							{toolMode === ToolMode.Sync && showTimestamps && (
 								<Flex pr="3" gap="1" direction="column" align="stretch">
-									<div className={styles.startTime} ref={startTimeRef}>
-										{msToTimestamp(line.startTime)}
+									<div
+										className={classNames(
+											styles.startTime,
+											hasNoTiming(line) && styles.untimedTimestamp,
+										)}
+										ref={startTimeRef}
+									>
+										{hasNoTiming(line)
+											? "--:--.---"
+											: msToTimestamp(line.startTime)}
 									</div>
 									<button
 										type="button"
-										className={classNames(styles.endTime, styles.endTimeButton)}
+										className={classNames(
+											styles.endTime,
+											styles.endTimeButton,
+											line.endTime === 0 && styles.untimedTimestamp,
+										)}
 										ref={endTimeRef}
 										onClick={onToggleEndTimeLink}
 									>
@@ -1262,7 +1277,9 @@ export const LyricLineView: FC<{
 												alignItems: "center",
 											}}
 										>
-											{endTimeLinked ? (
+											{line.endTime === 0 ? (
+												"--:--.---"
+											) : endTimeLinked ? (
 												<LinkMultiple20Regular />
 											) : showEndTimeAsDuration ? (
 												`+${line.endTime - line.startTime}ms`

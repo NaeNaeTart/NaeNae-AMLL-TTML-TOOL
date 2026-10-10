@@ -8,6 +8,11 @@ export const guideExportedAtom = atom(false);
 export const guideCompletionAtom = atomWithStorage<
 	"new" | "dismissed" | "completed"
 >("beginnerGuideStatus", "new", undefined, { getOnInit: true });
+export const exitBeginnerGuideAtom = atom(null, (_get, set) => {
+	set(guideCompletionAtom, "dismissed");
+	set(guidePanelOpenAtom, false);
+	set(guideWelcomeOpenAtom, false);
+});
 export const advancedRibbonControlsAtom = atomWithStorage(
 	"advancedRibbonControls",
 	false,
