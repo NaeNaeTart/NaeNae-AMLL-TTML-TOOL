@@ -44,7 +44,7 @@ class PcmPlayer extends AudioWorkletProcessor {
 								new SoundTouchProcessor(
 									channels.length,
 									sampleRate,
-									StretchAlgorithm.Wsola,
+									StretchAlgorithm.Spectral,
 								),
 						);
 					}

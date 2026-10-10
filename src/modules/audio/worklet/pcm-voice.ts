@@ -15,6 +15,17 @@ export interface StretchProcessor {
 	extractOutput(frames: number): number;
 }
 
+/**
+ * SoundTouch's Spectral stretcher starts its output this far into its input:
+ * 90 - 60 * tempo source milliseconds (60 ms at 0.5x, 30 ms at 1x), measured
+ * with click trains through the vendored wasm and identical at 44.1/48 kHz.
+ * Feeding from this much earlier makes the first output sample the seek frame,
+ * so the frame clock and audition endpoints match what is heard.
+ */
+export function spectralLeadFrames(tempo: number, sampleRate: number) {
+	return Math.round(((90 - 60 * tempo) / 1000) * sampleRate);
+}
+
 export class PcmVoice {
 	private state: VoiceState;
 	private appliedGeneration = -1;
@@ -67,6 +78,7 @@ export class PcmVoice {
 				this.inputChunk = this.processor.getInputChunkSize();
 				if (this.inputChunk <= 0)
 					throw new Error("Invalid SoundTouch input size");
+				this.readFrame -= spectralLeadFrames(this.state.rate, this.sampleRate);
 			}
 		}
 		for (const channel of output) channel.fill(0);
@@ -144,17 +156,24 @@ export class PcmVoice {
 					throw new Error("SoundTouch failed to drain its output");
 				}
 			}
+			// Priming for the stretch lead can start before the song: feed silence there.
+			const silent = Math.max(0, Math.min(count, -this.readFrame));
 			for (let c = 0; c < this.channels.length; c++) {
 				const input = new Float32Array(
 					this.memory.buffer,
 					processor.getInputPtr(c),
 					count,
 				);
-				if (remaining > 0)
+				if (remaining > 0) {
+					input.fill(0, 0, silent);
 					input.set(
-						this.channels[c].subarray(this.readFrame, this.readFrame + count),
+						this.channels[c].subarray(
+							this.readFrame + silent,
+							this.readFrame + count,
+						),
+						silent,
 					);
-				else input.fill(0);
+				} else input.fill(0);
 			}
 			processor.processInput(count);
 			this.readFrame += Math.max(0, Math.min(count, remaining));

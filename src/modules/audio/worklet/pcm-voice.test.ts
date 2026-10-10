@@ -36,7 +36,7 @@ function realVoice(channels: Float32Array[], sampleRate = 44100) {
 			new SoundTouchProcessor(
 				channels.length,
 				sampleRate,
-				StretchAlgorithm.Wsola,
+				StretchAlgorithm.Spectral,
 			),
 	);
 }
@@ -174,6 +174,48 @@ describe("decoded PCM playback", () => {
 		expect(ended).toBe(true);
 		expect(finalFrame).toBe(end);
 		expect(rendered).toBeCloseTo(Math.ceil((end - start) / rate), 0);
+		voice.destroy();
+	});
+	it.each([
+		[0.25, 0],
+		[0.5, 0],
+		[0.5, 3],
+		[0.75, 3],
+		[1.25, 3],
+		[1.75, 3],
+	])("keeps stretched audio aligned with the frame clock at %sx after a seek to %ss", (rate, seekSeconds) => {
+		const sampleRate = 44100;
+		const pcm = Float32Array.from(
+			{ length: sampleRate * 6 },
+			(_, i) => 0.05 * Math.sin((2 * Math.PI * 220 * i) / sampleRate),
+		);
+		// Slowed down, the first click sits 30 ms after the seek, inside the stretch
+		// lead. Sped up, Spectral fades in over its first ~90 ms after a reset (quiet
+		// but on time), so the first click goes past that.
+		const first = rate < 1 ? 0.03 : 0.12;
+		const clicks = [first, 0.41, 0.97, 1.6].map((t) =>
+			Math.round((seekSeconds + t) * sampleRate),
+		);
+		for (const click of clicks) pcm.fill(0.9, click, click + 32);
+		const voice = realVoice([pcm], sampleRate);
+		const start = Math.round(seekSeconds * sampleRate);
+		voice.setState(state({ frame: start, endFrame: pcm.length, rate }));
+		const heard: number[] = [];
+		const output = [new Float32Array(128)];
+		for (let block = 0; heard.length < (1.8 / rate) * sampleRate; block++) {
+			const report = voice.render(output, block);
+			heard.push(...output[0].subarray(0, report?.renderedFrames ?? 0));
+		}
+		for (const click of clicks) {
+			const expected = (click - start) / rate;
+			const window = Math.round(0.1 * sampleRate);
+			const onset = heard.findIndex(
+				(value, i) => i > expected - window && Math.abs(value) > 0.4,
+			);
+			// Error in song time, as the lyric clock sees it.
+			const errorMs = (((onset - expected) * rate) / sampleRate) * 1000;
+			expect(Math.abs(errorMs), `click at ${click}`).toBeLessThan(3);
+		}
 		voice.destroy();
 	});
 	it("switches from buffered stretching to direct PCM at the audible seek frame", () => {
