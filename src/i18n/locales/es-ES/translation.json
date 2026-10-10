@@ -140,7 +140,8 @@
     "noMatches": "Ningún proyecto coincide con la búsqueda",
     "searchPlaceholder": "Buscar por nombre o ubicación",
     "removeLinkTitle": "¿Quitar proyecto vinculado?",
-    "removeLinkDescription": "La entrada del proyecto se elimina de la app. Tus archivos TTML y de audio no se borran."
+    "removeLinkDescription": "La entrada del proyecto se elimina de la app. Tus archivos TTML y de audio no se borran.",
+    "showBackup": "Mostrar ubicación de la copia de seguridad"
   },
   "projectBrowser": {
     "fileMissing": "{file} (falta)",
@@ -618,7 +619,17 @@
   },
   "header": {
     "status": {
-      "autoSavedAt": "Autosaved at {time}"
+      "autoSavedAt": "Autoguardado a las {time}",
+      "unsavedChanges": "Cambios sin guardar"
+    },
+    "project": {
+      "linked": "Proyecto vinculado",
+      "folder": "Proyecto en carpeta"
+    },
+    "backup": {
+      "restore": "Restaurar copia de seguridad",
+      "confirmTitle": "¿Restaurar copia de seguridad vinculada?",
+      "confirmDescription": "El TTML original guardado antes de la primera sobrescritura reemplazará el archivo de canción actual y se eliminará la copia de seguridad. Se perderán los cambios sin guardar del editor."
     }
   },
   "contextMenu": {
@@ -715,7 +726,13 @@
     "openFileFailed": "Failed to open file",
     "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing.",
     "linkedProjectInvalidPath": "Los archivos seleccionados no se pueden vincular. Elige un archivo .ttml y un archivo de audio en una unidad local. Los recursos compartidos de red no son compatibles.",
-    "linkedProjectBackupFailed": "No se pudo hacer una copia de seguridad del archivo TTML original, así que no se sobrescribió"
+    "linkedProjectBackupFailed": "No se pudo hacer una copia de seguridad del archivo TTML original, así que no se sobrescribió",
+    "linkedProjectNoBackup": "No se encontró ninguna copia de seguridad de este proyecto",
+    "linkedProjectRestoreFailed": "No se pudo restaurar el archivo TTML original",
+    "linkedProjectRestoreReloadFailed": "Se restauró el archivo original, pero no se pudo recargar el proyecto"
+  },
+  "success": {
+    "linkedProjectBackupRestored": "Se restauró el archivo TTML original"
   },
   "audio": {
     "marker": "Marker",
@@ -1227,7 +1244,7 @@
   "aboutModal": {
     "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "A Word-by-Word TTML Editing and Timeline Tool for Apple Music-like Lyrics",
-    "maintainers": "Fork Maintainers",
+    "maintainers": "Fork Maintainers & Contributors",
     "maintainersDesc": "This fork is maintained and developed by:",
     "forkMaintainer": "Fork maintainer & contributor",
     "visitWebsite": "Visit website",

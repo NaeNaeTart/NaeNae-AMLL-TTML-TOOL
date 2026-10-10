@@ -55,6 +55,33 @@ export function ChangelogDialog() {
 				>
 					<Flex direction="column" gap="5" pr="4">
 						<Box>
+							<Heading size="4" mb="2" color="jade">
+								v0.10.4 Updates (Backup Restore, Sync Timing)
+							</Heading>
+							<Flex direction="column" gap="3">
+								<Text size="2">
+									<strong>Linked Project Backup:</strong> Linked projects show a
+									header icon that restores the one-time backup of the original
+									TTML after confirming (the backup is removed once restored),
+									and the Linked tab can open the folder that holds it. The
+									header also shows an unsaved changes button that saves the
+									project.
+								</Text>
+								<Text size="2">
+									<strong>Contributors in About:</strong> The About tab lists
+									everyone who has contributed to this fork, with their GitHub
+									profiles and a link to the full contributor graph.
+								</Text>
+								<Text size="2">
+									<strong>Sync Timing:</strong> Synced times no longer drift
+									when the audio stalls, buffers or changes speed, and the delay
+									between pressing a sync key and the app handling it is removed
+									at every playback speed. Syncing into the next line no longer
+									leaves its first word with an old end time.
+								</Text>
+							</Flex>
+						</Box>
+						<Box>
 							<Heading size="4" mb="2" color="iris">
 								v0.10.3 Updates (Linked Projects)
 							</Heading>

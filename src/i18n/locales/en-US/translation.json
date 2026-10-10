@@ -162,7 +162,8 @@
     "noMatches": "No projects match your search",
     "searchPlaceholder": "Search by name or location",
     "removeLinkTitle": "Remove linked project?",
-    "removeLinkDescription": "The project entry is removed from the app. Your TTML and audio files are not deleted."
+    "removeLinkDescription": "The project entry is removed from the app. Your TTML and audio files are not deleted.",
+    "showBackup": "Show backup location"
   },
   "projectBrowser": {
     "fileMissing": "{file} (missing)",
@@ -671,7 +672,17 @@
   },
   "header": {
     "status": {
-      "autoSavedAt": "Autosaved at {time}"
+      "autoSavedAt": "Autosaved at {time}",
+      "unsavedChanges": "Unsaved changes"
+    },
+    "project": {
+      "linked": "Linked project",
+      "folder": "Folder project"
+    },
+    "backup": {
+      "restore": "Restore backup",
+      "confirmTitle": "Restore linked backup?",
+      "confirmDescription": "The original TTML saved before the first overwrite will replace the current song file and the backup will be removed. Unsaved changes in the editor will be lost."
     }
   },
   "contextMenu": {
@@ -776,7 +787,13 @@
     "openFileFailed": "Failed to open file",
     "audioNotLoaded": "Audio not loaded. Please ensure an audio file is playing.",
     "linkedProjectInvalidPath": "The selected files cannot be linked. Choose a .ttml file and an audio file on a local drive. Network shares are not supported.",
-    "linkedProjectBackupFailed": "Could not back up the original TTML file, so it was not overwritten"
+    "linkedProjectBackupFailed": "Could not back up the original TTML file, so it was not overwritten",
+    "linkedProjectNoBackup": "No backup found for this project",
+    "linkedProjectRestoreFailed": "Failed to restore original TTML file",
+    "linkedProjectRestoreReloadFailed": "Restored original file, but failed to reload project"
+  },
+  "success": {
+    "linkedProjectBackupRestored": "Restored original TTML file"
   },
   "audio": {
     "marker": "Marker",
@@ -1326,7 +1343,7 @@
   "aboutModal": {
     "appName": "NaeNae's Apple Music-like Lyrics TTML Tool Fork",
     "description": "A Word-by-Word TTML Editing and Timeline Tool for Apple Music-like Lyrics",
-    "maintainers": "Fork Maintainers",
+    "maintainers": "Fork Maintainers & Contributors",
     "maintainersDesc": "This fork is maintained and developed by:",
     "forkMaintainer": "Fork maintainer & contributor",
     "visitWebsite": "Visit website",
