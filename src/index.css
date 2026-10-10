@@ -16,6 +16,7 @@
 	--default-font-family:
 		"MiSans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	--ribbon-label-color: var(--accent-11);
+	--timestamp-font-family: "JetBrains Mono", Consolas, Menlo, monospace;
 
 	--toastify-color-success: var(--accent-9, #30a46c);
 	--toastify-color-progress-success: var(--accent-9, #30a46c);

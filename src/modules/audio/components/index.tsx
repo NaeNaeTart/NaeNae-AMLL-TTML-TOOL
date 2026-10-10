@@ -113,6 +113,7 @@ const CurrentTimeLabel: FC = () => {
 				minWidth: "5.5em",
 				textAlign: "left",
 				color: "var(--audio-bar-text, inherit)",
+				fontFamily: "var(--timestamp-font-family)",
 			}}
 		>
 			{msToTimestamp(currentTime)}
@@ -299,6 +300,7 @@ export const AudioControls: FC = memo(() => {
 							style={{
 								minWidth: "5.5em",
 								color: "var(--audio-bar-text, inherit)",
+								fontFamily: "var(--timestamp-font-family)",
 							}}
 						>
 							{msToTimestamp(currentDuration)}

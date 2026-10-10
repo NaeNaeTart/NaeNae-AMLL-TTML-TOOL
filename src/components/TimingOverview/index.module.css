@@ -69,17 +69,7 @@
 }
 
 .monospaced {
-	font-family: var(
-		--code-font-family,
-		"JetBrains Mono",
-		"SF Mono",
-		Menlo,
-		Monaco,
-		Consolas,
-		"Liberation Mono",
-		"Courier New",
-		monospace
-	);
+	font-family: var(--timestamp-font-family);
 	font-variant-numeric: tabular-nums;
 	white-space: nowrap;
 }

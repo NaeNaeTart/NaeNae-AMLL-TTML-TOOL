@@ -17,6 +17,8 @@ import { enableMapSet } from "immer";
 import { Provider } from "jotai";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+// Bundled timestamp font (JetBrains Mono, SIL OFL 1.1), Latin 500 only.
+import "@fontsource/jetbrains-mono/latin-500.css";
 import "react-toastify/dist/ReactToastify.css";
 
 import App from "./App.tsx";

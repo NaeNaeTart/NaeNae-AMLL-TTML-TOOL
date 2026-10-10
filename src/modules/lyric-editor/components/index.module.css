@@ -261,7 +261,9 @@
 	padding: 0.05em 0.5em;
 	border-radius: var(--radius-4);
 	color: var(--white-a6);
-	font-variant-numeric: tabular-nums;
+	/* Monospace like the Timing Overview: every timestamp, timed or not, is the same width. */
+	font-family: var(--timestamp-font-family);
+	font-weight: 500;
 }
 
 .startTime {
@@ -281,6 +283,8 @@
 	align-items: center;
 	justify-content: center;
 	font: inherit;
+	font-family: var(--timestamp-font-family);
+	font-weight: 500;
 	color: inherit;
 }
 
