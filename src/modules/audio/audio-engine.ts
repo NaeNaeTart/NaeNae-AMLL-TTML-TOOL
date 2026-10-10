@@ -11,6 +11,7 @@ import {
 	equalizerGainsAtom,
 	loadedAudioAtom,
 } from "$/modules/audio/states/index.ts";
+import { MediaTimeInterpolator } from "$/modules/audio/utils/media-time-interpolator";
 import { bufferSliceToWav } from "$/modules/audio/utils/wav-slice";
 import { AudioWorkerClient } from "$/modules/audio/workers/audio-worker-client";
 import { globalStore } from "$/states/store.ts";
@@ -236,22 +237,20 @@ class AudioEngine extends EventTarget {
 		return this._audioEl?.currentTime ?? 0;
 	}
 
-	private _lastReportedTime = 0;
-	private _lastPerformanceTime = performance.now();
+	private mediaTimeInterpolator = new MediaTimeInterpolator();
 
 	get interpolatedCurrentTime() {
 		if (!this._audioEl) return 0;
-		if (!this.musicPlaying) return this._audioEl.currentTime;
-
-		const currentTime = this._audioEl.currentTime;
-		if (currentTime !== this._lastReportedTime) {
-			this._lastReportedTime = currentTime;
-			this._lastPerformanceTime = performance.now();
-			return currentTime;
-		}
-
-		const dt = (performance.now() - this._lastPerformanceTime) / 1000;
-		return currentTime + dt * this._musicPlayBackRate;
+		const canExtrapolate =
+			this.musicPlaying &&
+			!this._audioEl.seeking &&
+			this._audioEl.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA;
+		return this.mediaTimeInterpolator.sample(
+			this._audioEl.currentTime,
+			performance.now(),
+			this._musicPlayBackRate,
+			canExtrapolate,
+		);
 	}
 
 	get musicDuration() {
@@ -270,6 +269,7 @@ class AudioEngine extends EventTarget {
 			this._auditionAudioEl.playbackRate = v;
 		}
 		this._musicPlayBackRate = v;
+		this.mediaTimeInterpolator.reset(this.musicCurrentTime, performance.now());
 		this.dispatchEvent(new Event("music-playback-rate-change"));
 	}
 
@@ -310,8 +310,7 @@ class AudioEngine extends EventTarget {
 	seekMusic(offset: number) {
 		if (this._audioEl) {
 			this._audioEl.currentTime = offset;
-			this._lastReportedTime = offset;
-			this._lastPerformanceTime = performance.now();
+			this.mediaTimeInterpolator.reset(offset, performance.now());
 			this.dispatchEvent(new Event("music-seeked"));
 		}
 	}
@@ -320,8 +319,7 @@ class AudioEngine extends EventTarget {
 		if (!this._audioEl) return;
 		await this.resumeContext();
 		this._audioEl.currentTime = offset;
-		this._lastReportedTime = offset;
-		this._lastPerformanceTime = performance.now();
+		this.mediaTimeInterpolator.reset(offset, performance.now());
 		this._audioEl.play();
 		this.dispatchEvent(new Event("music-resume"));
 	}

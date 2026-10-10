@@ -11,8 +11,11 @@ import {
 	isSynchronizableLine,
 } from "$/modules/lyric-editor/utils/lyric-states";
 import {
+	calculateSyncTime,
+	setPendingUnitTimeCloned,
+} from "$/modules/lyric-editor/utils/sync-timing";
+import {
 	highlightActiveWordAtom,
-	SyncJudgeMode,
 	smartFirstWordAtom,
 	smartLastWordAtom,
 	syncJudgeModeAtom,
@@ -136,7 +139,7 @@ export const SyncKeyBinding: FC = () => {
 	const store = useStore();
 
 	const calcJudgeTime = useCallback(
-		(evt: KeyBindingEvent) => {
+		(evt: KeyBindingEvent, actionOffset = 0) => {
 			const spectrogramHoverSync = store.get(spectrogramHoverSyncEnabledAtom);
 			const isSpectrogramHovering = store.get(spectrogramIsHoveringAtom);
 			if (spectrogramHoverSync && isSpectrogramHovering) {
@@ -146,35 +149,17 @@ export const SyncKeyBinding: FC = () => {
 				}
 			}
 
-			const syncTimeOffset = store.get(syncTimeOffsetAtom);
-			const processingDelay = performance.now() - evt.triggerTime;
-			const audioTimeNow =
-				audioEngine.interpolatedCurrentTime * 1000 -
-				processingDelay * audioEngine.musicPlayBackRate;
-
-			const syncJudgeMode = store.get(syncJudgeModeAtom);
-			if (syncJudgeMode === SyncJudgeMode.FirstKeyDownTimeLegacy) {
-				return Math.round(
-					Math.max(0, audioTimeNow - evt.downTimeOffset + syncTimeOffset),
-				);
-			}
-			let timeAdjustment = 0;
-			if (audioEngine.musicPlaying) {
-				switch (syncJudgeMode) {
-					case SyncJudgeMode.FirstKeyDownTime:
-						timeAdjustment -= evt.downTimeOffset;
-						break;
-					case SyncJudgeMode.LastKeyUpTime:
-						break;
-					case SyncJudgeMode.MiddleKeyTime:
-						timeAdjustment -= evt.downTimeOffset / 2;
-						break;
-				}
-				timeAdjustment *= audioEngine.musicPlayBackRate;
-			}
-			return Math.round(
-				Math.max(0, audioTimeNow + timeAdjustment + syncTimeOffset),
-			);
+			return calculateSyncTime({
+				audioTimeSeconds: audioEngine.interpolatedCurrentTime,
+				playbackRate: audioEngine.musicPlayBackRate,
+				isPlaying: audioEngine.musicPlaying,
+				event: evt,
+				judgeMode: store.get(syncJudgeModeAtom),
+				syncTimeOffset: store.get(syncTimeOffsetAtom),
+				actionOffset,
+				performanceTime: performance.now(),
+				performanceTimeOrigin: performance.timeOrigin,
+			});
 		},
 		[store],
 	);
@@ -359,7 +344,7 @@ export const SyncKeyBinding: FC = () => {
 			const _t0 = performance.now();
 			const location = getCurrentLocation(store);
 			if (!location) return;
-			const currentTime = calcJudgeTime(evt) + store.get(syncCommitOffsetAtom);
+			const currentTime = calcJudgeTime(evt, store.get(syncCommitOffsetAtom));
 			const _t1 = performance.now();
 
 			const syncLevelMode = store.get(syncLevelModeAtom);
@@ -428,7 +413,7 @@ export const SyncKeyBinding: FC = () => {
 						nextLine.startTime = currentTime;
 						const nextLineUnits = getSynchronizableUnits(nextLine);
 						if (nextLineUnits.length > 0) {
-							setUnitStartTimeCloned(
+							setPendingUnitTimeCloned(
 								nextLine,
 								nextLineUnits[0].wordIndex,
 								nextLineUnits[0].rubyIndex,
@@ -592,7 +577,7 @@ export const SyncKeyBinding: FC = () => {
 							nextLines[iterLineIndex].endTime = currentTime;
 							targetLine.startTime = currentTime;
 						}
-						setUnitStartTimeCloned(
+						setPendingUnitTimeCloned(
 							targetLine,
 							next.unit.wordIndex,
 							next.unit.rubyIndex,
