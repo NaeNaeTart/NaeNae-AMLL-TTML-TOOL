@@ -249,13 +249,18 @@ export const HistoryRestoreDialog = () => {
 													transition: "background-color 0.2s",
 												}}
 											>
-												<Flex justify="between" align="start">
+												<Flex justify="between" align="start" gap="2">
 													<Flex
 														direction="column"
 														gap="1"
-														style={{ overflow: "hidden" }}
+														style={{ flex: 1, minWidth: 0 }}
 													>
-														<Text weight="bold" size="2" truncate>
+														<Text
+															weight="bold"
+															size="2"
+															wrap="wrap"
+															style={{ overflowWrap: "anywhere" }}
+														>
 															{getProjectDisplayName(project)}
 														</Text>
 														<Flex gap="2" align="center">
@@ -266,6 +271,7 @@ export const HistoryRestoreDialog = () => {
 														</Flex>
 													</Flex>
 													<IconButton
+														style={{ flexShrink: 0 }}
 														size="1"
 														variant="ghost"
 														color="gray"
@@ -283,13 +289,18 @@ export const HistoryRestoreDialog = () => {
 					</Flex>
 
 					<Box
-						style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+						style={{
+							flexGrow: 1,
+							display: "flex",
+							flexDirection: "column",
+							minWidth: 0,
+						}}
 					>
 						{currentProject ? (
 							<>
 								<Box p="4" style={{ borderBottom: "1px solid var(--gray-5)" }}>
 									<Flex justify="between" align="start" mb="3">
-										<Heading size="4">
+										<Heading size="4" style={{ overflowWrap: "anywhere" }}>
 											{getProjectDisplayName(currentProject)}
 										</Heading>
 									</Flex>
@@ -325,7 +336,16 @@ export const HistoryRestoreDialog = () => {
 												<ScrollArea type="auto" scrollbars="vertical">
 													<Flex gap="2" wrap="wrap" pb="1" pr="3">
 														{currentProject.latestState.metadata.map((meta) => (
-															<Badge key={meta.key} variant="soft" color="gray">
+															<Badge
+																key={meta.key}
+																variant="soft"
+																color="gray"
+																style={{
+																	maxWidth: "100%",
+																	whiteSpace: "normal",
+																	overflowWrap: "anywhere",
+																}}
+															>
 																{meta.key}: {meta.value[0]}
 															</Badge>
 														))}

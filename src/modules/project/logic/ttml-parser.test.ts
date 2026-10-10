@@ -1,6 +1,47 @@
 import { describe, expect, it } from "vitest";
 import { newLyricLine, newLyricWord } from "../../../types/ttml";
-import { appendParentBeforeNestedLines } from "./ttml-parser";
+import {
+	appendParentBeforeNestedLines,
+	separateTrailingWhitespace,
+} from "./ttml-parser";
+
+describe("separateTrailingWhitespace", () => {
+	it("keeps timing, identity, metadata and ruby on the trimmed syllable", () => {
+		const word = {
+			...newLyricWord(),
+			word: " hello  \t",
+			startTime: 100,
+			endTime: 400,
+			obscene: true,
+			emptyBeat: 2,
+			romanWord: "he-lo",
+			ruby: [{ word: "hello", startTime: 100, endTime: 400 }],
+		};
+		const [syllable, spaces] = separateTrailingWhitespace([word]);
+		expect(syllable).toEqual({ ...word, word: " hello" });
+		expect(spaces).toEqual({ ...newLyricWord(), id: spaces.id, word: "  \t" });
+		expect(spaces.id).not.toBe(word.id);
+		expect(word.word).toBe(" hello  \t");
+	});
+
+	it("preserves whitespace-only spans and words without trailing whitespace", () => {
+		const words = [
+			{ ...newLyricWord(), word: "  ", startTime: 100, endTime: 200 },
+			{ ...newLyricWord(), word: "hello" },
+			newLyricWord(),
+		];
+		expect(separateTrailingWhitespace(words)).toEqual(words);
+	});
+
+	it("splits Unicode whitespace and remains stable when applied again", () => {
+		const words = separateTrailingWhitespace([
+			{ ...newLyricWord(), word: "hello\u00a0\u3000" },
+		]);
+		expect(words.map((word) => word.word)).toEqual(["hello", "\u00a0\u3000"]);
+		expect(separateTrailingWhitespace(words)).toEqual(words);
+		expect(new Set(words.map((word) => word.id)).size).toBe(words.length);
+	});
+});
 
 describe("appendParentBeforeNestedLines", () => {
 	it("keeps every nested background line after its parent", () => {

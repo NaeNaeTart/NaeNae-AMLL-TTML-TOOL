@@ -25,7 +25,7 @@ import {
 } from "@radix-ui/themes";
 import classNames from "classnames";
 import { type Atom, atom, useAtom, useAtomValue, useStore } from "jotai";
-import { selectAtom, splitAtom } from "jotai/utils";
+import { splitAtom } from "jotai/utils";
 import { useSetImmerAtom } from "jotai-immer";
 import {
 	type FC,
@@ -73,6 +73,7 @@ import {
 } from "$/states/main.ts";
 import { type LyricLine, newLyricLine, newLyricWord } from "$/types/ttml.ts";
 import { msToTimestamp } from "$/utils/timestamp.ts";
+import { lineDisplayNumbersAtom } from "../states/document-structure.ts";
 import {
 	copySectionTimings,
 	findPreviousMatchingSection,
@@ -120,37 +121,6 @@ const parseRubyShortcut = (value: string) => {
 		enableRuby: false,
 	};
 };
-
-// 定义一个派生 Atom，用于计算每一行的显示行号
-// 性能优化：只有当行数或 isBG 状态发生变化时，才重新计算行号
-// 这样在打轴（仅修改时间戳）时，不会触发全量行号重新计算
-const isBGSequenceAtom = selectAtom(
-	lyricLinesAtom,
-	(state) => state.lyricLines.map((line) => line.isBG),
-	(prev, next) => {
-		if (prev.length !== next.length) return false;
-		for (let i = 0; i < prev.length; i++) {
-			if (prev[i] !== next[i]) return false;
-		}
-		return true;
-	},
-);
-
-const lineDisplayNumbersAtom = atom((get) => {
-	const { lyricLines } = get(lyricLinesAtom);
-	get(isBGSequenceAtom); // 订阅稳定序列的变化
-	const displayNumbers: number[] = [];
-	let currentNumber = 0;
-
-	for (const [index, line] of lyricLines.entries()) {
-		if (!index || !line.isBG) {
-			currentNumber++;
-		}
-		displayNumbers.push(currentNumber);
-	}
-
-	return displayNumbers;
-});
 
 const LyricLineScroller = ({
 	lineAtom,

@@ -12,9 +12,7 @@
 import { MyLocation24Regular } from "@fluentui/react-icons";
 import { Box, Button, Flex, Text } from "@radix-ui/themes";
 import { atom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
-import { splitAtom } from "jotai/utils";
 import { useSetImmerAtom } from "jotai-immer";
-import { focusAtom } from "jotai-optics";
 import {
 	type FC,
 	forwardRef,
@@ -62,6 +60,11 @@ import {
 import type { LyricLine } from "$/types/ttml.ts";
 import { LYRIC_FILE_FILTERS, openFileWithDialog } from "$/utils/fileDialog";
 import { useKeyBindingAtom } from "$/utils/keybindings.ts";
+import {
+	hasGeniusHeaderAtom,
+	lyricLineStructureAtom,
+	lyricLinesOnlyAtom,
+} from "../states/document-structure.ts";
 import { repairSectionIntegrity } from "../utils/section-system.ts";
 import {
 	clampScrollTop,
@@ -90,10 +93,6 @@ import {
 	resolveAnchorLineIndex,
 	shouldAutoCenterSelection,
 } from "./selection-scroll";
-
-const lyricLinesOnlyAtom = splitAtom(
-	focusAtom(lyricLinesAtom, (o) => o.prop("lyricLines")),
-);
 
 const modeAnchorLines: Record<ToolMode, number> = {
 	[ToolMode.Edit]: -1,
@@ -432,7 +431,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				if (!shouldAutoCenterSelection(toolMode)) return undefined;
 				const selectedLines = get(selectedLinesAtom);
 				if (selectedLines.size === 0) return undefined;
-				const lyrics = get(lyricLinesAtom).lyricLines;
+				const lyrics = get(lyricLineStructureAtom);
 				const index = lyrics.findIndex((l) => selectedLines.has(l.id));
 				return index === -1 ? undefined : index;
 			}),
@@ -441,7 +440,7 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const scrollToIndex = useAtomValue(scrollToIndexAtom);
 	const lastSelectionScrolledIndexRef = useRef<number | undefined>(undefined);
 	const lastPlaybackScrolledIndexRef = useRef<number | undefined>(undefined);
-	const lyricLines = useAtomValue(lyricLinesAtom).lyricLines;
+	const lyricStructure = useAtomValue(lyricLineStructureAtom);
 	const collapsedSections = useAtomValue(collapsedSectionIdsAtom);
 	const visibleItems = useMemo(
 		() =>
@@ -449,17 +448,17 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 				.map((lineAtom, sourceIndex) => ({
 					lineAtom,
 					sourceIndex,
-					line: lyricLines[sourceIndex],
+					line: lyricStructure[sourceIndex],
 				}))
 				.filter(
 					({ line, sourceIndex }) =>
 						!line?.sectionId ||
 						!collapsedSections.has(line.sectionId) ||
-						lyricLines.findIndex(
+						lyricStructure.findIndex(
 							(candidate) => candidate.sectionId === line.sectionId,
 						) === sourceIndex,
 				),
-		[editLyric, lyricLines, collapsedSections],
+		[editLyric, lyricStructure, collapsedSections],
 	);
 
 	const scrollRafRef = useRef<number | null>(null);
@@ -699,19 +698,15 @@ export const LyricLinesView: FC = forwardRef<HTMLDivElement>((_props, ref) => {
 	const [, setDetectionDialogOpen] = useAtom(
 		geniusHeaderDetectionDialogOpenAtom,
 	);
+	const hasGeniusHeader = useAtomValue(hasGeniusHeaderAtom);
 
 	useEffect(() => {
 		if (dialogShown || geniusCategorizationEnabled) return;
-		const hasHeader = lyricLines.some((line) =>
-			/^\[(Chorus|Verse|Bridge|Intro|Outro|Pre-Chorus|Hook|Strofa|Refren|Skit|Interlude|Instrumental|Pre-Refren|Partea|Slofa|Section|Part|S\d+|V\d+|C\d+|Strophe|Refrain|Pont|Couplet|Refrain|Break).*?\]$/i.test(
-				line.words.map((w) => w.word).join(""),
-			),
-		);
-		if (hasHeader) {
+		if (hasGeniusHeader) {
 			setDetectionDialogOpen(true);
 		}
 	}, [
-		lyricLines,
+		hasGeniusHeader,
 		dialogShown,
 		geniusCategorizationEnabled,
 		setDetectionDialogOpen,

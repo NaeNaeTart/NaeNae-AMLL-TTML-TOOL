@@ -56,6 +56,26 @@ interface SpanNode {
 	tail: string;
 }
 
+/** Adapted from apoint123's upstream AMLL TTML Tool fix (04dbee4b). */
+export function separateTrailingWhitespace(words: LyricWord[]): LyricWord[] {
+	return words.flatMap((word) => {
+		const spaces = word.word.match(/\s+$/)?.[0];
+		if (!spaces || spaces.length === word.word.length) return [word];
+		return [
+			{ ...word, word: word.word.slice(0, -spaces.length) },
+			{
+				id: uid(),
+				word: spaces,
+				startTime: 0,
+				endTime: 0,
+				obscene: false,
+				emptyBeat: 0,
+				romanWord: "",
+			},
+		];
+	});
+}
+
 export function appendParentBeforeNestedLines(
 	lines: LyricLine[],
 	nestedStartIndex: number,
@@ -526,6 +546,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 			}
 		}
 
+		const timedWordIds = new Set<string>();
 		for (const wordNode of lineEl.childNodes) {
 			if (wordNode.nodeType === Node.TEXT_NODE) {
 				const word = wordNode.textContent ?? "";
@@ -576,6 +597,7 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 						}
 					}
 
+					timedWordIds.add(word.id);
 					line.words.push(word);
 				}
 			}
@@ -594,23 +616,33 @@ export function parseLyric(ttmlText: string): TTMLLyric {
 		}
 
 		if (line.isBG) {
-			const firstWord = line.words[0];
+			const firstWordIndex = line.words.findIndex(
+				(w) => w.word.trim().length > 0,
+			);
+			const firstWord = line.words[firstWordIndex];
 			if (firstWord && /^[（(]/.test(firstWord.word)) {
 				firstWord.word = firstWord.word.substring(1);
 				if (firstWord.word.length === 0) {
-					line.words.shift();
+					line.words.splice(firstWordIndex, 1);
 				}
 			}
 
-			const lastWord = line.words[line.words.length - 1];
+			const lastWordIndex = line.words
+				.map((w) => w.word.trim().length > 0)
+				.lastIndexOf(true);
+			const lastWord = line.words[lastWordIndex];
 			if (lastWord && /[)）]$/.test(lastWord.word)) {
 				lastWord.word = lastWord.word.substring(0, lastWord.word.length - 1);
 				if (lastWord.word.length === 0) {
-					line.words.pop();
+					line.words.splice(lastWordIndex, 1);
 				}
 			}
 		}
 
+		// Only timed spans are syllables; direct whole-line text stays intact.
+		line.words = line.words.flatMap((word) =>
+			timedWordIds.has(word.id) ? separateTrailingWhitespace([word]) : [word],
+		);
 		appendParentBeforeNestedLines(lyricLines, nestedStartIndex, line);
 	}
 
