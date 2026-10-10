@@ -1,32 +1,38 @@
 import { describe, expect, it } from "vitest";
 import { generateReleaseNotes } from "./generate-release-notes.mjs";
 
-const changelog = `
-<Box>
-  <Heading>v0.7.3 Updates</Heading>
-  <Flex>
-    <Text><strong>Desktop Update Fix:</strong> Use <code>latest.json</code> for updates.</Text>
-    <Text><strong>Formatting:</strong> Keep <em>important</em> notes readable.</Text>
-  </Flex>
-</Box>`;
-
+const changelog = [
+	{
+		version: "0.7.3",
+		entries: [
+			{
+				type: "fix",
+				title: "Desktop Update Fix",
+				body: "Use \x60latest.json\x60 for updates.",
+			},
+			{
+				type: "feature",
+				title: "Formatting",
+				body: "Keep **important** notes readable.\nAnd [links](https://example.com).",
+			},
+			{ type: "fix", title: "Title only" },
+		],
+	},
+	{ version: "0.7.30", entries: [{ title: "Another release" }] },
+];
 describe("generateReleaseNotes", () => {
-	it("converts the matching changelog section to Markdown", () => {
+	it("renders the exact matching JSON release as Markdown", () => {
 		expect(generateReleaseNotes(changelog, "0.7.3")).toBe(
-			"- **Desktop Update Fix:** Use `latest.json` for updates.\n- **Formatting:** Keep *important* notes readable.",
+			"- **Desktop Update Fix:** Use \x60latest.json\x60 for updates.\n- **Formatting:** Keep **important** notes readable. And [links](https://example.com).\n- **Title only**",
+		);
+		expect(generateReleaseNotes(JSON.stringify(changelog), "0.7.3")).toBe(
+			generateReleaseNotes(changelog, "0.7.3"),
 		);
 	});
-
-	it("returns null when the tagged version is missing", () => {
+	it("returns null for a missing or empty release", () => {
 		expect(generateReleaseNotes(changelog, "0.7.4")).toBeNull();
-	});
-
-	it("returns null when a changelog entry has an unreadable expression", () => {
 		expect(
-			generateReleaseNotes(
-				"<Box><Heading>v0.7.3 Updates</Heading><Flex><Text>{notes}</Text></Flex></Box>",
-				"0.7.3",
-			),
+			generateReleaseNotes([{ version: "0.7.4", entries: [] }], "0.7.4"),
 		).toBeNull();
 	});
 });
